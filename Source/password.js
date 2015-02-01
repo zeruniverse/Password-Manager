@@ -53,7 +53,13 @@ function encryptchar(encryptch,key){
         alert("加密私钥为空!");  
         return;  
     }  
-   return tosend(CryptoJS.AES.encrypt(encryptch,key));
+   var ckey=String(CryptoJS.SHA512(String(CryptoJS.SHA512(String(CryptoJS.SHA512(String(CryptoJS.SHA512(String(CryptoJS.SHA512(key))))))))));
+   var p=tosend(CryptoJS.AES.encrypt(encryptch,ckey));
+   p=tosend(CryptoJS.AES.encrypt(p,ckey));
+   p=tosend(CryptoJS.AES.encrypt(p,ckey));
+   p=tosend(CryptoJS.AES.encrypt(p,ckey));
+   p=tosend(CryptoJS.AES.encrypt(p,ckey));
+   return p;
 }  
 /** 
  *  
@@ -66,8 +72,14 @@ function decryptchar(char,key){
     if(char==""||key==""){  
         alert("私钥为空!");  
         return;  
-    }  
-    return CryptoJS.AES.decrypt(getsend(char),key).toString(CryptoJS.enc.Utf8);  
+    }
+	var ckey=String(CryptoJS.SHA512(String(CryptoJS.SHA512(String(CryptoJS.SHA512(String(CryptoJS.SHA512(String(CryptoJS.SHA512(key))))))))));
+	var p=CryptoJS.AES.decrypt(getsend(char),ckey).toString(CryptoJS.enc.Utf8); 
+	p=CryptoJS.AES.decrypt(getsend(p),ckey).toString(CryptoJS.enc.Utf8);
+	p=CryptoJS.AES.decrypt(getsend(p),ckey).toString(CryptoJS.enc.Utf8);
+	p=CryptoJS.AES.decrypt(getsend(p),ckey).toString(CryptoJS.enc.Utf8);
+	p=CryptoJS.AES.decrypt(getsend(p),ckey).toString(CryptoJS.enc.Utf8); 
+    return p;  
 } 
 
 /*产生字符*/
