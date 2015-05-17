@@ -1,90 +1,29 @@
-<!DOCTYPE HTML>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<title>ZerUniverse</title>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-</head>
-<body>
-<!-- Begin Wrapper -->
-<div style="padding:50px;">
-	<!-- Begin Sidebar -->
-	
-	<!-- Begin Content -->
-	<div id="content">
-	<h1 class="title">Register</h1>
-	<div class="line"></div>
-	<?php 
-function encrypt($data, $key)
-{
-	$key	=	md5($key);
-    $x		=	0;
-    $len	=	strlen($data);
-    $l		=	strlen($key);
-    for ($i = 0; $i < $len; $i++)
-    {
-        if ($x == $l) 
-        {
-        	$x = 0;
-        }
-        $char .= $key{$x};
-        $x++;
-    }
-    for ($i = 0; $i < $len; $i++)
-    {
-        $str .= chr(ord($data{$i}) + (ord($char{$i})) % 256);
-    }
-    return base64_encode($str);
-}
-function safe($str)
-{
-	$len=strlen($str);
-	$re='';
-	for($i=0;$i<$len;$i++){
-	$c=substr($str,$i,1);
-	if(ord('0')<=ord($c) && ord('9')>=ord($c))$re=$re.$c;
-	if(ord('a')<=ord($c) && ord('z')>=ord($c))$re=$re.$c;
-	if(ord('A')<=ord($c) && ord('Z')>=ord($c))$re=$re.$c;
-	}
-	return $re;
-}
-$pw=safe($_POST['pw']);
-$usr=safe($_POST['user']);
-$email=addslashes($_POST['email']);
-require_once("sqllink.php");
-	$link=sqllink()
-
-if(!$link) {
-    die("error");
-}
-
-if($pw==''||$usr==''||$email=="")die("input error");
-$sql="SELECT * FROM `pwdusrrecord` WHERE `usr`='$usr'";
-$rett=mysql_query($sql,$link);
-$num= mysql_num_rows($rett);
-if($num!=0) die("username already exists");
+<?php 
+if(!isset($_POST['csfds'])||$_POST['csfds']!='sdf') die('5');
+$pw=$_POST['pwd'];
+$usr=$_POST['user'];
+$email=$_POST['email'];
+require_once("function/sqllink.php");
+require_once("function/encryption.php");
+$link=sqllink();
+if(!$link) die('6');
+if($pw==''||$usr==''||$email=="")die("7");
+if(!$link->beginTransaction()) die('4');
+$sql="SELECT COUNT(*) FROM `pwdusrrecord` WHERE `username`= ?";
+$res=sqlexec($sql,array($usr),$link);
+$num= $res->fetch(PDO::FETCH_NUM);
+if($num[0]!=0) {$link->commit(); die("0");}
+$sql="SELECT COUNT(*) FROM `pwdusrrecord` WHERE `email`= ?";
+$res=sqlexec($sql,array($email),$link);
+$num= $res->fetch(PDO::FETCH_NUM);
+if($num[0]!=0) {$link->commit();die("1");}
 $kp=encrypt($pw,'zzeyucom');
-$sql="INSERT INTO `pwdusrrecord` VALUES ('$usr','$kp',0,'$email')";
-$rett=mysql_query($sql,$link);
-echo($usr."<br />successful<br /><br />");
+$res=sqlquery('SELECT max(`id`) FROM `pwdusrrecord`',$link);
+$result=$res->fetch(PDO::FETCH_NUM);
+$maxnum=$result==FALSE?0:(int)($result[0]);
+$sql="INSERT INTO `pwdusrrecord` VALUES (?,?,?,?)";
+$rett=sqlexec($sql,array($maxnum+1,$usr,$kp,$email),$link);
+if(!$rett) {$link->rollBack();die('8');}
+$link->commit();
+die('9');
 ?>
-	
-
-
-    <!-- Begin Footer -->
-    <div id="footer">
-  	&copy;Jeffery Zhao; 2014. Alpha<br /><br />
-    </div>
-    <!-- End Footer -->
-    
-    
-	</div>
-	<!-- End Content -->
-
-</div>
-<!-- End Wrapper -->
-<div class="clear"></div>
-
-
-</body>
-</html>

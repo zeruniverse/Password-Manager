@@ -34,18 +34,18 @@ function getsec(str)
        return str1*24*60*60*1000;
    }
 }
-function setpwdcookies(sk)
+function setpwdstore(sk)
 {
-	setCookie("pwdsk",encryptchar(sk,"cookies"),"s120");
+	sessionStorage.pwdsk=encryptchar(sk,"cookies");
 }
-function getpwdcookies()
+function getpwdstore()
 {
-	if(document.cookie.indexOf("pwdsk=")==-1) return "";
-	return decryptchar(getcookie("pwdsk"),"cookies");
+	if(!sessionStorage.pwdsk) return "";
+	return decryptchar(sessionStorage.pwdsk,"cookies");
 }
-function delpwdcookies()//删除cookie
+function delpwdstore()//删除cookie
 {
-   document.cookie = "pwdsk"+"=;expires="+(new Date(0)).toGMTString();
+  sessionStorage.clear();
 }
 //这是有设定过期时间的使用示例：
 //s20是代表20秒

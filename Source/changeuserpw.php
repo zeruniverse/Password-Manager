@@ -15,18 +15,26 @@ $res=sqlexec($sql,array($usr,$pw,$id),$link);
 $record= $res->fetch(PDO::FETCH_ASSOC);
 if($record==FALSE) {session_destroy();die("0");}
 
-$index=safe($_POST['index']); 
+$newpass=$_POST['newpass'];
+$accarray=json_decode($_POST['accarray']);
+$passarray=json_decode($_POST['passarray']);
+$newpass=encrypt($newpass,'zzeyucom');
+
 if(!$link->beginTransaction()) die('0');
-$sql="SELECT * FROM `password` WHERE `userid`= ? AND `index`= ? ";
-$res=sqlexec($sql,array($id,(int)$index),$link);
-$record= $res->fetch(PDO::FETCH_ASSOC);
-if($record==FALSE) {$link->commit();die("0");}
-$ppwd=$_POST['newpwd'];
-$pubkey=mt_rand(10000000,99999999);
-$newpw=encrypt($ppwd,$pubkey);
-$sql="UPDATE `password` SET `pubkey` = ? ,`pwd` = ?  WHERE `userid` = ? AND `index`= ?";
-$res=sqlexec($sql,array($pubkey,$newpw,$id,(int)$index),$link);
+$sql="UPDATE `pwdusrrecord` SET `password`= ? WHERE `id`= ? ";
+$res=sqlexec($sql,array($newpass, $id),$link);
 if($res==NULL) {$link->rollBack();die("0");}
+
+$sql="SELECT `index` FROM `password` WHERE `userid`= ?";
+$res=sqlexec($sql,array($id),$link);
+while ($i = $res->fetch(PDO::FETCH_ASSOC))
+{
+    $pubkey=mt_rand(10000000,99999999);
+    $storepw=encrypt($passarray[(int)$i["index"]],$pubkey);
+    $sql="UPDATE `password` SET `name`= ?, `pwd`=?, `pubkey`=? WHERE `userid`=? AND `index`= ?";
+    $resss=sqlexec($sql,array($accarray[(int)$i["index"]], $storepw,$pubkey,$id,(int)$i['index']),$link);
+    if($resss==NULL) {$link->rollBack();die("0");}
+}
 $link->commit();
 echo "1";
 ?>
