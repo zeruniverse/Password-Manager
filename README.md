@@ -1,6 +1,6 @@
 # Password Manager
 ##Version
-v3.0  
+v3.5  
 ##Specification
 This password manager can generate random strong passwords for users. The password is generated on user's browser and then encrypted using AES256.  
 SHA512 algorithm is used for user identification check  
