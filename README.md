@@ -9,6 +9,7 @@ Secret key (related to password) will not be uploaded to server.
 ## Notes
 Programmed with PHP and JavaScript 
 Please modify all PHP files under **Source/function** according your server configuration before use  
+Demo: http://pw.zzeyu.com  
 ## Copyright
 Jeffery Zhao, May 2015
 ## Licence
