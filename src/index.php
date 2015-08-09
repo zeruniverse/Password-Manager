@@ -1,6 +1,8 @@
 <?php 
 session_start();
 if(isset($_SESSION["loginok"])&& $_SESSION['loginok']==1) {header("Location: ./password.php"); die();}
+date_default_timezone_set('America/Los_Angeles');
+$_SESSION['random_login_stamp']=date("Ymdhis").mt_rand(10000,99999);
 require_once('function/basic.php');
 require_once('function/config.php');
 echoheader();
@@ -36,7 +38,7 @@ echoheader();
         var salt='<?php echo $GLOBAL_SALT_1;?>';
 		$("#chk").attr("disabled", true);
 		$("#chk").attr("value", "Wait");
-        $.post("check.php",{pwd:String(CryptoJS.SHA512(pwd+salt)),  user: user},function(msg){ 
+        $.post("check.php",{pwd:String(CryptoJS.SHA512(String(CryptoJS.SHA512(pwd+salt))+"<?php echo $_SESSION['random_login_stamp']; ?>")),  user: user},function(msg){ 
         $(".errorhint").hide();
 		if(msg==0){
 			 	$("#nouser").show();
