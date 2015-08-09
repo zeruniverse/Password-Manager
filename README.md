@@ -19,7 +19,7 @@ Secret key (related to password) will not be uploaded to server.
 + You are done! SSL is optional (It's secure enough)  
 + Remember your password to login. No one can recover your data if you lose that!  
 ## Copyright  
-Jeffery Zhao   
+Jeffery Zhao    
 The copyright for Crypto-JS and Bootstrap are reserved by their authors.  
 ## Licence  
 MIT  
