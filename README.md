@@ -1,4 +1,6 @@
-# Password Manager
+# Password Manager  
+[![Build Status](https://travis-ci.org/zeruniverse/Password-Manager.svg)](https://travis-ci.org/zeruniverse/Password-Manager)  
+  
 ##Version
 v3.6  
 ##DEMO  
