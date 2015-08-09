@@ -13,7 +13,6 @@ $sql="SELECT * FROM `pwdusrrecord` WHERE `username`= ? AND `password`= ? AND `id
 $res=sqlexec($sql,array($usr,$pw,$id),$link);
 $record= $res->fetch(PDO::FETCH_ASSOC);
 if($record==FALSE) {session_destroy();header("Location: ./");die();}
-setcookie("pwdrecord".$usr,$pw, time()+5160000);
 header("Content-Type: application/octet-stream");
 header('Content-Disposition: attachment; filename="backup.json"');
 $arr=array();
