@@ -18,6 +18,7 @@ Secret key (related to password) will not be uploaded to server.
 + Click Signup to register an account. (If you don't want others to sign up, just delete signup.php and reg.php after you are done)  
 + You are done! SSL is optional (It's secure enough)  
 + Remember your password to login. No one can recover your data if you lose that!  
+  
 ## Copyright  
 Jeffery Zhao    
 The copyright for Crypto-JS and Bootstrap are reserved by their authors.  
