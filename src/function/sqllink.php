@@ -1,7 +1,8 @@
 <?php
-require_once('./config.php');
+require_once(dirname(__FILE__).'/config.php');
 function sqllink()
 {
+    global $DB_HOST,$DB_NAME,$DB_USER,$DB_PASSWORD;
     $dbhost=$DB_HOST;
     $dbname=$DB_NAME;
     $dbusr=$DB_USER;

@@ -1,7 +1,7 @@
 <?php
 session_start(); 
 if(!isset($_SESSION["loginok"]) || $_SESSION['loginok']!=1) {session_destroy();header("Location: ./");die();}
-require_once("sqllink.php");
+require_once("function/sqllink.php");
 require_once("function/basic.php");
 require_once("function/encryption.php");
 $link=sqllink();

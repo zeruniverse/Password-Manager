@@ -2,7 +2,7 @@
 function echofooter()
 {
 echo '<footer class="footer ">
-<p>&copy;2014 Jeffery<br /><br />ALL RIGHTS RESERVED</p>
+<p>&copy;2015 Jeffery<br /><br />ALL RIGHTS RESERVED</p>
 </footer>
 </body>
 </html>';
