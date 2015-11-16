@@ -14,7 +14,7 @@ $res=sqlexec($sql,array($usr,$pw,$id),$link);
 $record= $res->fetch(PDO::FETCH_ASSOC);
 if($record==FALSE) {session_destroy();header("Location: ./");die();}
 header("Content-Type: application/octet-stream");
-header('Content-Disposition: attachment; filename="backup.json"');
+header('Content-Disposition: attachment; filename="backup.txt"');
 $arr=array();
 $sql="SELECT * FROM `password` WHERE `userid`= ?";
 $res=sqlexec($sql,array($id),$link);
@@ -26,5 +26,4 @@ while ($i = $res->fetch(PDO::FETCH_ASSOC)){
 }
 $ret=array('status'=>'OK','data'=>$arr);
 echo json_encode($ret);
-?>
-	
+?>	

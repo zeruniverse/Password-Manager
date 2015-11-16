@@ -25,7 +25,7 @@ echoheader();
         <span id="pwderr" class="errorhint"  style="display:none; color:Red">Wrong Password<br /></span>
         <span id="othererror" class="errorhint"  style="display:none; color:Red">Oops, our server get into some problems. Please refresh this page and try again.<br /></span>
         <hr />
-        <button class="btn btn-sm btn-default" type="button" onClick="window.location.href='signup.php';" >Sign Up</button>&nbsp; <button class="btn btn-sm btn-warning" type="button" onClick="window.location.href='passcalc.php';" >Password Recovery</button>
+        <button class="btn btn-sm btn-default" type="button" onClick="window.location.href='signup.php';" >Sign Up</button>&nbsp; <button class="btn btn-sm btn-warning" type="button" onClick="window.location.href='recovery.php';" >Password Recovery</button>
     <hr />
     <div>Version 5.0 Updated on Nov. 16, 2015 (Current Algorithm: AES-256 + SHA512 + PBKDF2 + CONFUSION + ALPHABET MAPPING)</div>
     </div>
