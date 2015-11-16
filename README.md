@@ -36,7 +36,6 @@ The copyright for Crypto-JS and Bootstrap are reserved by their authors.
 ## TODO  
 + Add extensions support (2-factor verification, CAPTCHA, etc.)  
 + Add recovery function  
-+ Implement *change password* for 5.0 version.
 
 ##About Upgrade (Not completed yet. Do not deploy 5.0 on your server for now...)  
 This version is NOT compatible with any previous versions. To switch to new version:  

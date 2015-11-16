@@ -41,7 +41,8 @@ $(function(){
         var secretkey='';
         var confkey='';
         var login_sig=String(pbkdf2_enc(pwd,JSsalt,500));
-		
+	    secretkey=login_sig;
+        login_sig=pbkdf2_enc(login_sig,JSsalt,500);    
         
         $.post("check.php",{pwd:String(CryptoJS.SHA512(login_sig+"<?php echo $_SESSION['random_login_stamp']; ?>")),  user: user},function(msg){ 
         $(".errorhint").hide();
@@ -60,7 +61,6 @@ $(function(){
 				$("#chk").attr("value", "Login");
 				$("#chk").attr("disabled", false);
 		}else{
-                secretkey=pbkdf2_enc(login_sig,JSsalt,500);
                 confkey=pbkdf2_enc(String(CryptoJS.SHA512(pwd)),JSsalt,100);
                 setpwdstore(secretkey,confkey,'<?php echo $GLOBAL_SALT_2; ?>');                
 			 	window.location.href="./password.php";

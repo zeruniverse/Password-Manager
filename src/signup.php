@@ -37,6 +37,7 @@ var JSsalt='<?php echo $GLOBAL_SALT_1;?>';
         $("#chk").attr("value", "Wait");
         
         var login_sig=String(pbkdf2_enc($("#pwd").val(),JSsalt,500));
+        login_sig=String(pbkdf2_enc(login_sig,JSsalt,500));
         $.post("reg.php",{email:$("#email").val(), pwd:login_sig,  user: $("#user").val()},function(msg){ 
 		if(msg==0){
 			 	alert("User name already occupied, please choose another user name.");

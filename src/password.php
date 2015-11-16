@@ -132,14 +132,17 @@ $("#changepw").click(function(){
     if(confirm("Your request will be processed on your browser, so it takes some time. Do not close your window or some error might happen.\nPlease note we won't have neither your old password nor your new password. \nClick OK to confirm password change request."))
 	{
         if ($("#pwd").val()!=$("#pwd1").val() || $("#pwd").val().length<7){alert("The second password you input doesn't match the first one. Or your password is too weak (length should be at least 7)"); return;}
-        if(secretkey!=String(CryptoJS.SHA512($("#oldpassword").val()+'<?php echo $GLOBAL_SALT_2; ?>'))) {alert("Incorrect Old Password!"); return;}
+        var login_sig=String(pbkdf2_enc($("#oldpassword").val(),'<?php  echo $GLOBAL_SALT_1; ?>',500));
+        if(secretkey!=String(CryptoJS.SHA512(login_sig+'<?php echo $GLOBAL_SALT_2; ?>'))) {alert("Incorrect Old Password!"); return;}
         $("#changepw").attr("disabled",true);
         $("#changepw").attr("value", "Processing...");
         var newpass=$("#pwd").val();
-        var newsecretkey=String(CryptoJS.SHA512(newpass+'<?php echo $GLOBAL_SALT_2; ?>'));
-        var salt='<?php echo $GLOBAL_SALT_1;?>';
-        var postnewpass=String(CryptoJS.SHA512(newpass+salt));
-        var x;
+        login_sig=String(pbkdf2_enc(newpass,'<?php  echo    $GLOBAL_SALT_1; ?>',500));
+        var newsecretkey=String(CryptoJS.SHA512(login_sig+'<?php echo $GLOBAL_SALT_2; ?>'));
+        var postnewpass=pbkdf2_enc(login_sig,'<?php  echo    $GLOBAL_SALT_1; ?>',500);
+        var newconfkey=pbkdf2_enc(String(CryptoJS.SHA512(newpass)),JSsalt,100);
+        newconfkey=String(CryptoJS.SHA512(newconfkey+'<?php echo $GLOBAL_SALT_2; ?>')); 
+        var x,raw_pass;
         var temps;
         var passarray=new Array();
         var accarray=new Array();
@@ -147,7 +150,14 @@ $("#changepw").click(function(){
         {
             accarray[x]=encryptchar(accountarray[x],newsecretkey);
             temps=$("[passid="+x+"]").attr("enpassword");
-            passarray[x]=encryptchar(decryptchar(temps,secretkey),newsecretkey);
+            raw_pass=decryptchar(temps,secretkey);
+            if (raw_pass=="") {
+                alert("FATAL ERROR WHEN TRYING TO DECRYPT ALL PASSWORDS");
+                return;
+            }
+            raw_pass=get_orig_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512(accountarray[x])),ALPHABET,raw_pass);
+            raw_pass=gen_temp_pwd(newconfkey,PWsalt,String(CryptoJS.SHA512(accountarray[x])),ALPHABET,raw_pass);
+            passarray[x]=encryptchar(raw_pass,newsecretkey);
         }
         $.post("changeuserpw.php",{newpass:postnewpass, passarray:JSON.stringify(passarray), accarray:JSON.stringify(accarray)},function(msg){ 
             if(msg==1) {alert("Change Password Successfully! Please login again.");quitpwd();} else alert("Fail to change your password, please try again.");
