@@ -41,7 +41,7 @@ $(function(){
         var secretkey='';
         var confkey='';
         var login_sig=String(pbkdf2_enc(pwd,JSsalt,500));
-	    secretkey=login_sig;
+	secretkey=login_sig;
         login_sig=pbkdf2_enc(login_sig,JSsalt,500);    
         
         $.post("check.php",{pwd:String(CryptoJS.SHA512(login_sig+"<?php echo $_SESSION['random_login_stamp']; ?>")),  user: user},function(msg){ 
