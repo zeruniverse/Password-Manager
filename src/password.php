@@ -35,6 +35,7 @@ function quitpwd()
 </script>
 <script type="text/javascript" src="aes.js"></script>
 <script type="text/javascript" src="sha512.js"></script>
+<script type="text/javascript" src="pbkdf2.js"></script>
 <script type="text/javascript" src="password.js"></script>
 <div class="container theme-showcase">
       <div class="page-header">
@@ -81,6 +82,8 @@ function quitpwd()
 </div>
 </div>
 <script type="text/javascript">
+var ALPHABET='<?php echo $DEFAULT_LETTER_USED;?>';
+var PWsalt='<?php echo $GLOBAL_SALT_2; ?>';
 $(document).ready(function(){
     function getskey(callback)
     {
@@ -114,6 +117,7 @@ $("#newbtn").click(function(){
 	$("#newiteminput").attr("readonly",true);
 	$("#newiteminputpw").attr("readonly",true);
 	if($("#newiteminputpw").val()=='') newpwd=getpwd('<?php echo $DEFAULT_LETTER_USED; ?>',<?php echo $DEFAULT_LENGTH; ?>); else newpwd=$("#newiteminputpw").val();
+    newpwd=gen_temp_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512($("#newiteminput").val())),ALPHABET,newpwd);
 	newpwd=encryptchar(newpwd,sk);
 	var name=encryptchar($("#newiteminput").val(),sk);
 	$.post("insert.php",{name:name,newpwd:newpwd},function(msg){ 
@@ -155,7 +159,13 @@ $("#changepw").click(function(){
 function clicktoshow(kss,id){ 
 		if(kss=="") return;
         var thekey=decryptchar(kss,secretkey);
-		if(thekey!="") $("#"+id).html('<span style="font-family:passwordshow">'+thekey+'</span>'); else $("#"+id).html("Oops, some error occurs!");
+        var name=accountarray[parseInt(id)];
+        if (thekey==""){
+            $("#"+id).html("Oops, some error occurs!");
+            return;
+        }
+        thekey = get_orig_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512(name)),ALPHABET,thekey);
+		$("#"+id).html('<span style="font-family:passwordshow">'+thekey+'</span>'); 
 } 
 function refreshpw(index){
 	var newpwd;

@@ -7,12 +7,12 @@ function pbkdf2_enc(key, orig_salt, iter){
 
 function gen_alphabet(key, salt, account_sig, orig_alphabet){
     var new_alphabet="";
-    var shift_str=pbkdf2_enc(key, salt);
+    var shift_str;
     var shift_str_len=0;
     var i,j,k;
     var tempchar;
     var orig_alphabet_len=orig_alphabet.length;
-    shift_str=pbkdf2_enc(key+account_sig);
+    shift_str=pbkdf2_enc(key+account_sig,salt,100);
     shift_str_len=shift_str.length;
     
     for (i=0;i<orig_alphabet_len;i++){
@@ -66,7 +66,7 @@ function get_orig_pwd(key,salt,account_sig,orig_alphabet,temp_pwd)
         }
     }
     
-    return temp_pwd;
+    return pwd;
 }
 
 function tosend(cipherParams) {

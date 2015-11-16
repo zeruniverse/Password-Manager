@@ -9,7 +9,7 @@ This demo is for test ONLY! Do NOT put your real password there.
     
 ##Mechanism
 Update:    
-+ PBKDF2 with SHA512 and iteration 1000 is used to generate password signiture.   
++ PBKDF2 with SHA512 and iteration 500 is used to generate password signiture.   
 + Confusion algorithm is applied to your account passwords. It means your password is safe even if AES is hacked.  
 + More on this [issue](https://github.com/zeruniverse/Password-Manager/issues/2)  
 
@@ -34,11 +34,11 @@ Jeffery Zhao
 License: MIT (A copy of license is attached in src folder)   
 The copyright for Crypto-JS and Bootstrap are reserved by their authors.  
 ## TODO  
-+ Add extensions (2-factor verification, CAPTCHA, etc.)  
++ Add extensions support (2-factor verification, CAPTCHA, etc.)  
 + Add recovery function  
-+ Change SHA512 to PBKDF2  
++ Implement *change password* for 5.0 version.
 
-##About Upgrade  
+##About Upgrade (Not completed yet. Do not deploy 5.0 on your server for now...)  
 This version is NOT compatible with any previous versions. To switch to new version:  
 + Open your old password manager and take a screenshot of all your accounts and passwords.  
 + Clear all your tables in database (The table structure has not been changed)  
