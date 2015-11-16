@@ -9,6 +9,7 @@ echoheader();
 ?>
 <script type="text/javascript" src="aes.js"></script>
 <script type="text/javascript" src="sha512.js"></script>
+<script type="text/javascript" src="pbkdf2.js"></script>
 <script type="text/javascript" src="password.js"></script>
 <script type="text/javascript" src="setlocalstorage.js"></script>
     <div class="container theme-showcase">
@@ -26,19 +27,23 @@ echoheader();
         <hr />
         <button class="btn btn-sm btn-default" type="button" onClick="window.location.href='signup.php';" >Sign Up</button>&nbsp; <button class="btn btn-sm btn-warning" type="button" onClick="window.location.href='passcalc.php';" >Password Recovery</button>
     <hr />
-    <div>Version 3.6 Updated on Aug 08, 2015 (Current Algorithm: AES-256 + SHA512)</div>
+    <div>Version 5.0 Updated on Nov. 16, 2015 (Current Algorithm: AES-256 + SHA512 + PBKDF2 + CONFUSION + ALPHABET MAPPING)</div>
     </div>
 <script type="text/javascript">
-  $(function(){ 
+var JSsalt='<?php echo $GLOBAL_SALT_1;?>';
+$(function(){ 
     $("#chk").click(function(){ 
-        var user = $("#user").val(); 
-		var pwd = $("#pwd").val(); 
-		var emailcode= $("#emailcode").val(); 
-		var vericode = $("#code_num").val();
-        var salt='<?php echo $GLOBAL_SALT_1;?>';
-		$("#chk").attr("disabled", true);
+        $("#chk").attr("disabled", true);
 		$("#chk").attr("value", "Wait");
-        $.post("check.php",{pwd:String(CryptoJS.SHA512(String(CryptoJS.SHA512(pwd+salt))+"<?php echo $_SESSION['random_login_stamp']; ?>")),  user: user},function(msg){ 
+        var user = $("#user").val(); 
+		var pwd = $("#pwd").val();
+        
+        var secretkey='';
+        var confkey='';
+        var login_sig=String(pbkdf2_enc(pwd,JSsalt,500));
+		
+        
+        $.post("check.php",{pwd:String(CryptoJS.SHA512(login_sig+"<?php echo $_SESSION['random_login_stamp']; ?>")),  user: user},function(msg){ 
         $(".errorhint").hide();
 		if(msg==0){
 			 	$("#nouser").show();
@@ -55,8 +60,9 @@ echoheader();
 				$("#chk").attr("value", "Login");
 				$("#chk").attr("disabled", false);
 		}else{
-                secretkey=pwd;
-                setpwdstore(secretkey,'<?php echo $GLOBAL_SALT_2; ?>');                
+                secretkey=pbkdf2_enc(login_sig,JSsalt,500);
+                confkey=pbkdf2_enc(String(CryptoJS.SHA512(pwd)),JSsalt,100);
+                setpwdstore(secretkey,confkey,'<?php echo $GLOBAL_SALT_2; ?>');                
 			 	window.location.href="./password.php";
 		}
 		 

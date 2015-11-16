@@ -4,6 +4,8 @@ require_once('function/config.php');
 echoheader();
 ?>
 <script type="text/javascript" src="sha512.js"></script>
+<script type="text/javascript" src="pbkdf2.js"></script>
+<script type="text/javascript" src="password.js"></script>
 <div class="container theme-showcase">
     <div class="page-header">
         <h1>Password Manager</h1>
@@ -18,6 +20,7 @@ echoheader();
     </form>
     <input type="button" class="btn btn-md btn-success" id="chk"  value="Submit" />
 <script type="text/javascript">
+var JSsalt='<?php echo $GLOBAL_SALT_1;?>';
     function isEmail(aEmail) {
         var bValidate = RegExp(/^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/).test(aEmail);
         if (bValidate) {
@@ -32,8 +35,9 @@ echoheader();
         if ($("#user").val().length<5) {alert("Length of username should be at least 5!"); return;}
         $("#chk").attr("disabled", true);
         $("#chk").attr("value", "Wait");
-        var salt='<?php echo $GLOBAL_SALT_1;?>';
-        $.post("reg.php",{email:$("#email").val(), pwd:String(CryptoJS.SHA512($("#pwd").val()+salt)),  user: $("#user").val()},function(msg){ 
+        
+        var login_sig=String(pbkdf2_enc($("#pwd").val(),JSsalt,500));
+        $.post("reg.php",{email:$("#email").val(), pwd:login_sig,  user: $("#user").val()},function(msg){ 
 		if(msg==0){
 			 	alert("User name already occupied, please choose another user name.");
 				$("#chk").attr("value", "Submit");

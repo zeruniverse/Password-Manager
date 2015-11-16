@@ -1,3 +1,74 @@
+function pbkdf2_enc(key, orig_salt, iter){
+    var hash = CryptoJS.SHA512(key);
+    var salt = CryptoJS.SHA512(orig_salt);
+    var gen_key = CryptoJS.PBKDF2(hash, salt, { keySize: 512/32, iterations: iter });   
+    return String(gen_key);
+}
+
+function gen_alphabet(key, salt, account_sig, orig_alphabet){
+    var new_alphabet="";
+    var shift_str=pbkdf2_enc(key, salt);
+    var shift_str_len=0;
+    var i,j,k;
+    var tempchar;
+    var orig_alphabet_len=orig_alphabet.length;
+    shift_str=pbkdf2_enc(key+account_sig);
+    shift_str_len=shift_str.length;
+    
+    for (i=0;i<orig_alphabet_len;i++){
+        j=0;
+        for(k=0;k<6;k++){
+            j = j + shift_str.charCodeAt((i*6+k)%shift_str_len);
+        }
+        
+        tempchar=orig_alphabet.charAt(j % orig_alphabet.length);
+        new_alphabet = new_alphabet + tempchar;
+        orig_alphabet=orig_alphabet.replace(tempchar,'');
+    }
+    
+    return new_alphabet;
+}
+
+function gen_temp_pwd(key, salt, account_sig,orig_alphabet,pwd)
+{
+    var new_alphabet = gen_alphabet(key,salt,account_sig,orig_alphabet);
+    var temp_pwd = "";
+    var i,j,pwd_len,alphabet_len;
+    
+    pwd_len=pwd.length;
+    alphabet_len=new_alphabet.length;
+    for(i=0;i<pwd_len;i++){
+        for(j=0;j<alphabet_len;j++){
+            if(pwd.charAt(i)==orig_alphabet.charAt(j)){
+                temp_pwd = temp_pwd + new_alphabet.charAt(j);
+                break;
+            }
+        }
+    }
+    
+    return temp_pwd;
+}
+
+function get_orig_pwd(key,salt,account_sig,orig_alphabet,temp_pwd)
+{
+    var new_alphabet = gen_alphabet(key,salt,account_sig,orig_alphabet);
+    var pwd = "";
+    var i,j,pwd_len,alphabet_len;
+    
+    pwd_len=temp_pwd.length;
+    alphabet_len=new_alphabet.length;
+    for(i=0;i<pwd_len;i++){
+        for(j=0;j<alphabet_len;j++){
+            if(temp_pwd.charAt(i)==new_alphabet.charAt(j)){
+                pwd = pwd + orig_alphabet.charAt(j);
+                break;
+            }
+        }
+    }
+    
+    return temp_pwd;
+}
+
 function tosend(cipherParams) {
             // create json object with ciphertext
             var send="";

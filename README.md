@@ -2,12 +2,17 @@
 [![Build Status](https://travis-ci.org/zeruniverse/Password-Manager.svg)](https://travis-ci.org/zeruniverse/Password-Manager)  
   
 ##Version
-v3.6  
+v5.0  
 ##DEMO  
 [pas.jeffery.cc](http://pas.jeffery.cc)  
 This demo is for test ONLY! Do NOT put your real password there.  
     
 ##Mechanism
+Update:    
++ PBKDF2 with SHA512 and iteration 1000 is used to generate password signiture.   
++ Confusion algorithm is applied to your account passwords. It means your password is safe even if AES is hacked.  
++ More on this [issue](https://github.com/zeruniverse/Password-Manager/issues/2)  
+
 This password manager can generate and store random strong passwords for users. Passwords are generated on users' browsers and then encrypted using AES256.  
 SHA512 algorithm is used for user identification check  
 Secret key (related to password) will not be uploaded to server.  
@@ -32,3 +37,15 @@ The copyright for Crypto-JS and Bootstrap are reserved by their authors.
 + Add extensions (2-factor verification, CAPTCHA, etc.)  
 + Add recovery function  
 + Change SHA512 to PBKDF2  
+
+##About Upgrade  
+This version is NOT compatible with any previous versions. To switch to new version:  
++ Open your old password manager and take a screenshot of all your accounts and passwords.  
++ Clear all your tables in database (The table structure has not been changed)  
++ Replace the old password manager files with the new version on your server  
++ Register a new account for password manager  
++ Create all your accounts back (Please note it's recommended to change passwords for all of your accounts when you upgrade)  
+
+##About recovery  
+For your passwords safety, your login password to password manager won't be included in the recovery file. You still need your login password to decrypt the recovery file.  
++ The purpose of the recovery file is to protect your password in case of data loss. NOT IN CASE THAT YOU FORGET YOUR PASSWORD (No one can get your passwords without your login password!)  
