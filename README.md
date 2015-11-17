@@ -3,20 +3,38 @@
   
 ##Version
 v5.0  
+  
 ##DEMO  
 [pas.jeffery.cc](http://pas.jeffery.cc)  
 This demo is for test ONLY! Do NOT put your real password there.  
     
-##Mechanism
-Update:    
-+ PBKDF2 with SHA512 and iteration 500 is used to generate password signiture.   
-+ Confusion algorithm is applied to your account passwords. It means your password is safe even if AES is hacked.  
-+ More on this [issue](https://github.com/zeruniverse/Password-Manager/issues/2)  
-
+##Mechanism 
 This password manager can generate and store random strong passwords for users. Passwords are generated on users' browsers and then encrypted using AES256.  
-SHA512 algorithm is used for user identification check  
+PBKDF2 with SHA512 is used for user identification check  
 Secret key (related to password) will not be uploaded to server.  
-![mechanism](https://cloud.githubusercontent.com/assets/4648756/9157185/e0e6fa6a-3ea8-11e5-8379-284a4e7e1ca0.jpg)  
+  
+Details:  
+###Key Generation    
++ Secret_Key = PBKDF2(Login Password, Iteration: 500)  
++ Login Signiture = PBKDF2(Secret_Key, Iteration: 500)  
++ Confusion_Key = PBKDF2(SHA512(Login Password), Iteration: 100)   
+###Password From User Screen to Server  
++ POST SHA512(Login Signiture + stamp sent from server) to server as authentication.    
++ User input account and corresponding password into web browser.    
++ Web browser calculate the mapping alphabet which is related to SHA512(account) and Confusion_Key.  
++ Using the mapping alphabet to map the raw password into a confusion password.  
++ Using AES256 to encrypt confusion password, as well as account and using Secret_Key as secret key.  
++ POST AES256 encrypted account and password to server.   
++ Server encrypt AES256 encrypted password again (password_1) and save encrypted account and password_1 into database.     
+###Safety
++ If the hacker don't have the access to your web browser, he can only get SHA512(Login Signiture + stamp sent from server) in the net. Assume he can extract Login Signiture from the above information.      
++ In chrome, it cost 1.44s to generate Login Signiture. So it's hard to enumerate login password    
++ If the hacker only enumerate Secret_Key, he still needs to run 500 iterations   
++ If the hacker got Secret_Key, he can't calculate Confusion_Key, so he can't map the pseudo password to the real password. But he can get your account name at this time.   
++ If the hacker got Secret_Key and one of your real password. Since the mapping ALPHABET is different account by account (it's related to account name), he can't get the mapping for other accounts.  
++ If the hacker got access to your login password or web browser.....SO ONLY OPEN PASSWORD MANAGER IN TRUSTED DEVICES AND USE STRONG LOGIN PASSWORD!    
+![mechanism](https://cloud.githubusercontent.com/assets/4648756/9157185/e0e6fa6a-3ea8-11e5-8379-284a4e7e1ca0.jpg) [Please note the new feature PBKDF2 and confusion algorithm is not shown in the graph.]  
+       
 ## How to Use
 + Install PHP, MySQL and WebServer(IIS, Apache or Nginx) in your server.  
 + Create a database in your MySQL server for this password manager.  
@@ -33,10 +51,8 @@ Secret key (related to password) will not be uploaded to server.
 Jeffery Zhao  
 License: MIT (A copy of license is attached in src folder)   
 The copyright for Crypto-JS and Bootstrap are reserved by their authors.  
-## TODO  
-+ Add extensions support (2-factor verification, CAPTCHA, etc.)  
 
-##About Upgrade (Not completed yet. Do not deploy 5.0 on your server for now...)  
+##About Upgrade  
 This version is NOT compatible with any previous versions. To switch to new version:  
 + Open your old password manager and take a screenshot of all your accounts and passwords.  
 + Clear all your tables in database (The table structure has not been changed)  
