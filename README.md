@@ -50,11 +50,6 @@ Secret key (related to password) will not be uploaded to server.
 + You are done!    
 + Remember your password to login. No one can recover your data if you lose that!  
   
-## Copyright  
-Jeffery Zhao  
-License: MIT (A copy of license is attached in src folder)   
-The copyright for Crypto-JS and Bootstrap are reserved by their authors.  
-
 ##About Upgrade  
 This version is NOT compatible with any previous versions. To switch to new version:  
 + Open your old password manager and take a screenshot of all your accounts and passwords.  
@@ -66,3 +61,11 @@ This version is NOT compatible with any previous versions. To switch to new vers
 ##About Recovery  
 For your passwords safety, your login password to password manager won't be included in the recovery file. You still need your login password to decrypt the recovery file.  
 + The purpose of the recovery file is to protect your password in case of data loss. NOT IN CASE THAT YOU FORGET YOUR PASSWORD (No one can get your passwords without your login password!)  
+  
+##Extentions  
+You can easily add E-mail verification, Google authentication... in your version of password manager. Put your implementation inside `check.php`, which is used for login authentication.   
+  
+## Copyright  
+Jeffery Zhao  
+License: MIT (A copy of license is attached in src folder)   
+The copyright for Crypto-JS and Bootstrap are reserved by their authors.  
