@@ -129,7 +129,7 @@ $("#newbtn").click(function(){
 	}); 
 $("#changepw").click(function(){ 
     
-    if(confirm("Your request will be processed on your browser, so it takes some time. Do not close your window or some error might happen.\nPlease note we won't have neither your old password nor your new password. \nClick OK to confirm password change request."))
+    if(confirm("Your request will be processed on your browser, so it takes some time (up to #of_your_accounts * 10seconds). Do not close your window or some error might happen.\nPlease note we won't have neither your old password nor your new password. \nClick OK to confirm password change request."))
 	{
         if ($("#pwd").val()!=$("#pwd1").val() || $("#pwd").val().length<7){alert("The second password you input doesn't match the first one. Or your password is too weak (length should be at least 7)"); return;}
         var login_sig=String(pbkdf2_enc($("#oldpassword").val(),'<?php  echo $GLOBAL_SALT_1; ?>',500));
