@@ -18,6 +18,7 @@ echoheader();
     <textarea id="backupc"></textarea>
     <p> </p>
     <p>Password: <input type="password" name="pwd" id="pwd" /></p><br />
+    <p style="color:red">Input the login password when you generate the backup file.</p>
     </form>
     <input type="button" class="btn btn-md btn-success" onClick="rec();" id="chk" value="RECOVER IT!" />
     <a href="../" class="btn btn-md btn-info">Go Back</a>

@@ -43,7 +43,7 @@ function quitpwd()
 	  </div>
     <!-- preload ttf -->
     <span style="display:none; font-family:passwordshow"><?php echo $DEFAULT_LETTER_USED; ?></span>
-	<div><input class="btn btn-sm btn-default" type="button" onClick="window.location.href='backup.php'" value="Back Up My Data"/>&nbsp;|&nbsp;<input class="btn btn-sm btn-info" type="button" onClick="quitpwd();" value="Log Out"/></div>
+	<div><input class="btn btn-sm btn-default" type="button" onClick="alert('You will need your CURRENT login password to unlock the backup file even if you change login password later. Write your CURRENT login password down or remember to generate a new backup file after each time you change the login password.');window.location.href='backup.php'" value="Back Up My Data"/>&nbsp;|&nbsp;<input class="btn btn-sm btn-info" type="button" onClick="quitpwd();" value="Log Out"/></div>
     <hr />
     <div id="waitsign">PLEASE WAIT WHILE WE ARE DECRYPTING YOUR PASSWORD...</div>
     <div id="pwdtable" style="display:none">
