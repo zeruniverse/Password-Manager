@@ -63,6 +63,6 @@ This version is NOT compatible with any previous versions. To switch to new vers
 + Register a new account for password manager  
 + Create all your accounts back (Please note it's recommended to change passwords for all of your accounts when you upgrade)  
 
-##About recovery  
+##About Recovery  
 For your passwords safety, your login password to password manager won't be included in the recovery file. You still need your login password to decrypt the recovery file.  
 + The purpose of the recovery file is to protect your password in case of data loss. NOT IN CASE THAT YOU FORGET YOUR PASSWORD (No one can get your passwords without your login password!)  
