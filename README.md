@@ -10,14 +10,15 @@ This demo is for test ONLY! Do NOT put your real password there.
     
 ##Mechanism 
 This password manager can generate and store random strong passwords for users. Passwords are generated on users' browsers and then encrypted using AES256.  
-PBKDF2 with SHA512 is used for user identification check  
+PBKDF2 with SHA512 is used for user identification check. Raw password will be mapped to a pseudo password before applying AES256.  
 Secret key (related to password) will not be uploaded to server.  
   
-Details:  
+##Details   
 ###Key Generation    
 + Secret_Key = PBKDF2(Login Password, Iteration: 500)  
 + Login Signiture = PBKDF2(Secret_Key, Iteration: 500)  
 + Confusion_Key = PBKDF2(SHA512(Login Password), Iteration: 100)   
+    
 ###Password From User Screen to Server  
 + POST SHA512(Login Signiture + stamp sent from server) to server as authentication.    
 + User input account and corresponding password into web browser.    
@@ -26,6 +27,7 @@ Details:
 + Using AES256 to encrypt confusion password, as well as account and using Secret_Key as secret key.  
 + POST AES256 encrypted account and password to server.   
 + Server encrypt AES256 encrypted password again (password_1) and save encrypted account and password_1 into database.     
+    
 ###Safety
 + If the hacker don't have the access to your web browser, he can only get SHA512(Login Signiture + stamp sent from server) in the net. Assume he can extract Login Signiture from the above information.      
 + In chrome, it cost 1.44s to generate Login Signiture. So it's hard to enumerate login password    
@@ -33,7 +35,8 @@ Details:
 + If the hacker got Secret_Key, he can't calculate Confusion_Key, so he can't map the pseudo password to the real password. But he can get your account name at this time.   
 + If the hacker got Secret_Key and one of your real password. Since the mapping ALPHABET is different account by account (it's related to account name), he can't get the mapping for other accounts.  
 + If the hacker got access to your login password or web browser.....SO ONLY OPEN PASSWORD MANAGER IN TRUSTED DEVICES AND USE STRONG LOGIN PASSWORD!    
-![mechanism](https://cloud.githubusercontent.com/assets/4648756/9157185/e0e6fa6a-3ea8-11e5-8379-284a4e7e1ca0.jpg) [Please note the new feature PBKDF2 and confusion algorithm is not shown in the graph.]  
+    
+![mechanism](https://cloud.githubusercontent.com/assets/4648756/9157185/e0e6fa6a-3ea8-11e5-8379-284a4e7e1ca0.jpg) [Please note the new feature PBKDF2 and confusion algorithm is not shown in the graph]  
        
 ## How to Use
 + Install PHP, MySQL and WebServer(IIS, Apache or Nginx) in your server.  
