@@ -14,22 +14,30 @@ echoheader();
 	<p>RECOVERY:<br /></p>
     <p>The recovery process will be on your browser. It's safe!</p>
 	<form>
-      <p>Paste all contents in backup.txt into the following box. DO NOT ADD SPACE:</p>
+      <p style="color:red">Paste all contents in backup.txt into the following box</p>
     <textarea id="backupc"></textarea>
     <p> </p>
     <p>Password: <input type="password" name="pwd" id="pwd" /></p><br />
     </form>
     <input type="button" class="btn btn-md btn-success" onClick="rec();" id="chk" value="RECOVER IT!" />
+    <a href="../" class="btn btn-md btn-info">Go Back</a>
+    <p> </p>
+    <p><br /> </p>
     <div id="recover_result" style="display:none">
     <p>The following table shows your accounts and passwords if you enter the correct login password. If the data loss is caused by attack, please update your passwords anyway! You can copy your passwords and paste them in your new password manager account.</p>
-    <table id="rtable"></table>
+    <table class="table" id="rtable"></table>
     </div>
 <script type="text/javascript">
-var JSsalt='<?php echo $GLOBAL_SALT_1;?>';
-var PWsalt='<?php echo $GLOBAL_SALT_2; ?>';
-var ALPHABET='<?php echo $DEFAULT_LETTER_USED;?>';
+var JSsalt='';
+var PWsalt='';
+var ALPHABET='';
 var secretkey='';
 var confkey='';
+function sanitize_json(s){
+    var t=s;
+    t=t.replace(/\n/g,'')
+    return t.replace(/\r/g,'');
+}
 function gen_key()
 {
     var pass=$("#pwd").val();
@@ -53,7 +61,7 @@ function gen_pass_array(account_array,enc_pass_array)
     var tempchar,x,name;
     var pass_array=new Array();
     for (x in enc_pass_array){
-        tempchar=decryptchar(enc_account_array[x],secretkey);
+        tempchar=decryptchar(enc_pass_array[x],secretkey);
         if (tempchar=="") {
             tempchar="Oops, there's some errors!";
         }else{
@@ -65,11 +73,14 @@ function gen_pass_array(account_array,enc_pass_array)
     return pass_array;
 }
 function rec(){
-    var json=JSON.parse($("#backupc").val());
+    var json=JSON.parse(sanitize_json($("#backupc").val()));
     if(json.status!="OK") {
         alert("INVALID BACKUP FILE");
         return;
     }
+    JSsalt = json.JSsalt;
+    PWsalt = json.PWsalt;
+    ALPHABET = json.ALPHABET;
     if($("#pwd").val()==''){
         alert("EMPTY PASSWORD IS NOT ALLOWED");
         return;

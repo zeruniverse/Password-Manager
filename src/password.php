@@ -140,8 +140,7 @@ $("#changepw").click(function(){
         login_sig=String(pbkdf2_enc(newpass,'<?php  echo    $GLOBAL_SALT_1; ?>',500));
         var newsecretkey=String(CryptoJS.SHA512(login_sig+'<?php echo $GLOBAL_SALT_2; ?>'));
         var postnewpass=pbkdf2_enc(login_sig,'<?php  echo    $GLOBAL_SALT_1; ?>',500);
-        var newconfkey=pbkdf2_enc(String(CryptoJS.SHA512(newpass)),JSsalt,100);
-        newconfkey=String(CryptoJS.SHA512(newconfkey+'<?php echo $GLOBAL_SALT_2; ?>')); 
+        var newconfkey=pbkdf2_enc(String(CryptoJS.SHA512(newpass)),'<?php  echo $GLOBAL_SALT_1; ?>',100); 
         var x,raw_pass;
         var temps;
         var passarray=new Array();
