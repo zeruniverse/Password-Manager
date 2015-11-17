@@ -36,7 +36,7 @@ Secret key (related to password) will not be uploaded to server.
 + If the hacker got Secret_Key and one of your real password. Since the mapping ALPHABET is different account by account (it's related to account name), he can't get the mapping for other accounts.  
 + If the hacker got access to your login password or web browser.....SO ONLY OPEN PASSWORD MANAGER IN TRUSTED DEVICES AND USE STRONG LOGIN PASSWORD!    
     
-![mechanism](https://cloud.githubusercontent.com/assets/4648756/9157185/e0e6fa6a-3ea8-11e5-8379-284a4e7e1ca0.jpg) [Please note the new feature PBKDF2 and confusion algorithm is not shown in the graph]  
+<img width="1056" alt="Mechanism" src="https://cloud.githubusercontent.com/assets/4648756/11205144/4195940c-8cba-11e5-92ac-720aac9b3f09.png"> 
        
 ## How to Use
 + Install PHP, MySQL and WebServer(IIS, Apache or Nginx) in your server.  
