@@ -43,7 +43,7 @@ function quitpwd()
 	  </div>
     <!-- preload ttf -->
     <span style="display:none; font-family:passwordshow"><?php echo $DEFAULT_LETTER_USED; ?></span>
-	<div><input class="btn btn-sm btn-default" type="button" onClick="alert('You will need your CURRENT login password to unlock the backup file even if you change login password later. Write your CURRENT login password down or remember to generate a new backup file after each time you change the login password.');window.location.href='backup.php'" value="Back Up My Data"/>&nbsp;|&nbsp;<input class="btn btn-sm btn-info" type="button" onClick="quitpwd();" value="Log Out"/></div>
+	<div><input class="btn btn-sm btn-default" type="button" onClick="alert('You will need your CURRENT login password and PIN to unlock the backup file even if you change login password later. Write your CURRENT login password and PIN down or remember to generate a new backup file after each time you change the login password or PIN.');window.location.href='backup.php'" value="Back Up My Data"/>&nbsp;|&nbsp;<input class="btn btn-sm btn-info" type="button" onClick="quitpwd();" value="Log Out"/></div>
     <hr />
     <div id="waitsign">PLEASE WAIT WHILE WE ARE DECRYPTING YOUR PASSWORD...</div>
     <div id="pwdtable" style="display:none">
@@ -70,11 +70,12 @@ function quitpwd()
         </form>
       </div>
     <div class="jumbotron">
-      	<p><h2>Change Password (Danger Area)</h2></p>
+      	<p><h2>Change Password or PIN(Danger Area)</h2></p>
         <form>
              <p>Old Password:<input id="oldpassword" type="password" /></p>
              <p>New Password:<input id="pwd" type="password" /></p>
              <p>New Password Again:<input id="pwd1" type="password" /></p>
+             <p>New PIN:<input id="npin" type="text" /> (Input your old PIN here if you don't want to change PIN)</p>
              <p><input type="button" class="btn btn-sm btn-primary" id="changepw"  value="Submit"/></p>
         </form>
       </div>
@@ -130,7 +131,8 @@ $("#newbtn").click(function(){
 $("#changepw").click(function(){ 
     
     if(confirm("Your request will be processed on your browser, so it takes some time (up to #of_your_accounts * 10seconds). Do not close your window or some error might happen.\nPlease note we won't have neither your old password nor your new password. \nClick OK to confirm password change request."))
-	{
+    {
+        if (String(CryptoJS.SHA512($("#npin").val()))!=getpinsha()) if(!confirm("You are going to change your PIN, you must use your new PIN to login next time or you'll see incorrect passwords for your accounts! Confirm?")) return;
         if ($("#pwd").val()!=$("#pwd1").val() || $("#pwd").val().length<7){alert("The second password you input doesn't match the first one. Or your password is too weak (length should be at least 7)"); return;}
         var login_sig=String(pbkdf2_enc($("#oldpassword").val(),'<?php  echo $GLOBAL_SALT_1; ?>',500));
         if(secretkey!=String(CryptoJS.SHA512(login_sig+'<?php echo $GLOBAL_SALT_2; ?>'))) {alert("Incorrect Old Password!"); return;}
@@ -140,7 +142,7 @@ $("#changepw").click(function(){
         login_sig=String(pbkdf2_enc(newpass,'<?php  echo    $GLOBAL_SALT_1; ?>',500));
         var newsecretkey=String(CryptoJS.SHA512(login_sig+'<?php echo $GLOBAL_SALT_2; ?>'));
         var postnewpass=pbkdf2_enc(login_sig,'<?php  echo    $GLOBAL_SALT_1; ?>',500);
-        var newconfkey=pbkdf2_enc(String(CryptoJS.SHA512(newpass)),'<?php  echo $GLOBAL_SALT_1; ?>',100); 
+        var newconfkey=pbkdf2_enc(String(CryptoJS.SHA512($("#npin").val()+newpass)),'<?php  echo $GLOBAL_SALT_1; ?>',1000); 
         var x,raw_pass;
         var temps;
         var passarray=new Array();
@@ -159,7 +161,7 @@ $("#changepw").click(function(){
             passarray[x]=encryptchar(raw_pass,newsecretkey);
         }
         $.post("changeuserpw.php",{newpass:postnewpass, passarray:JSON.stringify(passarray), accarray:JSON.stringify(accarray)},function(msg){ 
-            if(msg==1) {alert("Change Password Successfully! Please login again.");quitpwd();} else alert("Fail to change your password, please try again.");
+            if(msg==1) {alert("Change Password Successfully! Please login with your new password and PIN again.");quitpwd();} else alert("Fail to change your password, please try again.");
         });
 	}
 });  

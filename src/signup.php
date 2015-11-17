@@ -16,6 +16,11 @@ echoheader();
       <p>User Name: <input type="text" name="user" id="user" /></p><br />
       <p>Password: <input type="password" name="pwd" id="pwd" /></p><br />
       <p>Input Password Again: <input type="password" name="pwd1" id="pwd1" /></p><br />
+      <p>Optional PIN: <input type="text" name="upin" id="upin" /><a href="javascript: $('#pinhint').show();">What's this?</a></p><br />
+            <p id="pinhint" style="display:none; border-width:1px">PIN gives you additional protection when attackers get your login password. 
+PIN is used to map pseudo-password to real password. 
+For example, the decrypted pseudo-password is 123 (decryption key is based on your login password), then if your PIN is 456, the pseudo-password maps to 789. If the PIN is 789, the pseudo-password maps to abc. 
+If your PIN is 456, you'll see 789 in your screen and it's your real password. But if the attacker input 789 as PIN, he'll see abc in his screen. PIN related information will not   go to Internet, this means you can login using any PIN, but the password you see will be totally different.<br /><br />You can input any characters (including non-english characters) as your PIN. If you input nothing, an empty string will be your PIN.<br /><br /><p style="color:red">Please always login with a same PIN, or you'll get incorrect previous generated passwords.</p> <br /></p>
       <p>Email:<input type="text" name="email" id="email" /></p><br />
     </form>
     <input type="button" class="btn btn-md btn-success" id="chk"  value="Submit" />

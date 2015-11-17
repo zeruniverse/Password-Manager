@@ -18,7 +18,8 @@ echoheader();
     <textarea id="backupc"></textarea>
     <p> </p>
     <p>Password: <input type="password" name="pwd" id="pwd" /></p><br />
-    <p style="color:red">Input the login password when you generate the backup file.</p>
+    <p>PIN: <input type="text" name="pin" id="pin" /></p>
+    <p style="color:red">Input the login password and PIN when you generate the backup file.</p>
     </form>
     <input type="button" class="btn btn-md btn-success" onClick="rec();" id="chk" value="RECOVER IT!" />
     <a href="../" class="btn btn-md btn-info">Go Back</a>
@@ -44,7 +45,7 @@ function gen_key()
     var pass=$("#pwd").val();
     secretkey=String(pbkdf2_enc(pass,JSsalt,500));
     secretkey=String(CryptoJS.SHA512(secretkey+PWsalt));
-    confkey=pbkdf2_enc(String(CryptoJS.SHA512(pass)),JSsalt,100);
+    confkey=pbkdf2_enc(String(CryptoJS.SHA512($("#pin").val()+pass)),JSsalt,1000);
 }
 function gen_account_array(enc_account_array)
 {
