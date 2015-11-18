@@ -82,5 +82,5 @@ You can easily add E-mail verification, Google authentication... in your version
   
 ## Copyright  
 Jeffery Zhao  
-License: MIT (A copy of license is attached in src folder)   
+License: MIT     
 The copyright for Crypto-JS and Bootstrap are reserved by their authors.  
