@@ -68,7 +68,7 @@ $(function(){
 				$("#chk").attr("value", "Login");
 				$("#chk").attr("disabled", false);
 		}else{
-                confkey=pbkdf2_enc(String(CryptoJS.SHA512($("#upin").val()+pwd)),JSsalt,1000);
+                confkey=pbkdf2_enc(String(CryptoJS.SHA512($("#upin").val()+pwd)),JSsalt,500);
                 setpwdstore(secretkey,confkey,'<?php echo $GLOBAL_SALT_2; ?>');                
                 setpinsha($("#upin").val());
                 window.location.href="./password.php";

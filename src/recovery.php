@@ -45,7 +45,7 @@ function gen_key()
     var pass=$("#pwd").val();
     secretkey=String(pbkdf2_enc(pass,JSsalt,500));
     secretkey=String(CryptoJS.SHA512(secretkey+PWsalt));
-    confkey=pbkdf2_enc(String(CryptoJS.SHA512($("#pin").val()+pass)),JSsalt,1000);
+    confkey=pbkdf2_enc(String(CryptoJS.SHA512($("#pin").val()+pass)),JSsalt,500);
 }
 function gen_account_array(enc_account_array)
 {
