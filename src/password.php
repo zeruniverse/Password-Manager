@@ -73,9 +73,9 @@ function quitpwd()
       	<p><h2>Change Password or PIN(Danger Area)</h2></p>
         <form>
              <p>Old Password:<input id="oldpassword" type="password" /></p>
-             <p>New Password:<input id="pwd" type="password" /></p>
+             <p>New Password:<input id="pwd" type="password" /><span <?php if(!$ENABLE_PIN) echo 'style="display:none"';?>> (Input your old password if you only want to change PIN)</span></p>
              <p>New Password Again:<input id="pwd1" type="password" /></p>
-             <p>New PIN:<input id="npin" type="text" /> (Input your old PIN here if you don't want to change PIN)</p>
+             <p <?php if(!$ENABLE_PIN) echo 'style="display:none"';?>>New PIN:<input id="npin" type="text" value="<?php if(!$ENABLE_PIN) echo $DEFAULT_PIN?>" /> (Input your old PIN here if you don't want to change PIN)</p>
              <p><input type="button" class="btn btn-sm btn-primary" id="changepw"  value="Submit"/></p>
         </form>
       </div>

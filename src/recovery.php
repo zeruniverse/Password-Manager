@@ -18,7 +18,7 @@ echoheader();
     <textarea id="backupc"></textarea>
     <p> </p>
     <p>Password: <input type="password" name="pwd" id="pwd" /></p><br />
-    <p>PIN: <input type="text" name="pin" id="pin" /></p>
+    <p>PIN: <input type="text" name="pin" id="pin" /> (Leave it blank if you don't know what's it.)</p><br />
     <p style="color:red">Input the login password and PIN when you generate the backup file.</p>
     </form>
     <input type="button" class="btn btn-md btn-success" onClick="rec();" id="chk" value="RECOVER IT!" />
@@ -87,6 +87,10 @@ function rec(){
         alert("EMPTY PASSWORD IS NOT ALLOWED");
         return;
     }
+    if("PIN" in json) {
+        document.getElementById("pin").readOnly = true;
+        ("#pin").val(json.PIN);
+    }
     $("#recover_result").hide();
     $("#chk").attr("disabled",true);
     $("#chk").attr("value", "Processing...");
@@ -109,6 +113,7 @@ function rec(){
     $("#recover_result").show();
     $("#chk").removeAttr("disabled");
     $("#chk").attr("value", "RECOVER IT!");
+    $("#pin").removeAttr("readOnly");
     }
     setTimeout(process,50);
 }
