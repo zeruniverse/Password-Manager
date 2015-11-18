@@ -89,7 +89,7 @@ function rec(){
     }
     if("PIN" in json) {
         document.getElementById("pin").readOnly = true;
-        ("#pin").val(json.PIN);
+        $("#pin").val(json.PIN);
     }
     $("#recover_result").hide();
     $("#chk").attr("disabled",true);
