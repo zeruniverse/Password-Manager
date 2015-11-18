@@ -90,6 +90,7 @@ function rec(){
     $("#recover_result").hide();
     $("#chk").attr("disabled",true);
     $("#chk").attr("value", "Processing...");
+    function process(){
     gen_key();
     var enc_pass=new Array();
     var enc_acc=new Array();
@@ -108,6 +109,8 @@ function rec(){
     $("#recover_result").show();
     $("#chk").removeAttr("disabled");
     $("#chk").attr("value", "RECOVER IT!");
+    }
+    setTimeout(process,50);
 }
 </script>
 </div>

@@ -117,6 +117,7 @@ $("#newbtn").click(function(){
 	$("#newbtn").attr("disabled",true);
 	$("#newiteminput").attr("readonly",true);
 	$("#newiteminputpw").attr("readonly",true);
+    function process(){
 	if($("#newiteminputpw").val()=='') newpwd=getpwd('<?php echo $DEFAULT_LETTER_USED; ?>',<?php echo $DEFAULT_LENGTH; ?>); else newpwd=$("#newiteminputpw").val();
     newpwd=gen_temp_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512($("#newiteminput").val())),ALPHABET,newpwd);
 	newpwd=encryptchar(newpwd,sk);
@@ -125,8 +126,9 @@ $("#newbtn").click(function(){
     if(msg==1) {alert("Add "+$("#newiteminput").val()+" successfully!");location.reload(true)} else alert("Fail to add "+$("#newiteminput").val()+", please try again.");
     $("#newiteminput").attr("readonly",false);
 	$("#newbtn").attr("disabled",false);
-	
 	$("#newiteminputpw").attr("readonly",false);});
+    }
+    setTimeout(process,50);
 	}); 
 $("#changepw").click(function(){ 
     
@@ -134,10 +136,11 @@ $("#changepw").click(function(){
     {
         if (String(CryptoJS.SHA512($("#npin").val()))!=getpinsha()) if(!confirm("You are going to change your PIN, you must use your new PIN to login next time or you'll see incorrect passwords for your accounts! Confirm?")) return;
         if ($("#pwd").val()!=$("#pwd1").val() || $("#pwd").val().length<7){alert("The second password you input doesn't match the first one. Or your password is too weak (length should be at least 7)"); return;}
-        var login_sig=String(pbkdf2_enc($("#oldpassword").val(),'<?php  echo $GLOBAL_SALT_1; ?>',500));
-        if(secretkey!=String(CryptoJS.SHA512(login_sig+'<?php echo $GLOBAL_SALT_2; ?>'))) {alert("Incorrect Old Password!"); return;}
         $("#changepw").attr("disabled",true);
         $("#changepw").attr("value", "Processing...");
+        function process(){
+        var login_sig=String(pbkdf2_enc($("#oldpassword").val(),'<?php  echo $GLOBAL_SALT_1; ?>',500));
+        if(secretkey!=String(CryptoJS.SHA512(login_sig+'<?php echo $GLOBAL_SALT_2; ?>'))) {alert("Incorrect Old Password!"); location.reload(); return;}
         var newpass=$("#pwd").val();
         login_sig=String(pbkdf2_enc(newpass,'<?php  echo    $GLOBAL_SALT_1; ?>',500));
         var newsecretkey=String(CryptoJS.SHA512(login_sig+'<?php echo $GLOBAL_SALT_2; ?>'));
@@ -161,8 +164,10 @@ $("#changepw").click(function(){
             passarray[x]=encryptchar(raw_pass,newsecretkey);
         }
         $.post("changeuserpw.php",{newpass:postnewpass, passarray:JSON.stringify(passarray), accarray:JSON.stringify(accarray)},function(msg){ 
-            if(msg==1) {alert("Change Password Successfully! Please login with your new password and PIN again.");quitpwd();} else alert("Fail to change your password, please try again.");
+            if(msg==1) {alert("Change Password Successfully! Please login with your new password and PIN again.");quitpwd();} else {alert("Fail to change your password, please try again."); location.reload();}
         });
+        }
+        setTimeout(process,50);
 	}
 });  
 }); 
