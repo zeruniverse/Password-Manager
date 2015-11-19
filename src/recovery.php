@@ -22,7 +22,8 @@ echoheader();
     <p style="color:red">Input the login password and PIN when you generate the backup file.</p>
     </form>
     <input type="button" class="btn btn-md btn-success" onClick="rec();" id="chk" value="RECOVER IT!" />
-    <a href="../" class="btn btn-md btn-info">Go Back</a>
+    <a href="./" class="btn btn-md btn-info">Go Back</a>
+    <a href="javascript: export_raw();" style="display:none" class="btn btn-md btn-danger" id="raw_button">Export Raw Data</a>
     <p> </p>
     <p><br /> </p>
     <div id="recover_result" style="display:none">
@@ -30,11 +31,35 @@ echoheader();
     <table class="table" id="rtable"></table>
     </div>
 <script type="text/javascript">
+var acc_array,pass_array;
 var JSsalt='';
 var PWsalt='';
 var ALPHABET='';
 var secretkey='';
 var confkey='';
+function download(filename, text) {
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+}
+function export_raw(){
+    if(!confirm("Confirm: This function is used ONLY to TRANSFER your password to another password manager! DON'T BACK UP this version, it's DANGEROUS!")) return;
+    if(!confirm("You agree you will delete the generated content IMMEDIATELY after you finish transferring your passwords")) return;
+    var result = { };
+    var aeskey = PWsalt + '1';
+    result.status="RAW_OK";
+    result.KEY=aeskey;
+    var x;
+    for (x in acc_array)
+    {
+        result.data[x]=[encryptchar(acc_array[x],aeskey),encryptchar(pass_array[x],aeskey)];
+    }
+    download("raw_pass.txt",JSON.stringify(result);
+}
 function sanitize_json(s){
     var t=s;
     t=t.replace(/\n/g,'')
@@ -80,6 +105,7 @@ function rec(){
         alert("INVALID BACKUP FILE");
         return;
     }
+    $("#raw_button").hide();
     JSsalt = json.JSsalt;
     PWsalt = json.PWsalt;
     ALPHABET = json.ALPHABET;
@@ -103,8 +129,8 @@ function rec(){
         enc_acc[x]=json.data[x][0];
         enc_pass[x]=json.data[x][1];
     }
-    var acc_array=gen_account_array(enc_acc);
-    var pass_array=gen_pass_array(acc_array,enc_pass);
+    acc_array=gen_account_array(enc_acc);
+    pass_array=gen_pass_array(acc_array,enc_pass);
     var html='<tr><th>Account</th><th>Password</th></tr>';
     for(x in acc_array){
         html=html+'<tr><td>'+acc_array[x]+'</td><td>'+pass_array[x]+'</td></tr>';
@@ -114,6 +140,7 @@ function rec(){
     $("#chk").removeAttr("disabled");
     $("#chk").attr("value", "RECOVER IT!");
     $("#pin").removeAttr("readOnly");
+    $("#raw_button").show();
     }
     setTimeout(process,50);
 }

@@ -61,12 +61,20 @@ function quitpwd()
     ?>
    </table> 
 	<hr />
-    <div class="jumbotron">
+   <div class="jumbotron">
       	<p><h2>Add a new account</h2></p>
         <form>
              <p>Account (Item):<input id="newiteminput" type="text" /></p>
              <p>Password:<input id="newiteminputpw" type="text" placeholder="Leave blank to generate one"/></p>
              <p><input type="button" class="btn btn-sm btn-primary" id="newbtn"  value="Submit"/></p>
+        </form>
+      </div>
+ <div class="jumbotron">
+      	<p><h2>Import accounts</h2></p>
+        <form>
+             <p>Copy all contents in your RAW backup file and paste them into the following box.</p>
+            <textarea id="importc"></textarea>
+             <p><input type="button" class="btn btn-sm btn-primary" id="importbtn" onClick="import_raw($('#importc').val());" value="Submit"/></p>
         </form>
       </div>
     <div class="jumbotron">
@@ -85,6 +93,43 @@ function quitpwd()
 <script type="text/javascript">
 var ALPHABET='<?php echo $DEFAULT_LETTER_USED;?>';
 var PWsalt='<?php echo $GLOBAL_SALT_2; ?>';
+function sanitize_json(s){
+    var t=s;
+    t=t.replace(/\n/g,'')
+    return t.replace(/\r/g,'');
+}
+function import_raw(json){
+    json=JSON.parse(sanitize_json(json));
+    if(json.status!="RAW_OK") {
+        alert("INVALID RAW FILE");
+        return;
+    }
+    $("#importbtn").attr("disabled",true);
+    $("#importbtn").attr("value", "Processing...");
+    $("#importc").attr("readOnly",true);
+    function add_acc(acc,pass){
+        var sk=secretkey;
+        if(acc==''||pass=='') {
+            alert("one of account or password empty! will continue to process other accounts, check back after this finished"); return;
+        }
+        pass=gen_temp_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512(acc)),ALPHABET,pass);
+        pass=encryptchar(pass,sk);
+        var name=encryptchar(acc,sk);
+        $.post("insert.php",{name:acc,newpwd:pass},function(msg){ 
+            if(msg!=1) alert("Fail to add "+acc+", please try again manually later.");
+        }
+    }
+    function process(){
+        var aeskey=json.KEY;
+        var x;
+        for(x in json.data){
+            add_acc(decryptchar(json.data[x][0],aeskey),decryptchar(json.data[x][1],aeskey));
+        }
+        location.reload(true);
+    }
+    setTimeout(process,50);
+}
+
 $(document).ready(function(){
     function getskey(callback)
     {
