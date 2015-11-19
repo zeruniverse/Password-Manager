@@ -34,7 +34,7 @@ function gen_temp_pwd(key, salt, account_sig,orig_alphabet,pwd)
     var new_alphabet = gen_alphabet(key,salt,account_sig,orig_alphabet);
     var temp_pwd = "";
     var i,j,pwd_len,alphabet_len;
-    var shift=CryptoJS.SHA512(account_sig+key);
+    var shift = String(CryptoJS.SHA512(account_sig+key));
     var shift_len=shift.length;
     pwd_len=pwd.length;
     alphabet_len=new_alphabet.length;
@@ -58,7 +58,7 @@ function get_orig_pwd(key,salt,account_sig,orig_alphabet,temp_pwd)
     var new_alphabet = gen_alphabet(key,salt,account_sig,orig_alphabet);
     var pwd = "";
     var i,j,pwd_len,alphabet_len;
-    var shift=CryptoJS.SHA512(account_sig+key);
+    var shift=String(CryptoJS.SHA512(account_sig+key));
     var shift_len=shift.length;
     pwd_len=temp_pwd.length;
     alphabet_len=new_alphabet.length;

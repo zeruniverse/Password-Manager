@@ -115,9 +115,9 @@ function import_raw(json){
         pass=gen_temp_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512(acc)),ALPHABET,pass);
         pass=encryptchar(pass,sk);
         var name=encryptchar(acc,sk);
-        $.post("insert.php",{name:acc,newpwd:pass},function(msg){ 
+        $.post("insert.php",{name:name,newpwd:pass},function(msg){ 
             if(msg!=1) alert("Fail to add "+acc+", please try again manually later.");
-        }
+        });
     }
     function process(){
         var aeskey=json.KEY;

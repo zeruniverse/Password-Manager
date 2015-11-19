@@ -54,11 +54,12 @@ function export_raw(){
     result.status="RAW_OK";
     result.KEY=aeskey;
     var x;
+    result.data={ };
     for (x in acc_array)
     {
         result.data[x]=[encryptchar(acc_array[x],aeskey),encryptchar(pass_array[x],aeskey)];
     }
-    download("raw_pass.txt",JSON.stringify(result);
+    download("raw_pass.txt",JSON.stringify(result));
 }
 function sanitize_json(s){
     var t=s;
