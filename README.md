@@ -72,7 +72,8 @@ New version usually comes with algorithm updates and will NOT be compatible with
 + Clear all your tables in database (The table structure has not been changed, you don't need to drop them)  
 + Replace the old password manager files with the new version on your server (don't forget to modify `config.php`)  
 + Register a new account for password manager  
-+ Create all your accounts back (Please note it's recommended to change passwords for all of your accounts when you upgrade)   
++ Create all your accounts back (Please note it's recommended to change passwords for all of your accounts when you upgrade)     
+  
 ###Old version >= 5.11    
 + Login to your old password manager. Backup and save the backup file.    
 + Logout and go to the recovery page.     
