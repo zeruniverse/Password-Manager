@@ -10,7 +10,7 @@ This demo is for test ONLY! Do NOT put your real password there.
     
 ##Mechanism 
 This password manager can generate and store random strong passwords for users. Passwords are generated on users' browsers and then encrypted using AES256.  
-PBKDF2 with SHA512 is used for user identification check. Raw password will be mapped to a pseudo password with a key related to PIN before applying AES256.  
+PBKDF2 with SHA512 is used for user identification check. Raw password will be mapped to a pseudo password with a key related to PIN before applying AES256. The mapping algorithm is alphabet and position based.    
 Any PIN related information will not be uploaded to server.  
   
 ##Details   
@@ -23,7 +23,7 @@ Any PIN related information will not be uploaded to server.
 + POST SHA512(Login Signiture + stamp sent from server) to server as authentication.    
 + User input account and corresponding password into web browser.    
 + Web browser calculate the mapping alphabet which is related to SHA512(account) and Confusion_Key.  
-+ Using the mapping alphabet to map the raw password into a confusion password.  
++ Using the mapping alphabet to map the raw password into a confusion password. Same characters might map to different characters. This prevents the attacker to get the pattern of your password.    
 + Using AES256 to encrypt confusion password, as well as account and using Secret_Key as secret key.  
 + POST AES256 encrypted account and password to server.   
 + Server encrypt AES256 encrypted password again (password_1) and save encrypted account and password_1 into database.     
@@ -66,13 +66,24 @@ Any PIN related information will not be uploaded to server.
 + If your data is lost (e.g. your server is stolen), you can go back to this repo and download your version of password manager (you can find version number in your backup file). You don't need config file to recover your password. All salts are included in the backup file. You can find recovery button on `index.html` after deploying the new password manager.    
   
 ##About Upgrade  
-New version usually comes with algorithm updates and will NOT be compatible with any previous versions. To switch to new version:  
+New version usually comes with algorithm updates and will NOT be compatible with any previous versions. To switch to new version:    
+###Old version < 5.11      
 + Open your old password manager and take a screenshot of all your accounts and passwords. (If your version is later than 5.0, you can use backup function and then go to recovery page to recover it. You'll get all your accounts and passwords on screen there.)  
 + Clear all your tables in database (The table structure has not been changed, you don't need to drop them)  
 + Replace the old password manager files with the new version on your server (don't forget to modify `config.php`)  
 + Register a new account for password manager  
-+ Create all your accounts back (Please note it's recommended to change passwords for all of your accounts when you upgrade)  
-
++ Create all your accounts back (Please note it's recommended to change passwords for all of your accounts when you upgrade)   
+###Old version >= 5.11    
++ Login to your old password manager. Backup and save the backup file.    
++ Logout and go to the recovery page.     
++ Input all contents in backup file to the recovery box and click [RECOVER IT!], after the recovery, a new button [Export Raw Data] will be on your screen.     
++ Click [Export Raw Data] and save the raw_pass.txt file.    
++ Clear your database and deploy new password manager to your server (don't forget to modify `config.php`)      
++ Create an account in new password manager.     
++ Login and find the [Import accounts] section. Copy all contents in the raw_pass.txt and paste them into the box. Click [Submit].
++ All your password should be on your new password manager now.    
++ If some error occurs, you can clear your database and redo the previous steps. This may take long time if you have many accounts. Find a good computer with good Internet access to do it!       
+      
 ##About Recovery  
 For your passwords safety, your login password to password manager won't be included in the recovery file. You still need your login password (and PIN if applicable) to decrypt the recovery file. The backup file is indepandent to config file. You don't need to backup your `config.php`         
 + The purpose of the recovery file is to protect your password in case of data loss. NOT IN CASE THAT YOU FORGET YOUR PASSWORD or PIN (No one can get your passwords without your login password!)  
