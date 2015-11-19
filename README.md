@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/zeruniverse/Password-Manager.svg)](https://travis-ci.org/zeruniverse/Password-Manager)  
   
 ##Version
-v5.1  
+v5.11  
   
 ##DEMO  
 [pas.jeffery.cc](http://pas.jeffery.cc)  
