@@ -1,5 +1,9 @@
 # Password Manager  
-[![Build Status](https://travis-ci.org/zeruniverse/Password-Manager.svg)](https://travis-ci.org/zeruniverse/Password-Manager)  
+[![Build Status](https://travis-ci.org/zeruniverse/Password-Manager.svg)](https://travis-ci.org/zeruniverse/Password-Manager)
+[![Codacy Badge](https://api.codacy.com/project/badge/grade/b5d954be72144355aa258748cfd05bca)](https://www.codacy.com/app/zzy8200/Password-Manager)
+![License](https://img.shields.io/github/license/zeruniverse/Password-Manager.svg)
+![Environment](https://img.shields.io/badge/PHP-5.2+-blue.svg)
+![Environment](https://img.shields.io/badge/MySQL-required-ff69b4.svg)
   
 ##Version
 v5.11  

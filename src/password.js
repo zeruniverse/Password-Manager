@@ -40,14 +40,14 @@ function gen_temp_pwd(key, salt, account_sig,orig_alphabet,pwd)
     alphabet_len=new_alphabet.length;
     for(i=0;i<pwd_len;i++){
         for(j=0;j<alphabet_len;j++){
-            if(pwd.charAt(i)==orig_alphabet.charAt(j)){
+            if(pwd.charAt(i)===orig_alphabet.charAt(j)){
                 temp_pwd = temp_pwd + new_alphabet.charAt((j+shift.charCodeAt(i % shift_len)) % alphabet_len);
                 break;
             }
         }
         
         //LETTER NOT IN ALPHABET, DIRECT MAPPING
-        if(j==alphabet_len) temp_pwd = temp_pwd + pwd.charAt(i);
+        if(j===alphabet_len) {temp_pwd = temp_pwd + pwd.charAt(i);}
     }
     
     return temp_pwd;
@@ -64,13 +64,13 @@ function get_orig_pwd(key,salt,account_sig,orig_alphabet,temp_pwd)
     alphabet_len=new_alphabet.length;
     for(i=0;i<pwd_len;i++){
         for(j=0;j<alphabet_len;j++){
-            if(temp_pwd.charAt(i)==new_alphabet.charAt(j)){
+            if(temp_pwd.charAt(i)===new_alphabet.charAt(j)){
                 pwd = pwd + orig_alphabet.charAt((j + alphabet_len - (shift.charCodeAt(i % shift_len) % alphabet_len)) % alphabet_len);
                 break;
             }
         }
         //LETTER NOT IN ALPHABET, DIRECT MAPPING
-        if (j==alphabet_len) pwd = pwd + temp_pwd.charAt(i);
+        if (j===alphabet_len) {pwd = pwd + temp_pwd.charAt(i);}
     }
     
     return pwd;
@@ -140,6 +140,7 @@ function decryptchar(char,key){
 function getpwd(charlist,plength) {
 　　var maxPos = charlist.length;
 　　var pwd = '';
+	var i;
 　　for (i = 0; i < parseInt(plength); i++) {
 　　　　pwd += charlist.charAt(Math.floor(Math.random() * maxPos));
 　　}

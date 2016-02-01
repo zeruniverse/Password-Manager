@@ -13,12 +13,12 @@ function getpinsha()
 }
 function getpwdstore(salt)
 {
-	if(!sessionStorage.pwdsk) return "";
+	if(!sessionStorage.pwdsk) {return "";}
 	return decryptchar(sessionStorage.pwdsk,salt);
 }
 function getconfkey(salt)
 {
-    if(!sessionStorage.confusion_key) return "";
+    if(!sessionStorage.confusion_key) {return "";}
 	return decryptchar(sessionStorage.confusion_key,salt);
 }
 function delpwdstore()
