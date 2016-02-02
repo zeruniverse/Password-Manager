@@ -218,7 +218,7 @@ $("#changepw").click(function(){
 }); 
 
 function clicktoshow(kss,id){ 
-		if(kss=="") return;
+        if(kss=="") return;
         var thekey=decryptchar(kss,secretkey);
         var name=accountarray[parseInt(id)];
         if (thekey==""){
@@ -226,8 +226,11 @@ function clicktoshow(kss,id){
             return;
         }
         thekey = get_orig_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512(name)),ALPHABET,thekey);
-		$("#"+id).html('<span style="font-family:passwordshow">'+thekey+'</span>'); 
+        $("#"+id).html('<span style="font-family:passwordshow" onclick="clicktohide(\''+kss+'\',\''+id+'\')">'+thekey+'</span>'); 
 } 
+function clicktohide(kss,id){
+    $("#"+id).html('<a href="javascript: clicktoshow(\''+kss+'\',\''+id+'\')">Click to see</a>'); 
+}
 function refreshpw(index){
 	var newpwd;
 	var sk=secretkey;
