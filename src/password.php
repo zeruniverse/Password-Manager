@@ -233,6 +233,7 @@ function clicktohide(kss,id){
 }
 function showOptions(id) {
     $("#"+id+" .pwdButtons").show();
+    $("#"+id+" .pwdOptionButton").removeClass("visible-xs");//we can't hide it otherwise...weird.
     $("#"+id+" .pwdOptionButton").hide();
 }
 function refreshpw(index){
