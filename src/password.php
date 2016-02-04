@@ -226,10 +226,14 @@ function clicktoshow(kss,id){
             return;
         }
         thekey = get_orig_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512(name)),ALPHABET,thekey);
-        $("#"+id).html('<span style="font-family:passwordshow"">'+thekey+'</span><a title="Options" href="javascript:showOptions(\''+id+'\')"><span class="glyphicon glyphicon-wrench"></span></a><span class="pwdbuttons"><a title="Hide" href="javascript:clicktohide(\''+kss+'\',\''+id+'\')"><span class="glyphicon glyphicon-eye-close"></span></a><a title="Regenerate" href="javascript:clicktohide(\''+kss+'\',\''+id+'\')"><span class="glyphicon glyphicon-refresh"></span></a><a title="Delete" href="javascript:clicktohide(\''+kss+'\',\''+id+'\')"><span class="glyphicon glyphicon-remove"></span></a></span>');
+        $("#"+id).html('<span style="font-family:passwordshow"">'+thekey+'</span><a title="Options" href="javascript:showOptions(\''+id+'\')"><span class="glyphicon glyphicon-wrench"></span></a><span class="pwdbuttons" style="display:none;"><a title="Hide" href="javascript:clicktohide(\''+kss+'\',\''+id+'\')"><span class="glyphicon glyphicon-eye-close"></span></a><a title="Regenerate" href="javascript:clicktohide(\''+kss+'\',\''+id+'\')"><span class="glyphicon glyphicon-refresh"></span></a><a title="Delete" href="javascript:clicktohide(\''+kss+'\',\''+id+'\')"><span class="glyphicon glyphicon-remove"></span></a></span>');
 } 
 function clicktohide(kss,id){
     $("#"+id).html('<a href="javascript: clicktoshow(\''+kss+'\',\''+id+'\')">Click to see</a>'); 
+}
+function showOptions(id) {
+    $("#"+id+" .pwdbuttons").show();
+    $("#"+id+" .glyphicon-wrench").hide();
 }
 function refreshpw(index){
 	var newpwd;
