@@ -48,7 +48,7 @@ function quitpwd()
     <div id="waitsign">PLEASE WAIT WHILE WE ARE DECRYPTING YOUR PASSWORD...</div>
     <div id="pwdtable" style="display:none">
     <table class="table">
-    <tr><th>Account</th><th>Password</th><th>Generate New Password</th><th>Delete this Password</th></tr>
+    <tr><th>Account</th><th>Password</th><th class="hidden-xs">Generate New Password</th><th class="hidden-xs">Delete this Password</th></tr>
     <?php
         $sql="SELECT * FROM `password` WHERE `userid`= ?";
         $res=sqlexec($sql,array($id),$link);
@@ -56,7 +56,7 @@ function quitpwd()
         $index=$i['index'];
 		$name=$i['name'];
 		$kss=decrypt($i['pwd'],$i['key']);
-		echo "<tr><td><span class='accountname' dataid=".$index.">".$name.'</span></td><td><span passid="'.$index.'" enpassword="'.$kss.'"id="'.$index.'"><a href="javascript: clicktoshow(\''.$kss.'\',\''.$index.'\')">Click to see</a></span></td><td><a href="javascript: refreshpw(\''.$index.'\')">Click to change</a></td><td><a href="javascript: delepw(\''.$index.'\')">Click to delete</a></td></tr>';
+		echo "<tr><td><span class='accountname' dataid=".$index.">".$name.'</span></td><td><span passid="'.$index.'" enpassword="'.$kss.'"id="'.$index.'"><a href="javascript: clicktoshow(\''.$kss.'\',\''.$index.'\')">Click to see</a></span></td><td class="hidden-xs"><a href="javascript: refreshpw(\''.$index.'\')">Click to change</a></td><td class="hidden-xs"><a href="javascript: delepw(\''.$index.'\')">Click to delete</a></td></tr>';
 		}
     ?>
    </table> 
@@ -218,7 +218,7 @@ $("#changepw").click(function(){
 }); 
 
 function clicktoshow(kss,id){ 
-		if(kss=="") return;
+        if(kss=="") return;
         var thekey=decryptchar(kss,secretkey);
         var name=accountarray[parseInt(id)];
         if (thekey==""){
@@ -226,8 +226,15 @@ function clicktoshow(kss,id){
             return;
         }
         thekey = get_orig_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512(name)),ALPHABET,thekey);
-		$("#"+id).html('<span style="font-family:passwordshow">'+thekey+'</span>'); 
+        $("#"+id).html('<span style="font-family:passwordshow"">'+thekey+'</span><a title="Hide" class="pwdOptionButton hidden-xs" href="javascript: clicktohide(\''+kss+'\',\''+id+'\')"><span class="glyphicon glyphicon-eye-close"></span></a><a title="Options" class="pwdOptionButton visible-xs" href="javascript: showOptions(\''+id+'\')"><span class="glyphicon glyphicon-wrench"></span></a><span class="pwdButtons" style="display:none;"><a title="Hide" href="javascript: clicktohide(\''+kss+'\',\''+id+'\')"><span class="glyphicon glyphicon-eye-close"></span></a><a title="Regenerate" href="javascript: refreshpw(\''+id+'\')"><span class="glyphicon glyphicon-refresh"></span></a><a title="Delete" href="javascript: delepw(\''+id+'\')"><span class="glyphicon glyphicon-remove"></span></a></span>');
 } 
+function clicktohide(kss,id){
+    $("#"+id).html('<a href="javascript: clicktoshow(\''+kss+'\',\''+id+'\')">Click to see</a>'); 
+}
+function showOptions(id) {
+    $("#"+id+" .pwdButtons").show();
+    $("#"+id+" .pwdOptionButton").remove();
+}
 function refreshpw(index){
 	var newpwd;
 	var sk=secretkey;
