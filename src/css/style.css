@@ -1,3 +1,26 @@
-body {padding-top: 50px;}
-.pwdButtons, .pwdOptionButton {float:right; }
-.pwdButtons a { margin-left: 7px; }
+body {padding-top: 50px; width:100%;}
+/*.theme-showcase{max-width:100%;}*/
+.cellOptionButton {float:right; }
+/* Tags */
+#tagCloud{margin-top:10px; padding:5px; }
+
+.namecell, .usercell {
+    word-wrap: break-word;
+}
+
+/* pull-right on all except xs devices */
+@media (min-width: 992px) {
+    .pull-right-sm {
+        float: right;
+    }
+    
+}
+@media (max-width: 992px) {
+    .namecell, .usercell { max-width:360px; }
+}
+@media (max-width: 700px) {
+    .namecell, .usercell { max-width:250px;}
+}
+@media (max-width: 500px) {
+    .namecell, .usercell { max-width:170px;}
+}

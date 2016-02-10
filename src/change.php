@@ -22,8 +22,19 @@ if($record==FALSE) {$link->commit();die("0");}
 $ppwd=$_POST['newpwd'];
 $pubkey=mt_rand(10000000,99999999);
 $newpw=encrypt($ppwd,$pubkey);
-$sql="UPDATE `password` SET `key` = ? ,`pwd` = ?  WHERE `userid` = ? AND `index`= ?";
-$res=sqlexec($sql,array($pubkey,$newpw,$id,(int)$index),$link);
+$changedCols="`key` = ? ,`pwd` = ?";
+$values=array($pubkey,$newpw);
+if (isset($_POST["name"])){
+    $changedCols .= " ,`name` = ?";
+    array_push($values, $_POST["name"]);
+}
+if (isset($_POST["other"])){
+    $changedCols .= " ,`other` = ?";
+    array_push($values, $_POST["other"]);
+}
+array_push($values, $id, (int)$index);
+$sql="UPDATE `password` SET ".$changedCols." WHERE `userid` = ? AND `index`= ?";
+$res=sqlexec($sql,$values,$link);
 if($res==NULL) {$link->rollBack();die("0");}
 $link->commit();
 echo "1";
