@@ -37,13 +37,43 @@ function quitpwd()
 <script type="text/javascript" src="sha512.js"></script>
 <script type="text/javascript" src="pbkdf2.js"></script>
 <script type="text/javascript" src="password.js"></script>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Password-Manager</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav" id="nav_links">
+            <li id="nav-passwords" class="active"><a href="#pw">Passwords</a></li>
+            <li id="nav-add"><a href="" data-toggle="modal" data-target="#add">Add Entry</a></li>
+            <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Profile<span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="javascript: alert('You will need your CURRENT login password<?php if($ENABLE_PIN) echo ' and PIN';?> to unlock the backup file even if you change login password<?php if($ENABLE_PIN) echo ' or PIN';?> later. Write your CURRENT login password<?php if($ENABLE_PIN) echo ' and PIN';?> down or remember to generate a new backup file after each time you change the login password<?php if($ENABLE_PIN) echo ' or PIN';?>.');window.location.href='backup.php'">Back Up</a></li>
+              <li><a href="" data-toggle="modal" data-target="#import">Import</a></li>
+              <li><a href="" data-toggle="modal" data-target="#changepwd">Change Password</a></li>
+            </ul>
+            </li>
+          </ul>
+          <div class="navbar-right">
+            <p class="navbar-btn"><a href="" onClick="quitpwd();" class="btn btn-info"><strong>Log Out</strong></a></p>
+          </div>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+    
 <div class="container theme-showcase">
-      <div class="page-header">
+      <div class="page-header" id="pw">
         <h1>Password Manager</h1>
 	  </div>
     <!-- preload ttf -->
     <span style="display:none; font-family:passwordshow"><?php echo $DEFAULT_LETTER_USED; ?></span>
-	<div><input class="btn btn-sm btn-default" type="button" onClick="alert('You will need your CURRENT login password<?php if($ENABLE_PIN) echo ' and PIN';?> to unlock the backup file even if you change login password<?php if($ENABLE_PIN) echo ' or PIN';?> later. Write your CURRENT login password<?php if($ENABLE_PIN) echo ' and PIN';?> down or remember to generate a new backup file after each time you change the login password<?php if($ENABLE_PIN) echo ' or PIN';?>.');window.location.href='backup.php'" value="Back Up My Data"/>&nbsp;|&nbsp;<input class="btn btn-sm btn-info" type="button" onClick="quitpwd();" value="Log Out"/></div>
     <hr />
     <div id="waitsign">PLEASE WAIT WHILE WE ARE DECRYPTING YOUR PASSWORD...</div>
     <div id="pwdtable" style="display:none">
@@ -61,32 +91,88 @@ function quitpwd()
     ?>
    </table> 
 	<hr />
-   <div class="jumbotron">
-      	<p><h2>Add a new account</h2></p>
-        <form>
-             <p>Account (Item):<input id="newiteminput" type="text" /></p>
-             <p>Password:<input id="newiteminputpw" type="text" placeholder="Leave blank to generate one"/></p>
-             <p><input type="button" class="btn btn-sm btn-primary" id="newbtn"  value="Submit"/></p>
-        </form>
-      </div>
- <div class="jumbotron">
-      	<p><h2>Import accounts</h2></p>
-        <form>
-             <p>Copy all contents in your RAW backup file and paste them into the following box.</p>
-            <textarea id="importc"></textarea>
-             <p><input type="button" class="btn btn-sm btn-primary" id="importbtn" onClick="import_raw($('#importc').val());" value="Submit"/></p>
-        </form>
-      </div>
-    <div class="jumbotron">
-      	<p><h2>Change Password<?php if($ENABLE_PIN) echo ' or PIN';?>(Danger Area)</h2></p>
-        <form>
-             <p>Old Password:<input id="oldpassword" type="password" /></p>
-             <p>New Password:<input id="pwd" type="password" /><span <?php if(!$ENABLE_PIN) echo 'style="display:none"';?>> (Input your old password if you only want to change PIN)</span></p>
-             <p>New Password Again:<input id="pwd1" type="password" /></p>
-             <p <?php if(!$ENABLE_PIN) echo 'style="display:none"';?>>New PIN:<input id="npin" type="text" value="<?php if(!$ENABLE_PIN) echo $DEFAULT_PIN?>" /> (Input your old PIN here if you don't want to change PIN)</p>
-             <p><input type="button" class="btn btn-sm btn-primary" id="changepw"  value="Submit"/></p>
-        </form>
-      </div>
+    <div class="modal" tabindex="-1" role="dialog" id="add">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4>Add a new account</h4>
+                </div>
+                <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="newiteminput" class="control-label">Account (Item):</label>
+                        <input class="form-control" id="newiteminput" type="text" />
+                    </div>
+                    <div class="form-group">
+                        <label for="newiteminputpw" class="control-label">Password:</label>
+                        <input class="form-control" id="newiteminputpw" type="text" placeholder="Leave blank to generate one"/>
+                    </div>
+                </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
+                    <button type="button" class="btn btn-primary" id="newbtn">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" tabindex="-1" role="dialog" id="import">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4>Import accounts</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="importc" class="control-label">Copy all contents in your RAW backup file and paste them into the following box.</label>
+                            <textarea class="form-control" id="importc"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="importbtn" onClick="import_raw($('#importc').val());">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" tabindex="-1" role="dialog" id="changepwd">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4>Change Password<?php if($ENABLE_PIN) echo ' or PIN';?>(Danger Area)</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="oldpassword" class="control-label">Old Password:</label>
+                            <input id="oldpassword" class="form-control" type="password" />
+                        </div>
+                        <div class="form-group">
+                            <label for="pwd" class="control-label">New Password:<small <?php if(!$ENABLE_PIN) echo 'style="display:none"';?>> (Input your old password if you only want to change PIN)</small></label>
+                            <input id="pwd" class="form-control" type="password" />
+                        </div>
+                        <div class="form-group">
+                            <label for="pwd1" class="control-label">New Password Again:</label>
+                            <input id="pwd1" class="form-control" type="password" />
+                        </div>
+                        <div class="form-group" <?php if(!$ENABLE_PIN) echo 'style="display:none"';?>>
+                            <label for="npin" class="control-label">New PIN:<small> (Input your old PIN here if you don't want to change PIN)</small></label>
+                            <input id="npin" class="form-control" type="text" value="<?php if(!$ENABLE_PIN) echo $DEFAULT_PIN?>" />
+                         </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Abort</button>
+                    <button type="button" class="btn btn-primary" id="changepw">Save changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>
 </div>
@@ -214,7 +300,10 @@ $("#changepw").click(function(){
         }
         setTimeout(process,50);
 	}
-});  
+});
+$('#add').on('shown.bs.modal', function () { $('#newiteminput').focus(); });
+$('#import').on('shown.bs.modal', function () { $('#importc').focus(); });
+$('#changepwd').on('shown.bs.modal', function () { $('#oldpassword').focus(); });
 }); 
 
 function clicktoshow(kss,id){ 
