@@ -1,5 +1,5 @@
 <?php
-$VERSION="5.12";
+$VERSION="5.13";
 
 //Your database host, e.g. localhost
 $DB_HOST='';
