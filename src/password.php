@@ -132,14 +132,14 @@ function quitpwd()
                         </div>
                         <div class="form-group">
                             <label class="control-label">Type of input&nbsp;&nbsp;</label>
-                            <label class="radio-inline active"><input type="radio" name="importType" checked="checked">Backup</label>
-                            <label class="radio-inline"><input type="radio" name="importType">CSV</label>
+                            <label class="radio-inline active"><input type="radio" name="importType" id="importTypeBackup" checked="checked">Backup</label>
+                            <label class="radio-inline"><input type="radio" name="importType" id="importTypeCSV">CSV</label>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="importbtn" onClick="import_raw($('#importc').val());">Submit</button>
+                    <button type="button" class="btn btn-primary" id="importbtn">Submit</button>
                 </div>
             </div>
         </div>
@@ -202,9 +202,6 @@ function import_raw(json){
         alert("INVALID RAW FILE");
         return;
     }
-    $("#importbtn").attr("disabled",true);
-    $("#importbtn").attr("value", "Processing...");
-    $("#importc").attr("readOnly",true);
     function add_acc(acc,pass){
         if(acc==''||pass=='') {
             alert("one of account or password empty! will continue to process other accounts, check back after this finished"); return;
@@ -232,6 +229,7 @@ function import_csv(csv){
             }
             add_account(accarray[x]["name"], accarray[x]["password"], function(msg) { if(msg!=1) alert("Fail to add "+acc+", please try again manually later."); });
         }
+        location.reload(true);
     });
 }
 
@@ -278,7 +276,6 @@ $("#newbtn").click(function(){
     setTimeout(process,50);
 	}); 
 $("#changepw").click(function(){ 
-    
     if(confirm("Your request will be processed on your browser, so it takes some time (up to #of_your_accounts * 10seconds). Do not close your window or some error might happen.\nPlease note we won't have neither your old password nor your new password. \nClick OK to confirm password change request."))
     {
         if (String(CryptoJS.SHA512($("#npin").val()))!=getpinsha()) if(!confirm("You are going to change your PIN, you must use your new PIN to login next time or you'll see incorrect passwords for your accounts! Confirm?")) return;
@@ -316,6 +313,18 @@ $("#changepw").click(function(){
         }
         setTimeout(process,50);
 	}
+});
+$("#importbtn").click(function(){ 
+    $("#importbtn").attr("disabled",true);
+    $("#importbtn").attr("value", "Processing...");
+    $("#importc").attr("readOnly",true);
+    if ($('#importTypeBackup').is(':checked'))
+        import_raw($('#importc').val()); 
+    else if ($('#importTypeCSV').is(':checked'))
+        import_csv($('#importc').val());
+    $("#importbtn").attr("disabled",false);
+    $("#importbtn").attr("value", "Submit");
+    $("#importc").attr("readOnly",false);
 });
 $('#add').on('shown.bs.modal', function () { $('#newiteminput').focus(); });
 $('#import').on('shown.bs.modal', function () { $('#importc').focus(); });
