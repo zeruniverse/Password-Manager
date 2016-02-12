@@ -130,6 +130,11 @@ function quitpwd()
                             <label for="importc" class="control-label">Copy all contents in your RAW backup file and paste them into the following box.</label>
                             <textarea class="form-control" id="importc"></textarea>
                         </div>
+                        <div class="form-group">
+                            <label class="control-label">Type of input&nbsp;&nbsp;</label>
+                            <label class="radio-inline active"><input type="radio" name="importType" checked="checked">Backup</label>
+                            <label class="radio-inline"><input type="radio" name="importType">CSV</label>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
