@@ -184,6 +184,13 @@ function sanitize_json(s){
     t=t.replace(/\n/g,'')
     return t.replace(/\r/g,'');
 }
+function add_account(acc, pass, callback){
+    var sk=secretkey;
+    pass=gen_temp_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512(acc)),ALPHABET,pass);
+    pass=encryptchar(pass,sk);
+    var name=encryptchar(acc,sk);
+    $.post("insert.php",{name:name,newpwd:pass},callback);
+}
 function import_raw(json){
     json=JSON.parse(sanitize_json(json));
     if(json.status!="RAW_OK") {
@@ -194,16 +201,10 @@ function import_raw(json){
     $("#importbtn").attr("value", "Processing...");
     $("#importc").attr("readOnly",true);
     function add_acc(acc,pass){
-        var sk=secretkey;
         if(acc==''||pass=='') {
             alert("one of account or password empty! will continue to process other accounts, check back after this finished"); return;
         }
-        pass=gen_temp_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512(acc)),ALPHABET,pass);
-        pass=encryptchar(pass,sk);
-        var name=encryptchar(acc,sk);
-        $.post("insert.php",{name:name,newpwd:pass},function(msg){ 
-            if(msg!=1) alert("Fail to add "+acc+", please try again manually later.");
-        });
+        add_account(acc, pass, function(msg) { if(msg!=1) alert("Fail to add "+acc+", please try again manually later."); });
     }
     function process(){
         var aeskey=json.KEY;
@@ -249,15 +250,12 @@ $("#newbtn").click(function(){
 	$("#newiteminput").attr("readonly",true);
 	$("#newiteminputpw").attr("readonly",true);
     function process(){
-	if($("#newiteminputpw").val()=='') newpwd=getpwd('<?php echo $DEFAULT_LETTER_USED; ?>',<?php echo $DEFAULT_LENGTH; ?>); else newpwd=$("#newiteminputpw").val();
-    newpwd=gen_temp_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512($("#newiteminput").val())),ALPHABET,newpwd);
-	newpwd=encryptchar(newpwd,sk);
-	var name=encryptchar($("#newiteminput").val(),sk);
-	$.post("insert.php",{name:name,newpwd:newpwd},function(msg){ 
-    if(msg==1) {alert("Add "+$("#newiteminput").val()+" successfully!");location.reload(true)} else alert("Fail to add "+$("#newiteminput").val()+", please try again.");
-    $("#newiteminput").attr("readonly",false);
-	$("#newbtn").attr("disabled",false);
-	$("#newiteminputpw").attr("readonly",false);});
+        if($("#newiteminputpw").val()=='') newpwd=getpwd('<?php echo $DEFAULT_LETTER_USED; ?>',<?php echo $DEFAULT_LENGTH; ?>); else newpwd=$("#newiteminputpw").val();
+        add_account($("#newiteminput").val(), newpwd,function(msg){ 
+        if(msg==1) {alert("Add "+$("#newiteminput").val()+" successfully!");location.reload(true)} else alert("Fail to add "+$("#newiteminput").val()+", please try again.");
+        $("#newiteminput").attr("readonly",false);
+        $("#newbtn").attr("disabled",false);
+        $("#newiteminputpw").attr("readonly",false);});
     }
     setTimeout(process,50);
 	}); 
