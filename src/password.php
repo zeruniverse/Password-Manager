@@ -216,6 +216,19 @@ function import_raw(json){
     }
     setTimeout(process,50);
 }
+function import_csv(csv){
+    $.getScript( 'js/jquery.csv.js', function() {
+        accarray = $.csv.toObjects(csv);
+        for (x in accarray) {
+            acc = accarray[x]["name"];
+            pass = accarray[x]["password"];
+            if(acc==''||pass=='') {
+                alert("one of account or password empty! will continue to process other accounts, check back after this finished"); continue;
+            }
+            add_account(accarray[x]["name"], accarray[x]["password"], function(msg) { if(msg!=1) alert("Fail to add "+acc+", please try again manually later."); });
+        }
+    });
+}
 
 $(document).ready(function(){
     function getskey(callback)
