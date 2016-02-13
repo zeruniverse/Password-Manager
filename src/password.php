@@ -46,7 +46,7 @@ function quitpwd()
 <script type="text/javascript" src="sha512.js"></script>
 <script type="text/javascript" src="pbkdf2.js"></script>
 <script type="text/javascript" src="password.js"></script>
-<nav class="navbar navbar-inverse navbar-fixed-top">
+    <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -72,6 +72,17 @@ function quitpwd()
           </ul>
           <div class="navbar-right">
             <p class="navbar-btn"><a href="" onClick="quitpwd();" class="btn btn-info"><strong>Log Out</strong></a></p>
+          </div>
+          <div class="col-sm-3 col-md-3 navbar-right">
+            <form class="navbar-form" id="searchForm">
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
+                <div class="input-group-btn">
+                    <button class="btn btn-default collapse" id="resetSearch" onClick="filterAccounts('')" type="button" title="reset search"><i class="glyphicon glyphicon-remove"></i></button>
+                    <button class="btn btn-default" type="submit" title="search"><i class="glyphicon glyphicon-search"></i></button>
+                </div>
+              </div>
+            </form>
           </div>
         </div><!--/.nav-collapse -->
       </div>
@@ -558,6 +569,10 @@ $('#edit').on('shown.bs.modal', function () {
 });
 $('#import').on('shown.bs.modal', function () { $('#importc').focus(); });
 $('#changepwd').on('shown.bs.modal', function () { $('#oldpassword').focus(); });
+$('#searchForm').submit(function () {
+    filterAccounts($('#srch-term').val())
+    return false;
+    });
 });
 function edit(row){
     var id = row; //row.find("")
@@ -585,6 +600,20 @@ function delepw(index)
          if(msg==1) {alert("delete "+name+" successfully");location.reload(true);} else alert("Fail to delete "+name+", please try again.");
 	 }); 
 	 }
+}
+function filterAccounts(text) {
+    $("tr.datarow").show();
+    if (text==""){
+        $("#resetSearch").hide();
+        $("#srch-term").val('');
+        return;
+    }
+    $("#resetSearch").show();
+    $("tr.datarow").filter(function() {
+        return $(this).find("td > span.namedone").filter(function(){
+            return $(this).text().indexOf(text) > -1; })
+        .length == 0;
+    }).hide();
 }
 </script>
 <?php echofooter();?>
