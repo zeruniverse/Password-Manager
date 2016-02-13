@@ -130,11 +130,16 @@ function quitpwd()
                             <label for="importc" class="control-label">Copy all contents in your RAW backup file and paste them into the following box.</label>
                             <textarea class="form-control" id="importc"></textarea>
                         </div>
+                        <div class="form-group">
+                            <label class="control-label">Type of input&nbsp;&nbsp;</label>
+                            <label class="radio-inline active"><input type="radio" name="importType" id="importTypeBackup" checked="checked">Backup</label>
+                            <label class="radio-inline"><input type="radio" name="importType" id="importTypeCSV">CSV</label>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="importbtn" onClick="import_raw($('#importc').val());">Submit</button>
+                    <button type="button" class="btn btn-primary" id="importbtn">Submit</button>
                 </div>
             </div>
         </div>
@@ -184,26 +189,24 @@ function sanitize_json(s){
     t=t.replace(/\n/g,'')
     return t.replace(/\r/g,'');
 }
+function add_account(acc, pass, callback){
+    var sk=secretkey;
+    pass=gen_temp_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512(acc)),ALPHABET,pass);
+    pass=encryptchar(pass,sk);
+    var name=encryptchar(acc,sk);
+    $.post("insert.php",{name:name,newpwd:pass},callback);
+}
 function import_raw(json){
     json=JSON.parse(sanitize_json(json));
     if(json.status!="RAW_OK") {
         alert("INVALID RAW FILE");
         return;
     }
-    $("#importbtn").attr("disabled",true);
-    $("#importbtn").attr("value", "Processing...");
-    $("#importc").attr("readOnly",true);
     function add_acc(acc,pass){
-        var sk=secretkey;
         if(acc==''||pass=='') {
             alert("one of account or password empty! will continue to process other accounts, check back after this finished"); return;
         }
-        pass=gen_temp_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512(acc)),ALPHABET,pass);
-        pass=encryptchar(pass,sk);
-        var name=encryptchar(acc,sk);
-        $.post("insert.php",{name:name,newpwd:pass},function(msg){ 
-            if(msg!=1) alert("Fail to add "+acc+", please try again manually later.");
-        });
+        add_account(acc, pass, function(msg) { if(msg!=1) alert("Fail to add "+acc+", please try again manually later."); });
     }
     function process(){
         var aeskey=json.KEY;
@@ -214,6 +217,20 @@ function import_raw(json){
         location.reload(true);
     }
     setTimeout(process,50);
+}
+function import_csv(csv){
+    $.getScript( 'js/jquery.csv.js', function() {
+        accarray = $.csv.toObjects(csv);
+        for (x in accarray) {
+            acc = accarray[x]["name"];
+            pass = accarray[x]["password"];
+            if(acc==''||pass=='') {
+                alert("one of account or password empty! will continue to process other accounts, check back after this finished"); continue;
+            }
+            add_account(accarray[x]["name"], accarray[x]["password"], function(msg) { if(msg!=1) alert("Fail to add "+acc+", please try again manually later."); });
+        }
+        location.reload(true);
+    });
 }
 
 $(document).ready(function(){
@@ -249,20 +266,16 @@ $("#newbtn").click(function(){
 	$("#newiteminput").attr("readonly",true);
 	$("#newiteminputpw").attr("readonly",true);
     function process(){
-	if($("#newiteminputpw").val()=='') newpwd=getpwd('<?php echo $DEFAULT_LETTER_USED; ?>',<?php echo $DEFAULT_LENGTH; ?>); else newpwd=$("#newiteminputpw").val();
-    newpwd=gen_temp_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512($("#newiteminput").val())),ALPHABET,newpwd);
-	newpwd=encryptchar(newpwd,sk);
-	var name=encryptchar($("#newiteminput").val(),sk);
-	$.post("insert.php",{name:name,newpwd:newpwd},function(msg){ 
-    if(msg==1) {alert("Add "+$("#newiteminput").val()+" successfully!");location.reload(true)} else alert("Fail to add "+$("#newiteminput").val()+", please try again.");
-    $("#newiteminput").attr("readonly",false);
-	$("#newbtn").attr("disabled",false);
-	$("#newiteminputpw").attr("readonly",false);});
+        if($("#newiteminputpw").val()=='') newpwd=getpwd('<?php echo $DEFAULT_LETTER_USED; ?>',<?php echo $DEFAULT_LENGTH; ?>); else newpwd=$("#newiteminputpw").val();
+        add_account($("#newiteminput").val(), newpwd,function(msg){ 
+        if(msg==1) {alert("Add "+$("#newiteminput").val()+" successfully!");location.reload(true)} else alert("Fail to add "+$("#newiteminput").val()+", please try again.");
+        $("#newiteminput").attr("readonly",false);
+        $("#newbtn").attr("disabled",false);
+        $("#newiteminputpw").attr("readonly",false);});
     }
     setTimeout(process,50);
 	}); 
 $("#changepw").click(function(){ 
-    
     if(confirm("Your request will be processed on your browser, so it takes some time (up to #of_your_accounts * 10seconds). Do not close your window or some error might happen.\nPlease note we won't have neither your old password nor your new password. \nClick OK to confirm password change request."))
     {
         if (String(CryptoJS.SHA512($("#npin").val()))!=getpinsha()) if(!confirm("You are going to change your PIN, you must use your new PIN to login next time or you'll see incorrect passwords for your accounts! Confirm?")) return;
@@ -300,6 +313,18 @@ $("#changepw").click(function(){
         }
         setTimeout(process,50);
 	}
+});
+$("#importbtn").click(function(){ 
+    $("#importbtn").attr("disabled",true);
+    $("#importbtn").attr("value", "Processing...");
+    $("#importc").attr("readOnly",true);
+    if ($('#importTypeBackup').is(':checked'))
+        import_raw($('#importc').val()); 
+    else if ($('#importTypeCSV').is(':checked'))
+        import_csv($('#importc').val());
+    $("#importbtn").attr("disabled",false);
+    $("#importbtn").attr("value", "Submit");
+    $("#importc").attr("readOnly",false);
 });
 $('#add').on('shown.bs.modal', function () { $('#newiteminput').focus(); });
 $('#import').on('shown.bs.modal', function () { $('#importc').focus(); });
