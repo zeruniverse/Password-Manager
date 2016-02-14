@@ -7,6 +7,7 @@
   
 ##Version
 v6.0-rc  
+**'master' branch is a dev-branch, please download stable version from [Release](https://github.com/zeruniverse/Password-Manager/releases) in order to use.**    
   
 ##DEMO  
 [pas.jeffery.cc](http://pas.jeffery.cc)  
@@ -62,13 +63,13 @@ Any PIN related information will not be uploaded to server.
 + Install PHP, MySQL and WebServer(IIS, Apache or Nginx) in your server.  
 + Create a database in your MySQL server for this password manager.  
 + Import ``initial.sql`` into that database.  
-+ Download ``src`` folder in this repository, modify ``src/function/config.php`` with your configuration (database and etc.)  
++ Download ``src`` folder in this repository **from [newest Release](https://github.com/zeruniverse/Password-Manager/releases)**, modify ``src/function/config.php`` with your configuration (database and etc.)  
 + Upload files in modified ``src`` folder to your web server.  
 + Though your login password won't be transmitted in the network, you still need to enable SSL if possible to avoid MIMA. Malicious JavaScript stealing password might be injected into the page if HTTP is used.  
 + Visit www.your_domain_name.com  
 + Click Signup to register an account. (If you don't want others to sign up, just delete signup.php and reg.php after you are done)  
 + You are done!    
-+ Remember your password (and PIN if you enable the PIN feature) to login. No one can recover your data if you lose that!  
++ Remember your password to login. No one can recover your data if you lose that!  
 + If your data is lost (e.g. your server is stolen), you can go back to this repo and download your version of password manager (you can find version number in your backup file). You don't need config file to recover your password. All salts are included in the backup file. You can find recovery button on `index.html` after deploying the new password manager.    
   
 ##About Upgrade  
