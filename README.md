@@ -95,6 +95,11 @@ New version usually comes with algorithm updates and will NOT be compatible with
 ##About Recovery  
 For your passwords safety, your login password to password manager won't be included in the recovery file. You still need your login password (and PIN if applicable) to decrypt the recovery file. The backup file is indepandent to config file. You don't need to backup your `config.php`         
 + The purpose of the recovery file is to protect your password in case of data loss. NOT IN CASE THAT YOU FORGET YOUR PASSWORD or PIN (No one can get your passwords without your login password!)  
+
+##Import from other password managers
++ Export your passwords from your password manager as csv file. 
++ Make sure there is a header line, the password and account name column must be named "password" and "name" respectively, order is not important. All other columns are being ignored.
++ Open the import dialog, paste the csv data and select csv as import type.
   
 ##Extentions  
 You can easily add E-mail verification, Google authentication... in your version of password manager. Put your implementation inside `check.php`, which is used for login authentication.   
