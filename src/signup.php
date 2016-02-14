@@ -36,7 +36,7 @@ var JSsalt='<?php echo $GLOBAL_SALT_1;?>';
         $("#chk").attr("disabled", true);
         $("#chk").attr("value", "Wait");
         function process(){
-        var login_sig=String(pbkdf2_enc($("#pwd").val(),JSsalt,500));
+        var login_sig=String(pbkdf2_enc(reducedinfo($("#pwd").val(),'<?php echo $DEFAULT_LETTER_USED; ?>'),JSsalt,500));
         login_sig=String(pbkdf2_enc(login_sig,JSsalt,500));
         $.post("reg.php",{email:$("#email").val(), pwd:login_sig,  user: $("#user").val()},function(msg){ 
 		if(msg==0){
