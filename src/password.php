@@ -134,6 +134,7 @@ function quitpwd()
                             <label class="control-label">Type of input&nbsp;&nbsp;</label>
                             <label class="radio-inline active"><input type="radio" name="importType" id="importTypeBackup" checked="checked">Backup</label>
                             <label class="radio-inline"><input type="radio" name="importType" id="importTypeCSV">CSV</label>
+                            <label class="small" style="display:block; clear:both;">Csv file must contain a header line and columns named "name" and "password" - order is not important.</label>
                         </div>
                     </form>
                 </div>
