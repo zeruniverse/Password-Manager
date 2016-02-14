@@ -27,7 +27,7 @@ echoheader();
         <hr />
         <button class="btn btn-sm btn-default" type="button" onClick="window.location.href='signup.php';" >Sign Up</button>&nbsp; <button class="btn btn-sm btn-warning" type="button" onClick="window.location.href='recovery.php';" >Password Recovery</button>
     <hr />
-    <div>Version <?php echo $VERSION;?></div>
+    <div>Version <?php echo $VERSION;?> (<a href="https://github.com/zeruniverse/Password-Manager/releases">DOWNLOAD</a>)</div>
     </div>
 <script type="text/javascript">
 var JSsalt='<?php echo $GLOBAL_SALT_1;?>';
