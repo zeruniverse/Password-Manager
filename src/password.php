@@ -289,7 +289,8 @@ $("#changepw").click(function(){
         login_sig=String(pbkdf2_enc(reducedinfo(newpass,'<?php echo $DEFAULT_LETTER_USED; ?>'),'<?php  echo    $GLOBAL_SALT_1; ?>',500));
         var newsecretkey=String(CryptoJS.SHA512(login_sig+'<?php echo $GLOBAL_SALT_2; ?>'));
         var postnewpass=pbkdf2_enc(login_sig,'<?php  echo    $GLOBAL_SALT_1; ?>',500);
-        var newconfkey=pbkdf2_enc(String(CryptoJS.SHA512(newpass+newsecretkey)),'<?php  echo $GLOBAL_SALT_1; ?>',500); 
+        //NOTE: login_sig here is the secret_key generated when login.
+        var newconfkey=pbkdf2_enc(String(CryptoJS.SHA512(newpass+login_sig)),'<?php  echo $GLOBAL_SALT_1; ?>',500); 
         var x,raw_pass;
         var temps;
         var passarray=new Array();
@@ -308,7 +309,7 @@ $("#changepw").click(function(){
             passarray[x]=encryptchar(raw_pass,newsecretkey);
         }
         $.post("changeuserpw.php",{newpass:postnewpass, passarray:JSON.stringify(passarray), accarray:JSON.stringify(accarray)},function(msg){ 
-            if(msg==1) {alert("Change Password Successfully! Please login with your new password and PIN again.");quitpwd();} else {alert("Fail to change your password, please try again."); location.reload();}
+            if(msg==1) {alert("Change Password Successfully! Please login with your new password again.");quitpwd();} else {alert("Fail to change your password, please try again."); location.reload();}
         });
         }
         setTimeout(process,50);
