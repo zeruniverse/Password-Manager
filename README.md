@@ -6,7 +6,7 @@
 ![Environment](https://img.shields.io/badge/MySQL-required-ff69b4.svg)
   
 ##Version
-v5.13  
+v6.0-rc  
   
 ##DEMO  
 [pas.jeffery.cc](http://pas.jeffery.cc)  
