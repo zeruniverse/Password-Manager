@@ -6,7 +6,7 @@
 ![Environment](https://img.shields.io/badge/MySQL-required-ff69b4.svg)
   
 ##Version
-v6.0-rc  
+v6.0  
 **'master' branch is a dev-branch, please download stable version from [Release](https://github.com/zeruniverse/Password-Manager/releases) in order to use.**    
   
 ##DEMO  
