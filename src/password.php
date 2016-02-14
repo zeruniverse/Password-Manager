@@ -23,6 +23,10 @@ echoheader();
 	font-family: 'passwordshow';
 	src:url('pw.ttf');
 }
+.theme-showcase
+{
+	margin-top:50px !important;
+}
 </style>
 <script type="text/javascript" src="setlocalstorage.js"></script>
 <script type="text/javascript">
