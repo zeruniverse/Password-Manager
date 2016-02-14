@@ -19,12 +19,14 @@ Any PIN related information will not be uploaded to server.
   
 ##Details   
 ###Key Generation    
-+ Secret_Key = PBKDF2(Login Password, Iteration: 500)  
-+ Login Signiture = PBKDF2(Secret_Key, Iteration: 500)  
-+ Confusion_Key = PBKDF2(SHA512(PIN+Login Password), Iteration: 500)   
++ Password_0 = REDUCED_INFO(Login Password)     
++ Secret_key_0 = PBKDF2(Password_0, Iteration: 500)     
++ PIN = Login Password + Secret_key_0        
++ Login Signature = PBKDF2(Secret_key_0, Iteration: 500)  
++ Confusion_Key = PBKDF2(SHA512(PIN), Iteration: 500)   
     
 ###Password From User Screen to Server  
-+ POST SHA512(Login Signiture + stamp sent from server) to server as authentication.    
++ POST SHA512(Login Signature + stamp sent from server) to server as authentication.    
 + User input account and corresponding password into web browser.    
 + Web browser calculate the mapping alphabet which is related to SHA512(account) and Confusion_Key.  
 + Using the mapping alphabet to map the raw password into a confusion password. Same characters might map to different characters. This prevents the attacker to get the pattern of your password.    
@@ -33,8 +35,8 @@ Any PIN related information will not be uploaded to server.
 + Server encrypt AES256 encrypted password again (password_1) and save encrypted account and password_1 into database.     
     
 ###Safety
-+ If the hacker doesn't have the access to your web browser, he can only get SHA512(Login Signiture + stamp sent from server) in the net. Assume he can extract Login Signiture from the above information (which is already super difficult).      
-+ In chrome, it cost 2s to generate Login Signiture. So it's hard to enumerate login password    
++ If the hacker doesn't have the access to your web browser, he can only get SHA512(Login Signature + stamp sent from server) in the net. Assume he can extract Login Signature from the above information (which is already super difficult).      
++ In chrome, it cost 2s to generate Login Signature. So it's hard to enumerate login password    
 + If the hacker gets login password, he still need PIN to map the pseudo password to the real password. But he can get your account name at this time. (Since whatever PIN the attacker inputs, the passwords on screen will look like true passwords. It's hard to verify whether the PIN is right.)   
 + If the hacker gets login password and knows one of your real password. Since the mapping ALPHABET is different account by account (it's related to account name), he can't get the mapping for other accounts. The PIN will be hashed with PBKDF2, iteration 500 before mapping. If he decides to enumerate PIN, every try costs 2s in Chrome.   
 + If the hacker gets access to your login password and PIN, or web browser.....SO ONLY OPEN PASSWORD MANAGER IN TRUSTED DEVICES AND USE STRONG LOGIN PASSWORD!    
@@ -47,12 +49,12 @@ Any PIN related information will not be uploaded to server.
 + Recover backup files takes long time (similar to [change login password])     
 + *Only change login password and do recovery on a good computer to save time!*      
 
-###About PIN     
-+ Any PIN related information will not uploaded to server.     
-+ Actually the user can input any PIN the first time he logs in. As long as he inputs the same PIN each time, it will works.     
+###About PIN    
++ PIN uses the information in login password which is not involved in server-side authentication        
++ Any PIN related information for the above part will not be uploaded to server.     
++ Using wrong password might be able to login, but will see incorrect passwords.
 + Change PIN actually changes the pseudo-passwords.      
-+ Incorrect PIN won't cause any error. But the user sees completely different passwords on screen.     
-+ You can ENABLE or DISABLE PIN feature in `config.php`. It's enabled by default. If you choose to disable PIN feature, the password manager will work like previous versions.     
++ Incorrect PIN won't cause any error. But the user sees completely different passwords on screen. It's very unlikely that you input a wrong password by mistake which generates the same Login_Signature as the correct password.           
     
 <img width="1114" alt="signup login" src="https://cloud.githubusercontent.com/assets/4648756/11234264/e07af92a-8d7a-11e5-967b-bff833c30e34.png">
          
