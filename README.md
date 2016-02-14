@@ -63,7 +63,7 @@ Any PIN related information will not be uploaded to server.
 + Install PHP, MySQL and WebServer(IIS, Apache or Nginx) in your server.  
 + Create a database in your MySQL server for this password manager.  
 + Import ``initial.sql`` into that database.  
-+ Download ``src`` folder in this repository **from [newest Release](https://github.com/zeruniverse/Password-Manager/releases)**, modify ``src/function/config.php`` with your configuration (database and etc.)  
++ Download ``src`` folder in this repository **from [newest Release](https://github.com/zeruniverse/Password-Manager/releases/latest)**, modify ``src/function/config.php`` with your configuration (database and etc.)  
 + Upload files in modified ``src`` folder to your web server.  
 + Though your login password won't be transmitted in the network, you still need to enable SSL if possible to avoid MIMA. Malicious JavaScript stealing password might be injected into the page if HTTP is used.  
 + Visit www.your_domain_name.com  
