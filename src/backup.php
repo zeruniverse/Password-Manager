@@ -24,7 +24,6 @@ while ($i = $res->fetch(PDO::FETCH_ASSOC)){
 	$kss=decrypt($i['pwd'],$i['key']);
 	$arr[(int)$index]=array($name,$kss);
 }
-if($ENABLE_PIN) $ret=array('status'=>'OK', 'VERSION'=>$VERSION, 'JSsalt'=>$GLOBAL_SALT_1, 'PWsalt'=>$GLOBAL_SALT_2, 'ALPHABET'=>$DEFAULT_LETTER_USED, 'data'=>$arr);
-else $ret=array('status'=>'OK','PIN'=>$DEFAULT_PIN, 'VERSION'=>$VERSION, 'JSsalt'=>$GLOBAL_SALT_1, 'PWsalt'=>$GLOBAL_SALT_2, 'ALPHABET'=>$DEFAULT_LETTER_USED, 'data'=>$arr);
+$ret=array('status'=>'OK', 'VERSION'=>$VERSION, 'JSsalt'=>$GLOBAL_SALT_1, 'PWsalt'=>$GLOBAL_SALT_2, 'ALPHABET'=>$DEFAULT_LETTER_USED, 'data'=>$arr);
 echo json_encode($ret);
 ?>	

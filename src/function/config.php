@@ -1,5 +1,5 @@
 <?php
-$VERSION="5.13";
+$VERSION="6.0";
 
 //Your database host, e.g. localhost
 $DB_HOST='';
@@ -12,14 +12,6 @@ $DB_USER='';
 
 //Database Password
 $DB_PASSWORD='';
-
-//TO USE PIN? - PIN is a new feature in v5.1 to provide enhanced security.
-$ENABLE_PIN=TRUE;
-
-//IF PIN IS DISABLED, DEFAULT PIN WILL BE PIN.
-//DEFAULT PIN IS USELESS WHEN ENABLE_PIN IS TRUE.
-//DON'T USE '\', IT CAN CAUSE PROBLEMS FOR BACKUP
-$DEFAULT_PIN="*ibwie098sh9b^nknckOP";
 
 //OPTIONAL
 //SALT For Encryption

@@ -18,8 +18,7 @@ echoheader();
     <textarea id="backupc"></textarea>
     <p> </p>
     <p>Password: <input type="password" name="pwd" id="pwd" /></p><br />
-    <p>PIN: <input type="text" name="pin" id="pin" /> (Leave it blank if you don't know what's it.)</p><br />
-    <p style="color:red">Input the login password and PIN when you generate the backup file.</p>
+    <p style="color:red">Input the login password when you generate the backup file.</p>
     </form>
     <input type="button" class="btn btn-md btn-success" onClick="rec();" id="chk" value="RECOVER IT!" />
     <a href="./" class="btn btn-md btn-info">Go Back</a>
@@ -69,9 +68,9 @@ function sanitize_json(s){
 function gen_key()
 {
     var pass=$("#pwd").val();
-    secretkey=String(pbkdf2_enc(pass,JSsalt,500));
+	secretkey=String(pbkdf2_enc(reducedinfo(pass,'<?php echo $DEFAULT_LETTER_USED; ?>'),JSsalt,500));
+    confkey=pbkdf2_enc(String(CryptoJS.SHA512(pass+secretkey)),JSsalt,500);
     secretkey=String(CryptoJS.SHA512(secretkey+PWsalt));
-    confkey=pbkdf2_enc(String(CryptoJS.SHA512($("#pin").val()+pass)),JSsalt,500);
 }
 function gen_account_array(enc_account_array)
 {
@@ -114,10 +113,6 @@ function rec(){
         alert("EMPTY PASSWORD IS NOT ALLOWED");
         return;
     }
-    if("PIN" in json) {
-        document.getElementById("pin").readOnly = true;
-        $("#pin").val(json.PIN);
-    }
     $("#recover_result").hide();
     $("#chk").attr("disabled",true);
     $("#chk").attr("value", "Processing...");
@@ -140,7 +135,6 @@ function rec(){
     $("#recover_result").show();
     $("#chk").removeAttr("disabled");
     $("#chk").attr("value", "RECOVER IT!");
-    $("#pin").removeAttr("readOnly");
     $("#raw_button").show();
     }
     setTimeout(process,50);

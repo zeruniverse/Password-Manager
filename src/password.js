@@ -146,3 +146,31 @@ function getpwd(charlist,plength) {
 　　}
 　　return pwd;
 }
+
+function getcharpos(x,charlist){
+	var maxpos,j;
+	maxpos = charlist.length;
+	for(j=0;j<maxpos;j++) if(x == charlist.charAt(j)) {
+			return j;
+	}
+	return -1;	
+}
+function reducedinfo(key,charlist) {
+	var maxpos = charlist.length;
+	var newpw = '';
+	var i,a,b,c,d;
+	var keylen = key.length;
+	while(keylen % 4 != 0){
+		key = key + charlist.charAt(0);
+		keylen = key.length;
+	}	
+	keylen = keylen / 4;
+	for(i=0;i< keylen;i++){
+		a = getcharpos(key.charAt(i*4),charlist);
+		b = getcharpos(key.charAt(i*4+1),charlist);
+		c = getcharpos(key.charAt(i*4+2),charlist);
+		d = getcharpos(key.charAt(i*4+3),charlist);
+		newpw = newpw + charlist.charAt((a+b+maxpos) % maxpos)+charlist.charAt((c+d+maxpos)%maxpos)+charlist.charAt((a+c+maxpos)%maxpos);
+	}
+	return newpw;
+}

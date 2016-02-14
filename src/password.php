@@ -55,7 +55,7 @@ function quitpwd()
             <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Profile<span class="caret"></span></a>
             <ul class="dropdown-menu">
-              <li><a href="javascript: alert('You will need your CURRENT login password<?php if($ENABLE_PIN) echo ' and PIN';?> to unlock the backup file even if you change login password<?php if($ENABLE_PIN) echo ' or PIN';?> later. Write your CURRENT login password<?php if($ENABLE_PIN) echo ' and PIN';?> down or remember to generate a new backup file after each time you change the login password<?php if($ENABLE_PIN) echo ' or PIN';?>.');window.location.href='backup.php'">Back Up</a></li>
+              <li><a href="javascript: alert('You will need your CURRENT login password to unlock the backup file even if you change login password later. Write your CURRENT login password down or remember to generate a new backup file after each time you change the login password.');window.location.href='backup.php'">Back Up</a></li>
               <li><a href="" data-toggle="modal" data-target="#import">Import</a></li>
               <li><a href="" data-toggle="modal" data-target="#changepwd">Change Password</a></li>
             </ul>
@@ -149,7 +149,7 @@ function quitpwd()
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4>Change Password<?php if($ENABLE_PIN) echo ' or PIN';?>(Danger Area)</h4>
+                    <h4>Change Password(Danger Area)</h4>
                 </div>
                 <div class="modal-body">
                     <form>
@@ -158,17 +158,13 @@ function quitpwd()
                             <input id="oldpassword" class="form-control" type="password" />
                         </div>
                         <div class="form-group">
-                            <label for="pwd" class="control-label">New Password:<small <?php if(!$ENABLE_PIN) echo 'style="display:none"';?>> (Input your old password if you only want to change PIN)</small></label>
+                            <label for="pwd" class="control-label">New Password:</label>
                             <input id="pwd" class="form-control" type="password" />
                         </div>
                         <div class="form-group">
                             <label for="pwd1" class="control-label">New Password Again:</label>
                             <input id="pwd1" class="form-control" type="password" />
                         </div>
-                        <div class="form-group" <?php if(!$ENABLE_PIN) echo 'style="display:none"';?>>
-                            <label for="npin" class="control-label">New PIN:<small> (Input your old PIN here if you don't want to change PIN)</small></label>
-                            <input id="npin" class="form-control" type="text" value="<?php if(!$ENABLE_PIN) echo $DEFAULT_PIN?>" />
-                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -278,18 +274,17 @@ $("#newbtn").click(function(){
 $("#changepw").click(function(){ 
     if(confirm("Your request will be processed on your browser, so it takes some time (up to #of_your_accounts * 10seconds). Do not close your window or some error might happen.\nPlease note we won't have neither your old password nor your new password. \nClick OK to confirm password change request."))
     {
-        if (String(CryptoJS.SHA512($("#npin").val()))!=getpinsha()) if(!confirm("You are going to change your PIN, you must use your new PIN to login next time or you'll see incorrect passwords for your accounts! Confirm?")) return;
         if ($("#pwd").val()!=$("#pwd1").val() || $("#pwd").val().length<7){alert("The second password you input doesn't match the first one. Or your password is too weak (length should be at least 7)"); return;}
         $("#changepw").attr("disabled",true);
         $("#changepw").attr("value", "Processing...");
         function process(){
-        var login_sig=String(pbkdf2_enc($("#oldpassword").val(),'<?php  echo $GLOBAL_SALT_1; ?>',500));
+        var login_sig=String(pbkdf2_enc(reducedinfo($("#oldpassword").val(),'<?php echo $DEFAULT_LETTER_USED; ?>'),'<?php  echo $GLOBAL_SALT_1; ?>',500));
         if(secretkey!=String(CryptoJS.SHA512(login_sig+'<?php echo $GLOBAL_SALT_2; ?>'))) {alert("Incorrect Old Password!"); location.reload(); return;}
         var newpass=$("#pwd").val();
-        login_sig=String(pbkdf2_enc(newpass,'<?php  echo    $GLOBAL_SALT_1; ?>',500));
+        login_sig=String(pbkdf2_enc(reducedinfo(newpass,'<?php echo $DEFAULT_LETTER_USED; ?>'),'<?php  echo    $GLOBAL_SALT_1; ?>',500));
         var newsecretkey=String(CryptoJS.SHA512(login_sig+'<?php echo $GLOBAL_SALT_2; ?>'));
         var postnewpass=pbkdf2_enc(login_sig,'<?php  echo    $GLOBAL_SALT_1; ?>',500);
-        var newconfkey=pbkdf2_enc(String(CryptoJS.SHA512($("#npin").val()+newpass)),'<?php  echo $GLOBAL_SALT_1; ?>',500); 
+        var newconfkey=pbkdf2_enc(String(CryptoJS.SHA512(newpass+newsecretkey)),'<?php  echo $GLOBAL_SALT_1; ?>',500); 
         var x,raw_pass;
         var temps;
         var passarray=new Array();
