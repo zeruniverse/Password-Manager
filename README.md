@@ -3,11 +3,11 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/grade/b5d954be72144355aa258748cfd05bca)](https://www.codacy.com/app/zzy8200/Password-Manager)
 ![License](https://img.shields.io/github/license/zeruniverse/Password-Manager.svg)
 ![Environment](https://img.shields.io/badge/PHP-5.2+-blue.svg)
-![Environment](https://img.shields.io/badge/MySQL-required-ff69b4.svg)
+![Environment](https://img.shields.io/badge/MySQL-required-ff69b4.svg)     
+**'master' branch is a dev-branch, please download stable version from [Release](https://github.com/zeruniverse/Password-Manager/releases) in order to use.**      
   
 ##Version
 v6.0  
-**'master' branch is a dev-branch, please download stable version from [Release](https://github.com/zeruniverse/Password-Manager/releases) in order to use.**    
   
 ##DEMO  
 [pas.jeffery.cc](http://pas.jeffery.cc)  
