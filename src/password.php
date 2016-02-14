@@ -131,14 +131,14 @@ function quitpwd()
                 <div class="modal-body">
                     <form>
                         <div class="form-group">
-                            <label for="importc" class="control-label">Copy all contents in your RAW backup file and paste them into the following box.</label>
+                            <label for="importc" class="control-label">Copy all contents in your RAW backup file/CSV file and paste them into the following box. You should open those files with plain text editor.</label>
                             <textarea class="form-control" id="importc"></textarea>
                         </div>
                         <div class="form-group">
                             <label class="control-label">Type of input&nbsp;&nbsp;</label>
                             <label class="radio-inline active"><input type="radio" name="importType" id="importTypeBackup" checked="checked">Backup</label>
                             <label class="radio-inline"><input type="radio" name="importType" id="importTypeCSV">CSV</label>
-                            <label class="small" style="display:block; clear:both;">Csv file must contain a header line and columns named "name" and "password" - order is not important.</label>
+                            <label class="small" style="display:block; clear:both;">CSV file must contain a header line with columns called "name" and "password" - order is not important. You may edit your CSV with your password in Office so that the account field has a header called 'name' and the password field has a header called 'password'. Then you can save the CSV and open it again in plain text editor to copy contents.</label>
                         </div>
                     </form>
                 </div>
