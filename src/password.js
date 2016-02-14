@@ -160,6 +160,7 @@ function reducedinfo(key,charlist) {
 	var newpw = '';
 	var i,a,b,c,d;
 	var keylen = key.length;
+    newpw = newpw + keylen.toString();
 	while(keylen % 4 != 0){
 		key = key + charlist.charAt(0);
 		keylen = key.length;
