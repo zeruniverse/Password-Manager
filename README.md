@@ -95,16 +95,62 @@ New version usually comes with algorithm updates and will NOT be compatible with
 ##About Recovery  
 For your passwords safety, your login password to password manager won't be included in the recovery file. You still need your login password (and PIN if applicable) to decrypt the recovery file. The backup file is indepandent to config file. You don't need to backup your `config.php`         
 + The purpose of the recovery file is to protect your password in case of data loss. NOT IN CASE THAT YOU FORGET YOUR PASSWORD or PIN (No one can get your passwords without your login password!)  
-
-##Import from other password managers
-+ Export your passwords from your password manager as csv file. 
-+ Make sure there is a header line, the password and account name column must be named "password" and "name" respectively, order is not important. All other columns are being ignored.
-+ Open the import dialog, paste the csv data and select csv as import type.
-  
+   
+##Import From Other Password Managers
++ Export your passwords from your password manager as csv file.  
++ Make sure there is a header line, the password and account name column must be named "password" and "name" respectively, order is not important. All other columns are being ignored.    
++ Open the import dialog, paste the csv data and select csv as import type.    
+    
+##Backup
+Though the probability is low, you can't deny that you may lose your passwords in various cases. So **please backup your passwords regularly**. If you are the owner of the server hosting the password manager, you may simply back up the database. Otherwise, you can use the backup
+function implemented in the password manager. This will trigger a download of a JSON file. You can keep this file in cloud storage services such as Google Drive and Dropbox. If the password manager you use is damaged, you can go here and download the same version of the password manager
+you used. By using its recovery function, your JSON file and your login password, you can recover all your passwords. All passwords in JSON file is encrypted and your login password which is used to decrypt won't be in the JSON file. So it's safe to keep the JSON file in cloud storage
+services.    
+      
 ##Extentions  
 You can easily add E-mail verification, Google authentication... in your version of password manager. Put your implementation inside `check.php`, which is used for login authentication.   
+     
+##TODO  
+###Search account (Assigned)
+Implement search function in the password manager. (Assigned to @BenjaminHae)     
+###URL and tags (Assigned)
+Add tags and login URL to password manager.  (Assigned to @BenjaminHae)   
+###Implement PIN to make password manager more convenient
+For trust devices, instead of inputing user name/password every time to login, one can just input simply PIN. With username/password 'remembered (encrypted)' in local storage.    
+The PIN is used to decrypt the encrypted login password in the local storage. Since PIN is usually simple, we should do some tricks to avoid brute force. This means the decryption
+of the passwords in local storage should also involve the web server and let the web server limit the max allowed tries. This function is similar to how you unlock your iPhone.      
+We should have a function called untrust this device.      
+We should give users option to switch to other accounts.     
+If the remembered password is incorrect (password changed after the last login), let the user login again.      
+###Implement history track
+List current sessions/past x days login history.     
+History includes login IP, browser type, OS type, time and maybe which password is seen.   
+###Implement timeout logout
+Users might forget to logout the password manager. We should automatically log them out if there isn't any operation during a period of time (or simply log them out in x minutes).  
   
-## Copyright  
+##Contribution
+Any help to improve this project is greatly appreciated!     
+     
+###For New Idea
+Submit an [issue](https://github.com/zeruniverse/Password-Manager/issues), or submit a pull request that adds your new idea in [TODO](https://github.com/zeruniverse/Password-Manager#TODO)    
+###Contribute Code
+Please help solve unassigned [TODO](https://github.com/zeruniverse/Password-Manager#TODO). Before starting coding, submit a pull request and mark that part as assigned and write your GitHub ID.       
+I'll try to respond to issues and pull requests within 24 hours.    
+If you contribute code to this project, your name will show up [here](https://github.com/zeruniverse/Password-Manager/graphs/contributors).      
+###Other Helps
+Please help distribute this project and let more people know if you feel it helpful :)       
+  
+**All contributors must agree that your code/ideas are going be distributed under MIT license. And a copy of MIT license should be included in the copy of this software that you distribute.**     
+      
+##BUG Report
+If you find a BUG, please submit an [issue](https://github.com/zeruniverse/Password-Manager/issues).     
+     
+##Warranty
+We (all developers/contributors) understand that your passwords are valuable, so we tried our best to make sure this software protects your passwords well. The safety of this software is heavily based on the safety of AES-256
+algorithm, which is widely used for encryption and proven to be solid. However, we can't give any warranty for this free software as is stated in the license. Who knows if FBI secretly keeps some algorithm that solves AES in
+linear time complexity? If you have a REALLY REALLY REALLY important account, only keeping that in your mind will make it 100% safe.      
+     
+##Copyright  
 Jeffery Zhao  
 License: MIT     
 The copyright for Crypto-JS and Bootstrap are reserved by their authors.  
