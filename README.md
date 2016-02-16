@@ -14,48 +14,48 @@ v6.0
 This demo is for test ONLY! Do NOT put your real password there.  
     
 ##Mechanism 
-This password manager can generate and store random strong passwords for users. Passwords are generated on users' browsers and then encrypted using AES256.  
-PBKDF2 with SHA512 is used for user identification check. Raw password will be mapped to a pseudo password with a key related to PIN before applying AES256. The mapping algorithm is alphabet and position based.    
-Any PIN related information will not be uploaded to server.  
+This password manager can generate and store random strong passwords for users. Passwords are generated on users' browsers and then encrypted using AES256 (mode CBC).  
+PBKDF2 with SHA512 is used for user identification check. Raw password will be mapped to a pseudo password with a key related to Password_1 before applying AES256. The mapping algorithm is alphabet and position based.    
+Some part of information in Password_1 won't involve in calculations for identity check, So password_1 can't be obtained by enumerating password_0 (used for authentication).  
   
 ##Details   
 ###Key Generation    
 + Password_0 = REDUCED_INFO(Login Password)     
 + Secret_key_0 = PBKDF2(Password_0, Iteration: 500)     
-+ PIN = Login Password + Secret_key_0        
-+ Login Signature = PBKDF2(Secret_key_0, Iteration: 500)  
-+ Confusion_Key = PBKDF2(SHA512(PIN), Iteration: 500)   
++ Password_1 = Login Password + Secret_key_0        
++ Login Signature = PBKDF2(Secret_key_0, Iteration: 500)   
++ Confusion_Key = PBKDF2(SHA512(Password_1), Iteration: 500)   
     
 ###Password From User Screen to Server  
 + POST SHA512(Login Signature + stamp sent from server) to server as authentication.    
 + User input account and corresponding password into web browser.    
 + Web browser calculate the mapping alphabet which is related to SHA512(account) and Confusion_Key.  
 + Using the mapping alphabet to map the raw password into a confusion password. Same characters might map to different characters. This prevents the attacker to get the pattern of your password.    
-+ Using AES256 to encrypt confusion password, as well as account and using Secret_Key as secret key.  
++ Using AES256 to encrypt confusion mapped password, as well as account and using Secret_Key as secret key.  
 + POST AES256 encrypted account and password to server.   
-+ Server encrypt AES256 encrypted password again (password_1) and save encrypted account and password_1 into database.     
++ Server encrypt AES256 encrypted password again (S_password) and save encrypted account and S_password into database.     
     
 ###Safety
 + If the hacker doesn't have the access to your web browser, he can only get SHA512(Login Signature + stamp sent from server) in the net. Assume he can extract Login Signature from the above information (which is already super difficult).      
-+ In chrome, it cost 2s to generate Login Signature. So it's hard to enumerate login password    
-+ If the hacker gets login password, he still need PIN to map the pseudo password to the real password. But he can get your account name at this time. (Since whatever PIN the attacker inputs, the passwords on screen will look like true passwords. It's hard to verify whether the PIN is right.)   
-+ If the hacker gets login password and knows one of your real password. Since the mapping ALPHABET is different account by account (it's related to account name), he can't get the mapping for other accounts. The PIN will be hashed with PBKDF2, iteration 500 before mapping. If he decides to enumerate PIN, every try costs 2s in Chrome.   
-+ If the hacker gets access to your login password and PIN, or web browser.....SO ONLY OPEN PASSWORD MANAGER IN TRUSTED DEVICES AND USE STRONG LOGIN PASSWORD!    
++ In chrome, it cost 2s to generate Login Signature from password_0. So it's hard to enumerate password_0    
++ If the hacker gets password_0, he still needs password_1 to map the pseudo password to the real password. But he can get your account name at this time. (Password_1 contains more information than password_0 thus whatever extra information the attacker inputs, the passwords on screen will look like true passwords. It's hard to verify whether the Password_1 is correct.)   
++ If the hacker gets login password and knows one of your real password. Since the mapping ALPHABET is different account by account (it's related to account name), he can't get the mapping for other accounts. The Password_1 will be hashed with PBKDF2, iteration 500 before mapping. If he decides to enumerate Password_1, every try costs 2s in Chrome.   
++ If the hacker gets access to your login password, or web browser.....SO ONLY OPEN PASSWORD MANAGER IN TRUSTED DEVICES AND USE STRONG LOGIN PASSWORD!    
   
 ###Performance  
 + The Login phase cost a lot of time because all keys need to be generated then. If the password is correct, it costs 4 seconds to login in Chrome (Intel i5) and 7 seconds on iPhone 6. If the password is incorrect, it takes 3 seconds for Chrome to know it's incorrect and show an alert.     
 + Add a new account or click to show passwords won't take long since all keys are generated. On iPhone 6, they take up to 1 second.    
 + Delete an account or refresh with a random password will finish instantly. (Trick: We don't care mapping at all when refresh. The password will be random anyway)   
-+ Change login password or pin takes long time -> TIME = Login_Time + Click_To_Show_Time * Account_Number    
++ Change login password takes long time -> TIME = Login_Time + Click_To_Show_Time * Account_Number    
 + Recover backup files takes long time (similar to [change login password])     
 + *Only change login password and do recovery on a good computer to save time!*      
 
-###About PIN    
-+ PIN uses the information in login password which is not involved in server-side authentication        
-+ Any PIN related information for the above part will not be uploaded to server.     
-+ Using wrong password might be able to login, but will see incorrect passwords.
-+ Change PIN actually changes the pseudo-passwords.      
-+ Incorrect PIN won't cause any error. But the user sees completely different passwords on screen. It's very unlikely that you input a wrong password by mistake which generates the same Login_Signature as the correct password.           
+###About Password_1    
++ Password_1 contains all information in your login password, part of which is not involved in server-side authentication.        
++ Any information for the above part (I(Password_1) - I(Password_0)) will not be uploaded to server.     
++ Using wrong login password might be able to login (as long as Password_0 induced is the same with the correct one), but will see incorrect passwords (very different from the correct ones). But the design of password_0 calculation ensures that incorrect login passwords by mistake won't log you in (For two passwords that can both log in, they'll differ at least for 4 characters). So only attackers that enumerate your login passwords might run into this case.      
++ Change the extra information in Password_1 actually changes the pseudo-passwords.      
++ Except that the user sees completely different passwords on screen, inputing wrong login password that happens to generate the correct password_0 won't cause any errors. And since all passwords uses alphabet-based confusion, it's hard to tell whether the password is correct directly.           
     
 <img width="1114" alt="signup login" src="https://cloud.githubusercontent.com/assets/4648756/11234264/e07af92a-8d7a-11e5-967b-bff833c30e34.png">
          
@@ -93,8 +93,8 @@ New version usually comes with algorithm updates and will NOT be compatible with
 + If some error occurs, you can clear your database and redo the previous steps. This may take long time if you have many accounts. Find a good computer with good Internet access to do it!       
       
 ##About Recovery  
-For your passwords safety, your login password to password manager won't be included in the recovery file. You still need your login password (and PIN if applicable) to decrypt the recovery file. The backup file is indepandent to config file. You don't need to backup your `config.php`         
-+ The purpose of the recovery file is to protect your password in case of data loss. NOT IN CASE THAT YOU FORGET YOUR PASSWORD or PIN (No one can get your passwords without your login password!)  
+For your passwords safety, your login password to password manager won't be included in the recovery file. You still need your login password to decrypt the recovery file. The backup file is indepandent to config file. You don't need to backup your `config.php`         
++ The purpose of the recovery file is to protect your password in case of data loss. NOT IN CASE THAT YOU FORGET YOUR PASSWORD (No one can get your passwords without your login password!)  
    
 ##Import From Other Password Managers
 + Export your passwords from your password manager as csv file.  
