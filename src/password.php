@@ -288,6 +288,7 @@ function setpin(pin){
     var device=getcookie('device');
     var salt=getpwd('abcdefghijklmnopqrstuvwxyz1234567890',500);
     timeout=5;
+    if(pin.length<4) {alert('For security reason, PIN should be at least of length 4.'); return;}
     if(device=="")
     {
         device=getpwd('abcdefghijklmnopqrstuvwxyz1234567890',9)
