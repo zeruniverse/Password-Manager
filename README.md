@@ -81,7 +81,7 @@ New version usually comes with algorithm updates and will NOT be compatible with
 + Register a new account for password manager  
 + Create all your accounts back (Please note it's recommended to change passwords for all of your accounts when you upgrade)     
   
-###Old version >= 5.11    
+###Old version >= 5.11
 + Login to your old password manager. Backup and save the backup file.    
 + Logout and go to the recovery page.     
 + Input all contents in backup file to the recovery box and click [RECOVER IT!], after the recovery, a new button [Export Raw Data] will be on your screen.     
@@ -90,8 +90,11 @@ New version usually comes with algorithm updates and will NOT be compatible with
 + Create an account in new password manager.     
 + Login and find the [Import accounts] section. Copy all contents in the raw_pass.txt and paste them into the box. Click [Submit].
 + All your password should be on your new password manager now.    
-+ If some error occurs, you can clear your database and redo the previous steps. This may take long time if you have many accounts. Find a good computer with good Internet access to do it!       
-      
++ If some error occurs, you can clear your database and redo the previous steps. This may take long time if you have many accounts. Find a good computer with good Internet access to do it!
+
+###Experimental upgrade to version with additional fields(tags,...)
++ Run upgrade.sql in your database.
+
 ##About Recovery  
 For your passwords safety, your login password to password manager won't be included in the recovery file. You still need your login password to decrypt the recovery file. The backup file is indepandent to config file. You don't need to backup your `config.php`         
 + The purpose of the recovery file is to protect your password in case of data loss. NOT IN CASE THAT YOU FORGET YOUR PASSWORD (No one can get your passwords without your login password!)  

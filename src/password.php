@@ -31,6 +31,11 @@ echoheader();
 <script type="text/javascript" src="setlocalstorage.js"></script>
 <script type="text/javascript">
 var secretkey;
+var fields={url:{colname: 'URL', hint: '', cls: ' hidden'}, 
+            user:{colname: 'Username', hint: '', cls: ' ', position: 1}, 
+            comment:{colname: 'Comment', hint: '', cls: ' hidden', type: "textarea"},
+            tags:{colname: 'Tags', hint: 'Comma separated values', cls: ' hidden-xs'},
+            };
 var accountarray=new Array();
 function quitpwd()
 {
@@ -73,24 +78,32 @@ function quitpwd()
     </nav>
     
 <div class="container theme-showcase">
-      <div class="page-header" id="pw">
-        <h1>Password Manager</h1>
-	  </div>
+    <div class="row">
+        <div class="col-md-8">
+          <div class="page-header">
+            <h1>Password Manager</h1>
+          </div>
+        </div>
+        <div class="col-md-4">
+            <div class="pull-right-sm" id="tagCloud" style="display:none;"><p class="lead" style="margin-bottom:0">Tag-Overview</p><p class="visible-xs small" style
+="margin-bottom:0;"><a href="javascript:$('#tags').toggleClass('hidden-xs');$('.tagsShow').toggleClass('hidden');"><span class="tagsShow">show</span><span class="tagsShow hidden">hide</span> tags</a></p><span class="hidden-xs" id="tags"></span><p class="small" style="display:none;" id="resetFilter"><a href="javascript:filterTags('');">reset filter</a></p></div>
+        </div>
+    </div>
     <!-- preload ttf -->
     <span style="display:none; font-family:passwordshow"><?php echo $DEFAULT_LETTER_USED; ?></span>
-    <hr />
     <div id="waitsign">PLEASE WAIT WHILE WE ARE DECRYPTING YOUR PASSWORD...</div>
     <div id="pwdtable" style="display:none">
-    <table class="table">
-    <tr><th>Account</th><th>Password</th><th class="hidden-xs">Generate New Password</th><th class="hidden-xs">Delete this Password</th></tr>
+    <table class="table" id="pwdlist">
+    <tr><th>Account</th><th>Password</th></tr>
     <?php
         $sql="SELECT * FROM `password` WHERE `userid`= ?";
         $res=sqlexec($sql,array($id),$link);
 		while ($i = $res->fetch(PDO::FETCH_ASSOC)){ 
         $index=$i['index'];
 		$name=$i['name'];
+        $additionalFields=$i['other'];
 		$kss=decrypt($i['pwd'],$i['key']);
-		echo "<tr><td><span class='accountname' dataid=".$index.">".$name.'</span></td><td><span passid="'.$index.'" enpassword="'.$kss.'"id="'.$index.'"><a href="javascript: clicktoshow(\''.$kss.'\',\''.$index.'\')">Click to see</a></span></td><td class="hidden-xs"><a href="javascript: refreshpw(\''.$index.'\')">Click to change</a></td><td class="hidden-xs"><a href="javascript: delepw(\''.$index.'\')">Click to delete</a></td></tr>';
+		echo "<tr class='datarow' data-additional='".$additionalFields."' dataid='".$index."'><td class='namecell'><span class='accountname' onclick='edit(".$index.")' title='click to edit' dataid=".$index.">".$name.'</span></td><td><span passid="'.$index.'" enpassword="'.$kss.'" id="'.$index.'"><a href="javascript: clicktoshow(\''.$kss.'\',\''.$index.'\')">Click to see</a></span></td></tr>';
 		}
     ?>
    </table> 
@@ -117,6 +130,39 @@ function quitpwd()
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
                     <button type="button" class="btn btn-primary" id="newbtn">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" tabindex="-1" role="dialog" id="edit" data-id="">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4>Edit account information</h4>
+                </div>
+                <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="edititeminput" class="control-label">Account (Item):</label>
+                        <input class="form-control" id="edititeminput" type="text" />
+                    </div>
+                    <div class="form-group">
+                        <label for="edititeminputpw" class="control-label">Password:</label>
+                        <div class="input-group">
+                            <input class="form-control" id="edititeminputpw" type="text" placeholder="Leave blank to generate one"/>
+                            <span class="input-group-btn">
+                                <button class="btn btn-warning" onclick="$('#edititeminputpw').val(getpwd('<?php echo $DEFAULT_LETTER_USED; ?>',<?php echo $DEFAULT_LENGTH; ?>)); $('#editAccountShowPassword').removeClass('collapse');" type="button" title="generate new password"><i class="glyphicon glyphicon-refresh"></i></button>
+                                <button class="btn btn-default" type="button" id="editAccountShowPassword" title="show current password"><i class="glyphicon glyphicon-eye-open"></i></button>
+                            </span>
+                        </div>
+                    </div>
+                </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" id="delbtn">Delete</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
+                    <button type="button" class="btn btn-primary" id="editbtn">Save</button>
                 </div>
             </div>
         </div>
@@ -179,7 +225,6 @@ function quitpwd()
             </div>
         </div>
     </div>
-
 </div>
 </div>
 <script type="text/javascript">
@@ -190,12 +235,23 @@ function sanitize_json(s){
     t=t.replace(/\n/g,'')
     return t.replace(/\r/g,'');
 }
-function add_account(acc, pass, callback){
+function decryptPassword(name, kss){
+    var thekey=decryptchar(kss,secretkey);
+    if (thekey==""){
+        return "";
+    }
+    return get_orig_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512(name)),ALPHABET,thekey);
+}
+function encryptPassword(name, pass){
+    pass=gen_temp_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512(name)),ALPHABET,pass);
+    return encryptchar(pass,secretkey);
+}
+function add_account(acc, pass, other, callback){
     var sk=secretkey;
-    pass=gen_temp_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512(acc)),ALPHABET,pass);
-    pass=encryptchar(pass,sk);
-    var name=encryptchar(acc,sk);
-    $.post("insert.php",{name:name,newpwd:pass},callback);
+    pass=encryptPassword(acc, pass);
+    other=encryptchar(other, sk);
+    acc=encryptchar(acc,sk);
+    $.post("insert.php",{name:acc,newpwd:pass,other:other},callback);
 }
 function import_raw(json){
     json=JSON.parse(sanitize_json(json));
@@ -203,17 +259,20 @@ function import_raw(json){
         alert("INVALID RAW FILE");
         return;
     }
-    function add_acc(acc,pass){
+    function add_acc(acc,pass,other){
         if(acc==''||pass=='') {
             alert("one of account or password empty! will continue to process other accounts, check back after this finished"); return;
         }
-        add_account(acc, pass, function(msg) { if(msg!=1) alert("Fail to add "+acc+", please try again manually later."); });
+        add_account(acc, pass, other, function(msg) { if(msg!=1) alert("Fail to add "+acc+", please try again manually later."); });
     }
     function process(){
         var aeskey=json.KEY;
         var x;
         for(x in json.data){
-            add_acc(decryptchar(json.data[x][0],aeskey),decryptchar(json.data[x][1],aeskey));
+            other = "";
+            if (json.data[x].length > 2)
+                other = decryptchar(json.data[x][2], aeskey);
+            add_acc(decryptchar(json.data[x][0],aeskey),decryptchar(json.data[x][1],aeskey), other);
         }
         location.reload(true);
     }
@@ -221,61 +280,221 @@ function import_raw(json){
 }
 function import_csv(csv){
     $.getScript( 'js/jquery.csv.js', function() {
-        accarray = $.csv.toObjects(csv);
+        var accarray = $.csv.toObjects(csv);
         for (x in accarray) {
-            acc = accarray[x]["name"];
-            pass = accarray[x]["password"];
+            var acc = accarray[x]["name"];
+            var pass = accarray[x]["password"];
             if(acc==''||pass=='') {
                 alert("one of account or password empty! will continue to process other accounts, check back after this finished"); continue;
             }
-            add_account(accarray[x]["name"], accarray[x]["password"], function(msg) { if(msg!=1) alert("Fail to add "+acc+", please try again manually later."); });
+            var other = {};
+            for (key in accarray[x]){
+                if (key in fields){
+                    other[key]=accarray[x][key];
+                }
+            }
+            add_account(acc, pass, JSON.stringify(other), function(msg) { if(msg!=1) alert("Fail to add "+acc+", please try again manually later."); });
         }
         location.reload(true);
     });
 }
 
+function filterTags(tag){
+    $("#pwdlist").find("tr").show();
+    if (tag == ""){
+        $("#resetFilter").hide();
+        return;
+    }
+    var jo = $("#pwdlist").find("tr");
+    jo.filter(function (i, v) {
+        if ($(this).has("th").length > 0)
+            return false;
+        var $t = $(this).find(".accounttags");
+        if ($t.is(":contains('" +tag + "')")) {
+            return false;
+        }
+        return true;
+    })
+    .hide();
+    $("#resetFilter").show();
+}
 $(document).ready(function(){
+    for (x in fields) {
+        fields[x]["count"] = 0;
+        var header = '<th class="'+x+'cell'+fields[x]["cls"]+'">'+fields[x]["colname"]+'</th>';
+        var cell = '<td class="'+x+'cell'+fields[x]["cls"]+'"><span class="account'+x+'"></td>';
+        var input = "";
+        var inputtype = "text";
+        if ("type" in fields[x])
+            inputtype = fields[x]["type"];
+        if (inputtype == "textarea")
+            input = '<textarea class="form-control" id="%NAME%iteminput'+x+'" placeholder="'+fields[x]["hint"]+'"></textarea>';
+        else
+            input = '<input class="form-control" id="%NAME%iteminput'+x+'" type="'+inputtype+'" placeholder="'+fields[x]["hint"]+'"/>';
+        var form = '<div class="form-group"><label for="%NAME%iteminput'+x+'" class="control-label">'+fields[x]["colname"]+':</label>'+input+'</div>';
+        if (("position" in fields[x]) && (fields[x]["position"] != 0)) {
+            $('#pwdlist > tbody > tr:first > th:nth-child('+fields[x]["position"]+')').after(header)
+            $('#pwdlist > tbody > tr > td:nth-child('+fields[x]["position"]+')').after(cell);
+            $("#add").find('form > .form-group:nth-child('+fields[x]["position"]+')').after(form.replace(/%NAME%/g,"new"));
+            $("#edit").find('form > .form-group:nth-child('+fields[x]["position"]+')').after(form.replace(/%NAME%/g,"edit"));
+        }
+        else {
+            $("#pwdlist > tbody > tr:first").append(header);
+            $("#pwdlist > tbody > tr").slice(1).each(function(){$(this).append(cell) });
+            $("#add").find("form").append(form.replace(/%NAME%/g,"new"));
+            $("#edit").find("form").append(form.replace(/%NAME%/g,"edit"));
+        }
+    }
     function getskey(callback)
     {
         var secretkey0=getpwdstore('<?php echo $GLOBAL_SALT_2; ?>');
         callback(secretkey0);
     }
-	function showtable(secretkey0)
+    
+    function gatherDistinctTags()
+    {
+        var tags = new Array();
+        for (x in accountarray) {
+            if (!("tags" in accountarray[x]["other"]))
+                continue;
+            if (accountarray[x]["other"]["tags"].length>0)
+                tags = tags.concat(accountarray[x]["other"]["tags"].split(',').map(function (str){return str.trim();}));
+        }
+        var unique = [];
+        for(var i = 0; i < tags.length; i++) {
+            if($.inArray(tags[i], unique) < 0) {
+                unique.push(tags[i]);
+            }
+        }
+        return unique.sort();
+    }
+    
+    function showtable(secretkey0)
     {
         secretkey=String(CryptoJS.SHA512(secretkey0+'<?php echo $GLOBAL_SALT_2; ?>'));
         if (secretkey0=="") quitpwd();
         else
         {
             var tempchar;
-            $(".accountname").each(function(){               
-            tempchar=decryptchar($(this).html(),secretkey);
-            if (tempchar=="") tempchar="Oops, there's some errors!"
-            $(this).html(tempchar)
-            $(this).attr("class","namedone");
-            accountarray[parseInt($(this).attr('dataid'))]=tempchar;
-            });
+            function DecryptCell(element, allowEmpty){
+                var tempchar=decryptchar(element.html(),secretkey);
+                if ((tempchar=="") && (!allowEmpty)) tempchar="Oops, there's some errors!"
+                element.html(tempchar)
+                element.addClass("namedone");
+                return tempchar;
+            };
+            $(".datarow").each( function() { 
+                    accountarray[parseInt($(this).attr('dataid'))] = { other: {} };
+                    if ($(this).data("additional") == "")
+                        return;
+                    //decrypt
+                    var tempchar = decryptchar($(this).data("additional"), secretkey);
+                    //extract json
+                    var data = $.parseJSON(tempchar);
+                    accountarray[parseInt($(this).attr('dataid'))]["other"] = data;
+                    //set values
+                    for (x in data) {
+                        var col = $(this).find('.account'+x);
+                        col.html(data[x]);
+                        col.addClass("namedone");
+                        if ((data[x].trim() != "") && (x in fields)) {
+                            fields[x]["count"] += 1;
+                        }
+                    }
+                } );
+            $(".accountname").each(function() { accountarray[parseInt($(this).attr('dataid'))]["name"] = DecryptCell($(this),false); });
             $("#waitsign").hide();
             $("#pwdtable").show();
+            var tags = gatherDistinctTags();
+            for (x in tags){
+                $("#tags").append("<a href=\"javascript:filterTags('"+tags[x]+"');\">" + tags[x] + "</a> ");
+            }
+            if (tags.length>0) {
+                $("#tagCloud").show();
+            }
+            for (x in fields) {
+                if (fields[x]["count"] == 0) {
+                    $("."+x+"cell").remove();
+                }
+            }
         }
     }
     getskey(showtable);
 $("#newbtn").click(function(){ 
 	var newpwd;
-	var sk=secretkey;
 	if($("#newiteminput").val()=="") {alert("Account entry can't be empty!"); return;}
 	$("#newbtn").attr("disabled",true);
 	$("#newiteminput").attr("readonly",true);
 	$("#newiteminputpw").attr("readonly",true);
+    for (x in fields)
+        $("#newiteminput"+x).attr("readonly",true);
     function process(){
         if($("#newiteminputpw").val()=='') newpwd=getpwd('<?php echo $DEFAULT_LETTER_USED; ?>',<?php echo $DEFAULT_LENGTH; ?>); else newpwd=$("#newiteminputpw").val();
-        add_account($("#newiteminput").val(), newpwd,function(msg){ 
-        if(msg==1) {alert("Add "+$("#newiteminput").val()+" successfully!");location.reload(true)} else alert("Fail to add "+$("#newiteminput").val()+", please try again.");
-        $("#newiteminput").attr("readonly",false);
-        $("#newbtn").attr("disabled",false);
-        $("#newiteminputpw").attr("readonly",false);});
+        var other = {};
+        for (x in fields){
+            other[x] = $("#newiteminput"+x).val().trim();
+        }
+        other = JSON.stringify(other);
+        var name = $("#newiteminput").val();
+        add_account(name, newpwd, other, function(msg){ 
+            if(msg==1) {alert("Add "+name+" successfully!");location.reload(true)} else alert("Fail to add "+name+", please try again.");
+            $("#newiteminput").attr("readonly",false);
+            $("#newbtn").attr("disabled",false);
+            $("#newiteminputpw").attr("readonly",false);
+            for (x in fields)
+                $("#newiteminput"+x).attr("readonly",false);
+        });
     }
     setTimeout(process,50);
-	}); 
+});
+$("#editbtn").click(function(){ 
+	var newpwd;
+	if($("#edititeminput").val()=="") {alert("Account entry can't be empty!"); return;}
+	$("#editbtn").attr("disabled",true);
+	$("#edititeminput").attr("readonly",true);
+	$("#edititeminputpw").attr("readonly",true);
+    for (x in fields)
+        $("#edititeminput"+x).attr("readonly",true);
+    function process(){
+        var id = $("#edit").data('id');
+        var oldname=accountarray[id]["name"];
+        if($("#edititeminputpw").val()=='')
+            newpwd=decryptPassword(oldname, $("#edititeminputpw").data('enpassword'));
+        else
+            newpwd=$("#edititeminputpw").val();
+        var other = {};
+        for (x in fields){
+            other[x] = $("#edititeminput"+x).val().trim();
+        }
+        other = JSON.stringify(other);
+        var name = $("#edititeminput").val();
+        newpwd=encryptPassword(name, newpwd);
+        other=encryptchar(other, secretkey);
+        var enname=encryptchar(name,secretkey);
+        $.post("change.php",{name:enname,newpwd:newpwd,index:id,other:other},function(msg){ 
+            if(msg==1) {alert("Data for "+name+" updated!");location.reload(true)} else alert("Fail to update data for "+name+", please try again.");
+            $("#edititeminput").attr("readonly",false);
+            $("#editbtn").attr("disabled",false);
+            $("#edititeminputpw").attr("readonly",false);
+            for (x in fields)
+                $("#edititeminput"+x).attr("readonly",false);
+        });
+    }
+    setTimeout(process,50);
+}); 
+$("#editAccountShowPassword").click(function(){
+    var id = parseInt($("#edit").data('id'));
+    var thekey=decryptPassword(accountarray[id]["name"], $("#edititeminputpw").data('enpassword'));
+    if (thekey==""){
+        $("#edititeminputpw").val("Oops, some error occurs!");
+        return;
+    }
+    $("#edititeminputpw").val(thekey);
+    $("#editAccountShowPassword").addClass("collapse");
+});
+$("#delbtn").click(function(){
+    delepw($("#edit").data('id'));
+});
 $("#changepw").click(function(){ 
     if(confirm("Your request will be processed on your browser, so it takes some time (up to #of_your_accounts * 10seconds). Do not close your window or some error might happen.\nPlease note we won't have neither your old password nor your new password. \nClick OK to confirm password change request."))
     {
@@ -297,15 +516,12 @@ $("#changepw").click(function(){
         var accarray=new Array();
         for (x in accountarray)
         {
-            accarray[x]=encryptchar(accountarray[x],newsecretkey);
-            temps=$("[passid="+x+"]").attr("enpassword");
-            raw_pass=decryptchar(temps,secretkey);
+            accarray[x]={"name": encryptchar(accountarray[x]["name"],newsecretkey), "other": encryptchar(JSON.stringify(accountarray[x]["other"]),newsecretkey)};
+            raw_pass=decryptPassword(accountarray[x]["name"],$("[passid="+x+"]").attr("enpassword"));
             if (raw_pass=="") {
                 alert("FATAL ERROR WHEN TRYING TO DECRYPT ALL PASSWORDS");
                 return;
             }
-            raw_pass=get_orig_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512(accountarray[x])),ALPHABET,raw_pass);
-            raw_pass=gen_temp_pwd(newconfkey,PWsalt,String(CryptoJS.SHA512(accountarray[x])),ALPHABET,raw_pass);
             passarray[x]=encryptchar(raw_pass,newsecretkey);
         }
         $.post("changeuserpw.php",{newpass:postnewpass, passarray:JSON.stringify(passarray), accarray:JSON.stringify(accarray)},function(msg){ 
@@ -328,42 +544,41 @@ $("#importbtn").click(function(){
     $("#importc").attr("readOnly",false);
 });
 $('#add').on('shown.bs.modal', function () { $('#newiteminput').focus(); });
+$('#edit').on('shown.bs.modal', function () {
+    var id = $("#edit").data('id');
+    $("#editAccountShowPassword").removeClass("collapse");
+    $("#edititeminput").val(accountarray[id]['name']);//name
+    $("#edititeminputpw").attr('placeholder',"Hidden");
+    $("#edititeminputpw").val('');
+    $("#edititeminputpw").data('enpassword', $("[passid="+id+"]").attr("enpassword"));
+    for (x in fields){
+        $("#edititeminput"+x).val(accountarray[id]['other'][x]);
+    }
+    $('#edititeminput').focus(); 
+});
 $('#import').on('shown.bs.modal', function () { $('#importc').focus(); });
 $('#changepwd').on('shown.bs.modal', function () { $('#oldpassword').focus(); });
-}); 
-
+});
+function edit(row){
+    var id = row; //row.find("")
+    $("#edit").data("id", id);
+    $("#edit").modal("show");
+}
 function clicktoshow(kss,id){ 
-        if(kss=="") return;
-        var thekey=decryptchar(kss,secretkey);
-        var name=accountarray[parseInt(id)];
-        if (thekey==""){
-            $("#"+id).html("Oops, some error occurs!");
-            return;
-        }
-        thekey = get_orig_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512(name)),ALPHABET,thekey);
-        $("#"+id).html('<span style="font-family:passwordshow"">'+thekey+'</span><a title="Hide" class="pwdOptionButton hidden-xs" href="javascript: clicktohide(\''+kss+'\',\''+id+'\')"><span class="glyphicon glyphicon-eye-close"></span></a><a title="Options" class="pwdOptionButton visible-xs" href="javascript: showOptions(\''+id+'\')"><span class="glyphicon glyphicon-wrench"></span></a><span class="pwdButtons" style="display:none;"><a title="Hide" href="javascript: clicktohide(\''+kss+'\',\''+id+'\')"><span class="glyphicon glyphicon-eye-close"></span></a><a title="Regenerate" href="javascript: refreshpw(\''+id+'\')"><span class="glyphicon glyphicon-refresh"></span></a><a title="Delete" href="javascript: delepw(\''+id+'\')"><span class="glyphicon glyphicon-trash"></span></a></span>');
+    if(kss=="") return;
+    var thekey = decryptPassword(accountarray[parseInt(id)]["name"],kss);
+    if (thekey==""){
+        $("#"+id).html("Oops, some error occurs!");
+        return;
+    }
+    $("#"+id).html('<span style="font-family:passwordshow"">'+thekey+'</span><a title="Hide" class="cellOptionButton" href="javascript: clicktohide(\''+kss+'\',\''+id+'\')"><span class="glyphicon glyphicon-eye-close"></span></a>');
 } 
 function clicktohide(kss,id){
     $("#"+id).html('<a href="javascript: clicktoshow(\''+kss+'\',\''+id+'\')">Click to see</a>'); 
 }
-function showOptions(id) {
-    $("#"+id+" .pwdButtons").show();
-    $("#"+id+" .pwdOptionButton").remove();
-}
-function refreshpw(index){
-	var newpwd;
-	var sk=secretkey;
-    var name=accountarray[parseInt(index)];
-	if(confirm("Do you really want to generate a new password for: "+name+"? (ATTENTION: this is irreversible, you'll lose your old password)"))
-	{
-		newpwd=encryptchar(getpwd('<?php echo $DEFAULT_LETTER_USED; ?>',<?php echo $DEFAULT_LENGTH; ?>),secretkey);
-		$.post("change.php",{newpwd:newpwd,index:index},function(msg){ 
-         if(msg==1) {alert("Password for "+name+" updated!");location.reload(true)} else alert("Fail to update password for "+name+", please try again.");
-		 }); 
-}}
 function delepw(index)
 {   
-    var name=accountarray[parseInt(index)];
+    var name=accountarray[parseInt(index)]["name"];
 	if(confirm("Are you sure you want to delete password for "+name+"? (ATTENTION: this is irreversible)"))
 	{
 		$.post("delete.php",{index:index},function(msg){ 

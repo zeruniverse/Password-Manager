@@ -30,8 +30,8 @@ while ($i = $res->fetch(PDO::FETCH_ASSOC))
 {
     $pubkey=mt_rand(10000000,99999999);
     $storepw=encrypt($passarray[(int)$i["index"]],$pubkey);
-    $sql="UPDATE `password` SET `name`= ?, `pwd`=?, `key`=? WHERE `userid`=? AND `index`= ?";
-    $resss=sqlexec($sql,array($accarray[(int)$i["index"]], $storepw,$pubkey,$id,(int)$i['index']),$link);
+    $sql="UPDATE `password` SET `name`= ?, `pwd`=?, `key`=?, `other`=? WHERE `userid`=? AND `index`= ?";
+    $resss=sqlexec($sql,array($accarray[(int)$i["index"]]->name, $storepw,$pubkey,$accarray[(int)$i["index"]]->other,$id,(int)$i['index']),$link);
     if($resss==NULL) {$link->rollBack();die("0");}
 }
 $link->commit();
