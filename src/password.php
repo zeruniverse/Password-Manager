@@ -338,7 +338,7 @@ function import_raw(json){
                 other = decryptchar(json.data[x][2], aeskey);
             add_acc(decryptchar(json.data[x][0],aeskey),decryptchar(json.data[x][1],aeskey), other);
         }
-        setTimeout(location.reload(true), 1000);
+        location.reload(true);
     }
     setTimeout(process,50);
     
@@ -361,7 +361,7 @@ function import_csv(csv){
             }
             add_account(acc, pass, JSON.stringify(other), function(msg) { if(msg!=1) alert("Fail to add "+acc+", please try again manually later."); });
         }
-        setTimeout(location.reload(true), 1000);
+        location.reload(true);
     });
 }
 
