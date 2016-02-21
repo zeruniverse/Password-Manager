@@ -14,8 +14,8 @@ $res=sqlexec($sql,array($user),$link);
 $record= $res->fetch(PDO::FETCH_ASSOC);
 if($record==FALSE) {die("0");}
 $id = $record['id'];
-$sql="DELETE FROM `pin` WHERE `errortimes` >= 3 OR UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`createtime`) > 7776000";
-$res=sqlquery($sql,$link);
+$sql="DELETE FROM `pin` WHERE `errortimes` >= 3 OR UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`createtime`) > ?";
+$res=sqlexec($sql,array($PIN_EXPIRE_TIME),$link);
 $sql="SELECT `pinsig`,`pinpk` FROM `pin` WHERE `userid`= ? AND `device`=?";
 $res=sqlexec($sql,array($id,$device),$link);
 $record= $res->fetch(PDO::FETCH_ASSOC);

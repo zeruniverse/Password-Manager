@@ -14,6 +14,10 @@ $DB_USER='';
 $DB_PASSWORD='';
 
 //OPTIONAL
+//PIN expire
+$PIN_EXPIRE_TIME=7776000; 
+//PIN expire in 7776000 seconds.
+
 //SALT For Encryption
 //Don't change this section after you start using password-manager. Or you can't decrypt your password!
 //DON'T USE '\', IT CAN CAUSE PROBLEMS FOR BACKUP

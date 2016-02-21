@@ -20,8 +20,8 @@ function usepin()
     $record= $res->fetch(PDO::FETCH_ASSOC);
     if($record==FALSE) return False;
     $id = $record['id'];
-    $sql="DELETE FROM `pin` WHERE `errortimes` >= 3 OR UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`createtime`) > 7776000";
-    $res=sqlquery($sql,$link);
+    $sql="DELETE FROM `pin` WHERE `errortimes` >= 3 OR UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`createtime`) > ?";
+    $res=sqlexec($sql,array($PIN_EXPIRE_TIME),$link);
     $sql="SELECT * FROM `pin` WHERE `userid`= ? AND `device`= ?";
     $res=sqlexec($sql,array($id,$device),$link);
     $record= $res->fetch(PDO::FETCH_ASSOC);
