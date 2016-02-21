@@ -17,6 +17,15 @@ CREATE TABLE IF NOT EXISTS `password` (
   PRIMARY KEY (`index`,`userid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `pin` (
+  `userid` int(11) NOT NULL,
+  `device` varchar(10) NOT NULL,
+  `pinsig` text,
+  `pinpk` varchar(30) NOT NULL,
+  `createtime` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `errortimes` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`userid`,`device`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `pwdusrrecord` (
   `id` int(11) NOT NULL,

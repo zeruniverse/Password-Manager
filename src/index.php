@@ -5,7 +5,29 @@ date_default_timezone_set('America/Los_Angeles');
 $_SESSION['random_login_stamp']=date("Ymdhis").mt_rand(10000,99999);
 require_once('function/basic.php');
 require_once('function/config.php');
+require_once("function/sqllink.php");
 echoheader();
+function usepin()
+{
+    if(!isset($_COOKIE["username"]) || !isset $_COOKIE["device"]) return False;
+    $user=$_COOKIE["username"];
+    $device=$_COOKIE["device"];
+    if($user==""||$device=="")  return False;
+    $link=sqllink();
+    if(!$link) return False;
+    $sql="SELECT id FROM `pwdusrrecord` WHERE `username`= ?";
+    $res=sqlexec($sql,array($user),$link);
+    $record= $res->fetch(PDO::FETCH_ASSOC);
+    if($record==FALSE) return False;
+    $id = $record['id'];
+    $sql="DELETE FROM `pin` WHERE `errortimes` >= 3 OR UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`createtime`) > 7776000";
+    $res=sqlquery($sql,$link);
+    $sql="SELECT * FROM `pin` WHERE `userid`= ? AND `device`= ?";
+    $res=sqlexec($sql,array($id,$device),$link);
+    $record= $res->fetch(PDO::FETCH_ASSOC);
+    if($record==FALSE) return False;
+    return True;
+}
 ?>
 <script type="text/javascript" src="aes.js"></script>
 <script type="text/javascript" src="sha512.js"></script>
@@ -28,12 +50,63 @@ echoheader();
         <button class="btn btn-sm btn-default" type="button" onClick="window.location.href='signup.php';" >Sign Up</button>&nbsp; <button class="btn btn-sm btn-warning" type="button" onClick="window.location.href='recovery.php';" >Password Recovery</button>
     <hr />
     <div>Version <?php echo $VERSION;?> (<a href="https://github.com/zeruniverse/Password-Manager/releases">DOWNLOAD</a>)</div>
+    <div class="modal" tabindex="-1" role="dialog" id="usepin">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4>Use PIN to login</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="pin" class="control-label">PIN:</label>
+                            <input id="pin" class="form-control" type="password" />
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <p style="display:none" id="pinerrorhint">PIN ERROR, try again.</p>
+                    <button type="button" onClick="delpinstore()"class="btn btn-default" data-dismiss="modal">Use username/password</button>
+                    <form><input type="submit" class="btn btn-primary" id="pinlogin" value="Login" /></form>
+                </div>
+            </div>
+        </div>
+    </div>
     </div>
 <script type="text/javascript">
 var JSsalt='<?php echo $GLOBAL_SALT_1;?>';
+var PWSalt='<?php echo $GLOBAL_SALT_2; ?>';
 $(function(){ 
+    if(typeof(Storage) == "undefined") {
+        window.location.href="./sorry_for_old_browser_update_hint.html";
+    }
+    if(getcookie('device')!="")
+    {
+        if(1==<?php if(usepin()) echo 1; else echo 0;?>) $("#usepin").modal("show");
+        else{
+            delpinstore();
+        }
+    }
+    $("#pinlogin").click(function(){
+        var pin;
+        $("#pinerrorhint").hide();
+        $("#pinlogin").attr("disabled", true);
+		$("#pinlogin").attr("value", "Wait");
+        pin=$("#pin").val();
+        $.post("getpinpk.php",{user:getcookie('username'),device:getcookie('device'),sig:String(CryptoJS.SHA512(pin+localStorage.salt))},function(msg){
+            if(msg == '0') {$("#usepin").modal("hide");delpinstore();return;}
+            if(msg == '1') {$("#pin").val('');$("#pinerrorhint").show();$("#pinlogin").attr("disabled", false);$("#pinlogin").attr("value", "Login"); return;}
+            pwdsk=decryptchar(localStorage.en_login_sec,pin+msg);
+            confkey=decryptchar(localStorage.en_login_conf,pin+msg)
+            $.post("check.php",{pwd:String(CryptoJS.SHA512(pbkdf2_enc(pwdsk,JSsalt,500)+"<?php echo $_SESSION['random_login_stamp']; ?>")),  user: getcookie('username')},function(msg){
+                if(msg!=9) {$("#usepin").modal("hide");delpinstore();return;}
+                setpwdstore(pwdsk,confkey,'<?php echo $GLOBAL_SALT_2; ?>');                
+                window.location.href="./password.php";
+            });
+        });
+    });
     $("#chk").click(function(){ 
-        $("#pinhint").hide();
         $("#chk").attr("disabled", true);
 		$("#chk").attr("value", "Wait");
         function process(){
@@ -63,6 +136,7 @@ $(function(){
 				$("#chk").attr("disabled", false);
 		}else{
                 confkey=pbkdf2_enc(String(CryptoJS.SHA512(pwd+secretkey)),JSsalt,500);
+                setCookie("username",user);
                 setpwdstore(secretkey,confkey,'<?php echo $GLOBAL_SALT_2; ?>');                
                 window.location.href="./password.php";
 		}

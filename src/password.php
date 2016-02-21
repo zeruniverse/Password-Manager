@@ -178,6 +178,29 @@ function quitpwd()
             </div>
         </div>
     </div>
+    <div class="modal" tabindex="-1" role="dialog" id="pin">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4>Set PIN to login</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="pinxx" class="control-label">PIN:</label>
+                            <input id="pinxx" class="form-control" type="password" />
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
+                    <button type="button" onClick="delpinstore();alert('PIN deleted, use username/password to login next time');$('pin').modal('hide');" class="btn btn-danger" id="delpin">Delete PIN</button>
+                    <button type="button" onClick="setpin($('#pinxx').val());" class="btn btn-primary" id="pinlogin">Set/Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="modal" tabindex="-1" role="dialog" id="import">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -252,6 +275,25 @@ function decryptPassword(name, kss){
         return "";
     }
     return get_orig_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512(name)),ALPHABET,thekey);
+}
+function setpin(pin){
+    var device=getcookie('device');
+    var salt=getpwd('abcdefghijklmnopqrstuvwxyz1234567890',500);
+    if(device=="")
+    {
+        device=getpwd('abcdefghijklmnopqrstuvwxyz1234567890',9)
+        setCookie('device',device);
+    }
+    $.post("setpin.php",{user:getcookie('username'),device:device,sig:String(CryptoJS.SHA512(pin+salt))},function(msg){
+        if(msg=='0'){
+            alert('ERROR set PIN, try again later!');
+            $('pin').modal('hide');
+        }else{
+            setPINstore(device,salt,encryptchar(getpwdstore(PWsalt),pin+msg),encryptchar(getconfkey(PWsalt),pin+msg));
+            alert('PIN set, use PIN to login next time');
+            $('pin').modal('hide');
+        }
+    });   
 }
 function encryptPassword(name, pass){
     pass=gen_temp_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512(name)),ALPHABET,pass);
