@@ -38,7 +38,7 @@ echoheader();
     <table class="table" id="rtable"></table>
     </div>
 <script type="text/javascript">
-var acc_array,pass_array;
+var acc_array,pass_array,other_array;
 var JSsalt='';
 var PWsalt='';
 var ALPHABET='';
@@ -64,7 +64,7 @@ function export_raw(){
     result.data={ };
     for (x in acc_array)
     {
-        result.data[x]=[encryptchar(acc_array[x],aeskey),encryptchar(pass_array[x],aeskey)];
+        result.data[x]=[encryptchar(acc_array[x],aeskey),encryptchar(pass_array[x],aeskey),encryptchar(other_array[x],aeskey)];
     }
     download("raw_pass.txt",JSON.stringify(result));
 }
@@ -90,6 +90,17 @@ function gen_account_array(enc_account_array)
         account_array[x]=tempchar;
     }
     return account_array;
+}
+function gen_other_array(enc_other_array)
+{
+    var tempchar,x;
+    var other_array=new Array();
+    for (x in enc_other_array){
+        tempchar=decryptchar(enc_other_array[x],secretkey);
+        if (tempchar=="") tempchar="Oops, there's some errors!"
+        other_array[x]=tempchar;
+    }
+    return other_array;    
 }
 function gen_pass_array(account_array,enc_pass_array)
 {
@@ -128,16 +139,19 @@ function rec(){
     gen_key();
     var enc_pass=new Array();
     var enc_acc=new Array();
+    var enc_other=new Array();
     var x;
     for(x in json.data){
         enc_acc[x]=json.data[x][0];
         enc_pass[x]=json.data[x][1];
+        enc_other[x]=json.data[x][2];
     }
     acc_array=gen_account_array(enc_acc);
+    other_array=gen_other_array(enc_other)
     pass_array=gen_pass_array(acc_array,enc_pass);
-    var html='<tr><th>Account</th><th>Password</th></tr>';
+    var html='<tr><th>Account</th><th>Password</th><th>Other Info</th></tr>';
     for(x in acc_array){
-        html=html+'<tr><td>'+acc_array[x]+'</td><td>'+pass_array[x]+'</td></tr>';
+        html=html+'<tr><td>'+acc_array[x]+'</td><td>'+pass_array[x]+'</td><td>'+other_array[x]+'</td></tr>';
     }
     $("#rtable").html(html);
     $("#recover_result").show();
