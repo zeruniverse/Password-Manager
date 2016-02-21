@@ -34,7 +34,7 @@ function usepin()
 <script type="text/javascript" src="pbkdf2.js"></script>
 <script type="text/javascript" src="password.js"></script>
 <script type="text/javascript" src="setlocalstorage.js"></script>
-    <div class="container theme-showcase">
+    <div class="container theme-showcase" style="margin-top:-30px;">
         <div class="page-header">
             <h1>Password Manager</h1>
         </div>
@@ -54,7 +54,7 @@ function usepin()
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" onClick="delpinstore()" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4>Use PIN to login</h4>
                 </div>
                 <div class="modal-body">
@@ -67,7 +67,7 @@ function usepin()
                 </div>
                 <div class="modal-footer">
                     <p style="display:none" id="pinerrorhint">PIN ERROR, try again.</p>
-                    <button type="button" onClick="delpinstore()"class="btn btn-default" data-dismiss="modal">Use username/password</button>
+                    <button type="button" onClick="delpinstore()" class="btn btn-default" data-dismiss="modal">Use username/password</button>
                     <button type="button" class="btn btn-primary" id="pinlogin" >Login</button>
                 </div>
             </div>
@@ -94,7 +94,7 @@ $(function(){
         $("#pinlogin").attr("disabled", true);
 		$("#pinlogin").html("Wait");
         pin=$("#pin").val();
-        $.post("getpinpk.php",{user:getcookie('username'),device:getcookie('device'),sig:String(CryptoJS.SHA512(pin+localStorage.salt))},function(msg){
+        $.post("getpinpk.php",{user:getcookie('username'),device:getcookie('device'),sig:String(CryptoJS.SHA512(pin+localStorage.pinsalt))},function(msg){
             if(msg == '0') {$("#usepin").modal("hide");delpinstore();return;}
             if(msg == '1') {$("#pin").val('');$("#pinerrorhint").show();$("#pinlogin").attr("disabled", false);$("#pinlogin").html("Login"); return;}
             pwdsk=decryptchar(localStorage.en_login_sec,pin+msg);

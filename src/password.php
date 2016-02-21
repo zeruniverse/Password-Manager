@@ -61,6 +61,7 @@ function quitpwd()
           <ul class="nav navbar-nav" id="nav_links">
             <li id="nav-passwords" class="active"><a href="#pw">Passwords</a></li>
             <li id="nav-add"><a href="" data-toggle="modal" data-target="#add">Add Entry</a></li>
+            <li id="nav-add"><a href="" data-toggle="modal" data-target="#pin">Set PIN</a></li>
             <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Profile<span class="caret"></span></a>
             <ul class="dropdown-menu">
@@ -195,7 +196,7 @@ function quitpwd()
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
-                    <button type="button" onClick="delpinstore();alert('PIN deleted, use username/password to login next time');$('pin').modal('hide');" class="btn btn-danger" id="delpin">Delete PIN</button>
+                    <button type="button" onClick="delpinstore();alert('PIN deleted, use username/password to login next time');$('#pin').modal('hide');" class="btn btn-danger" id="delpin">Delete PIN</button>
                     <button type="button" onClick="setpin($('#pinxx').val());" class="btn btn-primary" id="pinlogin">Set/Reset</button>
                 </div>
             </div>
@@ -287,11 +288,11 @@ function setpin(pin){
     $.post("setpin.php",{user:getcookie('username'),device:device,sig:String(CryptoJS.SHA512(pin+salt))},function(msg){
         if(msg=='0'){
             alert('ERROR set PIN, try again later!');
-            $('pin').modal('hide');
+            $('#pin').modal('hide');
         }else{
             setPINstore(device,salt,encryptchar(getpwdstore(PWsalt),pin+msg),encryptchar(getconfkey(PWsalt),pin+msg));
             alert('PIN set, use PIN to login next time');
-            $('pin').modal('hide');
+            $('#pin').modal('hide');
         }
     });   
 }

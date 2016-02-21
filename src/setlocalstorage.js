@@ -59,5 +59,4 @@ function delpinstore()
     localStorage.clear();
     if(getcookie('device')!="") $.post("deletepin.php",{user:getcookie('username'),device:getcookie('device')},function(msg){});
     deleteCookie('device');
-    deleteCookie('username');
 }

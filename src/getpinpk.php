@@ -21,8 +21,12 @@ $res=sqlexec($sql,array($id,$device),$link);
 $record= $res->fetch(PDO::FETCH_ASSOC);
 if($record==FALSE) {die("0");}
 $sig=$record['pinsig'];
-if($sig == $_POST['sig']) die($record['pinpk']);
+if($sig == $_POST['sig']) {
+    $sql="UPDATE `pin` SET `errortimes`=0 WHERE `userid`= ? AND `device`=?";
+    $res=sqlexec($sql,array($id,$device),$link);
+    die($record['pinpk']);
+}
 $sql="UPDATE `pin` SET `errortimes`=`errortimes`+1 WHERE `userid`= ? AND `device`=?";
 $res=sqlexec($sql,array($id,$device),$link);
-echo '1';
+die('1');
 ?>
