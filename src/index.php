@@ -9,7 +9,7 @@ require_once("function/sqllink.php");
 echoheader();
 function usepin()
 {
-    if(!isset($_COOKIE["username"]) || !isset $_COOKIE["device"]) return False;
+    if(!isset($_COOKIE["username"]) || !isset($_COOKIE["device"])) return False;
     $user=$_COOKIE["username"];
     $device=$_COOKIE["device"];
     if($user==""||$device=="")  return False;
