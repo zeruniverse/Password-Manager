@@ -42,7 +42,7 @@ function usepin()
         <form>
             <p>User Name: <input type="text" name="user" id="user" /></p><br />
             <p>Password: <input type="password" name="pwd" id="pwd" /></p><br />
-        <input type="submit" class="btn btn-md btn-success" id="chk"  value="Login" /></form>
+        <input type="button" class="btn btn-md btn-success" id="chk"  value="Login" /></form>
         <span id="nouser" class="errorhint"  style="display:none; color:Red">We don't have this user on file<br /></span>
         <span id="pwderr" class="errorhint"  style="display:none; color:Red">Wrong Password<br /></span>
         <span id="othererror" class="errorhint"  style="display:none; color:Red">Oops, our server run into some problems. Please refresh this page and try again.<br /></span>
@@ -68,7 +68,7 @@ function usepin()
                 <div class="modal-footer">
                     <p style="display:none" id="pinerrorhint">PIN ERROR, try again.</p>
                     <button type="button" onClick="delpinstore()"class="btn btn-default" data-dismiss="modal">Use username/password</button>
-                    <form><input type="submit" class="btn btn-primary" id="pinlogin" value="Login" /></form>
+                    <button type="button" class="btn btn-primary" id="pinlogin" >Login</button>
                 </div>
             </div>
         </div>
@@ -92,11 +92,11 @@ $(function(){
         var pin;
         $("#pinerrorhint").hide();
         $("#pinlogin").attr("disabled", true);
-		$("#pinlogin").attr("value", "Wait");
+		$("#pinlogin").html("Wait");
         pin=$("#pin").val();
         $.post("getpinpk.php",{user:getcookie('username'),device:getcookie('device'),sig:String(CryptoJS.SHA512(pin+localStorage.salt))},function(msg){
             if(msg == '0') {$("#usepin").modal("hide");delpinstore();return;}
-            if(msg == '1') {$("#pin").val('');$("#pinerrorhint").show();$("#pinlogin").attr("disabled", false);$("#pinlogin").attr("value", "Login"); return;}
+            if(msg == '1') {$("#pin").val('');$("#pinerrorhint").show();$("#pinlogin").attr("disabled", false);$("#pinlogin").html("Login"); return;}
             pwdsk=decryptchar(localStorage.en_login_sec,pin+msg);
             confkey=decryptchar(localStorage.en_login_conf,pin+msg)
             $.post("check.php",{pwd:String(CryptoJS.SHA512(pbkdf2_enc(pwdsk,JSsalt,500)+"<?php echo $_SESSION['random_login_stamp']; ?>")),  user: getcookie('username')},function(msg){
