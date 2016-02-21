@@ -31,6 +31,7 @@ echoheader();
 <script type="text/javascript" src="setlocalstorage.js"></script>
 <script type="text/javascript">
 var secretkey;
+var timeout = 5;
 var fields={url:{colname: 'URL', hint: '', cls: ' hidden'}, 
             user:{colname: 'Username', hint: '', cls: ' ', position: 1}, 
             comment:{colname: 'Comment', hint: '', cls: ' hidden', type: "textarea"},
@@ -41,6 +42,12 @@ function quitpwd()
 {
     delpwdstore(); window.location.href="./logout.php";
 }
+function countdown()
+{
+    timeout = timeout-1;
+    if(timeout<0) quitpwd();
+}
+setInterval(countdown, 60000);
 </script>
 <script type="text/javascript" src="aes.js"></script>
 <script type="text/javascript" src="sha512.js"></script>
@@ -280,6 +287,7 @@ function decryptPassword(name, kss){
 function setpin(pin){
     var device=getcookie('device');
     var salt=getpwd('abcdefghijklmnopqrstuvwxyz1234567890',500);
+    timeout=5;
     if(device=="")
     {
         device=getpwd('abcdefghijklmnopqrstuvwxyz1234567890',9)
@@ -294,7 +302,7 @@ function setpin(pin){
             alert('PIN set, use PIN to login next time');
             $('#pin').modal('hide');
         }
-    });   
+    });  
 }
 function encryptPassword(name, pass){
     pass=gen_temp_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512(name)),ALPHABET,pass);
@@ -322,6 +330,7 @@ function import_raw(json){
     function process(){
         var aeskey=json.KEY;
         var x;
+        timeout=100000;
         for(x in json.data){
             other = "";
             if (json.data[x].length > 2)
@@ -331,10 +340,12 @@ function import_raw(json){
         location.reload(true);
     }
     setTimeout(process,50);
+    
 }
 function import_csv(csv){
     $.getScript( 'js/jquery.csv.js', function() {
         var accarray = $.csv.toObjects(csv);
+        timeout=100000;
         for (x in accarray) {
             var acc = accarray[x]["name"];
             var pass = accarray[x]["password"];
@@ -354,6 +365,7 @@ function import_csv(csv){
 }
 
 function filterTags(tag){
+    timeout=5;
     $("#pwdlist").find("tr").show();
     if (tag == ""){
         $("#resetFilter").hide();
@@ -623,6 +635,7 @@ function edit(row){
     $("#edit").modal("show");
 }
 function clicktoshow(kss,id){ 
+    timeout=5;
     if(kss=="") return;
     var thekey = decryptPassword(accountarray[parseInt(id)]["name"],kss);
     if (thekey==""){
@@ -632,6 +645,7 @@ function clicktoshow(kss,id){
     $("#"+id).html('<span style="font-family:passwordshow"">'+thekey+'</span><a title="Hide" class="cellOptionButton" href="javascript: clicktohide(\''+kss+'\',\''+id+'\')"><span class="glyphicon glyphicon-eye-close"></span></a>');
 } 
 function clicktohide(kss,id){
+    timeout=5;
     $("#"+id).html('<a href="javascript: clicktoshow(\''+kss+'\',\''+id+'\')">Click to see</a>'); 
 }
 function delepw(index)
