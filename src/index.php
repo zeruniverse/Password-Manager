@@ -20,7 +20,7 @@ echoheader();
         <form>
             <p>User Name: <input type="text" name="user" id="user" /></p><br />
             <p>Password: <input type="password" name="pwd" id="pwd" /></p><br />
-        <input type="button" class="btn btn-md btn-success" id="chk"  value="Login" /></form>
+        <input type="submit" class="btn btn-md btn-success" id="chk"  value="Login" /></form>
         <span id="nouser" class="errorhint"  style="display:none; color:Red">We don't have this user on file<br /></span>
         <span id="pwderr" class="errorhint"  style="display:none; color:Red">Wrong Password<br /></span>
         <span id="othererror" class="errorhint"  style="display:none; color:Red">Oops, our server run into some problems. Please refresh this page and try again.<br /></span>
