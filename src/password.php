@@ -42,6 +42,13 @@ function quitpwd()
 {
     delpwdstore(); window.location.href="./logout.php";
 }
+function quitpwd_untrust()
+{
+    delpwdstore();
+    delpinstore();
+    deleteCookie('username');
+    window.location.href="./logout.php";
+}
 function countdown()
 {
     timeout = timeout-1;
@@ -79,7 +86,7 @@ setInterval(countdown, 60000);
             </li>
           </ul>
           <div class="navbar-right">
-            <p class="navbar-btn"><a href="" onClick="quitpwd();" class="btn btn-info"><strong>Log Out</strong></a></p>
+            <p class="navbar-btn"><a href="" onClick="quitpwd();" class="btn btn-info"><strong>Log Out</strong></a> <a href="" onClick="quitpwd_untrust();" class="btn btn-danger"><strong>Untrust</strong></a></p>
           </div>
           <div class="col-sm-3 col-md-3 navbar-right">
             <form class="navbar-form" id="searchForm">
