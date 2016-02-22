@@ -113,7 +113,7 @@ $(function(){
         $("#pinlogin").attr("disabled", true);
         $("#pinlogin").val("Wait");
         pin=$("#pin").val();
-        $.post("getpinpk.php",{user:getcookie('username'),device:getcookie('device'),sig:String(CryptoJS.SHA512(pin+localStorage.pinsalt))},function(msg){
+        $.post("getpinpk.php",{user:getcookie('username'),device:getcookie('device'),sig:String(CryptoJS.SHA512(String(CryptoJS.SHA512(pin+localStorage.pinsalt))+"<?php echo $_SESSION['random_login_stamp']; ?>"))},function(msg){
             if(msg == '0') {$("#usepin").modal("hide");delpinstore();$("#user").focus();return;}
             if(msg == '1') {$("#pin").val('');$("#pinerrorhint").show();$("#pinlogin").attr("disabled", false);$("#pinlogin").val("Login"); return;}
             pwdsk=decryptchar(localStorage.en_login_sec,pin+msg);
