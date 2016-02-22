@@ -35,7 +35,39 @@ Some part of information in Password_1 won't involve in calculations for identit
 + You are done!    
 + Remember your password to login. No one can recover your data if you lose that!  
 + If your data is lost (e.g. your server is stolen), you can go back to this repo and download your version of password manager (you can find version number in your backup file). You don't need config file to recover your password. All salts are included in the backup file. You can find recovery button on `index.html` after deploying the new password manager.   
+   
+##Import From Other Password Managers
++ Export your passwords from your password manager as csv file.  
++ Make sure there is a header line, the password and account name column must be named "password" and "name" respectively, order is not important. Other supported fields are with headers `url` as URL, `user` as Username, `tags` as Tags, `comment` as comments. All other columns are being ignored. You may modify `src/password.php` (Line 35-39) to personalize your fields. (Add/Delete)    
++ Open the import dialog, paste the csv data and select csv as import type.    
+   
+##About Upgrade  
+New version usually comes with algorithm updates and will NOT be compatible with any previous versions. To switch to new version:    
+###Old version < 5.11      
++ Open your old password manager and take a screenshot of all your accounts and passwords. (If your version is later than 5.0, you can use backup function and then go to recovery page to recover it. You'll get all your accounts and passwords on screen there.)  
++ Drop your tables in database and import `initial.sql`     
++ Replace the old password manager files with the new version on your server (don't forget to modify `config.php`)  
++ Register a new account for password manager  
++ Create all your accounts back (Please note it's recommended to change passwords for all of your accounts when you upgrade)     
   
+###Old version >= 5.11
++ Login to your old password manager. Backup and save the backup file.    
++ Logout and go to the recovery page.     
++ Input all contents in backup file to the recovery box and click [RECOVER IT!], after the recovery, a new button [Export Raw Data] will be on your screen.     
++ Click [Export Raw Data] and save the raw_pass.txt file.    
++ Drop your tables in database and import `initial.sql`     
++ Deploy new password manager to your server (don't forget to modify `config.php`)      
++ Create an account in new password manager.     
++ Login and find the [Import accounts] section. Copy all contents in the raw_pass.txt and paste them into the box. Click [Submit].
++ All your password should be on your new password manager now.    
++ If some error occurs, you can clear your database and redo the previous steps. This may take long time if you have many accounts. Find a good computer with good Internet access to do it!
+    
+##Backup
+Though the probability is low, you can't deny that you may lose your passwords in various cases. So **please backup your passwords regularly**. If you are the owner of the server hosting the password manager, you may simply back up the database. Otherwise, you can use the backup
+function implemented in the password manager. This will trigger a download of a JSON file. You can keep this file in cloud storage services such as Google Drive and Dropbox. If the password manager you use is damaged, you can go here and download the same version of the password manager
+you used. By using its recovery function, your JSON file and your login password, you can recover all your passwords. All passwords in JSON file is encrypted and your login password which is used to decrypt won't be in the JSON file. So it's safe to keep the JSON file in cloud storage
+services.    
+      
 ##Details   
 ###Key Generation    
 + Password_0 = REDUCED_INFO(Login Password)     
@@ -95,42 +127,10 @@ Some part of information in Password_1 won't involve in calculations for identit
     
 <img width="1114" alt="signup login" src="https://cloud.githubusercontent.com/assets/4648756/11234264/e07af92a-8d7a-11e5-967b-bff833c30e34.png">
          
-##About Upgrade  
-New version usually comes with algorithm updates and will NOT be compatible with any previous versions. To switch to new version:    
-###Old version < 5.11      
-+ Open your old password manager and take a screenshot of all your accounts and passwords. (If your version is later than 5.0, you can use backup function and then go to recovery page to recover it. You'll get all your accounts and passwords on screen there.)  
-+ Drop your tables in database and import `initial.sql`     
-+ Replace the old password manager files with the new version on your server (don't forget to modify `config.php`)  
-+ Register a new account for password manager  
-+ Create all your accounts back (Please note it's recommended to change passwords for all of your accounts when you upgrade)     
-  
-###Old version >= 5.11
-+ Login to your old password manager. Backup and save the backup file.    
-+ Logout and go to the recovery page.     
-+ Input all contents in backup file to the recovery box and click [RECOVER IT!], after the recovery, a new button [Export Raw Data] will be on your screen.     
-+ Click [Export Raw Data] and save the raw_pass.txt file.    
-+ Drop your tables in database and import `initial.sql`     
-+ Deploy new password manager to your server (don't forget to modify `config.php`)      
-+ Create an account in new password manager.     
-+ Login and find the [Import accounts] section. Copy all contents in the raw_pass.txt and paste them into the box. Click [Submit].
-+ All your password should be on your new password manager now.    
-+ If some error occurs, you can clear your database and redo the previous steps. This may take long time if you have many accounts. Find a good computer with good Internet access to do it!
-    
 ##About Recovery  
 For your passwords safety, your login password to password manager won't be included in the recovery file. You still need your login password to decrypt the recovery file. The backup file is indepandent to config file. You don't need to backup your `config.php`         
 + The purpose of the recovery file is to protect your password in case of data loss. NOT IN CASE THAT YOU FORGET YOUR PASSWORD (No one can get your passwords without your login password!)  
-   
-##Import From Other Password Managers
-+ Export your passwords from your password manager as csv file.  
-+ Make sure there is a header line, the password and account name column must be named "password" and "name" respectively, order is not important. All other columns are being ignored.    
-+ Open the import dialog, paste the csv data and select csv as import type.    
-    
-##Backup
-Though the probability is low, you can't deny that you may lose your passwords in various cases. So **please backup your passwords regularly**. If you are the owner of the server hosting the password manager, you may simply back up the database. Otherwise, you can use the backup
-function implemented in the password manager. This will trigger a download of a JSON file. You can keep this file in cloud storage services such as Google Drive and Dropbox. If the password manager you use is damaged, you can go here and download the same version of the password manager
-you used. By using its recovery function, your JSON file and your login password, you can recover all your passwords. All passwords in JSON file is encrypted and your login password which is used to decrypt won't be in the JSON file. So it's safe to keep the JSON file in cloud storage
-services.    
-      
+  
 ##Extentions  
 You can easily add E-mail verification, Google authentication... in your version of password manager. Put your implementation inside `check.php`, which is used for login authentication.   
      
@@ -160,7 +160,6 @@ If you find a BUG, please submit an [issue](https://github.com/zeruniverse/Passw
 We (all developers/contributors) understand that your passwords are valuable, so we tried our best to make sure this software protects your passwords well. The safety of this software is heavily based on the safety of AES-256
 algorithm, which is widely used for encryption and proven to be solid. However, we can't give any warranty for this free software as is stated in the license. Who knows if FBI secretly keeps some algorithm that solves AES in
 linear time complexity? If you have a REALLY REALLY REALLY important account, only keeping that in your mind will make it 100% safe.      
-     
 ##Copyright  
 Jeffery Zhao  
 License: MIT     
