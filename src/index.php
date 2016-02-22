@@ -66,7 +66,7 @@ if(typeof(Storage) == "undefined") {
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" onClick="delpinstore()" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4>Use PIN to login</h4>
                 </div>
                 <div class="modal-body">
@@ -78,7 +78,8 @@ if(typeof(Storage) == "undefined") {
                 </div>
                 <div class="modal-footer">
                     <p style="display:none" id="pinerrorhint">PIN ERROR, try again.</p>
-                    <button type="button" onClick="delpinstore()" class="btn btn-default" data-dismiss="modal">Use username/password</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Use username/password</button>
+                    <button type="button" onClick="delpinstore();deleteCookie('username');" class="btn btn-danger" data-dismiss="modal">Disable PIN</button>
                     <input type="submit" style="display:inline" class="btn btn-primary" id="pinlogin" value="Login" /></form>
                 </div>
             </div>
@@ -91,11 +92,15 @@ var PWSalt='<?php echo $GLOBAL_SALT_2; ?>';
 $(function(){
     if(getcookie('device')!="")
     {
-        if(1==<?php if(usepin()) echo 1; else echo 0;?>) $("#usepin").modal("show");
+        if(1==<?php if(usepin()) echo 1; else echo 0;?>) {
+            $("#usepin").modal("show");
+            $("#pin").focus();
+        }
         else{
             delpinstore();
+            $("#user").focus();
         }
-    }
+    } else $("#user").focus();
     $("#pinlogin").click(function(){
         var pin;
         $("#pinerrorhint").hide();
@@ -103,12 +108,12 @@ $(function(){
 	$("#pinlogin").val("Wait");
         pin=$("#pin").val();
         $.post("getpinpk.php",{user:getcookie('username'),device:getcookie('device'),sig:String(CryptoJS.SHA512(pin+localStorage.pinsalt))},function(msg){
-            if(msg == '0') {$("#usepin").modal("hide");delpinstore();return;}
+            if(msg == '0') {$("#usepin").modal("hide");delpinstore();$("#user").focus();return;}
             if(msg == '1') {$("#pin").val('');$("#pinerrorhint").show();$("#pinlogin").attr("disabled", false);$("#pinlogin").val("Login"); return;}
             pwdsk=decryptchar(localStorage.en_login_sec,pin+msg);
             confkey=decryptchar(localStorage.en_login_conf,pin+msg)
             $.post("check.php",{pwd:String(CryptoJS.SHA512(pbkdf2_enc(pwdsk,JSsalt,500)+"<?php echo $_SESSION['random_login_stamp']; ?>")),  user: getcookie('username')},function(msg){
-                if(msg!=9) {$("#usepin").modal("hide");delpinstore();return;}
+                if(msg!=9) {$("#usepin").modal("hide");delpinstore();$("#user").focus();return;}
                 setpwdstore(pwdsk,confkey,'<?php echo $GLOBAL_SALT_2; ?>');                
                 window.location.href="./password.php";
             });
