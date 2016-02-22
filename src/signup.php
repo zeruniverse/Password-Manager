@@ -10,13 +10,25 @@ echoheader();
     <div class="page-header">
         <h1>Password Manager</h1>
 	</div>
-	<p>New User:<br /></p>
+	<h3>New User</h3>
     <p>Only numbers and letters are allowed for username</p>
-	<form>
-      <p>User Name: <input type="text" name="user" id="user" /></p><br />
-      <p>Password: <input type="password" name="pwd" id="pwd" /></p><br />
-      <p>Input Password Again: <input type="password" name="pwd1" id="pwd1" /></p><br />
-      <p>Email:<input type="text" name="email" id="email" /></p><br />
+	<form style="max-width:300px;">
+        <div class="form-group">
+            <label for="user" class="control-label">User Name: </label>
+            <input type="text" class="form-control" name="user" id="user" />
+        </div>
+        <div class="form-group">
+            <label for="pwd" class="control-label">Password: </label>
+            <input type="password" class="form-control"name="pwd" id="pwd" />
+        </div>
+        <div class="form-group">
+            <label for="pwd1" class="control-label">Input Password Again: </label>
+            <input type="password" class="form-control"name="pwd1" id="pwd1" />
+        </div>
+        <div class="form-group">
+            <label for="email" class="control-label">Email:</label>
+            <input type="text" class="form-control"name="email" id="email" />
+        </div>
     </form>
     <input type="button" class="btn btn-md btn-success" id="chk"  value="Submit" />
 <script type="text/javascript">

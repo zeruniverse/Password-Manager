@@ -43,11 +43,18 @@ if(typeof(Storage) == "undefined") {
         <div class="page-header">
             <h1>Password Manager</h1>
         </div>
-        <p>Please Sign in:<br /></p>
-        <form>
-            <p>User Name: <input type="text" name="user" id="user" /></p><br />
-            <p>Password: <input type="password" name="pwd" id="pwd" /></p><br />
-        <input type="button" class="btn btn-md btn-success" id="chk"  value="Login" /></form>
+        <h3>Please Sign in</h3>
+        <form style="max-width:300px;" id="loginform">
+            <div class="form-group">
+                <label for="user" class="control-label sr-only">User Name: </label>
+                <input type="text" class="form-control" placeholder="User Name" name="user" id="user" />
+                <label for="pwd" class="control-label sr-only">Password: </label>
+                <input type="password" class="form-control" placeholder="Password" name="pwd" id="pwd" />
+            </div>
+            <div class="form-group">
+                <input type="submit" class="btn btn-lg btn-success btn-block" id="chk"  value="Login" />
+            </div>
+        </form>
         <span id="nouser" class="errorhint"  style="display:none; color:Red">We don't have this user on file<br /></span>
         <span id="pwderr" class="errorhint"  style="display:none; color:Red">Wrong Password<br /></span>
         <span id="othererror" class="errorhint"  style="display:none; color:Red">Oops, our server run into some problems. Please refresh this page and try again.<br /></span>
@@ -108,7 +115,8 @@ $(function(){
             });
         });
     });
-    $("#chk").click(function(){ 
+    $("#loginform").on('submit',function(e){ 
+        e.preventDefault();
         $("#chk").attr("disabled", true);
 		$("#chk").attr("value", "Wait");
         function process(){
