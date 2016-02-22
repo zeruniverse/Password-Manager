@@ -202,17 +202,18 @@ setInterval(countdown, 60000);
                     <h4>Set PIN to login</h4>
                 </div>
                 <div class="modal-body">
-                    <form>
+                    <form id="pinloginform">
                         <div class="form-group">
                             <label for="pinxx" class="control-label">PIN:</label>
                             <input id="pinxx" class="form-control" type="password" />
+                            <label class="small" style="display:block; clear:both; color:red">Only set PIN in your trusted devices!</label>
+                            <label class="small" style="display:block; clear:both;">PIN can be set on your trusted devices to give you convenience while login. If you set PIN, you can use PIN instead of username and password to login next time. PIN is safe, you only have 3 chances to input a PIN before it's disabled automatically.</label>
                         </div>
-                    </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
                     <button type="button" onClick="delpinstore();alert('PIN deleted, use username/password to login next time');$('#pin').modal('hide');" class="btn btn-danger" id="delpin">Delete PIN</button>
-                    <button type="button" onClick="setpin($('#pinxx').val());" class="btn btn-primary" id="pinlogin">Set/Reset</button>
+                    <input type="submit" class="btn btn-primary" id="pinlogin" value="Set/Reset" /></form>
                 </div>
             </div>
         </div>
@@ -292,40 +293,6 @@ function decryptPassword(name, kss){
         return "";
     }
     return get_orig_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512(name)),ALPHABET,thekey);
-}
-function setpin(pin){
-    var device=getcookie('device');
-    var salt=getpwd('abcdefghijklmnopqrstuvwxyz1234567890',500);
-    timeout=default_timeout;
-    function process()
-    {
-        $.post("setpin.php",{user:getcookie('username'),device:device,sig:String(CryptoJS.SHA512(pin+salt))},function(msg){
-            if(msg=='0'){
-                alert('ERROR set PIN, try again later!');
-                $('#pin').modal('hide');
-            }else{
-                setPINstore(device,salt,encryptchar(getpwdstore(PWsalt),pin+msg),encryptchar(getconfkey(PWsalt),pin+msg));
-                alert('PIN set, use PIN to login next time');
-                $('#pin').modal('hide');
-            }
-        });
-    }
-    if(pin.length<4) {alert('For security reason, PIN should be at least of length 4.'); return;}
-    if(device=="")
-    {
-        function rand_device()
-        {
-            var status=1;
-            device=getpwd('abcdefghijklmnopqrstuvwxyz1234567890',9)
-            setCookie('device',device);
-            $.post("getpinpk.php",{user:getcookie('username'),device:device,sig:'1'},function(msg){
-                status=parseInt(msg);
-                if(status == 0) process();
-                else rand_device();
-            });
-        }
-        rand_device();
-    } else process();  
 }
 function encryptPassword(name, pass){
     pass=gen_temp_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512(name)),ALPHABET,pass);
@@ -509,6 +476,42 @@ $(document).ready(function(){
         }
     }
     getskey(showtable);
+$("#pinloginform").on('submit',function(e){
+    e.preventDefault();
+    var pin=$("#pinxx").val();
+    var device=getcookie('device');
+    var salt=getpwd('abcdefghijklmnopqrstuvwxyz1234567890',500);
+    timeout=default_timeout;
+    function process()
+    {
+        $.post("setpin.php",{user:getcookie('username'),device:device,sig:String(CryptoJS.SHA512(pin+salt))},function(msg){
+            if(msg=='0'){
+                alert('ERROR set PIN, try again later!');
+                $('#pin').modal('hide');
+            }else{
+                setPINstore(device,salt,encryptchar(getpwdstore(PWsalt),pin+msg),encryptchar(getconfkey(PWsalt),pin+msg));
+                alert('PIN set, use PIN to login next time');
+                $('#pin').modal('hide');
+            }
+        });
+    }
+    if(pin.length<4) {alert('For security reason, PIN should be at least of length 4.'); return;}
+    if(device=="")
+    {
+        function rand_device()
+        {
+            var status=1;
+            device=getpwd('abcdefghijklmnopqrstuvwxyz1234567890',9)
+            setCookie('device',device);
+            $.post("getpinpk.php",{user:getcookie('username'),device:device,sig:'1'},function(msg){
+                status=parseInt(msg);
+                if(status == 0) process();
+                else rand_device();
+            });
+        }
+        rand_device();
+    } else process();  
+});
 $("#newbtn").click(function(){ 
 	var newpwd;
 	if($("#newiteminput").val()=="") {alert("Account entry can't be empty!"); return;}

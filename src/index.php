@@ -70,7 +70,7 @@ if(typeof(Storage) == "undefined") {
                     <h4>Use PIN to login</h4>
                 </div>
                 <div class="modal-body">
-                    <form>
+                    <form id="pinloginform">
                         <div class="form-group">
                             <label for="pin" class="control-label">PIN:</label>
                             <input id="pin" class="form-control" type="password" />
@@ -104,11 +104,12 @@ $(function(){
             $("#user").focus();
         }
     } else $("#user").focus();
-    $("#pinlogin").click(function(){
+    $("#pinloginform").on('submit',function(e){
         var pin;
+        e.preventDefault();
         $("#pinerrorhint").hide();
         $("#pinlogin").attr("disabled", true);
-	$("#pinlogin").val("Wait");
+        $("#pinlogin").val("Wait");
         pin=$("#pin").val();
         $.post("getpinpk.php",{user:getcookie('username'),device:getcookie('device'),sig:String(CryptoJS.SHA512(pin+localStorage.pinsalt))},function(msg){
             if(msg == '0') {$("#usepin").modal("hide");delpinstore();$("#user").focus();return;}
