@@ -33,7 +33,7 @@ echoheader();
 var secretkey;
 var timeout = 5;
 var fields={url:{colname: 'URL', hint: '', cls: ' hidden'}, 
-            user:{colname: 'Username', hint: '', cls: ' ', position: 1}, 
+            user:{colname: 'Username', hint: '', cls: ' hidden-xs', position: 1}, 
             comment:{colname: 'Comment', hint: '', cls: ' hidden', type: "textarea"},
             tags:{colname: 'Tags', hint: 'Comma separated values', cls: ' hidden-xs'},
             };
@@ -122,7 +122,7 @@ setInterval(countdown, 60000);
 		$name=$i['name'];
         $additionalFields=$i['other'];
 		$kss=decrypt($i['pwd'],$i['key']);
-		echo "<tr class='datarow' data-additional='".$additionalFields."' dataid='".$index."'><td class='namecell'><span class='accountname' onclick='edit(".$index.")' title='click to edit' dataid=".$index.">".$name.'</span></td><td><span passid="'.$index.'" enpassword="'.$kss.'" id="'.$index.'"><a href="javascript: clicktoshow(\''.$kss.'\',\''.$index.'\')">Click to see</a></span></td></tr>';
+		echo "<tr class='datarow' data-additional='".$additionalFields."' dataid='".$index."'><td class='namecell'><span class='accountname' dataid=".$index.">".$name.'</span><a title="Edit" class="cellOptionButton" href="javascript: edit('.$index.')"><span class="glyphicon glyphicon-wrench"></span></a></td><td><span passid="'.$index.'" enpassword="'.$kss.'" id="'.$index.'"><a href="javascript: clicktoshow(\''.$kss.'\',\''.$index.'\')">Click to see</a></span></td></tr>';
 		}
     ?>
    </table> 
