@@ -68,6 +68,10 @@ function implemented in the password manager. This will trigger a download of a 
 you used. By using its recovery function, your JSON file and your login password, you can recover all your passwords. All passwords in JSON file is encrypted and your login password which is used to decrypt won't be in the JSON file. So it's safe to keep the JSON file in cloud storage
 services.    
       
+##Recovery  
+For your passwords safety, your login password to password manager won't be included in the recovery file. You still need your login password to decrypt the recovery file. The backup file is indepandent to config file. You don't need to backup your `config.php`         
++ The purpose of the recovery file is to protect your password in case of data loss. NOT IN CASE THAT YOU FORGET YOUR PASSWORD (No one can get your passwords without your login password!)  
+  
 ##Details   
 ###Key Generation    
 + Password_0 = REDUCED_INFO(Login Password)     
@@ -127,10 +131,6 @@ services.
     
 <img width="1114" alt="signup login" src="https://cloud.githubusercontent.com/assets/4648756/11234264/e07af92a-8d7a-11e5-967b-bff833c30e34.png">
          
-##About Recovery  
-For your passwords safety, your login password to password manager won't be included in the recovery file. You still need your login password to decrypt the recovery file. The backup file is indepandent to config file. You don't need to backup your `config.php`         
-+ The purpose of the recovery file is to protect your password in case of data loss. NOT IN CASE THAT YOU FORGET YOUR PASSWORD (No one can get your passwords without your login password!)  
-  
 ##Extentions  
 You can easily add E-mail verification, Google authentication... in your version of password manager. Put your implementation inside `check.php`, which is used for login authentication.   
      
@@ -138,7 +138,13 @@ You can easily add E-mail verification, Google authentication... in your version
 ###Implement history track
 List current sessions/past x days login history.     
 History includes login IP, browser type, OS type, time and maybe which password is seen.
-  
+   
+###Fields personalization
+Let users personalize which fields they want/don't want/want to show in mobile/want to show with header xxx   
+   
+###Write a better README
+It's now kind of a mess...      
+   
 ##Contribution
 Any help to improve this project is greatly appreciated!     
      
