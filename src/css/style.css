@@ -24,3 +24,20 @@ body {padding-top: 50px; width:100%;}
 @media (max-width: 500px) {
     .namecell, .usercell { max-width:170px;}
 }
+
+
+/*Login form */
+#loginform #user { 
+    margin-bottom: -1px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;  
+    font-size: 16px; 
+    height: auto;
+}
+#loginform #pwd {
+    margin-bottom: 10px; 
+    border-top-left-radius: 0; 
+    border-top-right-radius: 0;
+    font-size: 16px; 
+    height: auto;
+}
