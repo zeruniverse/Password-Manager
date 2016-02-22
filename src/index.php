@@ -75,6 +75,7 @@ if(typeof(Storage) == "undefined") {
                             <label for="pin" class="control-label">PIN:</label>
                             <input id="pin" class="form-control" type="password" />
                             <label class="small" style="display:block; clear:both;">You see this window because you or someone set an PIN in this device and choose it as default login method. To switch account or disable PIN, please press the red button below.</label>
+                            <label class="small" style="display:block; clear:both; color:red">Close this window or press the white button below only let you use username/password to login this time. PIN will still be chosen as default method in future.</label>
                         </div>
                 </div>
                 <div class="modal-footer">
