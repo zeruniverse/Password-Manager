@@ -89,6 +89,9 @@ if(typeof(Storage) == "undefined") {
 <script type="text/javascript">
 var JSsalt='<?php echo $GLOBAL_SALT_1;?>';
 var PWSalt='<?php echo $GLOBAL_SALT_2; ?>';
+$("#usepin").on("hidden.bs.modal", function () {
+    $("#user").focus();
+});
 $(function(){
     if(getcookie('device')!="")
     {
