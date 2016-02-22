@@ -296,22 +296,35 @@ function setpin(pin){
     var device=getcookie('device');
     var salt=getpwd('abcdefghijklmnopqrstuvwxyz1234567890',500);
     timeout=default_timeout;
+    function process()
+    {
+        $.post("setpin.php",{user:getcookie('username'),device:device,sig:String(CryptoJS.SHA512(pin+salt))},function(msg){
+            if(msg=='0'){
+                alert('ERROR set PIN, try again later!');
+                $('#pin').modal('hide');
+            }else{
+                setPINstore(device,salt,encryptchar(getpwdstore(PWsalt),pin+msg),encryptchar(getconfkey(PWsalt),pin+msg));
+                alert('PIN set, use PIN to login next time');
+                $('#pin').modal('hide');
+            }
+        });
+    }
     if(pin.length<4) {alert('For security reason, PIN should be at least of length 4.'); return;}
     if(device=="")
     {
-        device=getpwd('abcdefghijklmnopqrstuvwxyz1234567890',9)
-        setCookie('device',device);
-    }
-    $.post("setpin.php",{user:getcookie('username'),device:device,sig:String(CryptoJS.SHA512(pin+salt))},function(msg){
-        if(msg=='0'){
-            alert('ERROR set PIN, try again later!');
-            $('#pin').modal('hide');
-        }else{
-            setPINstore(device,salt,encryptchar(getpwdstore(PWsalt),pin+msg),encryptchar(getconfkey(PWsalt),pin+msg));
-            alert('PIN set, use PIN to login next time');
-            $('#pin').modal('hide');
+        function rand_device()
+        {
+            var status=1;
+            device=getpwd('abcdefghijklmnopqrstuvwxyz1234567890',9)
+            setCookie('device',device);
+            $.post("getpinpk.php",{user:getcookie('username'),device:device,sig:'1'},function(msg){
+                status=parseInt(msg);
+                if(status == 0) process();
+                else rand_device();
+            });
         }
-    });  
+        rand_device();
+    } else process();  
 }
 function encryptPassword(name, pass){
     pass=gen_temp_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512(name)),ALPHABET,pass);
