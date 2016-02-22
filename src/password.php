@@ -31,7 +31,8 @@ echoheader();
 <script type="text/javascript" src="setlocalstorage.js"></script>
 <script type="text/javascript">
 var secretkey;
-var timeout = 5;
+var default_timeout = <?php echo $BROWSER_TIMEOUT;?>-1;
+var timeout = default_timeout;
 var fields={url:{colname: 'URL', hint: '', cls: ' hidden'}, 
             user:{colname: 'Username', hint: '', cls: ' hidden-xs', position: 1}, 
             comment:{colname: 'Comment', hint: '', cls: ' hidden', type: "textarea"},
@@ -294,7 +295,7 @@ function decryptPassword(name, kss){
 function setpin(pin){
     var device=getcookie('device');
     var salt=getpwd('abcdefghijklmnopqrstuvwxyz1234567890',500);
-    timeout=5;
+    timeout=default_timeout;
     if(pin.length<4) {alert('For security reason, PIN should be at least of length 4.'); return;}
     if(device=="")
     {
@@ -373,7 +374,7 @@ function import_csv(csv){
 }
 
 function filterTags(tag){
-    timeout=5;
+    timeout=default_timeout;
     $("#pwdlist").find("tr").show();
     if (tag == ""){
         $("#resetFilter").hide();
@@ -643,7 +644,7 @@ function edit(row){
     $("#edit").modal("show");
 }
 function clicktoshow(kss,id){ 
-    timeout=5;
+    timeout=default_timeout;
     if(kss=="") return;
     var thekey = decryptPassword(accountarray[parseInt(id)]["name"],kss);
     if (thekey==""){
@@ -653,7 +654,7 @@ function clicktoshow(kss,id){
     $("#"+id).html('<span style="font-family:passwordshow"">'+thekey+'</span><a title="Hide" class="cellOptionButton" href="javascript: clicktohide(\''+kss+'\',\''+id+'\')"><span class="glyphicon glyphicon-eye-close"></span></a>');
 } 
 function clicktohide(kss,id){
-    timeout=5;
+    timeout=default_timeout;
     $("#"+id).html('<a href="javascript: clicktoshow(\''+kss+'\',\''+id+'\')">Click to see</a>'); 
 }
 function delepw(index)

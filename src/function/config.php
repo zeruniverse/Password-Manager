@@ -1,8 +1,13 @@
 <?php
 $VERSION="8.0";
 
+//****************************************
+//PLEASE SPECIFY THE VARIABLES BELOW
+//****************************************
+
 //Your database host, e.g. localhost
 $DB_HOST='';
+//Make sure MySQL is running at default port 3306. Or you have to edit sqllink.php
 
 //The database name for password_manager
 $DB_NAME='';
@@ -13,10 +18,17 @@ $DB_USER='';
 //Database Password
 $DB_PASSWORD='';
 
+//****************************************
 //OPTIONAL
+//****************************************
+
 //PIN expire
 $PIN_EXPIRE_TIME=7776000; 
 //PIN expire in 7776000 seconds.
+
+//TIMEOUT -> LOGOUT
+$BROWSER_TIMEOUT=6; //minutes
+//Automatically logout after no operation for 6 minutes
 
 //SALT For Encryption
 //Don't change this section after you start using password-manager. Or you can't decrypt your password!
