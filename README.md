@@ -17,6 +17,24 @@ This demo is for test ONLY! Do NOT put your real password there.
 This password manager can generate and store random strong passwords for users. Passwords are generated on users' browsers and then encrypted using AES256 (mode CBC).  
 PBKDF2 with SHA512 is used for user identification check. Raw password will be mapped to a pseudo password with a key related to Password_1 before applying AES256. The mapping algorithm is alphabet and position based.    
 Some part of information in Password_1 won't involve in calculations for identity check, So password_1 can't be obtained by enumerating password_0 (used for authentication).  
+   
+## System Requirement
++ PHP 5.2+
++ MySQL or MariaDB as long as it supports PDO
++ Client: Web browser supporting HTML5
+  
+## How to Use
++ Install PHP, MySQL (MariaDB) and WebServer(IIS, Apache or Nginx) in your server. Make sure PDO is supported  
++ Create a database in your MySQL server for this password manager.  
++ Import ``initial.sql`` into that database.  
++ Download ``src`` folder in this repository **from [newest Release](https://github.com/zeruniverse/Password-Manager/releases/latest)**, modify ``src/function/config.php`` with your configuration (database and etc.)  
++ Upload files in modified ``src`` folder to your web server.  
++ Though your login password won't be transmitted in the network, you still need to enable SSL if possible to avoid MIMA. Malicious JavaScript stealing password might be injected into the page if HTTP is used.  
++ Visit www.your_domain_name.com  
++ Click Signup to register an account. (If you don't want others to sign up, just delete signup.php and reg.php after you are done)  
++ You are done!    
++ Remember your password to login. No one can recover your data if you lose that!  
++ If your data is lost (e.g. your server is stolen), you can go back to this repo and download your version of password manager (you can find version number in your backup file). You don't need config file to recover your password. All salts are included in the backup file. You can find recovery button on `index.html` after deploying the new password manager.   
   
 ##Details   
 ###Key Generation    
@@ -77,19 +95,6 @@ Some part of information in Password_1 won't involve in calculations for identit
     
 <img width="1114" alt="signup login" src="https://cloud.githubusercontent.com/assets/4648756/11234264/e07af92a-8d7a-11e5-967b-bff833c30e34.png">
          
-## How to Use
-+ Install PHP, MySQL and WebServer(IIS, Apache or Nginx) in your server.  
-+ Create a database in your MySQL server for this password manager.  
-+ Import ``initial.sql`` into that database.  
-+ Download ``src`` folder in this repository **from [newest Release](https://github.com/zeruniverse/Password-Manager/releases/latest)**, modify ``src/function/config.php`` with your configuration (database and etc.)  
-+ Upload files in modified ``src`` folder to your web server.  
-+ Though your login password won't be transmitted in the network, you still need to enable SSL if possible to avoid MIMA. Malicious JavaScript stealing password might be injected into the page if HTTP is used.  
-+ Visit www.your_domain_name.com  
-+ Click Signup to register an account. (If you don't want others to sign up, just delete signup.php and reg.php after you are done)  
-+ You are done!    
-+ Remember your password to login. No one can recover your data if you lose that!  
-+ If your data is lost (e.g. your server is stolen), you can go back to this repo and download your version of password manager (you can find version number in your backup file). You don't need config file to recover your password. All salts are included in the backup file. You can find recovery button on `index.html` after deploying the new password manager.    
-  
 ##About Upgrade  
 New version usually comes with algorithm updates and will NOT be compatible with any previous versions. To switch to new version:    
 ###Old version < 5.11      
