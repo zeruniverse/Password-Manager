@@ -34,6 +34,11 @@ function usepin()
 <script type="text/javascript" src="pbkdf2.js"></script>
 <script type="text/javascript" src="password.js"></script>
 <script type="text/javascript" src="setlocalstorage.js"></script>
+<script type="text/javascript">
+if(typeof(Storage) == "undefined") {
+        window.location.href="./sorry_for_old_browser_update_hint.html";
+    }
+</script>
     <div class="container theme-showcase" style="margin-top:-30px;">
         <div class="page-header">
             <h1>Password Manager</h1>
@@ -77,10 +82,7 @@ function usepin()
 <script type="text/javascript">
 var JSsalt='<?php echo $GLOBAL_SALT_1;?>';
 var PWSalt='<?php echo $GLOBAL_SALT_2; ?>';
-$(function(){ 
-    if(typeof(Storage) == "undefined") {
-        window.location.href="./sorry_for_old_browser_update_hint.html";
-    }
+$(function(){
     if(getcookie('device')!="")
     {
         if(1==<?php if(usepin()) echo 1; else echo 0;?>) $("#usepin").modal("show");
