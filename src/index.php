@@ -80,7 +80,7 @@ if(typeof(Storage) == "undefined") {
                 <div class="modal-footer">
                     <p style="display:none" id="pinerrorhint">PIN ERROR, try again.</p>
                     <button type="button" onClick="delpinstore()" class="btn btn-default" data-dismiss="modal">Use username/password</button>
-                    <button type="button" class="btn btn-primary" id="pinlogin" >Login</button>
+                    <form><input type="submit" class="btn btn-primary" id="pinlogin" value="Login" /></form>
                 </div>
             </div>
         </div>
@@ -101,11 +101,11 @@ $(function(){
         var pin;
         $("#pinerrorhint").hide();
         $("#pinlogin").attr("disabled", true);
-		$("#pinlogin").html("Wait");
+	$("#pinlogin").val("Wait");
         pin=$("#pin").val();
         $.post("getpinpk.php",{user:getcookie('username'),device:getcookie('device'),sig:String(CryptoJS.SHA512(pin+localStorage.pinsalt))},function(msg){
             if(msg == '0') {$("#usepin").modal("hide");delpinstore();return;}
-            if(msg == '1') {$("#pin").val('');$("#pinerrorhint").show();$("#pinlogin").attr("disabled", false);$("#pinlogin").html("Login"); return;}
+            if(msg == '1') {$("#pin").val('');$("#pinerrorhint").show();$("#pinlogin").attr("disabled", false);$("#pinlogin").val("Login"); return;}
             pwdsk=decryptchar(localStorage.en_login_sec,pin+msg);
             confkey=decryptchar(localStorage.en_login_conf,pin+msg)
             $.post("check.php",{pwd:String(CryptoJS.SHA512(pbkdf2_enc(pwdsk,JSsalt,500)+"<?php echo $_SESSION['random_login_stamp']; ?>")),  user: getcookie('username')},function(msg){
