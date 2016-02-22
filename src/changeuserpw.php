@@ -34,6 +34,8 @@ while ($i = $res->fetch(PDO::FETCH_ASSOC))
     $resss=sqlexec($sql,array($accarray[(int)$i["index"]]->name, $storepw,$pubkey,$accarray[(int)$i["index"]]->other,$id,(int)$i['index']),$link);
     if($resss==NULL) {$link->rollBack();die("0");}
 }
+$sql="DELETE FROM `pin` WHERE `userid`= ?";
+$res=sqlexec($sql,array($id),$link);
 $link->commit();
 echo "1";
 ?>
