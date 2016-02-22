@@ -280,6 +280,7 @@ setInterval(countdown, 60000);
 <script type="text/javascript">
 var ALPHABET='<?php echo $DEFAULT_LETTER_USED;?>';
 var PWsalt='<?php echo $GLOBAL_SALT_2; ?>';
+$("#pin").on('shown.bs.modal', function(){$("#pinxx").focus()});
 function sanitize_json(s){
     var t=s;
     t=t.replace(/\n/g,'')
