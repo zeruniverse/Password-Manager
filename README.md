@@ -42,6 +42,24 @@ Some part of information in Password_1 won't involve in calculations for identit
 + If the hacker gets login password and knows one of your real password. Since the mapping ALPHABET is different account by account (it's related to account name), he can't get the mapping for other accounts. The Password_1 will be hashed with PBKDF2, iteration 500 before mapping. If he decides to enumerate Password_1, every try costs 2s in Chrome.   
 + If the hacker gets access to your login password, or web browser.....SO ONLY OPEN PASSWORD MANAGER IN TRUSTED DEVICES AND USE STRONG LOGIN PASSWORD!    
   
+###PIN Safety
++ PIN is a new feature introduced in v8.0, any string with length greater than 4 can be your PIN         
++ Web browser needs fewer iterations of PBKDF2 to generate login_sig from PIN, thus, the speed of login can be improved    
++ In your trusted devices, you can set a PIN after login and use PIN instead of username/password to login next time     
++ Encrypt/Decrypt PIN-related information involves both client and server, so neither sides can make use of PIN alone, the mechanism is shown below:     
+    + User input PIN    
+    + Web browser generates a random salt of length 100 and put it in localstorage   
+    + web browser send SHA512(PIN+salt) as pin_sig to server     
+    + server receives pin_sig and generates a server_key with length 29, send server_key to web browser     
+    + web browser encrypt secretkey and conf_key with (PIN+server_key), server_key won't be stored in browser    
+    + When login, after inputing PIN, web browser send SHA512(PIN+salt) to server    
+    + server receives pin_sig, if it's correct, send back server_key, else, increase the error_try times by 1     
+    + if error_try > 3, server delete this PIN record, the user needs to input username/password.    
+    + After receiving server_key, web browser is able to decrypt secretkey and conf_key    
+    + By using PBKDF2 with 500 iterations, web browser gets login_sig and it uses username in cookie and this login_sig to login.
++ If attacker gets access to your web browser, he needs server_key to decrypt secretkey. Though PIN is much easier to enumerate, he only has 4 chances to guess. Or server_key will be permanantly deleted     
++ If attacker gets access to server, since he doesn't have encrypted secretkey and conf_key, he has nothing to decrypt    
+    
 ###Performance  
 + The Login phase cost a lot of time because all keys need to be generated then. If the password is correct, it costs 4 seconds to login in Chrome (Intel i5) and 7 seconds on iPhone 6. If the password is incorrect, it takes 3 seconds for Chrome to know it's incorrect and show an alert.     
 + Add a new account or click to show passwords won't take long since all keys are generated. On iPhone 6, they take up to 1 second.    
