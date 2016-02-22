@@ -340,7 +340,7 @@ function import_raw(json){
         var x;
         timeout=100000;
         for(x in json.data){
-            other = "";
+            other = JSON.stringify({});
             if (json.data[x].length > 2)
                 other = decryptchar(json.data[x][2], aeskey);
             add_acc(decryptchar(json.data[x][0],aeskey),decryptchar(json.data[x][1],aeskey), other);
