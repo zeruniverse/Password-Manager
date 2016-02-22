@@ -18,7 +18,7 @@ This password manager can generate and store random strong passwords for users. 
 PBKDF2 with SHA512 is used for user identification check. Raw password will be mapped to a pseudo password with a key related to Password_1 before applying AES256. The mapping algorithm is alphabet and position based.    
 Some part of information in Password_1 won't involve in calculations for identity check, So password_1 can't be obtained by enumerating password_0 (used for authentication).  
    
-## System Requirement
+## System Requirements
 + PHP 5.2+
 + MySQL or MariaDB as long as it supports PDO
 + Client: Web browser supporting HTML5
