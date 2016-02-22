@@ -7,7 +7,7 @@
 **'master' branch is a dev-branch, please download stable version from [Release](https://github.com/zeruniverse/Password-Manager/releases) in order to use.**      
   
 ##Version
-v8.0-rc  
+v8.0  
   
 ##DEMO  
 [pas.jeffery.cc](http://pas.jeffery.cc)  
@@ -112,22 +112,9 @@ services.
 You can easily add E-mail verification, Google authentication... in your version of password manager. Put your implementation inside `check.php`, which is used for login authentication.   
      
 ##TODO  
-###Search account (Assigned)
-Implement search function in the password manager. (Assigned to @BenjaminHae)     
-###URL and tags (Assigned)
-Add tags and login URL to password manager.  (Assigned to @BenjaminHae)   
-###Implement PIN to make password manager more convenient
-For trust devices, instead of inputing user name/password every time to login, one can just input simply PIN. With username/password 'remembered (encrypted)' in local storage.    
-The PIN is used to decrypt the encrypted login password in the local storage. Since PIN is usually simple, we should do some tricks to avoid brute force. This means the decryption
-of the passwords in local storage should also involve the web server and let the web server limit the max allowed tries. This function is similar to how you unlock your iPhone.      
-We should have a function called untrust this device.      
-We should give users option to switch to other accounts.     
-If the remembered password is incorrect (password changed after the last login), let the user login again.      
 ###Implement history track
 List current sessions/past x days login history.     
-History includes login IP, browser type, OS type, time and maybe which password is seen.   
-###Implement timeout logout
-Users might forget to logout the password manager. We should automatically log them out if there isn't any operation during a period of time (or simply log them out in x minutes).  
+History includes login IP, browser type, OS type, time and maybe which password is seen.
   
 ##Contribution
 Any help to improve this project is greatly appreciated!     
