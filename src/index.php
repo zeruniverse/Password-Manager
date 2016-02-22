@@ -75,12 +75,11 @@ if(typeof(Storage) == "undefined") {
                             <label for="pin" class="control-label">PIN:</label>
                             <input id="pin" class="form-control" type="password" />
                         </div>
-                    </form>
                 </div>
                 <div class="modal-footer">
                     <p style="display:none" id="pinerrorhint">PIN ERROR, try again.</p>
                     <button type="button" onClick="delpinstore()" class="btn btn-default" data-dismiss="modal">Use username/password</button>
-                    <form><input type="submit" class="btn btn-primary" id="pinlogin" value="Login" /></form>
+                    <input type="submit" style="display:inline" class="btn btn-primary" id="pinlogin" value="Login" /></form>
                 </div>
             </div>
         </div>
