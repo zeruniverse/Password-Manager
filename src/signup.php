@@ -41,6 +41,7 @@ var JSsalt='<?php echo $GLOBAL_SALT_1;?>';
         else return false;
     }
     $(function(){ 
+      $("#user").focus();
       $("#chk").click(function(){ 
         if ($("#pwd").val()!=$("#pwd1").val() || $("#pwd").val().length<7){alert("The second password you input doesn't match the first one. Or your password is too weak (length should be at least 7)"); return;}
         if (!isEmail($("#email").val())){alert("This is not a valid Email"); return;}
