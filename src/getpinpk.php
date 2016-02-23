@@ -3,6 +3,7 @@
 //0 - FORCE TO USE USERNAME/PASSWORD
 //1 - PIN error
 //otherwise - pk
+session_start(); 
 require_once("function/sqllink.php");
 $link=sqllink();
 if(!$link) die(0);
@@ -21,7 +22,7 @@ $res=sqlexec($sql,array($id,$device),$link);
 $record= $res->fetch(PDO::FETCH_ASSOC);
 if($record==FALSE) {die("0");}
 $sig=$record['pinsig'];
-if(hash('sha512',(string)$sig.(string)$_SESSION['random_login_stamp'])!=(string)$_POST['sig']) {
+if(strcmp(hash('sha512',(string)$sig.(string)$_SESSION['random_login_stamp']),(string)$_POST['sig'])==0) {
     $sql="UPDATE `pin` SET `errortimes`=0 WHERE `userid`= ? AND `device`=?";
     $res=sqlexec($sql,array($id,$device),$link);
     die($record['pinpk']);
