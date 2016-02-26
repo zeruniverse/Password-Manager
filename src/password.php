@@ -422,7 +422,7 @@ $(document).ready(function(){
                 unique.push(tags[i]);
             }
         }
-        return unique.sort();
+        return unique.sort(function (a, b) { return a.toLowerCase().localeCompare(b.toLowerCase()); });
     }
     
     function showtable(secretkey0)
@@ -692,9 +692,10 @@ function filterAccounts(text) {
         return;
     }
     $("#resetSearch").show();
+    text = text.toLowerCase();
     $("tr.datarow").filter(function() {
         return $(this).find("td > span.namedone").filter(function(){
-            return $(this).text().indexOf(text) > -1; })
+            return $(this).text().toLowerCase().indexOf(text) > -1; })
         .length == 0;
     }).hide();
 }
