@@ -7,7 +7,7 @@
 **'master' branch is a dev-branch, please download stable version from [Release](https://github.com/zeruniverse/Password-Manager/releases) in order to use.**      
   
 ##Version
-v8.02  
+v8.03  
   
 ##DEMO  
 [pas.jeffery.cc](http://pas.jeffery.cc)  
