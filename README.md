@@ -4,7 +4,7 @@
 ![License](https://img.shields.io/github/license/zeruniverse/Password-Manager.svg)
 ![Environment](https://img.shields.io/badge/PHP-5.2+-blue.svg)
 ![Environment](https://img.shields.io/badge/MySQL-required-ff69b4.svg)     
-**'master' branch is a dev-branch, please download stable version from [Release](https://github.com/zeruniverse/Password-Manager/releases) in order to use.**      
+**'master' branch is a dev-branch, please download stable version from [SourceForge](https://sourceforge.net/projects/phppasswordmanager/) or [Release](https://github.com/zeruniverse/Password-Manager/releases) in order to use.**      
   
 ##Version
 v8.03  
