@@ -86,6 +86,8 @@ $(document).ready(function(){
        nowtime=timeConverter(parseInt($(this).html()));
        $(this).html(nowtime);
     });
+    $("#placeholder").hide();
+    $("#maindiv").show();
 });
 function unsetpin(devicex)
 {
