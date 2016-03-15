@@ -51,7 +51,7 @@ var JSsalt='<?php echo $GLOBAL_SALT_1;?>';
         function process(){
         var login_sig=String(pbkdf2_enc(reducedinfo($("#pwd").val(),'<?php echo $DEFAULT_LETTER_USED; ?>'),JSsalt,500));
         login_sig=String(pbkdf2_enc(login_sig,JSsalt,500));
-        $.post("reg.php",{email:$("#email").val(), pwd:login_sig,  user: $("#user").val()},function(msg){ 
+        $.post("reg.php",{email:$("#email").val(), pwd:String(CryptoJS.SHA512(login_sig+$("#user").val())),  user: $("#user").val()},function(msg){ 
 		if(msg==0){
 			 	alert("User name already occupied, please choose another user name.");
 				$("#chk").attr("value", "Submit");

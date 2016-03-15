@@ -118,7 +118,7 @@ $(function(){
             if(msg == '1') {$("#pin").val('');$("#pinerrorhint").show();$("#pinlogin").attr("disabled", false);$("#pinlogin").val("Login"); return;}
             pwdsk=decryptchar(localStorage.en_login_sec,pin+msg);
             confkey=decryptchar(localStorage.en_login_conf,pin+msg)
-            $.post("check.php",{pwd:String(CryptoJS.SHA512(pbkdf2_enc(pwdsk,JSsalt,500)+"<?php echo $_SESSION['random_login_stamp']; ?>")),  user: getcookie('username')},function(msg){
+            $.post("check.php",{pwd:String(CryptoJS.SHA512(String(CryptoJS.SHA512(pbkdf2_enc(pwdsk,JSsalt,500)+getcookie('username')))+"<?php echo $_SESSION['random_login_stamp']; ?>")),  user: getcookie('username')},function(msg){
                 if(msg!=9) {$("#usepin").modal("hide");delpinstore();$("#user").focus();return;}
                 setpwdstore(pwdsk,confkey,'<?php echo $GLOBAL_SALT_2; ?>');                
                 window.location.href="./password.php";
@@ -138,7 +138,7 @@ $(function(){
 		var login_sig=String(pbkdf2_enc(reducedinfo(pwd,'<?php echo $DEFAULT_LETTER_USED; ?>'),JSsalt,500));
         secretkey=login_sig;
         login_sig=pbkdf2_enc(login_sig,JSsalt,500);
-        $.post("check.php",{pwd:String(CryptoJS.SHA512(login_sig+"<?php echo $_SESSION['random_login_stamp']; ?>")),  user: user},function(msg){ 
+        $.post("check.php",{pwd:String(CryptoJS.SHA512(String(CryptoJS.SHA512(login_sig+user))+"<?php echo $_SESSION['random_login_stamp']; ?>")),  user: user},function(msg){ 
         $(".errorhint").hide();
 		if(msg==0){
 			 	$("#nouser").show();

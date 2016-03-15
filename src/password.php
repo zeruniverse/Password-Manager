@@ -616,7 +616,7 @@ $("#changepw").click(function(){
             }
             passarray[x]=encryptchar(raw_pass,newsecretkey);
         }
-        $.post("changeuserpw.php",{newpass:postnewpass, passarray:JSON.stringify(passarray), accarray:JSON.stringify(accarray)},function(msg){ 
+        $.post("changeuserpw.php",{newpass:String(CryptoJS.SHA512(postnewpass+"<?php echo $_SESSION['user'];?>")), passarray:JSON.stringify(passarray), accarray:JSON.stringify(accarray)},function(msg){ 
             if(msg==1) {alert("Change Password Successfully! Please login with your new password again.");quitpwd();} else {alert("Fail to change your password, please try again."); location.reload();}
         });
         }
