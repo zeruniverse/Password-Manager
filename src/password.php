@@ -33,11 +33,7 @@ echoheader();
 var secretkey;
 var default_timeout = <?php echo $BROWSER_TIMEOUT;?>-1;
 var timeout = default_timeout;
-var fields={url:{colname: 'URL', hint: '', cls: ' hidden'}, 
-            user:{colname: 'Username', hint: '', cls: ' hidden-xs', position: 1}, 
-            comment:{colname: 'Comment', hint: '', cls: ' hidden', type: "textarea"},
-            tags:{colname: 'Tags', hint: 'Comma separated values', cls: ' hidden-xs'},
-            };
+var fields=JSON.parse('<?php echo $_SESSION['fields'];?>');
 var accountarray=new Array();
 function quitpwd()
 {
@@ -83,6 +79,7 @@ setInterval(countdown, 60000);
               <li><a href="javascript: alert('You will need your CURRENT login password to unlock the backup file even if you change login password later. Write your CURRENT login password down or remember to generate a new backup file after each time you change the login password.');window.location.href='backup.php'">Back Up</a></li>
               <li><a href="" data-toggle="modal" data-target="#import">Import</a></li>
               <li><a href="" data-toggle="modal" data-target="#changepwd">Change Password</a></li>
+              <li><a href="" data-toggle="modal" data-target="#changefields">Customize Fields</a></li>
               <li><a href="./history.php" target="_blank">Account Activity</a></li>
             </ul>
             </li>
@@ -158,6 +155,26 @@ setInterval(countdown, 60000);
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
                     <button type="button" class="btn btn-primary" id="newbtn">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" tabindex="-1" role="dialog" id="changefields">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4>Customize additional fields</h4>
+                </div>
+                <div class="modal-body">
+                <form>
+                <p>Please edit the fields parameter according to the default one shown below. It should be JS array format.</p>
+                    <textarea id="fieldsz"><?php echo $_SESSION['fields'];?></textarea>
+                </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
+                    <button type="button" class="btn btn-primary" id="changefieldsbtn">Change</button>
                 </div>
             </div>
         </div>
@@ -513,6 +530,23 @@ $("#pinloginform").on('submit',function(e){
         rand_device();
     } else process();  
 });
+$("#changefieldsbtn").click(function(){
+    var a=$('#fieldsz').val();
+    function isJson(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+    }
+    if(a.search("'")>=0) {alert('Do not use \' ,use " instead!'); return;}
+    if(!isJson(a)) {alert('illegal format!');return;}
+    $.post("changefields.php",{fields:a},function(msg){ 
+            if(msg==1) {alert('SUCCESS!'); location.reload(true);}
+            else {alert("Oops, there's some error. Try again!");}
+        });
+});
 $("#newbtn").click(function(){ 
 	var newpwd;
 	if($("#newiteminput").val()=="") {alert("Account entry can't be empty!"); return;}
@@ -530,7 +564,7 @@ $("#newbtn").click(function(){
         other = JSON.stringify(other);
         var name = $("#newiteminput").val();
         add_account(name, newpwd, other, function(msg){ 
-            if(msg==1) {alert("Add "+name+" successfully!");location.reload(true)} else alert("Fail to add "+name+", please try again.");
+            if(msg==1) {alert("Add "+name+" successfully!");location.reload(true);} else alert("Fail to add "+name+", please try again.");
             $("#newiteminput").attr("readonly",false);
             $("#newbtn").attr("disabled",false);
             $("#newiteminputpw").attr("readonly",false);

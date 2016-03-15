@@ -20,8 +20,8 @@ $kp=encrypt($pw,$GLOBAL_SALT_3);
 $res=sqlquery('SELECT max(`id`) FROM `pwdusrrecord`',$link);
 $result=$res->fetch(PDO::FETCH_NUM);
 $maxnum=$result==FALSE?0:(int)($result[0]);
-$sql="INSERT INTO `pwdusrrecord` VALUES (?,?,?,?)";
-$rett=sqlexec($sql,array($maxnum+1,$usr,$kp,$email),$link);
+$sql="INSERT INTO `pwdusrrecord` VALUES (?,?,?,?,?)";
+$rett=sqlexec($sql,array($maxnum+1,$usr,$kp,$DEFAULT_FIELDS,$email),$link);
 if(!$rett) {$link->rollBack();die('8');}
 $link->commit();
 die('9');

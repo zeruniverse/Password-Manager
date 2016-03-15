@@ -71,6 +71,7 @@ $_SESSION['loginok']=1;
 $_SESSION['user']=$usr;
 $_SESSION['userid']=$record['id'];
 $_SESSION['pwd']=$record['password'];
+$_SESSION['fields']=$record['fields'];
 loghistory($link,(int)$record["id"],getUserIP(),$_SERVER['HTTP_USER_AGENT'],1);
 echo "9";
 ?>

@@ -24,6 +24,8 @@ date_default_timezone_set('America/Los_Angeles');
 //****************************************
 //OPTIONAL
 //****************************************
+//DEFAULT fields
+$DEFAULT_FIELDS='{"url":{"colname":"URL","hint":"","cls":" hidden"},"user":{"colname":"Username","hint":"","cls":" hidden-xs","position":1},"comment":{"colname":"Comment","hint":"","cls":" hidden","type":"textarea"},"tags":{"colname":"Tags","hint":"Comma separated values","cls":" hidden-xs"}}';
 
 //PIN expire
 $PIN_EXPIRE_TIME=7776000; 
