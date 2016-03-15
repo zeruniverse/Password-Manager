@@ -41,7 +41,7 @@ echoheader();
     <table class="table">
     <tr><th>Device Type</th><th>Login IP</th><th>Login Time</th></tr>
     <?php
-        $sql="SELECT * FROM `history` WHERE `userid`= ?";
+        $sql="SELECT * FROM `history` WHERE `userid`= ? LIMIT 60";
         $res=sqlexec($sql,array($id),$link);
 		while ($i = $res->fetch(PDO::FETCH_ASSOC)){ 
             $ip=$i['ip'];
@@ -56,4 +56,10 @@ echoheader();
     ?>
     </table>   
 </div>
+<script type="text/javascript">
+function unsetpin(devicex)
+{
+    $.post("deletepin.php",{user:"<?php echo $usr;?>",device:devicex},function(msg){location.reload(true);});
+}
+</script>
 <?php echofooter();?>
