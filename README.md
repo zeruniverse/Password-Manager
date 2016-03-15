@@ -19,11 +19,6 @@ This password manager can generate and store random strong passwords for users. 
 PBKDF2 with SHA512 is used for user identification check. Raw password will be mapped to a pseudo password with a key related to Password_1 before applying AES256. The mapping algorithm is alphabet and position based.    
 Some part of information in Password_1 won't involve in calculations for identity check, So password_1 can't be obtained by enumerating password_0 (used for authentication).  
    
-## System Requirements
-+ PHP 5.2+
-+ MySQL or MariaDB as long as it supports PDO
-+ Client: Web browser supporting HTML5
-  
 ## How to Use
 + Install PHP, MySQL (MariaDB) and WebServer(IIS, Apache or Nginx) in your server. Make sure PDO is supported
 + Create a database in your MySQL server for this password manager
@@ -39,7 +34,7 @@ Some part of information in Password_1 won't involve in calculations for identit
    
 ##Import From Other Password Managers
 + Export your passwords from your password manager as csv file.
-+ Make sure there is a header line, the password and account name column must be named "password" and "name" respectively, order is not important. Other supported fields are with headers `url` as URL, `user` as Username, `tags` as Tags, `comment` as comments. All other columns are being ignored. You may modify `src/password.php` (Line 35-39) to personalize your fields. (Add/Delete)
++ Make sure there is a header line, the password and account name column must be named "password" and "name" respectively, order is not important. If you have other fields, you should customize your fields after login (in setting). All other columns not listed in fields in your setting are being ignored.
 + Open the import dialog, paste the csv data and select csv as import type.
    
 ##About Upgrade  
@@ -63,15 +58,15 @@ New version usually comes with algorithm updates and will NOT be compatible with
 + All your password should be on your new password manager now.
 + If some error occurs, you can clear your database and redo the previous steps. This may take long time if you have many accounts. Find a good computer with good Internet access to do it!
     
-##Backup
+##Backup and Recovery 
 Though the probability is low, you can't deny that you may lose your passwords in various cases. So **please backup your passwords regularly**. If you are the owner of the server hosting the password manager, you may simply back up the database. Otherwise, you can use the backup
 function implemented in the password manager. This will trigger a download of a JSON file. You can keep this file in cloud storage services such as Google Drive and Dropbox. If the password manager you use is damaged, you can go here and download the same version of the password manager
 you used. By using its recovery function, your JSON file and your login password, you can recover all your passwords. All passwords in JSON file is encrypted and your login password which is used to decrypt won't be in the JSON file. So it's safe to keep the JSON file in cloud storage
 services.    
-      
-##Recovery  
+  
 For your passwords safety, your login password to password manager won't be included in the recovery file. You still need your login password to decrypt the recovery file. The backup file is indepandent to config file. You don't need to backup your `config.php`         
 + The purpose of the recovery file is to protect your password in case of data loss. NOT IN CASE THAT YOU FORGET YOUR PASSWORD (No one can get your passwords without your login password!)
++ To recover your passwords, go to the homepage of the password manager and click `Password Recovery`.  
   
 ##Details   
 ###Key Generation    
@@ -134,39 +129,7 @@ For your passwords safety, your login password to password manager won't be incl
          
 ##Extentions  
 You can easily add E-mail verification, Google authentication... in your version of password manager. Put your implementation inside `check.php`, which is used for login authentication.   
-     
-##TODO  
-###Implement history track
-List current sessions/past x days login history.     
-History includes login IP, browser type, OS type, time and maybe which password is seen.
-   
-###Fields personalization
-Let users personalize which fields they want/don't want/want to show in mobile/want to show with header xxx   
-   
-###Write a better README
-It's now kind of a mess...      
-   
-##Contribution
-Any help to improve this project is greatly appreciated!     
-     
-###For New Idea
-Submit an [issue](https://github.com/zeruniverse/Password-Manager/issues), or submit a pull request that adds your new idea in [TODO](https://github.com/zeruniverse/Password-Manager#TODO)    
-###Contribute Code
-Please help solve unassigned [TODO](https://github.com/zeruniverse/Password-Manager#TODO). Before starting coding, submit a pull request and mark that part as assigned and write your GitHub ID.       
-I'll try to respond to issues and pull requests within 24 hours.    
-If you contribute code to this project, your name will show up [here](https://github.com/zeruniverse/Password-Manager/graphs/contributors).      
-###Other Helps
-Please help distribute this project and let more people know if you feel it helpful :)       
   
-**All contributors must agree that your code/ideas are going be distributed under MIT license. And a copy of MIT license should be included in the copy of this software that you distribute.**     
-      
-##BUG Report
-If you find a BUG, please submit an [issue](https://github.com/zeruniverse/Password-Manager/issues).     
-     
-##Warranty
-We (all developers/contributors) understand that your passwords are valuable, so we tried our best to make sure this software protects your passwords well. The safety of this software is heavily based on the safety of AES-256
-algorithm, which is widely used for encryption and proven to be solid. However, we can't give any warranty for this free software as is stated in the license. Who knows if FBI secretly keeps some algorithm that solves AES in
-linear time complexity? If you have a REALLY REALLY REALLY important account, only keeping that in your mind will make it 100% safe.      
 ##Copyright  
 Jeffery Zhao  
 License: MIT     
