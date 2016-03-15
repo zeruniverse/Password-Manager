@@ -26,13 +26,13 @@ echoheader();
     <table class="table">
     <tr><th>Device Type</th><th>Set Time</th><th>Untrust (Disable PIN)</th></tr>
     <?php
-        $sql="SELECT * FROM `pin` WHERE `userid`= ?";
+        $sql="SELECT `device`,UNIX_TIMESTAMP(`createtime`) AS `createtime`,`ua` FROM `pin` WHERE `userid`= ?";
         $res=sqlexec($sql,array($id),$link);
 		while ($i = $res->fetch(PDO::FETCH_ASSOC)){ 
             $did=$i['device'];
             $ctime=(int)$i['createtime'];
             $ua=$i['ua'];
-            echo "<tr><td class='uacell'>".$ua."</td><td class='timestampcell'>".$ctime."</td><td><a href='javascript: unsetpin(\"".$did."\")'>Untrust this device</a></td></tr>";
+            echo "<tr><td class='uacell'>".$ua."</td><td class='timestampcell'>".gmdate('Y-m-d-H-i-s',$ctime)."</td><td><a href='javascript: unsetpin(\"".$did."\")'>Untrust this device</a></td></tr>";
 		}
     ?>
     </table>
@@ -43,7 +43,7 @@ echoheader();
     <table class="table">
     <tr><th>Device Type</th><th>Login IP</th><th>Login Time</th></tr>
     <?php
-        $sql="SELECT * FROM `history` WHERE `userid`= ? ORDER BY `id` DESC LIMIT 60";
+        $sql="SELECT `ip`,`ua`,`outcome`,UNIX_TIMESTAMP(`time`) AS `time` FROM `history` WHERE `userid`= ? ORDER BY `id` DESC LIMIT 60";
         $res=sqlexec($sql,array($id),$link);
 		while ($i = $res->fetch(PDO::FETCH_ASSOC)){ 
             $ip=$i['ip'];
@@ -53,7 +53,7 @@ echoheader();
                 $color=' style="color:red"';
             else
                 $color='';
-            echo "<tr".$color."><td class='uacell'>".$ua."</td><td>".$ip."<td class='timestampcell'>".$ctime."</td></tr>";
+            echo "<tr".$color."><td class='uacell'>".$ua."</td><td>".$ip."<td class='timestampcell'>".gmdate('Y-m-d-H-i-s',$ctime)."</td></tr>";
 		}
     ?>
     </table>   
@@ -61,15 +61,26 @@ echoheader();
 </div>
 <script type="text/javascript" src="ua-parser.min.js"></script>
 <script type="text/javascript">
-function timeConverter(UNIX_timestamp){
-  var a = new Date(UNIX_timestamp * 1000);
+function timeConverter(utctime){
+  var a = new Date();
+  var g=utctime.split("-");
+  a.setUTCFullYear(g[0]);
+  a.setUTCMonth(g[1]);
+  a.setUTCDate(g[2])
+  a.setUTCHours(g[3]);
+  a.setUTCMinutes(g[4]);
+  a.setUTCSeconds(g[5]);
   var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  var year = a.getFullYear();
-  var month = months[a.getMonth()];
-  var date = a.getDate();
-  var hour = a.getHours();
-  var min = a.getMinutes();
-  var sec = a.getSeconds();
+  if(isNaN(a.getHours())) return 'UTC '+months[parseInt(g[1])-1]+' '+g[2]+', '+g[0];  
+  var year = String(a.getFullYear());
+  var month = months[a.getMonth()-1];
+  var date = String(a.getDate());
+  var hour = String(a.getHours());
+  var min = String(a.getMinutes());
+  var sec = String(a.getSeconds());
+  if(hour.length==1) hour = '0'+hour;
+  if(min.length==1) min = '0'+min;
+  if(sec.length==1) sec = '0'+sec;
   var time = month + ' '+date + ', ' + year + ' ' + hour + ':' + min + ':' + sec ;
   return time;
 }
@@ -83,7 +94,7 @@ $(document).ready(function(){
        $(this).html(parser.getBrowser().name+' '+parser.getBrowser().version+'; '+parser.getOS().name+' '+parser.getOS().version+'; '+parser.getDevice().model+' '+parser.getCPU().architecture);
     });
     $( ".timestampcell" ).each(function(){
-       nowtime=timeConverter(parseInt($(this).html()));
+       nowtime=timeConverter($(this).html());
        $(this).html(nowtime);
     });
     $("#placeholder").hide();
