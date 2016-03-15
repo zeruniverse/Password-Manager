@@ -168,8 +168,8 @@ setInterval(countdown, 60000);
                 </div>
                 <div class="modal-body">
                 <form>
-                <p>Please edit the fields parameter according to the default one shown below. It should be JS array format.</p>
-                    <textarea id="fieldsz"><?php echo $_SESSION['fields'];?></textarea>
+                <p>Please edit the fields parameter according to the default one shown below. It should be JSON format.</p>
+                    <textarea class="form-control" id="fieldsz" style="height:300px"><?php echo $_SESSION['fields'];?></textarea>
                 </form>
                 </div>
                 <div class="modal-footer">
@@ -345,6 +345,7 @@ function import_raw(json){
                 other = decryptchar(json.data[x][2], aeskey);
             add_acc(decryptchar(json.data[x][0],aeskey),decryptchar(json.data[x][1],aeskey), other);
         }
+        alert('IMPORT FINISHED!');
         location.reload(true);
     }
     setTimeout(process,50);
@@ -368,6 +369,7 @@ function import_csv(csv){
             }
             add_account(acc, pass, JSON.stringify(other), function(msg) { if(msg!=1) alert("Fail to add "+acc+", please try again manually later."); });
         }
+        alert('IMPORT FINISHED!');
         location.reload(true);
     });
 }

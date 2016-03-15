@@ -17,6 +17,7 @@ if($record==FALSE) {session_destroy();die("0");}
 
 $sql="UPDATE `pwdusrrecord` SET `fields`= ? WHERE `id`= ? ";
 $res=sqlexec($sql,array($_POST['fields'], $id),$link);
+$_SESSION['fields']=$_POST['fields'];
 
 echo "1";
 ?>
