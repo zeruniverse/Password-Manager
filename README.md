@@ -14,9 +14,12 @@ Supports are available [here](https://github.com/zeruniverse/Password-Manager/is
 Older versions will not be supported anymore. Please upgrade to versions later than v9.0    
   
 ##DEMO  
-[pas.jeffery.cc](http://pas.jeffery.cc)  
+[phppasswordmanager.sourceforge.net](http://phppasswordmanager.sourceforge.net/)  
 This demo is for test ONLY! Do NOT put your real password there.  
-You can access the database for this demo [here](https://mysql-p.sourceforge.net), with login username **p2663268ro** and password **12345678**
+You can access the database for this demo [here](https://mysql-p.sourceforge.net), with login username **p2663268ro** and password **12345678**   
+  
+Additional test demo available here: [pas.jeffery.cc](http://pas.jeffery.cc/)  
+This demo is for test purpose and might be unstable.     
     
 ##Mechanism 
 This password manager can generate and store random strong passwords for users. Passwords are generated on users' browsers and then encrypted using AES256 (mode CBC).  

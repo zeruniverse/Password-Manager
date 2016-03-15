@@ -16,34 +16,6 @@ $res=sqlexec($sql,array($usr,$pw,$id),$link);
 $record= $res->fetch(PDO::FETCH_ASSOC);
 if($record==FALSE) {session_destroy();header("Location: ./");die();}
 echoheader();
-function time_elapsed_string($datetime, $full = false) {
-    $now = new DateTime;
-    $ago = new DateTime($datetime);
-    $diff = $now->diff($ago);
-
-    $diff->w = floor($diff->d / 7);
-    $diff->d -= $diff->w * 7;
-
-    $string = array(
-        'y' => 'year',
-        'm' => 'month',
-        'w' => 'week',
-        'd' => 'day',
-        'h' => 'hour',
-        'i' => 'minute',
-        's' => 'second',
-    );
-    foreach ($string as $k => &$v) {
-        if ($diff->$k) {
-            $v = $diff->$k . ' ' . $v . ($diff->$k > 1 ? 's' : '');
-        } else {
-            unset($string[$k]);
-        }
-    }
-
-    if (!$full) $string = array_slice($string, 0, 1);
-    return $string ? implode(', ', $string) . ' ago' : 'just now';
-}
 ?>
 <div class="container theme-showcase" style="margin-top:-30px;">
     <p id="placeholder">PLEASE WAIT...</p>
@@ -60,7 +32,7 @@ function time_elapsed_string($datetime, $full = false) {
             $did=$i['device'];
             $ctime=(int)$i['createtime'];
             $ua=$i['ua'];
-            echo "<tr><td class='uacell'>".$ua."</td><td class='timestampcell'>".gmdate('Y-m-d-H-i-s',$ctime).'['.time_elapsed_string('@'.(string)$ctime)."</td><td><a href='javascript: unsetpin(\"".$did."\")'>Untrust this device</a></td></tr>";
+            echo "<tr><td class='uacell'>".$ua."</td><td class='timestampcell'>".gmdate('Y-m-d-H-i-s',$ctime).'[1aaaaaaa'."</td><td><a href='javascript: unsetpin(\"".$did."\")'>Untrust this device</a></td></tr>";
 		}
     ?>
     </table>
@@ -81,7 +53,7 @@ function time_elapsed_string($datetime, $full = false) {
                 $color=' style="color:red"';
             else
                 $color='';
-            echo "<tr".$color."><td class='uacell'>".$ua."</td><td>".$ip."<td class='timestampcell'>".gmdate('Y-m-d-H-i-s',$ctime).'['.time_elapsed_string('@'.(string)$ctime)."</td></tr>";
+            echo "<tr".$color."><td class='uacell'>".$ua."</td><td>".$ip."<td class='timestampcell'>".gmdate('Y-m-d-H-i-s',$ctime).'[1aaaaaaa'."</td></tr>";
 		}
     ?>
     </table>   
@@ -99,8 +71,7 @@ function timeConverter(utctime){
   a.setUTCHours(g[3]);
   a.setUTCMinutes(g[4]);
   a.setUTCSeconds(g[5]);
-  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  if(isNaN(a.getHours())) return p[1];  
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; 
   var year = String(a.getFullYear());
   var month = months[a.getMonth()-1];
   var date = String(a.getDate());

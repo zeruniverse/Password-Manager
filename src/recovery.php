@@ -1,6 +1,5 @@
 <?php
 require_once('function/basic.php');
-require_once('function/config.php');
 echoheader();
 ?>
 <script type="text/javascript" src="aes.js"></script>
@@ -76,7 +75,7 @@ function sanitize_json(s){
 function gen_key()
 {
     var pass=$("#pwd").val();
-	secretkey=String(pbkdf2_enc(reducedinfo(pass,'<?php echo $DEFAULT_LETTER_USED; ?>'),JSsalt,500));
+	secretkey=String(pbkdf2_enc(reducedinfo(pass,ALPHABET),JSsalt,500));
     confkey=pbkdf2_enc(String(CryptoJS.SHA512(pass+secretkey)),JSsalt,500);
     secretkey=String(CryptoJS.SHA512(secretkey+PWsalt));
 }
@@ -85,7 +84,12 @@ function gen_account_array(enc_account_array)
     var tempchar,x;
     var account_array=new Array();
     for (x in enc_account_array){
-        tempchar=decryptchar(enc_account_array[x],secretkey);
+        try {
+            tempchar=decryptchar(enc_account_array[x],secretkey);
+        } catch (e) {
+            tempchar='';
+        }
+        
         if (tempchar=="") tempchar="Oops, there's some errors!"
         account_array[x]=tempchar;
     }
@@ -96,7 +100,11 @@ function gen_other_array(enc_other_array)
     var tempchar,x;
     var other_array=new Array();
     for (x in enc_other_array){
-        tempchar=decryptchar(enc_other_array[x],secretkey);
+        try {
+            tempchar=decryptchar(enc_other_array[x],secretkey);
+        } catch (e) {
+            tempchar='';
+        }
         if (tempchar=="") tempchar="Oops, there's some errors!"
         other_array[x]=tempchar;
     }
@@ -107,7 +115,11 @@ function gen_pass_array(account_array,enc_pass_array)
     var tempchar,x,name;
     var pass_array=new Array();
     for (x in enc_pass_array){
-        tempchar=decryptchar(enc_pass_array[x],secretkey);
+        try {
+            tempchar=decryptchar(enc_pass_array[x],secretkey);
+        } catch (e) {
+            tempchar='';
+        }
         if (tempchar=="") {
             tempchar="Oops, there's some errors!";
         }else{
