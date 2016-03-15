@@ -31,6 +31,10 @@ $DEFAULT_FIELDS='{"url":{"colname":"URL","hint":"","cls":" hidden"},"user":{"col
 $PIN_EXPIRE_TIME=7776000; 
 //PIN expire in 7776000 seconds.
 
+//LOG expire
+$LOG_EXPIRE_TIME=7776000; 
+//LOG (history) expire in 7776000 seconds (90 days).
+
 //Block IP error try
 $BLOCK_IP_TRY=10;
 //block ip if we see 10 error try in BLOCK_IP_TIME.

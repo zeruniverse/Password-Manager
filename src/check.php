@@ -38,8 +38,13 @@ $pw=$_POST['pwd'];
 if($pw==""||$usr=="") die("0");
 $link=sqllink();
 if(!$link) die('4');
+
+//Clear Up.
 $sql="DELETE FROM `blockip` WHERE UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`time`) > ?";
 $res=sqlexec($sql,array($BLOCK_IP_TIME),$link);
+$sql="DELETE FROM `history` WHERE UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`time`) > ?";
+$res=sqlexec($sql,array($LOG_EXPIRE_TIME),$link);
+
 //check if IP is blocked
 $sql="SELECT * FROM `blockip` WHERE `ip`= ?";
 $res=sqlexec($sql,array(getUserIP()),$link);

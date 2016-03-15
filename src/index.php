@@ -1,7 +1,7 @@
 <?php 
 session_start();
 if(isset($_SESSION["loginok"])&& $_SESSION['loginok']==1) {header("Location: ./password.php"); die();}
-$_SESSION['random_login_stamp']=date("Ymdhis").mt_rand(10000,99999);
+if(!isset($_SESSION['random_login_stamp'])) $_SESSION['random_login_stamp']=date("Ymdhis").mt_rand(10000,99999);
 require_once('function/basic.php');
 require_once('function/config.php');
 require_once("function/sqllink.php");
