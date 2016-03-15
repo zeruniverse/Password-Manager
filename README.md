@@ -129,8 +129,7 @@ For your passwords safety, your login password to password manager won't be incl
 + Change the extra information in Password_1 actually changes the pseudo-passwords.
 + Except that the user sees completely different passwords on screen, inputing wrong login password that happens to generate the correct password_0 won't cause any errors. And since all passwords uses alphabet-based confusion, it's hard to tell whether the password is correct directly.
     
-<img width="1114" alt="signup login" src="https://cloud.githubusercontent.com/assets/4648756/11234264/e07af92a-8d7a-11e5-967b-bff833c30e34.png">
-         
+<img width="1098" alt="mechanism" src="https://cloud.githubusercontent.com/assets/4648756/13795540/b0dfde78-eabe-11e5-8407-e5904dad59d2.png">         
 ##Extentions  
 You can easily add E-mail verification, Google authentication... in your version of password manager. Put your implementation inside `check.php`, which is used for login authentication.   
   
