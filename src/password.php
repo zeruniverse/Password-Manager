@@ -78,11 +78,12 @@ setInterval(countdown, 60000);
             <li id="nav-add"><a href="" data-toggle="modal" data-target="#add">Add Entry</a></li>
             <li id="nav-add"><a href="" data-toggle="modal" data-target="#pin">Set PIN</a></li>
             <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Profile<span class="caret"></span></a>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Settings<span class="caret"></span></a>
             <ul class="dropdown-menu">
               <li><a href="javascript: alert('You will need your CURRENT login password to unlock the backup file even if you change login password later. Write your CURRENT login password down or remember to generate a new backup file after each time you change the login password.');window.location.href='backup.php'">Back Up</a></li>
               <li><a href="" data-toggle="modal" data-target="#import">Import</a></li>
               <li><a href="" data-toggle="modal" data-target="#changepwd">Change Password</a></li>
+              <li><a href="./history.php" target="_blank">Account Activity</a></li>
             </ul>
             </li>
           </ul>
