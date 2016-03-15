@@ -36,10 +36,10 @@ if($username!=$usr) die('0');
 $sql="DELETE FROM `pin` WHERE `userid`= ? AND `device`= ?";
 $res=sqlexec($sql,array($id,$device),$link);
 
-$pubkey=random_str(29);
+$pinpk=random_str(29);
 
-$sql="INSERT INTO `pin` (`userid`,`device`,`pinsig`,`pinpk`) VALUES (?,?,?,?)";
-$res=sqlexec($sql,array($id,$device,$sig,$pubkey),$link);
+$sql="INSERT INTO `pin` (`userid`,`device`,`pinsig`,`pinpk`,`ua`) VALUES (?,?,?,?,?)";
+$res=sqlexec($sql,array($id,$device,$sig,$pinpk,$_SERVER['HTTP_USER_AGENT']),$link);
 
-echo $pubkey;
+echo $pinpk;
 ?>
