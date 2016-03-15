@@ -8,8 +8,10 @@
   
 ##Version
 v9.0  
-From v9.0, this project becomes mature. There will still be infrequent bug fixes and improvements though.  
-Supports are available (here)[https://github.com/zeruniverse/Password-Manager/issues] for versions greater than 9.0. Older versions will not be supported anymore.  
+From v9.0, this project becomes mature. I've implemented all features planned when I started this project.       
+There will still be infrequent bug fixes and improvements though.  
+Supports are available [here](https://github.com/zeruniverse/Password-Manager/issues) for versions greater than v9.0   
+Older versions will not be supported anymore. Please upgrade to versions later than v9.0    
   
 ##DEMO  
 [pas.jeffery.cc](http://pas.jeffery.cc)  
