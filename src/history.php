@@ -18,6 +18,8 @@ if($record==FALSE) {session_destroy();header("Location: ./");die();}
 echoheader();
 ?>
 <div class="container theme-showcase" style="margin-top:-30px;">
+    <p id="placeholder">PLEASE WAIT...</p>
+    <div id="maindiv" style="display:none">
     <div class="page-header">
         <h1>Trusted Devices</h1>
     </div>
@@ -55,8 +57,36 @@ echoheader();
 		}
     ?>
     </table>   
+    </div>
 </div>
+<script type="text/javascript" src="ua-parser.min.js"></script>
 <script type="text/javascript">
+function timeConverter(UNIX_timestamp){
+  var a = new Date(UNIX_timestamp * 1000);
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var year = a.getFullYear();
+  var month = months[a.getMonth()];
+  var date = a.getDate();
+  var hour = a.getHours();
+  var min = a.getMinutes();
+  var sec = a.getSeconds();
+  var time = month + ' '+date + ', ' + year + ' ' + hour + ':' + min + ':' + sec ;
+  return time;
+}
+$(document).ready(function(){
+    var parser = new UAParser();
+    var uastring;
+    var nowtime;
+    $( ".uacell" ).each(function() {
+       uastring=$(this).html();
+       parser.setUA(uastring);
+       $(this).html(parser.getBrowser().name+' '+parser.getBrowser().version+'; '+parser.getOS().name+' '+parser.getOS().version+'; '+parser.getDevice().model+' '+parser.getCPU().architecture);
+    });
+    $( ".timestampcell" ).each(function(){
+       nowtime=timeConverter(parseInt($(this).html()));
+       $(this).html(nowtime);
+    });
+});
 function unsetpin(devicex)
 {
     $.post("deletepin.php",{user:"<?php echo $usr;?>",device:devicex},function(msg){location.reload(true);});
