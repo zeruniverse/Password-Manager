@@ -18,6 +18,9 @@ $DB_USER='';
 //Database Password
 $DB_PASSWORD='';
 
+//Default timezone
+date_default_timezone_set('America/Los_Angeles');
+
 //****************************************
 //OPTIONAL
 //****************************************

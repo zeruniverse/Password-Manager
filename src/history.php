@@ -60,7 +60,7 @@ function time_elapsed_string($datetime, $full = false) {
             $did=$i['device'];
             $ctime=(int)$i['createtime'];
             $ua=$i['ua'];
-            echo "<tr><td class='uacell'>".$ua."</td><td class='timestampcell'>".gmdate('Y-m-d-H-i-s',$ctime).'-'.time_elapsed_string('@'.$ctime)."</td><td><a href='javascript: unsetpin(\"".$did."\")'>Untrust this device</a></td></tr>";
+            echo "<tr><td class='uacell'>".$ua."</td><td class='timestampcell'>".gmdate('Y-m-d-H-i-s',$ctime).'-'.time_elapsed_string('@'.(string)$ctime)."</td><td><a href='javascript: unsetpin(\"".$did."\")'>Untrust this device</a></td></tr>";
 		}
     ?>
     </table>
@@ -81,7 +81,7 @@ function time_elapsed_string($datetime, $full = false) {
                 $color=' style="color:red"';
             else
                 $color='';
-            echo "<tr".$color."><td class='uacell'>".$ua."</td><td>".$ip."<td class='timestampcell'>".gmdate('Y-m-d-H-i-s',$ctime).'-'.time_elapsed_string('@'.$ctime)."</td></tr>";
+            echo "<tr".$color."><td class='uacell'>".$ua."</td><td>".$ip."<td class='timestampcell'>".gmdate('Y-m-d-H-i-s',$ctime).'-'.time_elapsed_string('@'.(string)$ctime)."</td></tr>";
 		}
     ?>
     </table>   
