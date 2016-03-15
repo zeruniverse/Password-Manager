@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS `pin` (
   `device` varchar(10) NOT NULL,
   `pinsig` text,
   `pinpk` varchar(30) NOT NULL,
+  `ua` varchar(500),
   `createtime` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `errortimes` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`userid`,`device`)
@@ -32,6 +33,21 @@ CREATE TABLE IF NOT EXISTS `pwdusrrecord` (
   `username` varchar(50) NOT NULL,
   `password` varchar(510) NOT NULL,
   `email` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `blockip` (
+  `ip` varchar(18) NOT NULL,
+  `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `history` (
+  `id` int(11) NOT NULL,
+  `userid` int(11) NOT NULL,
+  `ip` varchar(16) NOT NULL,
+  `ua` varchar(500),
+  `outcome` int(11) NOT NULL DEFAULT '0',
+  `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
