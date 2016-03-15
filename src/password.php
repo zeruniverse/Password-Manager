@@ -614,6 +614,7 @@ $("#changepw").click(function(){
                 alert("FATAL ERROR WHEN TRYING TO DECRYPT ALL PASSWORDS");
                 return;
             }
+            raw_pass=gen_temp_pwd(newconfkey,PWsalt,String(CryptoJS.SHA512(accountarray[x]["name"])),ALPHABET,raw_pass);
             passarray[x]=encryptchar(raw_pass,newsecretkey);
         }
         $.post("changeuserpw.php",{newpass:String(CryptoJS.SHA512(postnewpass+"<?php echo $_SESSION['user'];?>")), passarray:JSON.stringify(passarray), accarray:JSON.stringify(accarray)},function(msg){ 
