@@ -38,12 +38,33 @@ $pw=$_POST['pwd'];
 if($pw==""||$usr=="") die("0");
 $link=sqllink();
 if(!$link) die('4');
+$sql="DELETE FROM `blockip` WHERE UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`time`) > ?";
+$res=sqlexec($sql,array($BLOCK_IP_TIME),$link);
+//check if IP is blocked
+$sql="SELECT * FROM `blockip` WHERE `ip`= ?";
+$res=sqlexec($sql,array(getUserIP()),$link);
+$record= $res->fetch(PDO::FETCH_ASSOC);
+if($record!=FALSE) die('7');
+
 $sql="SELECT * FROM `pwdusrrecord` WHERE `username`= ?";
 $res=sqlexec($sql,array($usr),$link);
 $record= $res->fetch(PDO::FETCH_ASSOC);
 if($record==FALSE) die('0');
+
+$sql="SELECT count(*) as `m` FROM `history` WHERE `userid`= ? AND outcome=0 AND UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`time`) < ?";
+$res=sqlexec($sql,array((int)$record["id"],$ACCOUNT_BAN_TIME),$link);
+$count= $res->fetch(PDO::FETCH_ASSOC);
+if((int)$count['m']>=$BLOCK_ACCOUNT_TRY) die('8');
+
 if(strcmp(hash('sha512',(string)decrypt($record["password"],$GLOBAL_SALT_3).(string)$_SESSION['random_login_stamp']),$pw)!=0) {
     loghistory($link,(int)$record["id"],getUserIP(),$_SERVER['HTTP_USER_AGENT'],0);
+    $sql="SELECT count(*) as `m` FROM `history` WHERE `ip`= ? AND outcome=0 AND UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`time`) < ?";
+    $res=sqlexec($sql,array(getUserIP(),$BLOCK_IP_TIME),$link);
+    $count= $res->fetch(PDO::FETCH_ASSOC);
+    if((int)$count['m']>=$BLOCK_IP_TRY){
+        $sql="INSERT INTO `blockip` VALUES (?,CURRENT_TIMESTAMP)";
+        $res=sqlexec($sql,array(getUserIP()),$link);
+    }
     die("1");
 }
 $_SESSION['loginok']=1;

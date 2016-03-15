@@ -29,6 +29,22 @@ date_default_timezone_set('America/Los_Angeles');
 $PIN_EXPIRE_TIME=7776000; 
 //PIN expire in 7776000 seconds.
 
+//Block IP error try
+$BLOCK_IP_TRY=10;
+//block ip if we see 10 error try in BLOCK_IP_TIME.
+
+//BLOCK IP time
+$BLOCK_IP_TIME=3600;
+//block ip for 1 hour
+
+//Block account error try
+$BLOCK_ACCOUNT_TRY=5;
+//block account if we see 5 error try in ACCOUNT_BAN_TIME.
+
+//BLOCK account time
+$ACCOUNT_BAN_TIME=180;
+//block account for 3 minutes
+
 //TIMEOUT -> LOGOUT
 $BROWSER_TIMEOUT=6; //minutes
 //Automatically logout after no operation for 6 minutes

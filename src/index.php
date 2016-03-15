@@ -56,6 +56,8 @@ if(typeof(Storage) == "undefined") {
         </form>
         <span id="nouser" class="errorhint"  style="display:none; color:Red">We don't have this user on file<br /></span>
         <span id="pwderr" class="errorhint"  style="display:none; color:Red">Wrong Password<br /></span>
+        <span id="blockip" class="errorhint"  style="display:none; color:Red">Your IP has been blocked due to malicious activity<br /></span>
+        <span id="accountban" class="errorhint"  style="display:none; color:Red">Your account has been protected due to continuous attack. Try again in <?php echo $ACCOUNT_BAN_TIME;?> seconds<br /></span>
         <span id="othererror" class="errorhint"  style="display:none; color:Red">Oops, our server run into some problems. Please refresh this page and try again.<br /></span>
         <hr />
         <button class="btn btn-sm btn-default" type="button" onClick="window.location.href='signup.php';" >Sign Up</button>&nbsp; <button class="btn btn-sm btn-warning" type="button" onClick="window.location.href='recovery.php';" >Password Recovery</button>
@@ -152,6 +154,14 @@ $(function(){
 		if(msg==4){
 			 	$("#othererror").show();
 				$("#chk").attr("value", "Login");
+				$("#chk").attr("disabled", false);
+		}else
+		if(msg==7){
+			 	$("#blockip").show();
+		}else
+		if(msg==8){
+			 	$("#accountban").show();
+                $("#chk").attr("value", "Login");
 				$("#chk").attr("disabled", false);
 		}else{
                 confkey=pbkdf2_enc(String(CryptoJS.SHA512(pwd+secretkey)),JSsalt,500);
