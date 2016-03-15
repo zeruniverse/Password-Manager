@@ -43,7 +43,7 @@ echoheader();
     <table class="table">
     <tr><th>Device Type</th><th>Login IP</th><th>Login Time</th></tr>
     <?php
-        $sql="SELECT * FROM `history` WHERE `userid`= ? LIMIT 60";
+        $sql="SELECT * FROM `history` WHERE `userid`= ? ORDER BY `id` DESC LIMIT 60";
         $res=sqlexec($sql,array($id),$link);
 		while ($i = $res->fetch(PDO::FETCH_ASSOC)){ 
             $ip=$i['ip'];
