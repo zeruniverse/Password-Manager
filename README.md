@@ -46,30 +46,25 @@ Some part of information in Password_1 won't involve in calculations for identit
    
 ##About Upgrade  
 New version usually comes with algorithm updates and will NOT be compatible with any previous versions. To switch to new version:    
-###Old version < 5.11      
+###Old version <= 9.0      
 + Open your old password manager and take a screenshot of all your accounts and passwords. (If your version is later than 5.0, you can use backup function and then go to recovery page to recover it. You'll get all your accounts and passwords on screen there.)
 + Drop your tables in database and import `initial.sql`
 + Replace the old password manager files with the new version on your server (don't forget to modify `config.php`)
 + Register a new account for password manager
-+ Create all your accounts back (Please note it's recommended to change passwords for all of your accounts when you upgrade)
++ Create all your accounts back 
   
-###Old version >= 5.11
-+ Login to your old password manager. Backup and save the backup file.
-+ Logout and go to the recovery page.
-+ Input all contents in backup file to the recovery box and click [RECOVER IT!], after the recovery, a new button [Export Raw Data] will be on your screen.
-+ Click [Export Raw Data] and save the raw_pass.txt file.
+###Old version > 9.0
++ Login to your old password manager. Go to [settings -> Export CSV]
++ The CSV is in raw format, open it and check if there's any error
 + Drop your tables in database and import `initial.sql`
 + Deploy new password manager to your server (don't forget to modify `config.php`)
 + Create an account in new password manager.
-+ Login and find the [Import accounts] section. Copy all contents in the raw_pass.txt and paste them into the box. Click [Submit].
++ Login and find the [Import accounts] section. Copy all contents in the csv exported and paste them into the box. Click [Submit].
 + All your password should be on your new password manager now.
 + If some error occurs, you can clear your database and redo the previous steps. This may take long time if you have many accounts. Find a good computer with good Internet access to do it!
     
 ##Backup and Recovery 
-Though the probability is low, you can't deny that you may lose your passwords in various cases. So **please backup your passwords regularly**. If you are the owner of the server hosting the password manager, you may simply back up the database. Otherwise, you can use the backup
-function implemented in the password manager. This will trigger a download of a JSON file. You can keep this file in cloud storage services such as Google Drive and Dropbox. If the password manager you use is damaged, you can go here and download the same version of the password manager
-you used. By using its recovery function, your JSON file and your login password, you can recover all your passwords. All passwords in JSON file is encrypted and your login password which is used to decrypt won't be in the JSON file. So it's safe to keep the JSON file in cloud storage
-services.    
+Though the probability is low, you can't deny that you may lose your passwords in various cases. So **please backup your passwords regularly**. If you are the owner of the server hosting the password manager, you may simply back up the database. Otherwise, you can use the backup function implemented in the password manager. This will trigger a download of a JSON file. You can keep this file in cloud storage services such as Google Drive and Dropbox. If the password manager you use is damaged, you can go here and download the same version of the password manager you used. By using its recovery function, your JSON file and your login password, you can recover all your passwords. Then export as raw and import from backup. All passwords in JSON file is encrypted and your login password which is used to decrypt won't be in the JSON file. So it's safe to keep the JSON file in cloud storage services.    
   
 For your passwords safety, your login password to password manager won't be included in the recovery file. You still need your login password to decrypt the recovery file. The backup file is indepandent to config file. You don't need to backup your `config.php`         
 + The purpose of the recovery file is to protect your password in case of data loss. NOT IN CASE THAT YOU FORGET YOUR PASSWORD (No one can get your passwords without your login password!)
