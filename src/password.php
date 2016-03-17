@@ -23,10 +23,6 @@ echoheader();
 	font-family: 'passwordshow';
 	src:url('pw.ttf');
 }
-.theme-showcase
-{
-	margin-top:50px !important;
-}
 </style>
 <script type="text/javascript" src="setlocalstorage.js"></script>
 <script type="text/javascript">
@@ -56,51 +52,6 @@ setInterval(countdown, 60000);
 <script type="text/javascript" src="sha512.js"></script>
 <script type="text/javascript" src="pbkdf2.js"></script>
 <script type="text/javascript" src="password.js"></script>
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="#">Password-Manager</a>
-        </div>
-        <div id="navbar" class="collapse navbar-collapse">
-          <ul class="nav navbar-nav" id="nav_links">
-            <li id="nav-passwords" class="active"><a href="#pw">Passwords</a></li>
-            <li id="nav-add"><a href="" data-toggle="modal" data-target="#add">Add Entry</a></li>
-            <li id="nav-add"><a href="" data-toggle="modal" data-target="#pin">Set PIN</a></li>
-            <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Settings<span class="caret"></span></a>
-            <ul class="dropdown-menu">
-              <li><a href="" data-toggle="modal" data-target="#backuppw">Back Up</a></li>
-              <li><a href="" data-toggle="modal" data-target="#import">Import</a></li>
-              <li><a href="javascript: exportcsv();">Export CSV</a></li>
-              <li><a href="" data-toggle="modal" data-target="#changepwd">Change Password</a></li>
-              <li><a href="" data-toggle="modal" data-target="#changefields">Customize Fields</a></li>
-              <li><a href="./history.php" target="_blank">Account Activity</a></li>
-            </ul>
-            </li>
-          </ul>
-          <div class="navbar-right">
-            <p class="navbar-btn"><a href="" onClick="quitpwd();" class="btn btn-info"><strong>Log Out</strong></a> <a href="" onClick="quitpwd_untrust();" class="btn btn-danger"><strong>Untrust</strong></a></p>
-          </div>
-          <div class="col-sm-3 col-md-3 navbar-right">
-            <form class="navbar-form" id="searchForm">
-              <div class="input-group">
-                <input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
-                <div class="input-group-btn">
-                    <button class="btn btn-default collapse" id="resetSearch" onClick="filterAccounts('')" type="button" title="reset search"><i class="glyphicon glyphicon-remove"></i></button>
-                    <button class="btn btn-default" type="submit" title="search"><i class="glyphicon glyphicon-search"></i></button>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div><!--/.nav-collapse -->
-      </div>
-    </nav>
     
 <div class="container theme-showcase">
     <div class="row">
@@ -118,6 +69,26 @@ setInterval(countdown, 60000);
     <span style="display:none; font-family:passwordshow"><?php echo $DEFAULT_LETTER_USED; ?></span>
     <div id="waitsign">PLEASE WAIT WHILE WE ARE DECRYPTING YOUR PASSWORD...</div>
     <div id="pwdtable" style="display:none">
+    <div class="row">
+        <div class="col-lg-10 col-md-8 col-sm-6 col-xs-6">
+            <form id="searchForm">
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
+                <div class="input-group-btn">
+                    <button class="btn btn-default collapse" id="resetSearch" onClick="filterAccounts('')" type="button" title="reset search"><i class="glyphicon glyphicon-remove"></i></button>
+                    <button class="btn btn-default" type="submit" title="search"><i class="glyphicon glyphicon-search"></i></button>
+                </div>
+              </div>
+            </form>
+        </div>
+        <div class="col-lg-1 col-md-2 col-sm-3 col-xs-3">
+            <a href="" class="btn btn-info" onClick="quitpwd();"><strong>LogOut</strong></a>
+        </div>
+        <div class="col-lg-1 col-md-2 col-sm-3 col-xs-3">
+            <a href="" class="btn btn-danger" onClick="quitpwd_untrust();"><strong>Untrust</strong></a>
+        </div>
+    </div>
+    <br />
     <table class="table" id="pwdlist">
     <tr><th>Account</th><th>Password</th></tr>
     <?php
@@ -132,7 +103,17 @@ setInterval(countdown, 60000);
 		}
     ?>
    </table> 
-	<hr />
+	<div class="page-header">
+            <h1>Settings</h1>
+    </div>
+        <a class="btn btn-primary" data-toggle="modal" data-target="#add">Add Entry</a>
+        <a class="btn btn-success" href="" data-toggle="modal" data-target="#pin">Set PIN</a> 
+        <a class="btn btn-default" href="" data-toggle="modal" data-target="#backuppw">Back Up</a> 
+        <a class="btn btn-warning" href="" data-toggle="modal" data-target="#import">Import</a> 
+        <a class="btn btn-warning" href="javascript: exportcsv();">Export CSV</a> 
+        <a class="btn btn-warning" href="" data-toggle="modal" data-target="#changepwd">Change Password</a> 
+        <a class="btn btn-warning" href="" data-toggle="modal" data-target="#changefields">Customize Fields</a> 
+        <a class="btn btn-warning" href="./history.php" target="_blank">Account Activity</a> 
     <div class="modal" tabindex="-1" role="dialog" id="add">
         <div class="modal-dialog">
             <div class="modal-content">

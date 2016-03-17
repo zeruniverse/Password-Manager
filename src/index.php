@@ -45,7 +45,7 @@ if(!isSupportFileApi()||typeof(Storage) == "undefined") {
         window.location.href="./sorry_for_old_browser_update_hint.html";
     }
 </script>
-    <div class="container theme-showcase" style="margin-top:-30px;">
+    <div class="container theme-showcase">
         <div class="page-header">
             <h1>Password Manager</h1>
         </div>
