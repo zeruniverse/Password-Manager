@@ -95,13 +95,13 @@ function decryptchar(echar,key){
 } 
 
 function getpwd(charlist,plength) {
-　　var maxPos = charlist.length;
-　　var pwd = '';
-	var i;
-　　for (i = 0; i < parseInt(plength); i++) {
-　　　　pwd += charlist.charAt(Math.floor(Math.random() * maxPos));
-　　}
-　　return pwd;
+    var maxPos = charlist.length;
+    var pwd = '';
+    var i;
+    for (i = 0; i < parseInt(plength); i++) {
+        pwd += charlist.charAt(Math.floor(Math.random() * maxPos));
+    }
+    return pwd;
 }
 
 function getcharpos(x,charlist){

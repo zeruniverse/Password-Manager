@@ -33,7 +33,6 @@ echoheader();
 var secretkey;
 var default_timeout = <?php echo $BROWSER_TIMEOUT;?>-1;
 var timeout = default_timeout;
-var fields=JSON.parse('<?php echo $_SESSION['fields'];?>');
 var accountarray=new Array();
 function quitpwd()
 {
@@ -333,6 +332,7 @@ setInterval(countdown, 60000);
 </div>
 </div>
 <script type="text/javascript">
+var fields=JSON.parse($('#fieldsz').val().replace(/\r\n/g,'').replace(/\n/g,''));
 var ALPHABET='<?php echo $DEFAULT_LETTER_USED;?>';
 var PWsalt='<?php echo $GLOBAL_SALT_2; ?>';
 $("#pin").on('shown.bs.modal', function(){$("#pinxx").focus()});
@@ -570,6 +570,8 @@ $("#pinloginform").on('submit',function(e){
 });
 $("#changefieldsbtn").click(function(){
     var a=$('#fieldsz').val();
+    var p=a.replace(/\r\n/g,'');
+    p=p.replace(/\n/g,'');
     function isJson(str) {
     try {
         JSON.parse(str);
@@ -578,8 +580,7 @@ $("#changefieldsbtn").click(function(){
     }
     return true;
     }
-    if(a.search("'")>=0) {alert('Do not use \' ,use " instead!'); return;}
-    if(!isJson(a)) {alert('illegal format!');return;}
+    if(!isJson(p)) {alert('illegal format!');return;}
     $.post("changefields.php",{fields:a},function(msg){ 
             if(msg==1) {alert('SUCCESS!'); location.reload(true);}
             else {alert("Oops, there's some error. Try again!");}
@@ -689,6 +690,7 @@ $("#backuppwdbtn").click(function(){
         function first(callback)
         {
             timeout=100000;
+            alert('CSV file contains all your information in plain text format. It\'s dangerous to keep it as a backup. Only use it for transferring your data. Delete it immediately after you\'ve done.');
             a=pbkdf2_enc(secretkey,PWsalt,500);
             callback(cback);
         }

@@ -5,6 +5,7 @@ if(!isset($_SESSION['random_login_stamp'])) $_SESSION['random_login_stamp']=date
 require_once('function/basic.php');
 require_once('function/config.php');
 require_once("function/sqllink.php");
+if($DB_NAME=='') die('PLEASE CONFIG function/config.php before using this system!');
 echoheader();
 function usepin()
 {

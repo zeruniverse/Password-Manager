@@ -40,9 +40,14 @@ Some part of information in Password_1 won't involve in calculations for identit
 + If your data is lost (e.g. your server is stolen), you can go back to this repo and download your version of password manager (you can find version number in your backup file). You don't need config file to recover your password. All salts are included in the backup file. You can find recovery button on `index.html` after deploying the new password manager.
    
 ##Import/Export From/To Other Password Managers
+###Import
 + Export your passwords from your password manager as csv file.
 + Make sure there is a header line, the password and account name column must be named "password" and "name" respectively, order is not important. If you have other fields, you should customize your fields after login (in setting). All other columns not listed in fields in your setting are being ignored.
 + Open the import dialog, paste the csv data and select csv as import type.
+###Export
++ Login to your password manager, click [settings -> Export CSV]
++ Exported CSV are in UTF-8 encoding
++ Delete the CSV after you finish data transferring. Keeping this raw CSV file is dangerous.
    
 ##About Upgrade  
 New version usually comes with algorithm updates and will NOT be compatible with any previous versions. To switch to new version:    
