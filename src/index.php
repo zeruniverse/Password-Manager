@@ -34,7 +34,13 @@ function usepin()
 <script type="text/javascript" src="password.js"></script>
 <script type="text/javascript" src="setlocalstorage.js"></script>
 <script type="text/javascript">
-if(typeof(Storage) == "undefined") {
+function isSupportFileApi() {
+    if(window.File && window.FileList && window.FileReader && window.Blob) {
+        return true;
+    }
+    return false;
+}
+if(!isSupportFileApi()||typeof(Storage) == "undefined") {
         window.location.href="./sorry_for_old_browser_update_hint.html";
     }
 </script>

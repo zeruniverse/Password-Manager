@@ -115,20 +115,14 @@ function getcharpos(x,charlist){
 function reducedinfo(key,charlist) {
 	var maxpos = charlist.length;
 	var newpw = '';
-	var i,a,b,c,d;
+	var i,a,b;
 	var keylen = key.length;
     newpw = newpw + keylen.toString();
-	while(keylen % 4 != 0){
-		key = key + charlist.charAt(0);
-		keylen = key.length;
-	}	
-	keylen = keylen / 4;
-	for(i=0;i< keylen;i++){
-		a = getcharpos(key.charAt(i*4),charlist);
-		b = getcharpos(key.charAt(i*4+1),charlist);
-		c = getcharpos(key.charAt(i*4+2),charlist);
-		d = getcharpos(key.charAt(i*4+3),charlist);
-		newpw = newpw + charlist.charAt((a+b+maxpos) % maxpos)+charlist.charAt((c+d+maxpos)%maxpos)+charlist.charAt((a+c+maxpos)%maxpos);
+    a = getcharpos(key.charAt(0),charlist);
+	for(i=1;i< keylen - 1;i++){
+		b = getcharpos(key.charAt(i),charlist);
+		newpw = newpw + charlist.charAt((a+b) % maxpos);
+        a=b;
 	}
 	return newpw;
 }

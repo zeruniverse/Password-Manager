@@ -76,8 +76,9 @@ setInterval(countdown, 60000);
             <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Settings<span class="caret"></span></a>
             <ul class="dropdown-menu">
-              <li><a href="javascript: alert('You will need your CURRENT login password to unlock the backup file even if you change login password later. Write your CURRENT login password down or remember to generate a new backup file after each time you change the login password.');window.location.href='backup.php'">Back Up</a></li>
+              <li><a href="" data-toggle="modal" data-target="#backuppw">Back Up</a></li>
               <li><a href="" data-toggle="modal" data-target="#import">Import</a></li>
+              <li><a href="javascript: exportcsv();">Export CSV</a></li>
               <li><a href="" data-toggle="modal" data-target="#changepwd">Change Password</a></li>
               <li><a href="" data-toggle="modal" data-target="#changefields">Customize Fields</a></li>
               <li><a href="./history.php" target="_blank">Account Activity</a></li>
@@ -128,7 +129,7 @@ setInterval(countdown, 60000);
 		$name=$i['name'];
         $additionalFields=$i['other'];
 		$kss=decrypt($i['pwd'],$i['key']);
-		echo "<tr class='datarow' data-additional='".$additionalFields."' dataid='".$index."'><td class='namecell'><span class='accountname' dataid=".$index.">".$name.'</span><a title="Edit" class="cellOptionButton" href="javascript: edit('.$index.')"><span class="glyphicon glyphicon-wrench"></span></a></td><td><span passid="'.$index.'" enpassword="'.$kss.'" id="'.$index.'"><a href="javascript: clicktoshow(\''.$kss.'\',\''.$index.'\')">Click to see</a></span></td></tr>';
+		echo "<tr class='datarow' data-additional='".$additionalFields."' dataid='".$index."'><td class='namecell'><span class='accountname' dataid=".$index.">".$name.'</span><a title="Edit" class="cellOptionButton" href="javascript: edit('.$index.')"><span class="glyphicon glyphicon-wrench"></span></a><a title="Details" class="cellOptionButton" style="margin-right:5px;" href="javascript: showdetail('.$index.')"><span class="glyphicon glyphicon-eye-open"></span></a></td><td><span passid="'.$index.'" enpassword="'.$kss.'" id="'.$index.'"><a href="javascript: clicktoshow(\''.$kss.'\',\''.$index.'\')">Click to see</a></span></td></tr>';
 		}
     ?>
    </table> 
@@ -159,6 +160,28 @@ setInterval(countdown, 60000);
             </div>
         </div>
     </div>
+    <div class="modal" tabindex="-1" role="dialog" id="backuppw">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4>Backup Passwords</h4>
+                </div>
+                <div class="modal-body">
+                <form>
+                    <p>You will need your CURRENT login password to unlock the backup file even if you change login password later. Write your CURRENT login password down or remember to generate a new backup file after each time you change the login password.</p>
+                    <p style="color:red">Generating backup file is time consuming...</p>
+                    <div class="progress"><div class="progress-bar" role="progressbar"  id="backuppwdpb" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%"></div>
+                </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
+                    <button type="button" class="btn btn-primary" id="backuppwdbtn">Start Backup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
     <div class="modal" tabindex="-1" role="dialog" id="changefields">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -175,6 +198,24 @@ setInterval(countdown, 60000);
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
                     <button type="button" class="btn btn-primary" id="changefieldsbtn">Change</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" tabindex="-1" role="dialog" id="showdetails">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4>Detail Information</h4>
+                </div>
+                <div class="modal-body">
+                <form>
+                <textarea class="form-control" id="details" style="height:190px" readonly></textarea>
+                </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
                 </div>
             </div>
         </div>
@@ -246,13 +287,8 @@ setInterval(countdown, 60000);
                 <div class="modal-body">
                     <form>
                         <div class="form-group">
-                            <label for="importc" class="control-label">Copy all contents in your RAW backup file/CSV file and paste them into the following box. You should open those files with plain text editor.</label>
-                            <textarea class="form-control" id="importc"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label">Type of input&nbsp;&nbsp;</label>
-                            <label class="radio-inline active"><input type="radio" name="importType" id="importTypeBackup" checked="checked">Backup</label>
-                            <label class="radio-inline"><input type="radio" name="importType" id="importTypeCSV">CSV</label>
+                            <label for="importc" class="control-label">You can import passwords from CSV file or raw backup file. Select a .csv file or .raw file to start.</label>
+                            <input type="file" id="importc" accept=".csv,.raw" />
                             <label class="small" style="display:block; clear:both;">CSV file must contain a header line with columns called "name" and "password" - order is not important. You may edit your CSV with your password in Office so that the account field has a header called 'name' and the password field has a header called 'password'. Then you can save the CSV and open it again in plain text editor to copy contents.</label>
                         </div>
                     </form>
@@ -611,6 +647,68 @@ $("#editbtn").click(function(){
     }
     setTimeout(process,50);
 }); 
+$("#backuppwdbtn").click(function(){
+    $("#backuppwdbtn").attr('disabled',true);
+    $("#backuppwdpb").attr('aria-valuenow',0);
+    $("#backuppwdpb").attr('style','width:0%');
+    $.post("backup.php",{a:'a'},function(msg){
+        var a,i,count,p;
+        function progressbarchange(x)
+        {
+            $("#backuppwdpb").attr('aria-valuenow',x);
+            $("#backuppwdpb").attr('style','width:'+x+'%');
+        }
+        function cback()
+        {
+            if(count<30) pbkdf2_enc_1(cback); else process();
+        }
+        function pbkdf2_enc_1(callback)
+        {
+            progressbarchange(6+count*3);
+            a=pbkdf2_enc(a,PWsalt,500);
+            count=count+1;
+            setTimeout(callback,1);
+        }
+        function process()
+        {
+            p.data=encryptchar(JSON.stringify(p.data),pbkdf2_enc(a,PWsalt,500));
+            $("#backuppwdpb").attr('aria-valuenow',99);
+            $("#backuppwdpb").attr('style','width:99%');
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(p)));
+            element.setAttribute('download', 'backup.txt');
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            $("#backuppwdpb").attr('aria-valuenow',100);
+            $("#backuppwdpb").attr('style','width:100%');
+            element.click();
+            document.body.removeChild(element);
+            $("#backuppwdbtn").attr('disabled',false);
+            timeout=default_timeout;
+        }
+        function first(callback)
+        {
+            timeout=100000;
+            a=pbkdf2_enc(secretkey,PWsalt,500);
+            callback(cback);
+        }
+        count=0;
+        try {
+            p=JSON.parse(msg);
+            if(p.status!="OK") {
+                alert("FAIL TO GENERATE BACKUP FILE, TRY AGAIN");
+                $("#backuppwdbtn").attr('disabled',false);
+                return;
+            }
+        } catch (e) {
+            alert("FAIL TO GENERATE BACKUP FILE, TRY AGAIN");
+            $("#backuppwdbtn").attr('disabled',false);
+            return;
+        }
+        first(pbkdf2_enc_1);
+        
+    });
+});
 $("#editAccountShowPassword").click(function(){
     var id = parseInt($("#edit").data('id'));
     var thekey=decryptPassword(accountarray[id]["name"], $("#edititeminputpw").data('enpassword'));
@@ -664,14 +762,32 @@ $("#changepw").click(function(){
 $("#importbtn").click(function(){ 
     $("#importbtn").attr("disabled",true);
     $("#importbtn").attr("value", "Processing...");
-    $("#importc").attr("readOnly",true);
-    if ($('#importTypeBackup').is(':checked'))
-        import_raw($('#importc').val()); 
-    else if ($('#importTypeCSV').is(':checked'))
-        import_csv($('#importc').val());
+    $("#importc").attr("disabled",true);
+    if (window.FileReader) {
+		// FileReader are supported.
+        var reader = new FileReader();
+        var a=$("#importc")[0].files;
+        var t = 0;
+        if (a && a[0]){
+            reader.onload = function (e) {
+                var txt = e.target.result;
+                try{
+                    if(t==0) import_raw(txt); else import_csv(txt);
+                }catch (error) { alert('Some error occurs!'); location.reload(true);}
+            }
+            reader.onerror = function (e) {
+                alert('Error reading file!');
+            }
+            var extension = a[0].name.split('.').pop().toLowerCase();
+            if(extension=='csv') t=1;
+            reader.readAsText(a[0]);          
+        } else alert('NO FILE SELECTED'); 
+	} else {
+		alert('FileReader are not supported in this browser.');
+	}
     $("#importbtn").attr("disabled",false);
     $("#importbtn").attr("value", "Submit");
-    $("#importc").attr("readOnly",false);
+    $("#importc").attr("disabled",false);
 });
 $('#add').on('shown.bs.modal', function () { $('#newiteminput').focus(); });
 $('#edit').on('shown.bs.modal', function () {
@@ -736,6 +852,42 @@ function filterAccounts(text) {
             return $(this).text().toLowerCase().indexOf(text) > -1; })
         .length == 0;
     }).hide();
+}
+function exportcsv()
+{
+    var obj=new Array();
+    timeout=100000;
+    var t,x,i;
+    for (x in accountarray){
+        tmp={};
+        tmp['name']=accountarray[x]["name"];
+        t=accountarray[x]["other"];
+        for (i in t){
+            tmp[i] = t[i];
+        }
+        tmp['password']=decryptPassword(accountarray[x]["name"],$("[passid="+x+"]").attr("enpassword"));
+        obj.push(tmp);
+    }
+    console.log(obj);
+    $.getScript( 'js/jquery.csv.js', function() {
+        var csv = $.csv.fromObjects(obj);
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(csv));
+        element.setAttribute('download', 'export.csv');
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    });
+    timeout=default_timeout;
+}
+function showdetail(index){
+    var i=parseInt(index);
+    var x,s;
+    s='account: '+accountarray[i]["name"]+'\n';
+    for (x in accountarray[i]["other"]) s=s+x+': '+accountarray[i]["other"][x]+'\n';
+    $('#details').html(s);
+    $("#showdetails").modal("show");
 }
 </script>
 <?php echofooter();?>

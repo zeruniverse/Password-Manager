@@ -43,6 +43,7 @@ var PWsalt='';
 var ALPHABET='';
 var secretkey='';
 var confkey='';
+var dkey='';
 function download(filename, text) {
     var element = document.createElement('a');
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
@@ -65,19 +66,22 @@ function export_raw(){
     {
         result.data[x]=[encryptchar(acc_array[x],aeskey),encryptchar(pass_array[x],aeskey),encryptchar(other_array[x],aeskey)];
     }
-    download("raw_pass.txt",JSON.stringify(result));
+    download("raw_pass.raw",JSON.stringify(result));
 }
 function sanitize_json(s){
     var t=s;
-    t=t.replace(/\n/g,'')
+    t=t.replace(/\n/g,'');
     return t.replace(/\r/g,'');
 }
 function gen_key()
 {
+    var i;
     var pass=$("#pwd").val();
 	secretkey=String(pbkdf2_enc(reducedinfo(pass,ALPHABET),JSsalt,500));
     confkey=pbkdf2_enc(String(CryptoJS.SHA512(pass+secretkey)),JSsalt,500);
     secretkey=String(CryptoJS.SHA512(secretkey+PWsalt));
+    dkey=pbkdf2_enc(secretkey,PWsalt,500);
+    for(i=0;i<=30;i++) dkey=pbkdf2_enc(dkey,PWsalt,500);
 }
 function gen_account_array(enc_account_array)
 {
@@ -131,24 +135,32 @@ function gen_pass_array(account_array,enc_pass_array)
     return pass_array;
 }
 function rec(){
+    if($("#pwd").val()==''){
+        alert("EMPTY PASSWORD IS NOT ALLOWED");
+        return;
+    }
     var json=JSON.parse(sanitize_json($("#backupc").val()));
     if(json.status!="OK") {
         alert("INVALID BACKUP FILE");
         return;
     }
+    $("#recover_result").hide();
+    $("#chk").attr("disabled",true);
+    $("#chk").attr("value", "Processing...");
     $("#raw_button").hide();
     JSsalt = json.JSsalt;
     PWsalt = json.PWsalt;
     ALPHABET = json.ALPHABET;
-    if($("#pwd").val()==''){
-        alert("EMPTY PASSWORD IS NOT ALLOWED");
-        return;
-    }
-    $("#recover_result").hide();
-    $("#chk").attr("disabled",true);
-    $("#chk").attr("value", "Processing...");
-    function process(){
+    function process(){       
     gen_key();
+    try{
+        json.data=JSON.parse(decryptchar(json.data,dkey));
+    }catch (e) {
+            alert("Wrong password, try again!");
+            $("#chk").removeAttr("disabled");
+            $("#chk").attr("value", "RECOVER IT!");
+            return;
+    }
     var enc_pass=new Array();
     var enc_acc=new Array();
     var enc_other=new Array();
