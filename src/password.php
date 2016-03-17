@@ -106,14 +106,14 @@ setInterval(countdown, 60000);
 	<div class="page-header">
             <h1>Settings</h1>
     </div>
-        <a class="btn btn-primary" data-toggle="modal" data-target="#add">Add Entry</a>
-        <a class="btn btn-success" href="" data-toggle="modal" data-target="#pin">Set PIN</a> 
-        <a class="btn btn-default" href="" data-toggle="modal" data-target="#backuppw">Back Up</a> 
-        <a class="btn btn-warning" href="" data-toggle="modal" data-target="#import">Import</a> 
-        <a class="btn btn-warning" href="javascript: exportcsv();">Export CSV</a> 
-        <a class="btn btn-warning" href="" data-toggle="modal" data-target="#changepwd">Change Password</a> 
-        <a class="btn btn-warning" href="" data-toggle="modal" data-target="#changefields">Customize Fields</a> 
-        <a class="btn btn-warning" href="./history.php" target="_blank">Account Activity</a> 
+        <a class="btn btn-primary" style="margin:3px;" data-toggle="modal" data-target="#add">Add Entry</a>
+        <a class="btn btn-success" style="margin:3px;" href="" data-toggle="modal" data-target="#pin">Set PIN</a> 
+        <a class="btn btn-default" style="margin:3px;" href="" data-toggle="modal" data-target="#backuppw">Back Up</a> 
+        <a class="btn btn-warning" style="margin:3px;" href="" data-toggle="modal" data-target="#import">Import</a> 
+        <a class="btn btn-warning" style="margin:3px;" href="javascript: exportcsv();">Export CSV</a> 
+        <a class="btn btn-warning" style="margin:3px;" href="" data-toggle="modal" data-target="#changepwd">Change Password</a> 
+        <a class="btn btn-warning" style="margin:3px;" href="" data-toggle="modal" data-target="#changefields">Customize Fields</a> 
+        <a class="btn btn-warning" style="margin:3px;" href="./history.php" target="_blank">Account Activity</a> 
     <div class="modal" tabindex="-1" role="dialog" id="add">
         <div class="modal-dialog">
             <div class="modal-content">

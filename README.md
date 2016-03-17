@@ -7,7 +7,7 @@
 **'master' branch is a dev-branch, please download stable version from [SourceForge](https://sourceforge.net/projects/phppasswordmanager/files/latest/download) or [Release](https://github.com/zeruniverse/Password-Manager/releases) in order to use.**      
   
 ##Version
-v9.07  
+v9.08  
 From v9.0, this project becomes mature. I've implemented all features planned when I started this project.       
 There will still be infrequent bug fixes and improvements though.  
 Supports are available [here](https://github.com/zeruniverse/Password-Manager/issues) for versions greater than v9.0   
@@ -64,7 +64,7 @@ New version usually comes with algorithm updates and will NOT be compatible with
 + Drop your tables in database and import `initial.sql`
 + Deploy new password manager to your server (don't forget to modify `config.php`)
 + Create an account in new password manager.
-+ Login and find the [Import accounts] section. Copy all contents in the csv exported and paste them into the box. Click [Submit].
++ Login and find the [Import accounts] section. Select the CSV file you just exported. Click [Submit].
 + All your password should be on your new password manager now.
 + If some error occurs, you can clear your database and redo the previous steps. This may take long time if you have many accounts. Find a good computer with good Internet access to do it!
     
