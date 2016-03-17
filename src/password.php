@@ -690,7 +690,6 @@ $("#backuppwdbtn").click(function(){
         function first(callback)
         {
             timeout=100000;
-            alert('CSV file contains all your information in plain text format. It\'s dangerous to keep it as a backup. Only use it for transferring your data. Delete it immediately after you\'ve done.');
             a=pbkdf2_enc(secretkey,PWsalt,500);
             callback(cback);
         }
@@ -859,6 +858,7 @@ function exportcsv()
 {
     var obj=new Array();
     timeout=100000;
+    alert('CSV file contains all your information in plain text format. It\'s dangerous to keep it as a backup. Only use it for transferring your data. Delete it immediately after you\'ve done.');
     var t,x,i;
     for (x in accountarray){
         tmp={};
@@ -870,7 +870,6 @@ function exportcsv()
         tmp['password']=decryptPassword(accountarray[x]["name"],$("[passid="+x+"]").attr("enpassword"));
         obj.push(tmp);
     }
-    console.log(obj);
     $.getScript( 'js/jquery.csv.js', function() {
         var csv = $.csv.fromObjects(obj);
         var element = document.createElement('a');
