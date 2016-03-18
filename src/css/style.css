@@ -2,7 +2,7 @@ body {padding-top: 50px; width:100%;}
 /*.theme-showcase{max-width:100%;}*/
 .cellOptionButton {float:right; }
 /* Tags */
-#tagCloud{margin-top:10px; padding:5px; }
+#rightHandBox{margin-top:10px; padding:5px; }
 
 .namecell, .usercell {
     word-wrap: break-word;

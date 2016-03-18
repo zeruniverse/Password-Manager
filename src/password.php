@@ -94,25 +94,33 @@ setInterval(countdown, 60000);
           </div>
         </div>
         <div class="col-md-4">
-            <div class="pull-right-sm" id="tagCloud" style="display:none;"><p class="lead" style="margin-bottom:0">Tag-Overview</p><p class="visible-xs small" style
-="margin-bottom:0;"><a href="javascript:$('#tags').toggleClass('hidden-xs');$('.tagsShow').toggleClass('hidden');"><span class="tagsShow">show</span><span class="tagsShow hidden">hide</span> tags</a></p><span class="hidden-xs" id="tags"></span><p class="small" style="display:none;" id="resetFilter"><a href="javascript:filterTags('');">reset filter</a></p></div>
+            <div class="pull-right-sm" id="rightHandBox">
+                <form id="searchForm">
+                  <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default collapse" id="resetSearch" onClick="filterAccounts('')" type="button" title="reset search"><i class="glyphicon glyphicon-remove"></i></button>
+                        <button class="btn btn-default" type="submit" title="search"><i class="glyphicon glyphicon-search"></i></button>
+                    </div>
+                  </div>
+                </form>
+                <div id="tagCloud" style="display:none;">
+                    <p class="lead" style="margin-bottom:0">Tag-Overview</p>
+                    <p class="visible-xs small" style ="margin-bottom:0;">
+                        <a href="javascript:$('#tags').toggleClass('hidden-xs');$('.tagsShow').toggleClass('hidden');"><span class="tagsShow">show</span><span class="tagsShow hidden">hide</span> tags</a>
+                    </p>
+                    <span class="hidden-xs" id="tags"></span><p class="small" style="display:none;" id="resetFilter"><a href="javascript:filterTags('');">reset filter</a></p>
+                </div>
+            </div>
         </div>
     </div>
-    <!-- preload ttf -->
+            <!-- preload ttf -->
     <span style="display:none; font-family:passwordshow"><?php echo $DEFAULT_LETTER_USED; ?></span>
     <div id="waitsign">PLEASE WAIT WHILE WE ARE DECRYPTING YOUR PASSWORD...</div>
     <div id="pwdtable" style="display:none">
     <div class="row">
         <div class="col-lg-10 col-md-8 col-sm-6 col-xs-6">
-            <form id="searchForm">
-              <div class="input-group">
-                <input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
-                <div class="input-group-btn">
-                    <button class="btn btn-default collapse" id="resetSearch" onClick="filterAccounts('')" type="button" title="reset search"><i class="glyphicon glyphicon-remove"></i></button>
-                    <button class="btn btn-default" type="submit" title="search"><i class="glyphicon glyphicon-search"></i></button>
-                </div>
-              </div>
-            </form>
+
         </div>
         <div class="col-lg-1 col-md-2 col-sm-3 col-xs-3">
             <a href="" class="btn btn-info" onClick="quitpwd();"><strong>LogOut</strong></a>
