@@ -89,12 +89,9 @@ setInterval(countdown, 60000);
 <div class="container theme-showcase">
     <div class="row">
         <div class="col-lg-10 col-md-8 col-sm-6 col-xs-6">
-
         </div>
-        <div class="col-lg-1 col-md-2 col-sm-3 col-xs-3">
+        <div class="col-lg-2 col-md-4 col-sm-6 col-xs-6 text-right">
             <a href="" class="btn btn-info" onClick="quitpwd();"><strong>LogOut</strong></a>
-        </div>
-        <div class="col-lg-1 col-md-2 col-sm-3 col-xs-3">
             <a href="" class="btn btn-danger" onClick="quitpwd_untrust();"><strong>Untrust</strong></a>
         </div>
     </div>
