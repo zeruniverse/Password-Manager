@@ -70,7 +70,7 @@ setInterval(countdown, 60000);
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav" id="nav_links">
             <li id="nav-add"><a href="" data-toggle="modal" data-target="#add">Add Entry</a></li>
-            <li id="nav-add"><a href="" data-toggle="modal" data-target="#pin">Set PIN</a></li>
+            <li id="nav-pin"><a href="" data-toggle="modal" data-target="#pin">Set PIN</a></li>
             <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Settings<span class="caret"></span></a>
             <ul class="dropdown-menu">
