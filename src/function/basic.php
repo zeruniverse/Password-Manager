@@ -1,7 +1,7 @@
 <?php
 function echofooter()
 {
-echo '<footer class="footer ">
+echo '<footer class="footer">
 <p>&copy;2015 Jeffery<br /><br />ALL RIGHTS RESERVED</p>
 </footer>
 </body>
@@ -14,7 +14,7 @@ echo '<!DOCTYPE html>
 <head>
     <meta charset="utf-8">
     <title>Password Manager</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="description" content="Password Manager">
     <meta name="author" content="Jeffery">
 	<link href="css/bootstrap.min.css" rel="stylesheet">

@@ -23,6 +23,10 @@ echoheader();
 	font-family: 'passwordshow';
 	src:url('pw.ttf');
 }
+.theme-showcase
+{
+	margin-top:10px !important;
+}
 </style>
 <script type="text/javascript" src="setlocalstorage.js"></script>
 <script type="text/javascript">
@@ -52,7 +56,36 @@ setInterval(countdown, 60000);
 <script type="text/javascript" src="sha512.js"></script>
 <script type="text/javascript" src="pbkdf2.js"></script>
 <script type="text/javascript" src="password.js"></script>
-    
+   <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Password-Manager</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav" id="nav_links">
+            <li id="nav-add"><a href="" data-toggle="modal" data-target="#add">Add Entry</a></li>
+            <li id="nav-add"><a href="" data-toggle="modal" data-target="#pin">Set PIN</a></li>
+            <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Settings<span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="" data-toggle="modal" data-target="#backuppw">Back Up</a></li>
+              <li><a href="" data-toggle="modal" data-target="#import">Import</a></li>
+              <li><a href="javascript: exportcsv();">Export CSV</a></li>
+              <li><a href="" data-toggle="modal" data-target="#changepwd">Change Password</a></li>
+              <li><a href="" data-toggle="modal" data-target="#changefields">Customize Fields</a></li>
+              <li><a href="./history.php" target="_blank">Account Activity</a></li>
+            </ul>
+            </li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
 <div class="container theme-showcase">
     <div class="row">
         <div class="col-md-8">
@@ -103,17 +136,7 @@ setInterval(countdown, 60000);
 		}
     ?>
    </table> 
-	<div class="page-header">
-            <h1>Settings</h1>
-    </div>
-        <a class="btn btn-primary" style="margin:3px;" data-toggle="modal" data-target="#add">Add Entry</a>
-        <a class="btn btn-success" style="margin:3px;" href="" data-toggle="modal" data-target="#pin">Set PIN</a> 
-        <a class="btn btn-default" style="margin:3px;" href="" data-toggle="modal" data-target="#backuppw">Back Up</a> 
-        <a class="btn btn-warning" style="margin:3px;" href="" data-toggle="modal" data-target="#import">Import</a> 
-        <a class="btn btn-warning" style="margin:3px;" href="javascript: exportcsv();">Export CSV</a> 
-        <a class="btn btn-warning" style="margin:3px;" href="" data-toggle="modal" data-target="#changepwd">Change Password</a> 
-        <a class="btn btn-warning" style="margin:3px;" href="" data-toggle="modal" data-target="#changefields">Customize Fields</a> 
-        <a class="btn btn-warning" style="margin:3px;" href="./history.php" target="_blank">Account Activity</a> 
+	<hr />
     <div class="modal" tabindex="-1" role="dialog" id="add">
         <div class="modal-dialog">
             <div class="modal-content">
