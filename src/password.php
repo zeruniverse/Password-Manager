@@ -88,6 +88,17 @@ setInterval(countdown, 60000);
     </nav>
 <div class="container theme-showcase">
     <div class="row">
+        <div class="col-lg-10 col-md-8 col-sm-6 col-xs-6">
+
+        </div>
+        <div class="col-lg-1 col-md-2 col-sm-3 col-xs-3">
+            <a href="" class="btn btn-info" onClick="quitpwd();"><strong>LogOut</strong></a>
+        </div>
+        <div class="col-lg-1 col-md-2 col-sm-3 col-xs-3">
+            <a href="" class="btn btn-danger" onClick="quitpwd_untrust();"><strong>Untrust</strong></a>
+        </div>
+    </div>
+    <div class="row">
         <div class="col-md-8">
           <div class="page-header">
             <h1>Password Manager</h1>
@@ -118,17 +129,6 @@ setInterval(countdown, 60000);
     <span style="display:none; font-family:passwordshow"><?php echo $DEFAULT_LETTER_USED; ?></span>
     <div id="waitsign">PLEASE WAIT WHILE WE ARE DECRYPTING YOUR PASSWORD...</div>
     <div id="pwdtable" style="display:none">
-    <div class="row">
-        <div class="col-lg-10 col-md-8 col-sm-6 col-xs-6">
-
-        </div>
-        <div class="col-lg-1 col-md-2 col-sm-3 col-xs-3">
-            <a href="" class="btn btn-info" onClick="quitpwd();"><strong>LogOut</strong></a>
-        </div>
-        <div class="col-lg-1 col-md-2 col-sm-3 col-xs-3">
-            <a href="" class="btn btn-danger" onClick="quitpwd_untrust();"><strong>Untrust</strong></a>
-        </div>
-    </div>
     <br />
     <table class="table" id="pwdlist">
     <tr><th>Account</th><th>Password</th></tr>
@@ -145,203 +145,203 @@ setInterval(countdown, 60000);
     ?>
    </table> 
 	<hr />
-    <div class="modal" tabindex="-1" role="dialog" id="add">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4>Add a new account</h4>
-                </div>
-                <div class="modal-body">
-                <form>
-                    <div class="form-group">
-                        <label for="newiteminput" class="control-label">Account (Item):</label>
-                        <input class="form-control" id="newiteminput" type="text" />
-                    </div>
-                    <div class="form-group">
-                        <label for="newiteminputpw" class="control-label">Password:</label>
-                        <input class="form-control" id="newiteminputpw" type="text" placeholder="Leave blank to generate one"/>
-                    </div>
-                </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
-                    <button type="button" class="btn btn-primary" id="newbtn">Add</button>
-                </div>
+    </div>
+</div>
+<div class="modal" tabindex="-1" role="dialog" id="add">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4>Add a new account</h4>
             </div>
-        </div>
-    </div>
-    <div class="modal" tabindex="-1" role="dialog" id="backuppw">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4>Backup Passwords</h4>
+            <div class="modal-body">
+            <form>
+                <div class="form-group">
+                    <label for="newiteminput" class="control-label">Account (Item):</label>
+                    <input class="form-control" id="newiteminput" type="text" />
                 </div>
-                <div class="modal-body">
-                <form>
-                    <p>You will need your CURRENT login password to unlock the backup file even if you change login password later. Write your CURRENT login password down or remember to generate a new backup file after each time you change the login password.</p>
-                    <p style="color:red">Generating backup file is time consuming...</p>
-                    <div class="progress"><div class="progress-bar" role="progressbar"  id="backuppwdpb" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%"></div>
-                </form>
+                <div class="form-group">
+                    <label for="newiteminputpw" class="control-label">Password:</label>
+                    <input class="form-control" id="newiteminputpw" type="text" placeholder="Leave blank to generate one"/>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
-                    <button type="button" class="btn btn-primary" id="backuppwdbtn">Start Backup</button>
-                </div>
+            </form>
             </div>
-        </div>
-    </div>
-    </div>
-    <div class="modal" tabindex="-1" role="dialog" id="changefields">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4>Customize additional fields</h4>
-                </div>
-                <div class="modal-body">
-                <form>
-                <p>Please edit the fields parameter according to the default one shown below. It should be JSON format.</p>
-                    <textarea class="form-control" id="fieldsz" style="height:300px"><?php echo $_SESSION['fields'];?></textarea>
-                </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
-                    <button type="button" class="btn btn-primary" id="changefieldsbtn">Change</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal" tabindex="-1" role="dialog" id="showdetails">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4>Detail Information</h4>
-                </div>
-                <div class="modal-body">
-                <form>
-                <textarea class="form-control" id="details" style="height:190px" readonly></textarea>
-                </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal" tabindex="-1" role="dialog" id="edit" data-id="">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4>Edit account information</h4>
-                </div>
-                <div class="modal-body">
-                <form>
-                    <div class="form-group">
-                        <label for="edititeminput" class="control-label">Account (Item):</label>
-                        <input class="form-control" id="edititeminput" type="text" />
-                    </div>
-                    <div class="form-group">
-                        <label for="edititeminputpw" class="control-label">Password:</label>
-                        <div class="input-group">
-                            <input class="form-control" id="edititeminputpw" type="text" placeholder="Leave blank to generate one"/>
-                            <span class="input-group-btn">
-                                <button class="btn btn-warning" onclick="$('#edititeminputpw').val(getpwd('<?php echo $DEFAULT_LETTER_USED; ?>',<?php echo $DEFAULT_LENGTH; ?>)); $('#editAccountShowPassword').removeClass('collapse');" type="button" title="generate new password"><i class="glyphicon glyphicon-refresh"></i></button>
-                                <button class="btn btn-default" type="button" id="editAccountShowPassword" title="show current password"><i class="glyphicon glyphicon-eye-open"></i></button>
-                            </span>
-                        </div>
-                    </div>
-                </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" id="delbtn">Delete</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
-                    <button type="button" class="btn btn-primary" id="editbtn">Save</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal" tabindex="-1" role="dialog" id="pin">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4>Set PIN to login</h4>
-                </div>
-                <div class="modal-body">
-                    <form id="pinloginform">
-                        <div class="form-group">
-                            <label for="pinxx" class="control-label">PIN:</label>
-                            <input id="pinxx" class="form-control" type="password" />
-                            <label class="small" style="display:block; clear:both; color:red">Only set PIN in your trusted devices!</label>
-                            <label class="small" style="display:block; clear:both;">PIN can be set on your trusted devices to give you convenience while login. If you set PIN, you can use PIN instead of username and password to login next time. PIN is safe, you only have 3 chances to input a PIN before it's disabled automatically.</label>
-                        </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
-                    <button type="button" onClick="delpinstore();alert('PIN deleted, use username/password to login next time');$('#pin').modal('hide');" class="btn btn-danger" id="delpin">Delete PIN</button>
-                    <input type="submit" class="btn btn-primary" id="pinlogin" value="Set/Reset" /></form>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal" tabindex="-1" role="dialog" id="import">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4>Import accounts</h4>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="form-group">
-                            <label for="importc" class="control-label">You can import passwords from CSV file or raw backup file. Select a .csv file or .raw file to start.</label>
-                            <input type="file" id="importc" accept=".csv,.raw" />
-                            <label class="small" style="display:block; clear:both;">CSV file must contain a header line with columns called "name" and "password" - order is not important. You may edit your CSV with your password in Office so that the account field has a header called 'name' and the password field has a header called 'password'. Then you can save the CSV and open it again in plain text editor to copy contents.</label>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="importbtn">Submit</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal" tabindex="-1" role="dialog" id="changepwd">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4>Change Password(Danger Area)</h4>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="form-group">
-                            <label for="oldpassword" class="control-label">Old Password:</label>
-                            <input id="oldpassword" class="form-control" type="password" />
-                        </div>
-                        <div class="form-group">
-                            <label for="pwd" class="control-label">New Password:</label>
-                            <input id="pwd" class="form-control" type="password" />
-                        </div>
-                        <div class="form-group">
-                            <label for="pwd1" class="control-label">New Password Again:</label>
-                            <input id="pwd1" class="form-control" type="password" />
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Abort</button>
-                    <button type="button" class="btn btn-primary" id="changepw">Save changes</button>
-                </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
+                <button type="button" class="btn btn-primary" id="newbtn">Add</button>
             </div>
         </div>
     </div>
 </div>
+<div class="modal" tabindex="-1" role="dialog" id="backuppw">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4>Backup Passwords</h4>
+            </div>
+            <div class="modal-body">
+            <form>
+                <p>You will need your CURRENT login password to unlock the backup file even if you change login password later. Write your CURRENT login password down or remember to generate a new backup file after each time you change the login password.</p>
+                <p style="color:red">Generating backup file is time consuming...</p>
+                <div class="progress"><div class="progress-bar" role="progressbar"  id="backuppwdpb" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%"></div>
+            </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
+                <button type="button" class="btn btn-primary" id="backuppwdbtn">Start Backup</button>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<div class="modal" tabindex="-1" role="dialog" id="changefields">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4>Customize additional fields</h4>
+            </div>
+            <div class="modal-body">
+            <form>
+            <p>Please edit the fields parameter according to the default one shown below. It should be JSON format.</p>
+                <textarea class="form-control" id="fieldsz" style="height:300px"><?php echo $_SESSION['fields'];?></textarea>
+            </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
+                <button type="button" class="btn btn-primary" id="changefieldsbtn">Change</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" tabindex="-1" role="dialog" id="showdetails">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4>Detail Information</h4>
+            </div>
+            <div class="modal-body">
+            <form>
+            <textarea class="form-control" id="details" style="height:190px" readonly></textarea>
+            </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" tabindex="-1" role="dialog" id="edit" data-id="">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4>Edit account information</h4>
+            </div>
+            <div class="modal-body">
+            <form>
+                <div class="form-group">
+                    <label for="edititeminput" class="control-label">Account (Item):</label>
+                    <input class="form-control" id="edititeminput" type="text" />
+                </div>
+                <div class="form-group">
+                    <label for="edititeminputpw" class="control-label">Password:</label>
+                    <div class="input-group">
+                        <input class="form-control" id="edititeminputpw" type="text" placeholder="Leave blank to generate one"/>
+                        <span class="input-group-btn">
+                            <button class="btn btn-warning" onclick="$('#edititeminputpw').val(getpwd('<?php echo $DEFAULT_LETTER_USED; ?>',<?php echo $DEFAULT_LENGTH; ?>)); $('#editAccountShowPassword').removeClass('collapse');" type="button" title="generate new password"><i class="glyphicon glyphicon-refresh"></i></button>
+                            <button class="btn btn-default" type="button" id="editAccountShowPassword" title="show current password"><i class="glyphicon glyphicon-eye-open"></i></button>
+                        </span>
+                    </div>
+                </div>
+            </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="delbtn">Delete</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
+                <button type="button" class="btn btn-primary" id="editbtn">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" tabindex="-1" role="dialog" id="pin">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4>Set PIN to login</h4>
+            </div>
+            <div class="modal-body">
+                <form id="pinloginform">
+                    <div class="form-group">
+                        <label for="pinxx" class="control-label">PIN:</label>
+                        <input id="pinxx" class="form-control" type="password" />
+                        <label class="small" style="display:block; clear:both; color:red">Only set PIN in your trusted devices!</label>
+                        <label class="small" style="display:block; clear:both;">PIN can be set on your trusted devices to give you convenience while login. If you set PIN, you can use PIN instead of username and password to login next time. PIN is safe, you only have 3 chances to input a PIN before it's disabled automatically.</label>
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
+                <button type="button" onClick="delpinstore();alert('PIN deleted, use username/password to login next time');$('#pin').modal('hide');" class="btn btn-danger" id="delpin">Delete PIN</button>
+                <input type="submit" class="btn btn-primary" id="pinlogin" value="Set/Reset" /></form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" tabindex="-1" role="dialog" id="import">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4>Import accounts</h4>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="importc" class="control-label">You can import passwords from CSV file or raw backup file. Select a .csv file or .raw file to start.</label>
+                        <input type="file" id="importc" accept=".csv,.raw" />
+                        <label class="small" style="display:block; clear:both;">CSV file must contain a header line with columns called "name" and "password" - order is not important. You may edit your CSV with your password in Office so that the account field has a header called 'name' and the password field has a header called 'password'. Then you can save the CSV and open it again in plain text editor to copy contents.</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="importbtn">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" tabindex="-1" role="dialog" id="changepwd">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4>Change Password(Danger Area)</h4>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="oldpassword" class="control-label">Old Password:</label>
+                        <input id="oldpassword" class="form-control" type="password" />
+                    </div>
+                    <div class="form-group">
+                        <label for="pwd" class="control-label">New Password:</label>
+                        <input id="pwd" class="form-control" type="password" />
+                    </div>
+                    <div class="form-group">
+                        <label for="pwd1" class="control-label">New Password Again:</label>
+                        <input id="pwd1" class="form-control" type="password" />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Abort</button>
+                <button type="button" class="btn btn-primary" id="changepw">Save changes</button>
+            </div>
+        </div>
+    </div>
 </div>
 <script type="text/javascript">
 var fields=JSON.parse($('#fieldsz').val().replace(/\r\n/g,'').replace(/\n/g,''));
