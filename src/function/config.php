@@ -10,7 +10,7 @@ $DB_HOST='localhost';
 //Make sure MySQL is running at default port 3306. Or you have to edit sqllink.php
 
 //The database name for password_manager
-$DB_NAME='usr_web15_4';
+$DB_NAME='usr_web15_2';
 
 //Database Username
 $DB_USER='web15';
