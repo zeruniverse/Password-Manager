@@ -56,19 +56,21 @@ setInterval(countdown, 60000);
 <script type="text/javascript" src="sha512.js"></script>
 <script type="text/javascript" src="pbkdf2.js"></script>
 <script type="text/javascript" src="password.js"></script>
-   <nav class="navbar navbar-default navbar-fixed-top">
+   <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
       <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
+        <div class="navbar-header pull-left">
           <a class="navbar-brand" href="#">Password-Manager</a>
         </div>
-        <div id="navbar" class="collapse navbar-collapse">
-          <ul class="nav navbar-nav" id="nav_links">
+        <div class="navbar-header pull-right">
+          <div class="pull-left">
+              <a href="#" class="btn btn-info navbar-btn" onClick="quitpwd();"><i class="glyphicon glyphicon-log-out"></i> <strong class="hidden-xs">Log Out</strong></a>
+              <a href="#" class="btn btn-danger navbar-btn" onClick="quitpwd_untrust();"><i class="glyphicon glyphicon-fire"></i> <strong class="hidden-xs">Untrust</strong></a>
+          </div>
+          <!-- Required bootstrap placeholder for the collapsed menu -->
+          <button type="button" data-toggle="collapse" data-target=".navbar-collapse" class="navbar-toggle" style="margin-left:10px"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse navbar-left">
+          <ul class="nav navbar-nav pull-right" id="nav_links">
             <li id="nav-add"><a href="" data-toggle="modal" data-target="#add">Add Entry</a></li>
             <li id="nav-pin"><a href="" data-toggle="modal" data-target="#pin">Set PIN</a></li>
             <li class="dropdown">
@@ -87,14 +89,6 @@ setInterval(countdown, 60000);
       </div>
     </nav>
 <div class="container theme-showcase">
-    <div class="row">
-        <div class="col-lg-10 col-md-8 col-sm-6 col-xs-6">
-        </div>
-        <div class="col-lg-2 col-md-4 col-sm-6 col-xs-6 text-right">
-            <a href="" class="btn btn-info" onClick="quitpwd();"><strong>LogOut</strong></a>
-            <a href="" class="btn btn-danger" onClick="quitpwd_untrust();"><strong>Untrust</strong></a>
-        </div>
-    </div>
     <div class="row">
         <div class="col-md-8">
           <div class="page-header">
