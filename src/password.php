@@ -97,13 +97,6 @@ setInterval(countdown, 60000);
         </div>
         <div class="col-md-4">
             <div class="pull-right-sm" id="rightHandBox">
-                <div id="tagCloud" style="display:none;">
-                    <p class="lead" style="margin-bottom:0">Tag-Overview</p>
-                    <p class="visible-xs small" style ="margin-bottom:0;">
-                        <a href="javascript:$('#tags').toggleClass('hidden-xs');$('.tagsShow').toggleClass('hidden');"><span class="tagsShow">show</span><span class="tagsShow hidden">hide</span> tags</a>
-                    </p>
-                    <span class="hidden-xs" id="tags"></span><p class="small" style="display:none;" id="resetFilter"><a href="javascript:filterTags('');">reset filter</a></p>
-                </div>
                 <form id="searchForm">
                   <div class="input-group">
                     <input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
@@ -113,6 +106,13 @@ setInterval(countdown, 60000);
                     </div>
                   </div>
                 </form>
+                <div id="tagCloud" style="display:none;">
+                    <p class="lead" style="margin-bottom:0">Tag-Overview</p>
+                    <p class="visible-xs small" style ="margin-bottom:0;">
+                        <a href="javascript:$('#tags').toggleClass('hidden-xs');$('.tagsShow').toggleClass('hidden');"><span class="tagsShow">show</span><span class="tagsShow hidden">hide</span> tags</a>
+                    </p>
+                    <span class="hidden-xs" id="tags"></span><p class="small" style="display:none;" id="resetFilter"><a href="javascript:filterTags('');">reset filter</a></p>
+                </div>
             </div>
         </div>
     </div>
