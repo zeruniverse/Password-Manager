@@ -64,7 +64,7 @@ setInterval(countdown, 60000);
         <div class="navbar-header pull-right">
           <div class="pull-left">
               <a href="#" class="btn btn-info navbar-btn" onClick="quitpwd();"><i class="glyphicon glyphicon-log-out"></i> <strong class="hidden-xs">Log Out</strong></a>
-              <a href="#" class="btn btn-danger navbar-btn" onClick="quitpwd_untrust();"><i class="glyphicon glyphicon-fire"></i> <strong class="hidden-xs">Untrust</strong></a>
+              <a href="#" class="btn btn-danger navbar-btn" onClick="quitpwd_untrust();" title="Delete all cookies"><i class="glyphicon glyphicon-fire"></i> <strong class="hidden-xs">Untrust</strong></a>
           </div>
           <!-- Required bootstrap placeholder for the collapsed menu -->
           <button type="button" data-toggle="collapse" data-target=".navbar-collapse" class="navbar-toggle" style="margin-left:10px"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
