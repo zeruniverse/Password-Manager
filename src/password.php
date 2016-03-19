@@ -69,8 +69,8 @@ setInterval(countdown, 60000);
           <!-- Required bootstrap placeholder for the collapsed menu -->
           <button type="button" data-toggle="collapse" data-target=".navbar-collapse" class="navbar-toggle" style="margin-left:10px"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
         </div>
-        <div id="navbar" class="collapse navbar-collapse navbar-left">
-          <ul class="nav navbar-nav pull-right" id="nav_links">
+        <div id="navbar" class="collapse navbar-collapse navbar-left" style=min-width:100px;">
+          <ul class="nav navbar-nav" id="nav_links">
             <li id="nav-add"><a href="" data-toggle="modal" data-target="#add">Add Entry</a></li>
             <li id="nav-pin"><a href="" data-toggle="modal" data-target="#pin">Set PIN</a></li>
             <li class="dropdown">
