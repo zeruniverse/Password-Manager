@@ -215,7 +215,7 @@ setInterval(countdown, 60000);
             </div>
             <div class="modal-body">
             <form>
-            <textarea class="form-control" id="details" style="height:190px" readonly></textarea>
+            <div class="form-control" id="details" style="height:230px; background:#efefef;" ></div>
             </form>
             </div>
             <div class="modal-footer">
@@ -888,9 +888,12 @@ function exportcsv()
 function showdetail(index){
     var i=parseInt(index);
     var x,s;
-    s='account: '+accountarray[i]["name"]+'\n';
-    for (x in accountarray[i]["other"]) s=s+x+': '+accountarray[i]["other"][x]+'\n';
-    $('#details').html(s);
+    s='<b>'+accountarray[i]["name"]+'</b><br><br>\n';
+	s=s+'<table style="width: 100%" font color="#ff0000">';
+	s=s+'<col width="90"><col width="auto">';
+    for (x in accountarray[i]["other"]) s=s+'<tr><td><font color="#afafaf"><style="font-weight: normal;">'+x+'</td><td><font color="#6d6d6d"><b>'+accountarray[i]["other"][x]+'<b></td></tr>';
+    s=s+'</table>';
+	$('#details').html(s);
     $("#showdetails").modal("show");
 }
 </script>
