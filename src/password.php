@@ -387,7 +387,7 @@ function import_raw(json){
         alert('IMPORT FINISHED!');
         location.reload(true);
     }
-    setTimeout(process,50);
+    setTimeout(process,0);
     
 }
 function import_csv(csv){
