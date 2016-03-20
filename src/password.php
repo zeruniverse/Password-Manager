@@ -215,7 +215,7 @@ setInterval(countdown, 60000);
             </div>
             <div class="modal-body">
             <form>
-            <div class="form-control" id="details" style="height:230px; background:#efefef;" ></div>
+            <div class="form-control" id="details" style="height:230px; background:#efefef; overflow:auto" ></div>
             </form>
             </div>
             <div class="modal-footer">
@@ -888,10 +888,14 @@ function exportcsv()
 function showdetail(index){
     var i=parseInt(index);
     var x,s;
-    s='<b>'+accountarray[i]["name"]+'</b><br><br>\n';
+    s='<b>'+accountarray[i]["name"]+'</b><br /><br />';
 	s=s+'<table style="width: 100%" font color="#ff0000">';
-	s=s+'<col width="90"><col width="auto">';
-    for (x in accountarray[i]["other"]) s=s+'<tr><td><font color="#afafaf"><style="font-weight: normal;">'+x+'</td><td><font color="#6d6d6d"><b>'+accountarray[i]["other"][x]+'<b></td></tr>';
+	s=s+'<colgroup><col width="90"><col width="auto"></colgroup>';
+    for (x in accountarray[i]["other"]) {
+        if(x in fields){
+            s=s+'<tr><td><font color="#afafaf"><style="font-weight: normal;">'+fields[x]['colname']+'</td><td><font color="#6d6d6d"><b>'+accountarray[i]["other"][x]+'<b></td></tr>';
+        }
+    }
     s=s+'</table>';
 	$('#details').html(s);
     $("#showdetails").modal("show");
