@@ -891,7 +891,11 @@ function showdetail(index){
     s='<b>'+accountarray[i]["name"]+'</b><br><br>\n';
 	s=s+'<table style="width: 100%" font color="#ff0000">';
 	s=s+'<col width="90"><col width="auto">';
-    for (x in accountarray[i]["other"]) s=s+'<tr><td><font color="#afafaf"><style="font-weight: normal;">'+x+'</td><td><font color="#6d6d6d"><b>'+accountarray[i]["other"][x]+'<b></td></tr>';
+    for (x in accountarray[i]["other"]) {
+        if(x in fields){
+            s=s+'<tr><td><font color="#afafaf"><style="font-weight: normal;">'+fields[x]['colname']+'</td><td><font color="#6d6d6d"><b>'+accountarray[i]["other"][x]+'<b></td></tr>';
+        }
+    }
     s=s+'</table>';
 	$('#details').html(s);
     $("#showdetails").modal("show");
