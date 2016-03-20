@@ -773,6 +773,11 @@ $("#importbtn").click(function(){
     $("#importbtn").attr("disabled",true);
     $("#importbtn").attr("value", "Processing...");
     $("#importc").attr("disabled",true);
+    function bk(){
+    	$("#importbtn").attr("disabled",false);
+        $("#importbtn").attr("value", "Submit");
+        $("#importc").attr("disabled",false);
+    }
     function process(){
         if (window.FileReader) {
 		// FileReader are supported.
@@ -788,17 +793,15 @@ $("#importbtn").click(function(){
             }
             reader.onerror = function (e) {
                 alert('Error reading file!');
+                bk();
             }
             var extension = a[0].name.split('.').pop().toLowerCase();
             if(extension=='csv') t=1;
             reader.readAsText(a[0]);          
-        } else alert('NO FILE SELECTED'); 
+        } else {alert('NO FILE SELECTED'); bk();}
 	} else {
 		alert('FileReader are not supported in this browser.');
 	}
-	$("#importbtn").attr("disabled",false);
-        $("#importbtn").attr("value", "Submit");
-        $("#importc").attr("disabled",false);
     }
     setTimeout(process,10);
 });
