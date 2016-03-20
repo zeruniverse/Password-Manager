@@ -7,7 +7,7 @@
 **'master' branch is a dev-branch, please download stable version from [SourceForge](https://sourceforge.net/projects/phppasswordmanager/files/latest/download) or [Release](https://github.com/zeruniverse/Password-Manager/releases) in order to use.**      
   
 ##Version
-v9.08  
+v9.08s  
 From v9.0, this project becomes mature. I've implemented all features planned when I started this project.       
 There will still be infrequent bug fixes and improvements though.  
 Supports are available [here](https://github.com/zeruniverse/Password-Manager/issues) for versions greater than v9.0   
