@@ -26,4 +26,4 @@ while ($i = $res->fetch(PDO::FETCH_ASSOC)){
 }
 $ret=array('status'=>'OK', 'VERSION'=>$VERSION, 'JSsalt'=>$GLOBAL_SALT_1, 'PWsalt'=>$GLOBAL_SALT_2, 'ALPHABET'=>$DEFAULT_LETTER_USED, 'data'=>$arr);
 echo json_encode($ret);
-?>	
+?>
