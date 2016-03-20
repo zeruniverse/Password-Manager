@@ -374,6 +374,10 @@ function import_raw(json){
         }
         add_account(acc, pass, other, function(msg) { if(msg!=1) alert("Fail to add "+acc+", please try again manually later."); });
     }
+    function onsucc(){
+    	alert('IMPORT FINISHED!');
+        location.reload(true);
+    }
     function process(){
         var aeskey=json.KEY;
         var x;
@@ -384,10 +388,9 @@ function import_raw(json){
                 other = decryptchar(json.data[x][2], aeskey);
             add_acc(decryptchar(json.data[x][0],aeskey),decryptchar(json.data[x][1],aeskey), other);
         }
-        alert('IMPORT FINISHED!');
-        location.reload(true);
     }
-    setTimeout(process,0);
+    process();
+    setTimeout(onsucc,1000);
     
 }
 function import_csv(csv){
@@ -408,8 +411,11 @@ function import_csv(csv){
             }
             add_account(acc, pass, JSON.stringify(other), function(msg) { if(msg!=1) alert("Fail to add "+acc+", please try again manually later."); });
         }
-        alert('IMPORT FINISHED!');
-        location.reload(true);
+        function onsucc(){
+            alert('IMPORT FINISHED!');
+            location.reload(true);	
+        }
+        setTimeout(onsucc,1000);
     });
 }
 
@@ -765,9 +771,15 @@ $("#changepw").click(function(){
 });
 $("#importbtn").click(function(){ 
     $("#importbtn").attr("disabled",true);
-    $("#importbtn").attr("value", "Processing...");
+    $("#importbtn").html("Processing...");
     $("#importc").attr("disabled",true);
-    if (window.FileReader) {
+    function bk(){
+    	$("#importbtn").attr("disabled",false);
+        $("#importbtn").html("Submit");
+        $("#importc").attr("disabled",false);
+    }
+    function process(){
+        if (window.FileReader) {
 		// FileReader are supported.
         var reader = new FileReader();
         var a=$("#importc")[0].files;
@@ -781,17 +793,17 @@ $("#importbtn").click(function(){
             }
             reader.onerror = function (e) {
                 alert('Error reading file!');
+                bk();
             }
             var extension = a[0].name.split('.').pop().toLowerCase();
             if(extension=='csv') t=1;
             reader.readAsText(a[0]);          
-        } else alert('NO FILE SELECTED'); 
+        } else {alert('NO FILE SELECTED'); bk();}
 	} else {
 		alert('FileReader are not supported in this browser.');
 	}
-    $("#importbtn").attr("disabled",false);
-    $("#importbtn").attr("value", "Submit");
-    $("#importc").attr("disabled",false);
+    }
+    setTimeout(process,10);
 });
 $('#add').on('shown.bs.modal', function () { $('#newiteminput').focus(); });
 $('#edit').on('shown.bs.modal', function () {
