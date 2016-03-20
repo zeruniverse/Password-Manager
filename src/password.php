@@ -771,11 +771,11 @@ $("#changepw").click(function(){
 });
 $("#importbtn").click(function(){ 
     $("#importbtn").attr("disabled",true);
-    $("#importbtn").attr("value", "Processing...");
+    $("#importbtn").html("Processing...");
     $("#importc").attr("disabled",true);
     function bk(){
     	$("#importbtn").attr("disabled",false);
-        $("#importbtn").attr("value", "Submit");
+        $("#importbtn").html("Submit");
         $("#importc").attr("disabled",false);
     }
     function process(){
