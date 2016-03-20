@@ -1,6 +1,7 @@
 <?php
 session_start(); 
 if(!isset($_SESSION["loginok"]) || $_SESSION['loginok']!=1) {die('0');}
+if(!isset($_POST['a']) || $_POST['a']!='a') die('Forbidden'); //disallow direct visit;
 require_once("function/sqllink.php");
 require_once("function/encryption.php");
 $link=sqllink();
