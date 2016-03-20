@@ -374,6 +374,10 @@ function import_raw(json){
         }
         add_account(acc, pass, other, function(msg) { if(msg!=1) alert("Fail to add "+acc+", please try again manually later."); });
     }
+    function onsucc(){
+    	alert('IMPORT FINISHED!');
+        location.reload(true);
+    }
     function process(){
         var aeskey=json.KEY;
         var x;
@@ -384,10 +388,9 @@ function import_raw(json){
                 other = decryptchar(json.data[x][2], aeskey);
             add_acc(decryptchar(json.data[x][0],aeskey),decryptchar(json.data[x][1],aeskey), other);
         }
-        alert('IMPORT FINISHED!');
-        location.reload(true);
     }
-    setTimeout(process,0);
+    process();
+    setTimeout(onsucc,1000);
     
 }
 function import_csv(csv){
@@ -408,8 +411,11 @@ function import_csv(csv){
             }
             add_account(acc, pass, JSON.stringify(other), function(msg) { if(msg!=1) alert("Fail to add "+acc+", please try again manually later."); });
         }
-        alert('IMPORT FINISHED!');
-        location.reload(true);
+        function onsucc(){
+            alert('IMPORT FINISHED!');
+            location.reload(true);	
+        }
+        setTimeout(onsucc,1000);
     });
 }
 
