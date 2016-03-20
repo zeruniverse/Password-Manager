@@ -773,7 +773,8 @@ $("#importbtn").click(function(){
     $("#importbtn").attr("disabled",true);
     $("#importbtn").attr("value", "Processing...");
     $("#importc").attr("disabled",true);
-    if (window.FileReader) {
+    function process(){
+        if (window.FileReader) {
 		// FileReader are supported.
         var reader = new FileReader();
         var a=$("#importc")[0].files;
@@ -795,9 +796,11 @@ $("#importbtn").click(function(){
 	} else {
 		alert('FileReader are not supported in this browser.');
 	}
-    $("#importbtn").attr("disabled",false);
-    $("#importbtn").attr("value", "Submit");
-    $("#importc").attr("disabled",false);
+	$("#importbtn").attr("disabled",false);
+        $("#importbtn").attr("value", "Submit");
+        $("#importc").attr("disabled",false);
+    }
+    setTimeout(process,10);
 });
 $('#add').on('shown.bs.modal', function () { $('#newiteminput').focus(); });
 $('#edit').on('shown.bs.modal', function () {
