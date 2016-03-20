@@ -26,6 +26,8 @@ echoheader();
     <p> </p>
     <p>Password: <input type="password" name="pwd" id="pwd" /></p><br />
     <p style="color:red">Input the login password when you generate the backup file.</p>
+    <p> </p>
+    <p style="color:red">Recovering takes long time. (No less than backup time) If your web browser asks you whether to kill the page due to no response, choose [wait]!</p>
     </form>
     <input type="button" class="btn btn-md btn-success" onClick="rec();" id="chk" value="RECOVER IT!" />
     <a href="./" class="btn btn-md btn-info">Go Back</a>
