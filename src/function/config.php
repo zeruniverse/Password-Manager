@@ -19,7 +19,7 @@ $DB_USER='web15';
 $DB_PASSWORD='Norbert174';
 
 //Default timezone
-date_default_timezone_set('America/Los_Angeles');
+date_default_timezone_set('Europe/Berlin');
 
 //****************************************
 //OPTIONAL
