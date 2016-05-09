@@ -9,8 +9,10 @@ body {padding-top: 50px; width:100%;}
 }
 
 /* Fixing uncollapsed navbar inline*/
-.navbar-collapse.collapse.in{ clear:left; }
-.navbar-collapse.collapsing{ clear:left; }
+@media (max-width: 992px) {
+    .navbar-collapse.collapse.in{ clear:left; }
+    .navbar-collapse.collapsing{ clear:left; }
+}
 
 /* pull-right on all except xs devices */
 @media (min-width: 992px) {
