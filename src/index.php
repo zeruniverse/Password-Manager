@@ -82,14 +82,13 @@ if(!isSupportFileApi()||typeof(Storage) == "undefined") {
                         <div class="form-group">
                             <label for="pin" class="control-label">PIN:</label>
                             <input id="pin" class="form-control" type="password" />
-                            <label class="small" style="display:block; clear:both;">You see this window because you or someone set an PIN in this device and choose it as default login method. To switch account or disable PIN, please press the red button below.</label>
-                            <label class="small" style="display:block; clear:both; color:red">Close this window or press the white button below only let you use username/password to login this time. PIN will still be chosen as default method in future.</label>
+                            <label class="small" style="display:block; clear:both;">You see this window because you or someone set an PIN in this device and choose it as default login method. To switch account or disable PIN, please press the red button below. To use username/password to login only this time, close this window by pressing the 'X' at top-right corner.</label>
+                            <label class="small" style="display:block; clear:both; color:red">Closing this window only let you use username/password to login this time. PIN will still be chosen as default method in future. Press red button below if you want to disable current PIN.</label>
                         </div>
                 </div>
                 <div class="modal-footer">
                     <p style="display:none" id="pinerrorhint">PIN ERROR, try again.</p>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Use username/password</button>
-                    <button type="button" onClick="delpinstore();deleteCookie('username');" class="btn btn-danger" data-dismiss="modal">Disable PIN</button>
+                    <button type="button" onClick="delpinstore();deleteCookie('username');" class="btn btn-danger" data-dismiss="modal">Delete PIN</button>
                     <input type="submit" style="display:inline" class="btn btn-primary" id="pinlogin" value="Login" /></form>
                 </div>
             </div>

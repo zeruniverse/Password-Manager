@@ -338,7 +338,6 @@ setInterval(countdown, 60000);
 var fields=JSON.parse($('#fieldsz').val().replace(/\r\n/g,'').replace(/\n/g,''));
 var ALPHABET='<?php echo $DEFAULT_LETTER_USED;?>';
 var PWsalt='<?php echo $GLOBAL_SALT_2; ?>';
-$("#pin").on('shown.bs.modal', function(){$("#pinxx").focus()});
 function sanitize_json(s){
     var t=s;
     t=t.replace(/\n/g,'')
@@ -805,7 +804,6 @@ $("#importbtn").click(function(){
     }
     setTimeout(process,10);
 });
-$('#add').on('shown.bs.modal', function () { $('#newiteminput').focus(); });
 $('#edit').on('shown.bs.modal', function () {
     var id = $("#edit").data('id');
     $("#editAccountShowPassword").removeClass("collapse");
@@ -815,11 +813,8 @@ $('#edit').on('shown.bs.modal', function () {
     $("#edititeminputpw").data('enpassword', $("[passid="+id+"]").attr("enpassword"));
     for (x in fields){
         $("#edititeminput"+x).val(accountarray[id]['other'][x]);
-    }
-    $('#edititeminput').focus(); 
+    } 
 });
-$('#import').on('shown.bs.modal', function () { $('#importc').focus(); });
-$('#changepwd').on('shown.bs.modal', function () { $('#oldpassword').focus(); });
 $('#searchForm').submit(function () {
     filterAccounts($('#srch-term').val())
     return false;
