@@ -9,7 +9,7 @@ body {padding-top: 50px; width:100%;}
 }
 
 /* Fixing uncollapsed navbar inline*/
-@media (max-width: 992px) {
+@media (max-width: 767px) {
     .navbar-collapse.collapse.in{ clear:left; }
     .navbar-collapse.collapsing{ clear:left; }
 }
