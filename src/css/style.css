@@ -8,6 +8,12 @@ body {padding-top: 50px; width:100%;}
     word-wrap: break-word;
 }
 
+/* Fixing uncollapsed navbar inline*/
+@media (max-width: 767px) {
+    .navbar-collapse.collapse.in{ clear:left; }
+    .navbar-collapse.collapsing{ clear:left; }
+}
+
 /* pull-right on all except xs devices */
 @media (min-width: 992px) {
     .pull-right-sm {
