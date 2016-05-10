@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS `pin` (
   `pinsig` text,
   `pinpk` varchar(30) NOT NULL,
   `ua` varchar(500) DEFAULT '',
+  `host` varchar(50),
   `createtime` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `errortimes` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`userid`,`device`)

@@ -24,15 +24,16 @@ echoheader();
         <h1>Trusted Devices</h1>
     </div>
     <table class="table">
-    <tr><th>Device Type</th><th>Set Time</th><th>Untrust (Disable PIN)</th></tr>
+    <tr><th>Device</th><th>Set Time</th><th>Untrust (Disable PIN)</th></tr>
     <?php
-        $sql="SELECT `device`,UNIX_TIMESTAMP(`createtime`) AS `createtime`,`ua` FROM `pin` WHERE `userid`= ?";
+        $sql="SELECT `host`,`device`,UNIX_TIMESTAMP(`createtime`) AS `createtime`,`ua` FROM `pin` WHERE `userid`= ?";
         $res=sqlexec($sql,array($id),$link);
 		while ($i = $res->fetch(PDO::FETCH_ASSOC)){ 
             $did=$i['device'];
             $ctime=(int)$i['createtime'];
-            $ua=$i['ua'];
-            echo "<tr><td class='uacell'>".$ua."</td><td class='timestampcell'>".gmdate('Y-m-d-H-i-s',$ctime).'[1aaaaaaa'."</td><td><a href='javascript: unsetpin(\"".$did."\")'>Untrust this device</a></td></tr>";
+			$ua=$i['ua'];
+			$chost=$i['host'];
+            echo "<tr><td>".$chost."(<span class='uacell'>".$ua."</span>)</td><td class='timestampcell'>".gmdate('Y-m-d-H-i-s',$ctime).'[1aaaaaaa'."</td><td><a href='javascript: unsetpin(\"".$did."\")'>Untrust this device</a></td></tr>";
 		}
     ?>
     </table>
@@ -41,19 +42,20 @@ echoheader();
     </div>
     <p>Red entries indicate password error (i.e. error try)</p>
     <table class="table">
-    <tr><th>Device Type</th><th>Login IP</th><th>Login Time</th></tr>
+    <tr><th>Device</th><th>Login IP</th><th>Login Time</th></tr>
     <?php
-        $sql="SELECT `ip`,`ua`,`outcome`,UNIX_TIMESTAMP(`time`) AS `time` FROM `history` WHERE `userid`= ? ORDER BY `id` DESC LIMIT 60";
+        $sql="SELECT `host`,`ip`,`ua`,`outcome`,UNIX_TIMESTAMP(`time`) AS `time` FROM `history` WHERE `userid`= ? ORDER BY `id` DESC LIMIT 60";
         $res=sqlexec($sql,array($id),$link);
 		while ($i = $res->fetch(PDO::FETCH_ASSOC)){ 
             $ip=$i['ip'];
-            $ua=$i['ua'];
+			$ua=$i['ua'];
+			$chost=$i['host'];
             $ctime=(int)$i['time'];
             if((int)$i['outcome']==0)
                 $color=' style="color:red"';
             else
                 $color='';
-            echo "<tr".$color."><td class='uacell'>".$ua."</td><td>".$ip."<td class='timestampcell'>".gmdate('Y-m-d-H-i-s',$ctime).'[1aaaaaaa'."</td></tr>";
+            echo "<tr".$color."><td>".$chost."(<span class='uacell'>".$ua."</span>)</td><td>".$ip."</td><td class='timestampcell'>".gmdate('Y-m-d-H-i-s',$ctime).'[1aaaaaaa'."</td></tr>";
 		}
     ?>
     </table>   
