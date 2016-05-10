@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS `blockip` (
 CREATE TABLE IF NOT EXISTS `history` (
   `id` int(11) NOT NULL,
   `userid` int(11) NOT NULL,
+  `host` varchar(50),
   `ip` varchar(16) NOT NULL,
   `ua` varchar(500),
   `outcome` int(11) NOT NULL DEFAULT '0',
