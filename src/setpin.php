@@ -38,10 +38,8 @@ $res=sqlexec($sql,array($id,$device),$link);
 
 $pinpk=random_str(29);
 
-$sql="INSERT INTO `pin` (`userid`,`device`,`pinsig`,`pinpk`,`ua`,`host`) VALUES (?,?,?,?,?,?)";
-$chost=gethostname();
-if(!$chost) $chost='Not Specified';
-$res=sqlexec($sql,array($id,$device,$sig,$pinpk,$_SERVER['HTTP_USER_AGENT'],$chost),$link);
+$sql="INSERT INTO `pin` (`userid`,`device`,`pinsig`,`pinpk`,`ua`) VALUES (?,?,?,?,?)";
+$res=sqlexec($sql,array($id,$device,$sig,$pinpk,$_SERVER['HTTP_USER_AGENT']),$link);
 
 echo $pinpk;
 ?>
