@@ -23,20 +23,14 @@ function getUserIP()
 
     return $ip;
 }
-function getUserHost()
-{
-	$a=gethostname();
-	if(!$a) $a = 'Not Specified';
-	return $a;
-}
 function loghistory($link,$userid,$ip,$ua,$outcome)
 {
 	$sql="SELECT max(`id`) AS `m` FROM `history`";
 	$res=sqlquery($sql,$link);
 	$r= $res->fetch(PDO::FETCH_ASSOC);
 	$i=($r==FALSE)?0:((int)$r['m'])+1;
-	$sql="INSERT INTO `history` VALUES (?,?,?,?,?,?,CURRENT_TIMESTAMP)";
-	$res=sqlexec($sql,array($i,$userid,getUserHost(),$ip,$ua,$outcome),$link);
+	$sql="INSERT INTO `history` VALUES (?,?,?,?,?,CURRENT_TIMESTAMP)";
+	$res=sqlexec($sql,array($i,$userid,$ip,$ua,$outcome),$link);
 }
 if(!isset($_SESSION['random_login_stamp']) || $_SESSION['random_login_stamp']=='') {die("4");}
 $usr=$_POST['user'];
