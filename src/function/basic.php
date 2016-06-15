@@ -19,6 +19,8 @@ echo '<!DOCTYPE html>
     <meta name="author" content="Jeffery">
 	<link href="css/bootstrap.min.css" rel="stylesheet">
 	<link href="css/style.css" rel="stylesheet">
+    <link href="css/bootstrap-tagsinput.css" rel="stylesheet">
+    <link href="css/bootstrap-tagsinput-typeahead.css" rel="stylesheet">
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
     <script src="js/html5shiv.js"></script>
@@ -28,6 +30,7 @@ echo '<!DOCTYPE html>
     <link rel="shortcut icon" href="favicon.ico">
     <script type="text/javascript" src="js/jquery.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap-tagsinput.js"></script>
     <style>
     .footer {
         color: #777;
