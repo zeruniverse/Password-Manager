@@ -106,6 +106,7 @@ function countdown()
             </div>
         </div>
     </div>
+    <div id="message" class="alert" style="display:none;"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><span id="messageText"></span></div>
     <div id="waitsign">PLEASE WAIT WHILE WE ARE DECRYPTING YOUR PASSWORD...</div>
     <div id="pwdtable" style="display:none">
     <br />
@@ -252,7 +253,7 @@ function countdown()
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
-                <button type="button" onClick="delpinstore();alert('PIN deleted, use username/password to login next time');$('#pin').modal('hide');" class="btn btn-danger" id="delpin">Delete PIN</button>
+                <button type="button" onClick="delpinstore();showMessage('info', 'PIN deleted, use username/password to login next time', true);$('#pin').modal('hide');" class="btn btn-danger" id="delpin">Delete PIN</button>
                 <input type="submit" class="btn btn-primary" id="pinlogin" value="Set/Reset" /></form>
             </div>
         </div>
@@ -311,6 +312,18 @@ function countdown()
         </div>
     </div>
 </div>
+<div class="modal" tabindex="-1" role="dialog" id="messageDialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <span class="alert" id="messageDialogText"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script type="text/javascript">
 var ALPHABET;
 var PWsalt;
@@ -340,17 +353,18 @@ function add_account(acc, pass, other, callback){
 function import_raw(json){
     json=JSON.parse(sanitize_json(json));
     if(json.status!="RAW_OK") {
-        alert("INVALID RAW FILE");
+        showMessage("warning", "INVALID RAW FILE", true);
         return;
     }
     function add_acc(acc,pass,other){
         if(acc==''||pass=='') {
-            alert("one of account or password empty! will continue to process other accounts, check back after this finished"); return;
+            showMessage('warning', "one of account or password empty! will continue to process other accounts, check back after this finished", true); return;
         }
-        add_account(acc, pass, other, function(msg) { if(msg!=1) alert("Fail to add "+acc+", please try again manually later."); });
+        add_account(acc, pass, other, function(msg) { if(msg!=1) showMessage('warning',"Fail to add "+acc+", please try again manually later.", true); });
     }
     function onsucc(){
-    	alert('IMPORT FINISHED!');
+    	showMessage('success','IMPORT FINISHED!');
+        $('#import').modal('hide');
         reloadAccounts();
     }
     function process(){
@@ -376,7 +390,7 @@ function import_csv(csv){
             var acc = accarray[x]["name"];
             var pass = accarray[x]["password"];
             if(acc==''||pass=='') {
-                alert("one of account or password empty! will continue to process other accounts, check back after this finished"); continue;
+                showMessage('danger',"one of account or password empty! will continue to process other accounts, check back after this finished", true); continue;
             }
             var other = {};
             for (key in accarray[x]){
@@ -384,19 +398,34 @@ function import_csv(csv){
                     other[key]=accarray[x][key];
                 }
             }
-            add_account(acc, pass, JSON.stringify(other), function(msg) { if(msg!=1) alert("Fail to add "+acc+", please try again manually later."); });
+            add_account(acc, pass, JSON.stringify(other), function(msg) { if(msg!=1) showMessage('warning', "Fail to add "+acc+", please try again manually later.", true); });
         }
         function onsucc(){
-            alert('IMPORT FINISHED!');
+            showMessage('success', 'IMPORT FINISHED!');
+            $('#import').modal('hide');
             reloadAccounts();
         }
         setTimeout(onsucc,1000);
     });
 }
-function showMessage(type, message, modal){
-
+//type: any of "success", "info", "warning", "danger"
+//message: text
+//modal: if true shows a modal window
+function showMessage(type, message, modal=false){
+    if (modal==false) {
+        $("#messageText").html(message);
+        $("#message").removeClass("alert-success alert-info alert-warning alert-danger");
+        $("#message").addClass("alert-"+type);
+        $("#message").fadeIn();
+    }
+    else {
+        $("#messageDialogText").html(message);
+        $("#messageDialogText").removeClass("alert-success alert-info alert-warning alert-danger");
+        $("#messageDialogText").addClass("alert-"+type);
+        $("#messageDialog").modal('show');
+    }
 }
-function filterTags(tag){
+function filterTags(tag){//replace by cleaning up and showing only accounts that fit
     $("#pwdlist").find("tr").show();
     if (tag == ""){
         $("#resetFilter").hide();
@@ -417,9 +446,13 @@ function filterTags(tag){
 }
 function dataReady(data){
     data = $.parseJSON(data);
+    if (data["status"]=="error") {
+        window.location.href = './?reason='+encodeURIComponent(data["message"]);
+        return;
+    }
     default_timeout = data["default_timeout"] - 1;
     timeout = default_timeout;
-    default_letter_user = data["default_letter_used"];
+    default_letter_used = data["default_letter_used"];
     default_length = data["default_length"];
     salt1 = data["global_salt_1"];
     salt2 = data["global_salt_2"];
@@ -460,7 +493,7 @@ function initFields() {
     $("textarea#fieldsz").val(JSON.stringify(fields));
     for (x in fields) {
         fields[x]["count"] = 0;
-        var header = '<th class="'+x+'cell'+fields[x]["cls"]+'">'+fields[x]["colname"]+'</th>';
+        var header = '<th class="'+x+'cell'+fields[x]["cls"]+' field">'+fields[x]["colname"]+'</th>';
         var input = "";
         var inputtype = "text";
         if ("type" in fields[x])
@@ -469,10 +502,10 @@ function initFields() {
             input = '<textarea class="form-control" id="%NAME%iteminput'+x+'" placeholder="'+fields[x]["hint"]+'"></textarea>';
         else
             input = '<input class="form-control" id="%NAME%iteminput'+x+'" type="'+inputtype+'" placeholder="'+fields[x]["hint"]+'"/>';
-        var form = '<div class="form-group"><label for="%NAME%iteminput'+x+'" class="control-label">'+fields[x]["colname"]+':</label>'+input+'</div>';
+        var form = '<div class="form-group field"><label for="%NAME%iteminput'+x+'" class="control-label">'+fields[x]["colname"]+':</label>'+input+'</div>';
         if (("position" in fields[x]) && (fields[x]["position"] != 0)) {
             $('#pwdlist > tbody > tr:first > th:nth-child('+fields[x]["position"]+')').after(header)
-                $("#add").find('form > .form-group:nth-child('+fields[x]["position"]+')').after(form.replace(/%NAME%/g,"new"));
+            $("#add").find('form > .form-group:nth-child('+fields[x]["position"]+')').after(form.replace(/%NAME%/g,"new"));
             $("#edit").find('form > .form-group:nth-child('+fields[x]["position"]+')').after(form.replace(/%NAME%/g,"edit"));
         }
         else {
@@ -516,7 +549,7 @@ function showtable(accounts)
     for(index in accounts) {
         var cols = [
             "<td class='namecell'><span class='accountname' dataid='"+index+"'>"+accounts[index]["name"]+'</span><a title="Edit" class="cellOptionButton" href="javascript: edit('+index+')"><span class="glyphicon glyphicon-wrench"></span></a><a title="Details" class="cellOptionButton" style="margin-right:15px;" href="javascript: showdetail('+index+')"><span class="glyphicon glyphicon-eye-open"></span></a></td>',
-            '<td><span passid="'+index+'" enpassword="'+accounts[index]["enpassword"]+'" id="'+index+'"><a href="javascript: clicktoshow(\''+accounts[index]["enpassword"]+'\',\''+index+'\')">Click to see</a></span></td>']
+            '<td><span passid="'+index+'" enpassword="'+accounts[index]["enpassword"]+'" id="'+index+'"><a href="javascript: clicktoshow(\''+accountarray[index]["enpassword"]+'\',\''+index+'\')">Click to see</a></span></td>']
             //fill in other
             for (x in fields) {
                 var value="";
@@ -543,10 +576,13 @@ function showtable(accounts)
         }
     }
 }
-function reloadAccounts() {
-    // Clear
+function clearUp() {
     $("#pwdlist tr").not(':first').remove();
     $("#tags a").remove();
+    $(".field").remove();
+}
+function reloadAccounts() {
+    clearUp();
     $.ajax({url : "password_ajax.php"}).done(dataReady);
 }
 
@@ -562,16 +598,16 @@ $("#pinloginform").on('submit',function(e){
     {
         $.post("setpin.php",{user:getcookie('username'),device:device,sig:String(CryptoJS.SHA512(pin+salt))},function(msg){
             if(msg=='0'){
-                alert('ERROR set PIN, try again later!');
+                showMessage('warning', 'ERROR set PIN, try again later!', true);
                 $('#pin').modal('hide');
             }else{
                 setPINstore(device,salt,encryptchar(getpwdstore(PWsalt),pin+msg),encryptchar(getconfkey(PWsalt),pin+msg));
-                alert('PIN set, use PIN to login next time');
+                showMessage('success', 'PIN set, use PIN to login next time');
                 $('#pin').modal('hide');
             }
         });
     }
-    if(pin.length<4) {alert('For security reason, PIN should be at least of length 4.'); return;}
+    if(pin.length<4) {showMessage('warning', 'For security reason, PIN should be at least of length 4.', true); return;}
     if(device=="")
     {
         function rand_device()
@@ -594,21 +630,25 @@ $("#changefieldsbtn").click(function(){
     p=p.replace(/\n/g,'');
     function isJson(str) {
     try {
-        JSON.parse(str);
+        $.parseJSON(str);
     } catch (e) {
         return false;
     }
     return true;
     }
-    if(!isJson(p)) {alert('illegal format!');return;}
+    if(!isJson(p)) {showMessage('warning', 'illegal format!', true);return;}
     $.post("changefields.php",{fields:a},function(msg){ 
-            if(msg==1) {alert('SUCCESS!'); reloadAccounts();}
-            else {alert("Oops, there's some error. Try again!");}
-        });
+        if(msg==1) {
+            showMessage('success','<strong>Successfull</strong> changed fields!'); 
+            $('#changefields').modal('hide');
+            reloadAccounts();
+        }
+        else {showMessage('warning', "Oops, there's some error. Try again!", true);}
+    });
 });
 $("#newbtn").click(function(){ 
 	var newpwd;
-	if($("#newiteminput").val()=="") {alert("Account entry can't be empty!"); return;}
+	if($("#newiteminput").val()=="") {showMessage("warning", "Account entry can't be empty!", true); return;}
 	$("#newbtn").attr("disabled",true);
 	$("#newiteminput").attr("readonly",true);
 	$("#newiteminputpw").attr("readonly",true);
@@ -623,7 +663,12 @@ $("#newbtn").click(function(){
         other = JSON.stringify(other);
         var name = $("#newiteminput").val();
         add_account(name, newpwd, other, function(msg){ 
-            if(msg==1) {alert("Add "+name+" successfully!");reloadAccount();} else alert("Fail to add "+name+", please try again.");
+            if(msg==1) {
+                showMessage('success', "Add "+name+" successfully!");
+                $('#add').modal('hide');
+                reloadAccounts();
+            } 
+            else showMessage('warning',"Fail to add "+name+", please try again.", true);
             $("#newiteminput").attr("readonly",false);
             $("#newbtn").attr("disabled",false);
             $("#newiteminputpw").attr("readonly",false);
@@ -635,7 +680,7 @@ $("#newbtn").click(function(){
 });
 $("#editbtn").click(function(){ 
 	var newpwd;
-	if($("#edititeminput").val()=="") {alert("Account entry can't be empty!"); return;}
+	if($("#edititeminput").val()=="") {showMessage('warning',"Account entry can't be empty!", true); return;}
 	$("#editbtn").attr("disabled",true);
 	$("#edititeminput").attr("readonly",true);
 	$("#edititeminputpw").attr("readonly",true);
@@ -658,7 +703,12 @@ $("#editbtn").click(function(){
         other=encryptchar(other, secretkey);
         var enname=encryptchar(name,secretkey);
         $.post("change.php",{name:enname,newpwd:newpwd,index:id,other:other},function(msg){ 
-            if(msg==1) {alert("Data for "+name+" updated!");reloadAccounts()} else alert("Fail to update data for "+name+", please try again.");
+            if(msg==1) {
+                showMessage('success',"Data for "+name+" updated!");
+                $('#edit').modal('hide');
+                reloadAccounts();
+            } 
+            else showMessage('warning',"Fail to update data for "+name+", please try again.", true);
             $("#edititeminput").attr("readonly",false);
             $("#editbtn").attr("disabled",false);
             $("#edititeminputpw").attr("readonly",false);
@@ -717,12 +767,12 @@ $("#backuppwdbtn").click(function(){
         try {
             p=JSON.parse(msg);
             if(p.status!="OK") {
-                alert("FAIL TO GENERATE BACKUP FILE, TRY AGAIN");
+                showMessage('warning',"FAIL TO GENERATE BACKUP FILE, TRY AGAIN", true);
                 $("#backuppwdbtn").attr('disabled',false);
                 return;
             }
         } catch (e) {
-            alert("FAIL TO GENERATE BACKUP FILE, TRY AGAIN");
+            showMessage('warning',"FAIL TO GENERATE BACKUP FILE, TRY AGAIN", true);
             $("#backuppwdbtn").attr('disabled',false);
             return;
         }
@@ -746,12 +796,12 @@ $("#delbtn").click(function(){
 $("#changepw").click(function(){ 
     if(confirm("Your request will be processed on your browser, so it takes some time (up to #of_your_accounts * 10seconds). Do not close your window or some error might happen.\nPlease note we won't have neither your old password nor your new password. \nClick OK to confirm password change request."))
     {
-        if ($("#pwd").val()!=$("#pwd1").val() || $("#pwd").val().length<7){alert("The second password you input doesn't match the first one. Or your password is too weak (length should be at least 7)"); return;}
+        if ($("#pwd").val()!=$("#pwd1").val() || $("#pwd").val().length<7){showMessage('warning',"The second password you input doesn't match the first one. Or your password is too weak (length should be at least 7)", true); return;}
         $("#changepw").attr("disabled",true);
         $("#changepw").attr("value", "Processing...");
         function process(){
         var login_sig=String(pbkdf2_enc(reducedinfo($("#oldpassword").val(),default_letter_used), salt1, 500));
-        if(secretkey!=String(CryptoJS.SHA512(login_sig+salt2)) {alert("Incorrect Old Password!"); reloadAccounts(); return;}
+        if(secretkey!=String(CryptoJS.SHA512(login_sig+salt2))) {showMessage('warning',"Incorrect Old Password!", true); reloadAccounts(); return;}
         var newpass=$("#pwd").val();
         login_sig=String(pbkdf2_enc(reducedinfo(newpass, default_letter_used), salt1, 500));
         var newsecretkey=String(CryptoJS.SHA512(login_sig+salt2));
@@ -767,14 +817,17 @@ $("#changepw").click(function(){
             accarray[x]={"name": encryptchar(accountarray[x]["name"],newsecretkey), "other": encryptchar(JSON.stringify(accountarray[x]["other"]),newsecretkey)};
             raw_pass=decryptPassword(accountarray[x]["name"],$("[passid="+x+"]").attr("enpassword"));
             if (raw_pass=="") {
-                alert("FATAL ERROR WHEN TRYING TO DECRYPT ALL PASSWORDS");
+                showMessage('danger',"FATAL ERROR WHEN TRYING TO DECRYPT ALL PASSWORDS", true);
                 return;
             }
             raw_pass=gen_temp_pwd(newconfkey,PWsalt,String(CryptoJS.SHA512(accountarray[x]["name"])),ALPHABET,raw_pass);
             passarray[x]=encryptchar(raw_pass,newsecretkey);
         }
         $.post("changeuserpw.php",{newpass:String(CryptoJS.SHA512(postnewpass+user)), passarray:JSON.stringify(passarray), accarray:JSON.stringify(accarray)},function(msg){ 
-            if(msg==1) {alert("Change Password Successfully! Please login with your new password again.");quitpwd();} else {alert("Fail to change your password, please try again."); reloadAccounts();}
+            if(msg==1) {
+                alert("Change Password Successfully! Please login with your new password again.");
+                quitpwd();
+            } else {showMessage('warning',"Fail to change your password, please try again.", true); reloadAccounts();}
         });
         }
         setTimeout(process,50);
@@ -800,18 +853,18 @@ $("#importbtn").click(function(){
                 var txt = e.target.result;
                 try{
                     if(t==0) import_raw(txt); else import_csv(txt);
-                }catch (error) { alert('Some error occurs!'); reloadAccounts();}
+                }catch (error) { showMessage('warning','Some error occurs!', true); reloadAccounts();}
             }
             reader.onerror = function (e) {
-                alert('Error reading file!');
+                showMessage('warning','Error reading file!', true);
                 bk();
             }
             var extension = a[0].name.split('.').pop().toLowerCase();
             if(extension=='csv') t=1;
             reader.readAsText(a[0]);          
-        } else {alert('NO FILE SELECTED'); bk();}
+        } else {showMessage('warning','NO FILE SELECTED', true); bk();}
 	} else {
-		alert('FileReader are not supported in this browser.');
+		showMessage('warning','FileReader are not supported in this browser.', true);
 	}
     }
     setTimeout(process,10);
@@ -857,7 +910,11 @@ function delepw(index)
 	if(confirm("Are you sure you want to delete password for "+name+"? (ATTENTION: this is irreversible)"))
 	{
 		$.post("delete.php",{index:index},function(msg){ 
-         if(msg==1) {alert("delete "+name+" successfully");reloadAccounts();} else alert("Fail to delete "+name+", please try again.");
+            if(msg==1) {
+                showMessage('success',"delete "+name+" successfully");
+                $('#edit').modal('hide');
+                reloadAccounts();
+            } else showMessage('warning',"Fail to delete "+name+", please try again.", true);
 	 }); 
 	 }
 }
@@ -880,7 +937,7 @@ function exportcsv()
 {
     var obj=new Array();
     timeout=100000;
-    alert('CSV file contains all your information in plain text format. It\'s dangerous to keep it as a backup. Only use it for transferring your data. Delete it immediately after you\'ve done. Please note the encoding for the csv file is UTF-8. You might need to specify this encoding in order to open this CSV properly in some software that uses ANSI as default encoding such as Microsoft Office.');
+    showMessage('info','CSV file contains all your information in plain text format. It\'s dangerous to keep it as a backup. Only use it for transferring your data. Delete it immediately after you\'ve done. Please note the encoding for the csv file is UTF-8. You might need to specify this encoding in order to open this CSV properly in some software that uses ANSI as default encoding such as Microsoft Office.', true);
     var t,x,i;
     for (x in accountarray){
         tmp={};
