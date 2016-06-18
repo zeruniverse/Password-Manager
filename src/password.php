@@ -549,7 +549,7 @@ function showtable(accounts)
     for(index in accounts) {
         var cols = [
             "<td class='namecell'><span class='accountname' dataid='"+index+"'>"+accounts[index]["name"]+'</span><a title="Edit" class="cellOptionButton" href="javascript: edit('+index+')"><span class="glyphicon glyphicon-wrench"></span></a><a title="Details" class="cellOptionButton" style="margin-right:15px;" href="javascript: showdetail('+index+')"><span class="glyphicon glyphicon-eye-open"></span></a></td>',
-            '<td><span passid="'+index+'" enpassword="'+accounts[index]["enpassword"]+'" id="'+index+'"><a href="javascript: clicktoshow(\''+accountarray[index]["enpassword"]+'\',\''+index+'\')">Click to see</a></span></td>']
+            '<td><span passid="'+index+'" enpassword="'+accounts[index]["enpassword"]+'" id="'+index+'"><a href="javascript: clicktoshow(\''+index+'\')">Click to see</a></span></td>']
             //fill in other
             for (x in fields) {
                 var value="";
@@ -576,13 +576,14 @@ function showtable(accounts)
         }
     }
 }
-function clearUp() {
+function cleanUp() {
+    accountarray = new Array();
     $("#pwdlist tr").not(':first').remove();
     $("#tags a").remove();
     $(".field").remove();
 }
 function reloadAccounts() {
-    clearUp();
+    cleanUp();
     $.ajax({url : "password_ajax.php"}).done(dataReady);
 }
 
@@ -782,7 +783,7 @@ $("#backuppwdbtn").click(function(){
 });
 $("#editAccountShowPassword").click(function(){
     var id = parseInt($("#edit").data('id'));
-    var thekey=decryptPassword(accountarray[id]["name"], $("#edititeminputpw").data('enpassword'));
+    var thekey=decryptPassword(accountarray[id]["name"], accountarray[id]['enpassword']);
     if (thekey==""){
         $("#edititeminputpw").val("Oops, some error occurs!");
         return;
@@ -801,7 +802,7 @@ $("#changepw").click(function(){
         $("#changepw").attr("value", "Processing...");
         function process(){
         var login_sig=String(pbkdf2_enc(reducedinfo($("#oldpassword").val(),default_letter_used), salt1, 500));
-        if(secretkey!=String(CryptoJS.SHA512(login_sig+salt2))) {showMessage('warning',"Incorrect Old Password!", true); reloadAccounts(); return;}
+        if(secretkey!=String(CryptoJS.SHA512(login_sig+salt2))) {showMessage('warning',"Incorrect Old Password!", true); return;}
         var newpass=$("#pwd").val();
         login_sig=String(pbkdf2_enc(reducedinfo(newpass, default_letter_used), salt1, 500));
         var newsecretkey=String(CryptoJS.SHA512(login_sig+salt2));
@@ -815,7 +816,7 @@ $("#changepw").click(function(){
         for (x in accountarray)
         {
             accarray[x]={"name": encryptchar(accountarray[x]["name"],newsecretkey), "other": encryptchar(JSON.stringify(accountarray[x]["other"]),newsecretkey)};
-            raw_pass=decryptPassword(accountarray[x]["name"],$("[passid="+x+"]").attr("enpassword"));
+            raw_pass=decryptPassword(accountarray[x]["name"],accountarray[x]["enpassword"]);
             if (raw_pass=="") {
                 showMessage('danger',"FATAL ERROR WHEN TRYING TO DECRYPT ALL PASSWORDS", true);
                 return;
@@ -827,7 +828,7 @@ $("#changepw").click(function(){
             if(msg==1) {
                 alert("Change Password Successfully! Please login with your new password again.");
                 quitpwd();
-            } else {showMessage('warning',"Fail to change your password, please try again.", true); reloadAccounts();}
+            } else {showMessage('warning',"Fail to change your password, please try again.", true); }
         });
         }
         setTimeout(process,50);
@@ -875,7 +876,7 @@ $('#edit').on('shown.bs.modal', function () {
     $("#edititeminput").val(accountarray[id]['name']);//name
     $("#edititeminputpw").attr('placeholder',"Hidden");
     $("#edititeminputpw").val('');
-    $("#edititeminputpw").data('enpassword', $("[passid="+id+"]").attr("enpassword"));
+    $("#edititeminputpw").data('enpassword', accountarray[id]["enpassword"]);
     for (x in fields){
         $("#edititeminput"+x).val(accountarray[id]['other'][x]);
     } 
@@ -890,19 +891,19 @@ function edit(row){
     $("#edit").data("id", id);
     $("#edit").modal("show");
 }
-function clicktoshow(kss,id){ 
+function clicktoshow(id){ 
     timeout=default_timeout;
-    if(kss=="") return;
-    var thekey = decryptPassword(accountarray[parseInt(id)]["name"],kss);
+    id=parseInt(id);
+    var thekey = decryptPassword(accountarray[id]["name"],accountarray[id]["enpassword"]);
     if (thekey==""){
         $("#"+id).html("Oops, some error occurs!");
         return;
     }
-    $("#"+id).html('<span style="font-family:passwordshow"">'+thekey+'</span><a title="Hide" class="cellOptionButton" href="javascript: clicktohide(\''+kss+'\',\''+id+'\')"><span class="glyphicon glyphicon-eye-close"></span></a>');
+    $("#"+id).html('<span style="font-family:passwordshow"">'+thekey+'</span><a title="Hide" class="cellOptionButton" href="javascript: clicktohide(\''+id+'\')"><span class="glyphicon glyphicon-eye-close"></span></a>');
 } 
-function clicktohide(kss,id){
+function clicktohide(id){
     timeout=default_timeout;
-    $("#"+id).html('<a href="javascript: clicktoshow(\''+kss+'\',\''+id+'\')">Click to see</a>'); 
+    $("#"+id).html('<a href="javascript: clicktoshow(\''+id+'\')">Click to see</a>'); 
 }
 function delepw(index)
 {   
@@ -946,7 +947,7 @@ function exportcsv()
         for (i in t){
             tmp[i] = t[i];
         }
-        tmp['password']=decryptPassword(accountarray[x]["name"],$("[passid="+x+"]").attr("enpassword"));
+        tmp['password']=decryptPassword(accountarray[x]["name"],accountarray[x]["enpassword"]);
         obj.push(tmp);
     }
     $.getScript( 'js/jquery.csv.js', function() {
