@@ -1,4 +1,5 @@
 <?php
+//ToDo close popover on edit leave
 require_once("function/basic.php");
 echoheader();
 ?>
@@ -220,7 +221,7 @@ function countdown()
                     <div class="input-group">
                         <input class="form-control" id="edititeminputpw" type="text" placeholder="Leave blank to generate one"/>
                         <span class="input-group-btn">
-                            <button class="btn btn-warning" onclick="$('#edititeminputpw').val(getpwd(default_letter_used, default_length)); $('#editAccountShowPassword').removeClass('collapse');" type="button" title="generate new password"><i class="glyphicon glyphicon-refresh"></i></button>
+                            <button class="btn btn-warning" onclick="$('#edititeminputpw').val(getpwd(default_letter_used, default_length)); $('#editAccountShowPassword').removeClass('collapse');$('#editAccountShowPassword').popover({ 'placement':'bottom', 'title':'', 'container':'body', 'template':'<div class=\'popover\' role=\'tooltip\' onclick=\'$(&quot;#editAccountShowPassword&quot;).popover(&quot;hide&quot;);\'><div class=\'arrow\'></div><h3 class=\'popover-title hidden\'></h3><div class=\'popover-content\'></div></div>', 'content':'Click here to get your old password back.', 'trigger':'manual' }).popover('show');" type="button" title="generate new password"><i class="glyphicon glyphicon-refresh"></i></button>
                             <button class="btn btn-default" type="button" id="editAccountShowPassword" title="show current password"><i class="glyphicon glyphicon-eye-open"></i></button>
                         </span>
                     </div>
@@ -782,6 +783,7 @@ $("#backuppwdbtn").click(function(){
     });
 });
 $("#editAccountShowPassword").click(function(){
+    $("#editAccountShowPassword").popover('hide');
     var id = parseInt($("#edit").data('id'));
     var thekey=decryptPassword(accountarray[id]["name"], accountarray[id]['enpassword']);
     if (thekey==""){
@@ -880,6 +882,9 @@ $('#edit').on('shown.bs.modal', function () {
     for (x in fields){
         $("#edititeminput"+x).val(accountarray[id]['other'][x]);
     } 
+});
+$('#edit').on('hide.bs.modal', function() {
+    $(".popover").popover('hide');
 });
 $('#searchForm').submit(function () {
     filterAccounts($('#srch-term').val())
