@@ -220,7 +220,7 @@ function countdown()
                     <div class="input-group">
                         <input class="form-control" id="edititeminputpw" type="text" placeholder="Leave blank to generate one"/>
                         <span class="input-group-btn">
-                            <button class="btn btn-warning" onclick="$('#edititeminputpw').val(getpwd(default_letter_used, default_length)); $('#editAccountShowPassword').removeClass('collapse');" type="button" title="generate new password"><i class="glyphicon glyphicon-refresh"></i></button>
+                            <button class="btn btn-warning" onclick="$('#edititeminputpw').val(getpwd(default_letter_used, default_length)); $('#editAccountShowPassword').removeClass('collapse');$('#editAccountShowPassword').popover({ 'placement':'bottom', 'title':'', 'container':'body', 'template':'<div class=\'popover\' role=\'tooltip\' onclick=\'$(&quot;#editAccountShowPassword&quot;).popover(&quot;hide&quot;);\'><div class=\'arrow\'></div><h3 class=\'popover-title hidden\'></h3><div class=\'popover-content\'></div></div>', 'content':'Click here to get your old password back.', 'trigger':'manual' }).popover('show');" type="button" title="generate new password"><i class="glyphicon glyphicon-refresh"></i></button>
                             <button class="btn btn-default" type="button" id="editAccountShowPassword" title="show current password"><i class="glyphicon glyphicon-eye-open"></i></button>
                         </span>
                     </div>
@@ -548,7 +548,7 @@ function showtable(accounts)
     var tempchar;
     for(index in accounts) {
         var cols = [
-            "<td class='namecell'><span class='accountname' dataid='"+index+"'>"+accounts[index]["name"]+'</span><a title="Edit" class="cellOptionButton" href="javascript: edit('+index+')"><span class="glyphicon glyphicon-wrench"></span></a><a title="Details" class="cellOptionButton" style="margin-right:15px;" href="javascript: showdetail('+index+')"><span class="glyphicon glyphicon-eye-open"></span></a></td>',
+            "<td class='namecell'><span class='accountname' data-id='"+index+"'>"+accounts[index]["name"]+'</span><a title="Edit" class="cellOptionButton" href="javascript: edit('+index+')"><span class="glyphicon glyphicon-wrench"></span></a><a title="Details" class="cellOptionButton" style="margin-right:15px;" href="javascript: showdetail('+index+')"><span class="glyphicon glyphicon-eye-open"></span></a></td>',
             '<td><span passid="'+index+'" enpassword="'+accounts[index]["enpassword"]+'" id="'+index+'"><a href="javascript: clicktoshow(\''+index+'\')">Click to see</a></span></td>']
             //fill in other
             for (x in fields) {
@@ -565,7 +565,7 @@ function showtable(accounts)
                 else
                     cols.push(cell);
             }
-        row = "<tr class='datarow' dataid="+index+">" + cols.join("") + "</tr>";
+        row = "<tr class='datarow' data-id="+index+">" + cols.join("") + "</tr>";
         $('#pwdlist > tbody:last-child').append(row);
     }
     $("#waitsign").hide();
@@ -782,6 +782,7 @@ $("#backuppwdbtn").click(function(){
     });
 });
 $("#editAccountShowPassword").click(function(){
+    $("#editAccountShowPassword").popover('hide');
     var id = parseInt($("#edit").data('id'));
     var thekey=decryptPassword(accountarray[id]["name"], accountarray[id]['enpassword']);
     if (thekey==""){
@@ -881,8 +882,11 @@ $('#edit').on('shown.bs.modal', function () {
         $("#edititeminput"+x).val(accountarray[id]['other'][x]);
     } 
 });
+$('#edit').on('hide.bs.modal', function() {
+    $(".popover").popover('hide');
+});
 $('#searchForm').submit(function () {
-    filterAccounts($('#srch-term').val())
+    filterAccounts($('#srch-term').val());
     return false;
     });
 });
@@ -928,10 +932,15 @@ function filterAccounts(text) {
     }
     $("#resetSearch").show();
     text = text.toLowerCase();
+    text = text.split(" ");
     $("tr.datarow").filter(function() {
-        return $(this).find("td > span.namedone").filter(function(){
-            return $(this).text().toLowerCase().indexOf(text) > -1; })
-        .length == 0;
+        var account = accountarray[$(this).data('id')];
+        function isInAccount(account, term) {
+            if (account["name"].toLowerCase().indexOf(term) > -1)
+                return true;
+            return Object.keys(account["other"]).map(function(key){return account["other"][key];}).some(elem => elem.toLowerCase().indexOf(term) > -1);
+        }
+        return !text.every(term => isInAccount(account, term));
     }).hide();
 }
 function exportcsv()
