@@ -135,6 +135,8 @@ For your passwords safety, your login password to password manager won't be incl
 You can easily add E-mail verification, Google authentication... in your version of password manager. Put your implementation inside `check.php`, which is used for login authentication.   
   
 ##Copyright  
-Jeffery Zhao  
-License: MIT     
-The copyright for Crypto-JS and Bootstrap are reserved by their authors.  
+Jeffery Zhao (Full list in LICENSE file)   
+License: MIT  
+The copyrights for libraries (such as Crypto-JS and Bootstrap) are reserved by their authors.    
+Cooperators with significant contributions will become co-owner of this copyright and noted in LICENSE.   
+All contributors to this project must agree their work to be published under MIT license ONLY (see LICENSE file) before submitting a pull request.   
