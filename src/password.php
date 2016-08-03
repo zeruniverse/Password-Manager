@@ -300,7 +300,7 @@ function countdown()
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-body">
-                <span class="alert" id="messageDialogText"></span>
+                <div class="alert" id="messageDialogText"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
