@@ -12,7 +12,12 @@ echoheader();
 	margin-top:10px !important;
 }
 </style>
+<link rel="stylesheet" type="text/css" href="css/dataTables.bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="css/responsive.dataTables.min.css">
 <script type="text/javascript" src="setlocalstorage.js"></script>
+<script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="js/dataTables.responsive.min.js"></script>
 <script type="text/javascript">
 //everything is going to be loaded later
 var secretkey;
@@ -79,39 +84,18 @@ function countdown()
       </div>
     </nav>
 <div class="container theme-showcase">
-    <div class="row">
-        <div class="col-md-8">
           <div class="page-header">
             <h1>Password Manager</h1>
           </div>
-        </div>
-        <div class="col-md-4">
-            <div class="pull-right-sm" id="rightHandBox">
-                <form id="searchForm">
-                  <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
-                    <div class="input-group-btn">
-                        <button class="btn btn-default collapse" id="resetSearch" onClick="filterAccounts('')" type="button" title="reset search"><i class="glyphicon glyphicon-remove"></i></button>
-                        <button class="btn btn-default" type="submit" title="search"><i class="glyphicon glyphicon-search"></i></button>
-                    </div>
-                  </div>
-                </form>
-                <div id="tagCloud" style="display:none;">
-                    <p class="lead" style="margin-bottom:0">Tag-Overview</p>
-                    <p class="visible-xs small" style ="margin-bottom:0;">
-                        <a href="javascript:$('#tags').toggleClass('hidden-xs');$('.tagsShow').toggleClass('hidden');"><span class="tagsShow">show</span><span class="tagsShow hidden">hide</span> tags</a>
-                    </p>
-                    <span class="hidden-xs" id="tags"></span><p class="small" style="display:none;" id="resetFilter"><a href="javascript:filterTags('');">reset filter</a></p>
-                </div>
-            </div>
-        </div>
-    </div>
     <div id="message" class="alert" style="display:none;"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><span id="messageText"></span></div>
     <div id="waitsign">PLEASE WAIT WHILE WE ARE DECRYPTING YOUR PASSWORD...</div>
     <div id="pwdtable" style="display:none">
     <br />
     <table class="table" id="pwdlist">
+	<thead>
     <tr><th>Account</th><th>Password</th></tr>
+	</thead>
+	<tbody></tbody>
     </table> 
 	<hr />
     </div>
@@ -327,6 +311,7 @@ function countdown()
 <script type="text/javascript">
 var ALPHABET;
 var PWsalt;
+var datatablestatus=null;
 function sanitize_json(s){
     var t=s;
     t=t.replace(/\n/g,'')
@@ -425,25 +410,6 @@ function showMessage(type, message, modal=false){
         $("#messageDialog").modal('show');
     }
 }
-function filterTags(tag){//replace by cleaning up and showing only accounts that fit
-    $("#pwdlist").find("tr").show();
-    if (tag == ""){
-        $("#resetFilter").hide();
-        return;
-    }
-    var jo = $("#pwdlist").find("tr");
-    jo.filter(function (i, v) {
-        if ($(this).has("th").length > 0)
-            return false;
-        var $t = $(this).find(".accounttags");
-        if ($t.is(":contains('" +tag + "')")) {
-            return false;
-        }
-        return true;
-    })
-    .hide();
-    $("#resetFilter").show();
-}
 function dataReady(data){
     data = $.parseJSON(data);
     if (data["status"]=="error") {
@@ -486,8 +452,8 @@ function dataReady(data){
         }
     }
     initFields();
-    showAllTags();
     showtable(accountarray);
+	datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true});
 }
 function initFields() {
     $("textarea#fieldsz").val(JSON.stringify(fields));
@@ -504,41 +470,15 @@ function initFields() {
             input = '<input class="form-control" id="%NAME%iteminput'+x+'" type="'+inputtype+'" placeholder="'+fields[x]["hint"]+'"/>';
         var form = '<div class="form-group field"><label for="%NAME%iteminput'+x+'" class="control-label">'+fields[x]["colname"]+':</label>'+input+'</div>';
         if (("position" in fields[x]) && (fields[x]["position"] != 0)) {
-            $('#pwdlist > tbody > tr:first > th:nth-child('+fields[x]["position"]+')').after(header)
+            $('#pwdlist > thead > tr:first > th:nth-child('+fields[x]["position"]+')').after(header)
             $("#add").find('form > .form-group:nth-child('+fields[x]["position"]+')').after(form.replace(/%NAME%/g,"new"));
             $("#edit").find('form > .form-group:nth-child('+fields[x]["position"]+')').after(form.replace(/%NAME%/g,"edit"));
         }
         else {
-            $("#pwdlist > tbody > tr:first").append(header);
+            $("#pwdlist > thead > tr:first").append(header);
             $("#add").find("form").append(form.replace(/%NAME%/g,"new"));
             $("#edit").find("form").append(form.replace(/%NAME%/g,"edit"));
         }
-    }
-}
-function showAllTags() {
-    function gatherDistinctTags()
-    {
-        var tags = new Array();
-        for (x in accountarray) {
-            if (!("tags" in accountarray[x]["other"]))
-                continue;
-            if (accountarray[x]["other"]["tags"].length>0)
-                tags = tags.concat(accountarray[x]["other"]["tags"].split(',').map(function (str){return str.trim();}));
-        }
-        var unique = [];
-        for(var i = 0; i < tags.length; i++) {
-            if($.inArray(tags[i], unique) < 0) {
-                unique.push(tags[i]);
-            }
-        }
-        return unique.sort(function (a, b) { return a.toLowerCase().localeCompare(b.toLowerCase()); });
-    }
-    var tags = gatherDistinctTags();
-    for (x in tags){
-        $("#tags").append("<a href=\"javascript:filterTags('"+tags[x]+"');\">" + tags[x] + "</a> ");
-    }
-    if (tags.length>0) {
-        $("#tagCloud").show();
     }
 }
 
@@ -549,7 +489,7 @@ function showtable(accounts)
     for(index in accounts) {
         var cols = [
             "<td class='namecell'><span class='accountname' data-id='"+index+"'>"+accounts[index]["name"]+'</span><a title="Edit" class="cellOptionButton" href="javascript: edit('+index+')"><span class="glyphicon glyphicon-wrench"></span></a><a title="Details" class="cellOptionButton" style="margin-right:15px;" href="javascript: showdetail('+index+')"><span class="glyphicon glyphicon-eye-open"></span></a></td>',
-            '<td><span passid="'+index+'" enpassword="'+accounts[index]["enpassword"]+'" id="'+index+'"><a href="javascript: clicktoshow(\''+index+'\')">Click to see</a></span></td>']
+            '<td><span passid="'+index+'" enpassword="'+accounts[index]["enpassword"]+'" id="'+index+'"><a title="Click to see" href="javascript: clicktoshow(\''+index+'\')"><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span></a></span></td>']
             //fill in other
             for (x in fields) {
                 var value="";
@@ -577,9 +517,9 @@ function showtable(accounts)
     }
 }
 function cleanUp() {
+	if(datatablestatus!=null) datatablestatus.destroy();
     accountarray = new Array();
     $("#pwdlist tr").not(':first').remove();
-    $("#tags a").remove();
     $(".field").remove();
 }
 function reloadAccounts() {
@@ -589,6 +529,12 @@ function reloadAccounts() {
 
 $(document).ready(function(){
     $.ajax({url : "password_ajax.php"}).done(dataReady);
+$( window ).resize(function() {
+  if(datatablestatus!=null){
+	  datatablestatus.destroy();
+	  datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true});
+  }
+});
 $("#pinloginform").on('submit',function(e){
     e.preventDefault();
     var pin=$("#pinxx").val();
@@ -885,10 +831,6 @@ $('#edit').on('shown.bs.modal', function () {
 $('#edit').on('hide.bs.modal', function() {
     $(".popover").popover('hide');
 });
-$('#searchForm').submit(function () {
-    filterAccounts($('#srch-term').val());
-    return false;
-    });
 });
 function edit(row){
     var id = row; //row.find("")
@@ -907,7 +849,7 @@ function clicktoshow(id){
 } 
 function clicktohide(id){
     timeout=default_timeout;
-    $("#"+id).html('<a href="javascript: clicktoshow(\''+id+'\')">Click to see</a>'); 
+    $("#"+id).html('<a title="Click to see" href="javascript: clicktoshow(\''+id+'\')"><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span></a>'); 
 }
 function delepw(index)
 {   
@@ -922,26 +864,6 @@ function delepw(index)
             } else showMessage('warning',"Fail to delete "+name+", please try again.", true);
 	 }); 
 	 }
-}
-function filterAccounts(text) {
-    $("tr.datarow").show();
-    if (text==""){
-        $("#resetSearch").hide();
-        $("#srch-term").val('');
-        return;
-    }
-    $("#resetSearch").show();
-    text = text.toLowerCase();
-    text = text.split(" ");
-    $("tr.datarow").filter(function() {
-        var account = accountarray[$(this).data('id')];
-        function isInAccount(account, term) {
-            if (account["name"].toLowerCase().indexOf(term) > -1)
-                return true;
-            return Object.keys(account["other"]).map(function(key){return account["other"][key];}).some(elem => elem.toLowerCase().indexOf(term) > -1);
-        }
-        return !text.every(term => isInAccount(account, term));
-    }).hide();
 }
 function exportcsv()
 {
