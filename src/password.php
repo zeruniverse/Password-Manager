@@ -587,7 +587,7 @@ $("#changefieldsbtn").click(function(){
     if(!isJson(p)) {showMessage('warning', 'illegal format!', true);return;}
     $.post("changefields.php",{fields:a},function(msg){ 
         if(msg==1) {
-            showMessage('success','<strong>Successfull</strong> changed fields!'); 
+            showMessage('success','<strong>Successfully</strong> changed fields!'); 
             $('#changefields').modal('hide');
             reloadAccounts();
         }
