@@ -17,6 +17,8 @@ $record= $res->fetch(PDO::FETCH_ASSOC);
 if($record==FALSE) {session_destroy();header("Location: ./");die();}
 echoheader();
 ?>
+<link rel="stylesheet" type="text/css" href="css/dataTables.bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="css/responsive.dataTables.min.css">
 <div class="container theme-showcase" style="margin-top:-30px;">
     <p id="placeholder">PLEASE WAIT...</p>
     <div id="maindiv" style="display:none">
@@ -40,8 +42,11 @@ echoheader();
         <h1>Login History</h1>
     </div>
     <p>Red entries indicate password error (i.e. error try)</p>
-    <table class="table">
+    <table class="table" id="loginhistorytable">
+	<thead>
     <tr><th>Device Type</th><th>Login IP</th><th>Login Time</th></tr>
+	</thead>
+	<tbody>
     <?php
         $sql="SELECT `ip`,`ua`,`outcome`,UNIX_TIMESTAMP(`time`) AS `time` FROM `history` WHERE `userid`= ? ORDER BY `id` DESC LIMIT 60";
         $res=sqlexec($sql,array($id),$link);
@@ -56,10 +61,14 @@ echoheader();
             echo "<tr".$color."><td class='uacell'>".$ua."</td><td>".$ip."<td class='timestampcell'>".gmdate('Y-m-d-H-i-s',$ctime).'[1aaaaaaa'."</td></tr>";
 		}
     ?>
+	</tbody>
     </table>   
     </div>
 </div>
 <script type="text/javascript" src="ua-parser.min.js"></script>
+<script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="js/dataTables.responsive.min.js"></script>
 <script type="text/javascript">
 function timeConverter(utctime){
   var a = new Date();
@@ -98,6 +107,7 @@ $(document).ready(function(){
        $(this).html(nowtime);
     });
     $("#placeholder").hide();
+	$("#loginhistorytable").DataTable({ordering:false, searching:false});
     $("#maindiv").show();
 });
 function unsetpin(devicex)
