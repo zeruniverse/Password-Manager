@@ -396,7 +396,8 @@ function import_csv(csv){
 //type: any of "success", "info", "warning", "danger"
 //message: text
 //modal: if true shows a modal window
-function showMessage(type, message, modal=false){
+function showMessage(type, message, modal){
+	modal = (typeof modal !== 'undefined') ? modal : false;
     if (modal==false) {
         $("#messageText").html(message);
         $("#message").removeClass("alert-success alert-info alert-warning alert-danger");
