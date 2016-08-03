@@ -34,7 +34,7 @@ echoheader();
             $did=$i['device'];
             $ctime=(int)$i['createtime'];
             $ua=$i['ua'];
-            echo "<tr><td class='uacell'>".$ua."</td><td class='timestampcell'>".gmdate('Y-m-d-H-i-s',$ctime).'[1aaaaaaa'."</td><td><a href='javascript: unsetpin(\"".$did."\")'>Untrust this device</a></td></tr>";
+            echo "<tr><td class='uacell'>".$ua."</td><td class='timestampcell' atttimestamp='".$ctime."'></td><td><a href='javascript: unsetpin(\"".$did."\")'>Untrust this device</a></td></tr>";
 		}
     ?>
     </table>
@@ -58,7 +58,7 @@ echoheader();
                 $color=' style="color:red"';
             else
                 $color='';
-            echo "<tr".$color."><td class='uacell'>".$ua."</td><td>".$ip."<td class='timestampcell'>".gmdate('Y-m-d-H-i-s',$ctime).'[1aaaaaaa'."</td></tr>";
+            echo "<tr".$color."><td class='uacell'>".$ua."</td><td>".$ip."<td class='timestampcell' atttimestamp='".$ctime."'></td></tr>";
 		}
     ?>
 	</tbody>
@@ -71,18 +71,10 @@ echoheader();
 <script type="text/javascript" src="js/dataTables.responsive.min.js"></script>
 <script type="text/javascript">
 function timeConverter(utctime){
-  var a = new Date();
-  var p=utctime.split("[");
-  var g=p[0].split('-');
-  a.setUTCFullYear(g[0]);
-  a.setUTCMonth(g[1]);
-  a.setUTCDate(g[2])
-  a.setUTCHours(g[3]);
-  a.setUTCMinutes(g[4]);
-  a.setUTCSeconds(g[5]);
+  var a = new Date(utctime * 1000);
   var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; 
   var year = String(a.getFullYear());
-  var month = months[a.getMonth()-1];
+  var month = months[a.getMonth()];
   var date = String(a.getDate());
   var hour = String(a.getHours());
   var min = String(a.getMinutes());
@@ -103,7 +95,7 @@ $(document).ready(function(){
        $(this).html(parser.getBrowser().name+' '+parser.getBrowser().version+'; '+parser.getOS().name+' '+parser.getOS().version+'; '+parser.getDevice().model+' '+parser.getCPU().architecture);
     });
     $( ".timestampcell" ).each(function(){
-       nowtime=timeConverter($(this).html());
+       nowtime=timeConverter($(this).attr('atttimestamp'));
        $(this).html(nowtime);
     });
     $("#placeholder").hide();
