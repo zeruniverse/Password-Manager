@@ -1,5 +1,5 @@
 <?php
-$VERSION="9.08";
+$VERSION="9.09-rc";
 
 //****************************************
 //PLEASE SPECIFY THE VARIABLES BELOW
@@ -54,6 +54,9 @@ $ACCOUNT_BAN_TIME=180;
 //TIMEOUT -> LOGOUT
 $BROWSER_TIMEOUT=6; //minutes
 //Automatically logout after no operation for 6 minutes
+
+$SERVER_TIMEOUT=1200; //seconds
+//Automatically logout (at server side) after 1200s since login
 
 //SALT For Encryption
 //Don't change this section after you start using password-manager. Or you can't decrypt your password!
