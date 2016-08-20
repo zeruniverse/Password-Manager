@@ -543,7 +543,7 @@ function showtable(accounts)
         var cols = [
             "<td class='namecell'><span class='accountname' data-id='"+index+"'>"+accounts[index]["name"]+'</span><a title="Edit" class="cellOptionButton" href="javascript: edit('+index+')"><span class="glyphicon glyphicon-wrench"></span></a><a title="Details" class="cellOptionButton" style="margin-right:15px;" href="javascript: showdetail('+index+')"><span class="glyphicon glyphicon-eye-open"></span></a></td>',
             '<td><span passid="'+index+'" enpassword="'+accounts[index]["enpassword"]+'" id="'+index+'"><a title="Click to see" href="javascript: clicktoshow(\''+index+'\')"><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span></a></span></td>'];
-        //fill in other
+        // fill in other
         for (x in fields) {
             var value="";
             if (x in accounts[index]["other"]) {
@@ -558,8 +558,8 @@ function showtable(accounts)
             else
                 cols.push(cell);
         }
+        // create row for datatable
         row = $("<tr class='datarow' data-id="+index+">").append(cols.join(""));
-        //$('#pwdlist > tbody:last-child').append(row);
         datatablestatus.row.add(row);
     }
     $("#waitsign").hide();
@@ -572,9 +572,7 @@ function showtable(accounts)
     datatablestatus.draw();
 }
 function emptyTable() {
-    //$("#pwdlist tr").not(':first').remove();
     datatablestatus.clear();
-    //datatablestatus.destroy();
 }
 function cleanUp() {
     if(datatablestatus!=null) datatablestatus.destroy();
