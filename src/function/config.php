@@ -52,7 +52,7 @@ $ACCOUNT_BAN_TIME=180;
 //block account for 3 minutes
 
 //TIMEOUT -> LOGOUT
-$BROWSER_TIMEOUT=6; //minutes
+$BROWSER_TIMEOUT=360; //seconds
 //Automatically logout after no operation for 6 minutes
 
 $SERVER_TIMEOUT=1200; //seconds

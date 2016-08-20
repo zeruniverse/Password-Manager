@@ -43,8 +43,7 @@ function quitpwd_untrust()
 }
 function countdown()
 {
-    timeout = timeout-1;
-    if(timeout<0) quitpwd();
+    if(timeout < Math.floor(Date.now() / 1000)) quitpwd();
 }
 </script>
 <script type="text/javascript" src="aes.js"></script>
@@ -355,7 +354,7 @@ function import_raw(json){
     function process(){
         var aeskey=json.KEY;
         var x;
-        timeout=100000;
+        timeout=1000000+Math.floor(Date.now() / 1000);
         for(x in json.data){
             other = JSON.stringify({});
             if (json.data[x].length > 2)
@@ -370,7 +369,7 @@ function import_raw(json){
 function import_csv(csv){
     $.getScript( 'js/jquery.csv.js', function() {
         var accarray = $.csv.toObjects(csv);
-        timeout=100000;
+        timeout=1000000+Math.floor(Date.now() / 1000);
         for (x in accarray) {
             var acc = accarray[x]["name"];
             var pass = accarray[x]["password"];
@@ -417,8 +416,8 @@ function dataReady(data){
         window.location.href = './?reason='+encodeURIComponent(data["message"]);
         return;
     }
-    default_timeout = data["default_timeout"] - 1;
-    timeout = default_timeout;
+    default_timeout = data["default_timeout"];
+    timeout = default_timeout+Math.floor(Date.now() / 1000);
     default_letter_used = data["default_letter_used"];
     default_length = data["default_length"];
     salt1 = data["global_salt_1"];
@@ -426,7 +425,7 @@ function dataReady(data){
     user = data["user"];
     fields = $.parseJSON(data["fields"]);
     var accounts = data["accounts"];
-    setInterval(countdown, 60000);
+    setInterval(countdown, 1000);
     
     ALPHABET = default_letter_used;
     PWsalt = salt2;
@@ -541,7 +540,7 @@ $("#pinloginform").on('submit',function(e){
     var pin=$("#pinxx").val();
     var device=getcookie('device');
     var salt=getpwd('abcdefghijklmnopqrstuvwxyz1234567890',500);
-    timeout=default_timeout;
+    timeout=default_timeout+Math.floor(Date.now() / 1000);
     function process()
     {
         $.post("setpin.php",{user:getcookie('username'),device:device,sig:String(CryptoJS.SHA512(pin+salt))},function(msg){
@@ -703,11 +702,11 @@ $("#backuppwdbtn").click(function(){
             element.click();
             document.body.removeChild(element);
             $("#backuppwdbtn").attr('disabled',false);
-            timeout=default_timeout;
+            timeout=default_timeout+Math.floor(Date.now() / 1000);
         }
         function first(callback)
         {
-            timeout=100000;
+            timeout=1000000+Math.floor(Date.now() / 1000);
             a=pbkdf2_enc(secretkey,PWsalt,500);
             callback(cback);
         }
@@ -839,7 +838,7 @@ function edit(row){
     $("#edit").modal("show");
 }
 function clicktoshow(id){ 
-    timeout=default_timeout;
+    timeout=default_timeout+Math.floor(Date.now() / 1000);
     id=parseInt(id);
     var thekey = decryptPassword(accountarray[id]["name"],accountarray[id]["enpassword"]);
     if (thekey==""){
@@ -849,7 +848,7 @@ function clicktoshow(id){
     $("#"+id).html('<span style="font-family:passwordshow"">'+thekey+'</span><a title="Hide" class="cellOptionButton" href="javascript: clicktohide(\''+id+'\')"><span class="glyphicon glyphicon-eye-close"></span></a>');
 } 
 function clicktohide(id){
-    timeout=default_timeout;
+    timeout=default_timeout+Math.floor(Date.now() / 1000);
     $("#"+id).html('<a title="Click to see" href="javascript: clicktoshow(\''+id+'\')"><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span></a>'); 
 }
 function delepw(index)
@@ -869,7 +868,7 @@ function delepw(index)
 function exportcsv()
 {
     var obj=new Array();
-    timeout=100000;
+    timeout=100000+Math.floor(Date.now() / 1000);
     showMessage('info','CSV file contains all your information in plain text format. It\'s dangerous to keep it as a backup. Only use it for transferring your data. Delete it immediately after you\'ve done. Please note the encoding for the csv file is UTF-8. You might need to specify this encoding in order to open this CSV properly in some software that uses ANSI as default encoding such as Microsoft Office.', true);
     var t,x,i;
     for (x in accountarray){
@@ -892,7 +891,7 @@ function exportcsv()
         element.click();
         document.body.removeChild(element);
     });
-    timeout=default_timeout;
+    timeout=default_timeout+Math.floor(Date.now() / 1000);
 }
 function showdetail(index){
     var i=parseInt(index);

@@ -1,20 +1,9 @@
 <?php
-session_start(); 
-if(!isset($_SESSION["loginok"]) || $_SESSION['loginok']!=1) {session_destroy();header("Location: ./");die();}
 require_once("function/sqllink.php");
 require_once("function/basic.php");
 $link=sqllink();
-if(!$link) {session_destroy();header("Location: ./");die();}
-$usr=$_SESSION['user'];
-$pw=$_SESSION['pwd'];
+if(!checksession($link)){header("Location: ./");die();}
 $id = $_SESSION['userid'];
-if($usr==""||$pw=="" || $id=="")  {session_destroy();header("Location: ./");die();}
-
-//CHECK AGAIN, TO AVOID PASSWORD CHANGE IN ANOTHER BROWSER
-$sql="SELECT * FROM `pwdusrrecord` WHERE `username`= ? AND `password`= ? AND `id`= ?";
-$res=sqlexec($sql,array($usr,$pw,$id),$link);
-$record= $res->fetch(PDO::FETCH_ASSOC);
-if($record==FALSE) {session_destroy();header("Location: ./");die();}
 echoheader();
 ?>
 <link rel="stylesheet" type="text/css" href="css/dataTables.bootstrap.min.css">

@@ -3,23 +3,11 @@ function error($msg) {
     echo json_encode(array("status" => "error", "message" => $msg));
     die();
 }
-session_start(); 
-if(!isset($_SESSION["loginok"]) || $_SESSION['loginok']!=1) {session_destroy();error("session not ok");}
 require_once("function/sqllink.php");
 require_once("function/encryption.php");
 $link=sqllink();
-if(!$link) {session_destroy();error("can't connect to database");}
-$usr=$_SESSION['user'];
-$pw=$_SESSION['pwd'];
-$id = $_SESSION['userid'];
-if($usr==""||$pw=="" || $id=="")  {session_destroy();error("something is wrong with the user");}
-
-//CHECK AGAIN, TO AVOID PASSWORD CHANGE IN ANOTHER BROWSER
-$sql="SELECT * FROM `pwdusrrecord` WHERE `username`= ? AND `password`= ? AND `id`= ?";
-$res=sqlexec($sql,array($usr,$pw,$id),$link);
-$record= $res->fetch(PDO::FETCH_ASSOC);
-if($record==FALSE) {session_destroy();error("this user doesn't exist");}
-
+if(!checksession($link)) error("AUTHENTICATION ERROR, PLEASE RELOGIN");
+$id=$_SESSION['userid'];
 $result=array();
 $result["status"] = "success";
 $result["default_timeout"] = $BROWSER_TIMEOUT;
