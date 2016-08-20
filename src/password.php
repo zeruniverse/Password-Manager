@@ -482,7 +482,6 @@ function dataReady(data){
     initFields();
     showAllTags();
     showtable(accountarray);
-	datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true});
 }
 function initFields() {
     $("textarea#fieldsz").val(JSON.stringify(fields));
@@ -543,24 +542,25 @@ function showtable(accounts)
     for(index in accounts) {
         var cols = [
             "<td class='namecell'><span class='accountname' data-id='"+index+"'>"+accounts[index]["name"]+'</span><a title="Edit" class="cellOptionButton" href="javascript: edit('+index+')"><span class="glyphicon glyphicon-wrench"></span></a><a title="Details" class="cellOptionButton" style="margin-right:15px;" href="javascript: showdetail('+index+')"><span class="glyphicon glyphicon-eye-open"></span></a></td>',
-            '<td><span passid="'+index+'" enpassword="'+accounts[index]["enpassword"]+'" id="'+index+'"><a title="Click to see" href="javascript: clicktoshow(\''+index+'\')"><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span></a></span></td>']
-            //fill in other
-            for (x in fields) {
-                var value="";
-                if (x in accounts[index]["other"]) {
-                    value = accounts[index]["other"][x];
-                    if (value!="")
-                        fields[x]["count"] += 1;
-                }
-                var cell = '<td class="'+x+'cell'+fields[x]["cls"]+'"><span class="account'+x+'">'+value+'</span></td>';
-                if (("position" in fields[x]) && (fields[x]["position"] != 0)) {
-                    cols.splice(fields[x]["position"], 0, cell);
-                }
-                else
-                    cols.push(cell);
+            '<td><span passid="'+index+'" enpassword="'+accounts[index]["enpassword"]+'" id="'+index+'"><a title="Click to see" href="javascript: clicktoshow(\''+index+'\')"><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span></a></span></td>'];
+        // fill in other
+        for (x in fields) {
+            var value="";
+            if (x in accounts[index]["other"]) {
+                value = accounts[index]["other"][x];
+                if (value!="")
+                    fields[x]["count"] += 1;
             }
-        row = "<tr class='datarow' data-id="+index+">" + cols.join("") + "</tr>";
-        $('#pwdlist > tbody:last-child').append(row);
+            var cell = '<td class="'+x+'cell'+fields[x]["cls"]+'"><span class="account'+x+'">'+value+'</span></td>';
+            if (("position" in fields[x]) && (fields[x]["position"] != 0)) {
+                cols.splice(fields[x]["position"], 0, cell);
+            }
+            else
+                cols.push(cell);
+        }
+        // create row for datatable
+        row = $("<tr class='datarow' data-id="+index+">").append(cols.join(""));
+        datatablestatus.row.add(row);
     }
     $("#waitsign").hide();
     $("#pwdtable").show();
@@ -569,12 +569,13 @@ function showtable(accounts)
             $("."+x+"cell").remove();
         }
     }
+    datatablestatus.draw();
 }
 function emptyTable() {
-    $("#pwdlist tr").not(':first').remove();
+    datatablestatus.clear();
 }
 function cleanUp() {
-	if(datatablestatus!=null) datatablestatus.destroy();
+    if(datatablestatus!=null) datatablestatus.destroy();
     accountarray = new Array();
     emptyTable();
     $(".field").remove();
@@ -585,7 +586,6 @@ function reloadAccounts() {
 }
 function filterTags(tag){//replace by cleaning up and showing only accounts that fit
     emptyTable();
-    filteredAccounts=
     if (tag == ""){
         $("#resetFilter").hide();
         showtable(accountarray);
@@ -594,13 +594,13 @@ function filterTags(tag){//replace by cleaning up and showing only accounts that
     function filter(account){
         if (!("tags" in account["other"]))
             return false;
-        return (tag in account["other"]["tags"]);
-        
+        return account["other"]["tags"].split(',').map(function (item){ return item.trim(); }).indexOf(tag) > -1;
     }
     showtable(accountarray.filter(filter));
     $("#resetFilter").show();
 }
 $(document).ready(function(){
+    datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true});
     $.ajax({url : "password_ajax.php"}).done(dataReady);
 $( window ).resize(function() {
   if(datatablestatus!=null){
@@ -889,6 +889,9 @@ $("#importbtn").click(function(){
 	}
     }
     setTimeout(process,10);
+});
+$('#add').on('show.bs.modal', function () {
+    $(this).find('form')[0].reset();
 });
 $('#edit').on('shown.bs.modal', function () {
     var id = $("#edit").data('id');
