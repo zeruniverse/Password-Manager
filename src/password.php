@@ -576,9 +576,12 @@ function showtable(accounts)
         }
     }
 }
+function emptyTable() {
+    $("#pwdlist tr").not(':first').remove();
+}
 function cleanUp() {
     accountarray = new Array();
-    $("#pwdlist tr").not(':first').remove();
+    emptyTable();
     $("#tags a").remove();
     $(".field").remove();
 }
