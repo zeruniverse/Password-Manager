@@ -1,22 +1,13 @@
 <?php
-session_start(); 
-if(!isset($_SESSION["loginok"]) || $_SESSION['loginok']!=1) {session_destroy();header("Location: ./");die();}
 require_once("function/sqllink.php");
 require_once("function/basic.php");
 $link=sqllink();
-if(!$link) {session_destroy();header("Location: ./");die();}
-$usr=$_SESSION['user'];
-$pw=$_SESSION['pwd'];
+if(!checksession($link)){header("Location: ./");die();}
 $id = $_SESSION['userid'];
-if($usr==""||$pw=="" || $id=="")  {session_destroy();header("Location: ./");die();}
-
-//CHECK AGAIN, TO AVOID PASSWORD CHANGE IN ANOTHER BROWSER
-$sql="SELECT * FROM `pwdusrrecord` WHERE `username`= ? AND `password`= ? AND `id`= ?";
-$res=sqlexec($sql,array($usr,$pw,$id),$link);
-$record= $res->fetch(PDO::FETCH_ASSOC);
-if($record==FALSE) {session_destroy();header("Location: ./");die();}
 echoheader();
 ?>
+<link rel="stylesheet" type="text/css" href="css/dataTables.bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="css/responsive.dataTables.min.css">
 <div class="container theme-showcase" style="margin-top:-30px;">
     <p id="placeholder">PLEASE WAIT...</p>
     <div id="maindiv" style="display:none">
@@ -32,7 +23,7 @@ echoheader();
             $did=$i['device'];
             $ctime=(int)$i['createtime'];
             $ua=$i['ua'];
-            echo "<tr><td class='uacell'>".$ua."</td><td class='timestampcell'>".gmdate('Y-m-d-H-i-s',$ctime).'[1aaaaaaa'."</td><td><a href='javascript: unsetpin(\"".$did."\")'>Untrust this device</a></td></tr>";
+            echo "<tr><td class='uacell'>".$ua."</td><td class='timestampcell' atttimestamp='".$ctime."'></td><td><a href='javascript: unsetpin(\"".$did."\")'>Untrust this device</a></td></tr>";
 		}
     ?>
     </table>
@@ -40,8 +31,11 @@ echoheader();
         <h1>Login History</h1>
     </div>
     <p>Red entries indicate password error (i.e. error try)</p>
-    <table class="table">
+    <table class="table" id="loginhistorytable">
+	<thead>
     <tr><th>Device Type</th><th>Login IP</th><th>Login Time</th></tr>
+	</thead>
+	<tbody>
     <?php
         $sql="SELECT `ip`,`ua`,`outcome`,UNIX_TIMESTAMP(`time`) AS `time` FROM `history` WHERE `userid`= ? ORDER BY `id` DESC LIMIT 60";
         $res=sqlexec($sql,array($id),$link);
@@ -53,27 +47,23 @@ echoheader();
                 $color=' style="color:red"';
             else
                 $color='';
-            echo "<tr".$color."><td class='uacell'>".$ua."</td><td>".$ip."<td class='timestampcell'>".gmdate('Y-m-d-H-i-s',$ctime).'[1aaaaaaa'."</td></tr>";
+            echo "<tr".$color."><td class='uacell'>".$ua."</td><td>".$ip."<td class='timestampcell' atttimestamp='".$ctime."'></td></tr>";
 		}
     ?>
+	</tbody>
     </table>   
     </div>
 </div>
 <script type="text/javascript" src="ua-parser.min.js"></script>
+<script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="js/dataTables.responsive.min.js"></script>
 <script type="text/javascript">
 function timeConverter(utctime){
-  var a = new Date();
-  var p=utctime.split("[");
-  var g=p[0].split('-');
-  a.setUTCFullYear(g[0]);
-  a.setUTCMonth(g[1]);
-  a.setUTCDate(g[2])
-  a.setUTCHours(g[3]);
-  a.setUTCMinutes(g[4]);
-  a.setUTCSeconds(g[5]);
+  var a = new Date(utctime * 1000);
   var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; 
   var year = String(a.getFullYear());
-  var month = months[a.getMonth()-1];
+  var month = months[a.getMonth()];
   var date = String(a.getDate());
   var hour = String(a.getHours());
   var min = String(a.getMinutes());
@@ -94,10 +84,11 @@ $(document).ready(function(){
        $(this).html(parser.getBrowser().name+' '+parser.getBrowser().version+'; '+parser.getOS().name+' '+parser.getOS().version+'; '+parser.getDevice().model+' '+parser.getCPU().architecture);
     });
     $( ".timestampcell" ).each(function(){
-       nowtime=timeConverter($(this).html());
+       nowtime=timeConverter($(this).attr('atttimestamp'));
        $(this).html(nowtime);
     });
     $("#placeholder").hide();
+	$("#loginhistorytable").DataTable({ordering:false, searching:false});
     $("#maindiv").show();
 });
 function unsetpin(devicex)

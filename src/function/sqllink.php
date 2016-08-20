@@ -31,4 +31,21 @@ function sqlquery($sql,$link)
 {
     return $link->query($sql);
 }
+function checksession($link)
+{
+    global $SERVER_TIMEOUT;
+    session_start();
+    if(!isset($_SESSION['loginok'])||$_SESSION['loginok']!=1) {session_destroy();return FALSE;}
+    if(!$link||!isset($_SESSION['create_time'])||$_SESSION['create_time']+$SERVER_TIMEOUT<time()) {session_destroy(); return FALSE;}
+    $usr=$_SESSION['user'];
+    $pw=$_SESSION['pwd'];
+    $id=$_SESSION['userid'];
+    if($usr==''||$pw==''||$id=='') {session_destroy(); return FALSE;}
+    $sql="SELECT * FROM `pwdusrrecord` WHERE `username`= ? AND `password`= ? AND `id`= ?";
+    $res=sqlexec($sql,array($usr,$pw,$id),$link);
+    $record= $res->fetch(PDO::FETCH_ASSOC);
+    if($record==FALSE) {session_destroy();return FALSE;}
+    $_SESSION['create_time']=time();
+    return TRUE;
+}   
 ?>
