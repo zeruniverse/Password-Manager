@@ -12,7 +12,12 @@ echoheader();
 	margin-top:10px !important;
 }
 </style>
+<link rel="stylesheet" type="text/css" href="css/dataTables.bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="css/responsive.dataTables.min.css">
 <script type="text/javascript" src="setlocalstorage.js"></script>
+<script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="js/dataTables.responsive.min.js"></script>
 <script type="text/javascript">
 //everything is going to be loaded later
 var secretkey;
@@ -38,8 +43,11 @@ function quitpwd_untrust()
 }
 function countdown()
 {
-    timeout = timeout-1;
-    if(timeout<0) quitpwd();
+    if(timeout < Math.floor(Date.now() / 1000)) quitpwd();
+}
+function checksessionalive()
+{
+    $.post("session_alive.php",{u:"1"},function(msg){if(msg=='0') quitpwd();});
 }
 </script>
 <script type="text/javascript" src="aes.js"></script>
@@ -87,7 +95,7 @@ function countdown()
         </div>
         <div class="col-md-4">
             <div class="pull-right-sm" id="rightHandBox">
-                <form id="searchForm">
+                <!--<form id="searchForm">
                   <div class="input-group">
                     <input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
                     <div class="input-group-btn">
@@ -95,7 +103,7 @@ function countdown()
                         <button class="btn btn-default" type="submit" title="search"><i class="glyphicon glyphicon-search"></i></button>
                     </div>
                   </div>
-                </form>
+                </form>-->
                 <div id="tagCloud" style="display:none;">
                     <p class="lead" style="margin-bottom:0">Tag-Overview</p>
                     <p class="visible-xs small" style ="margin-bottom:0;">
@@ -111,7 +119,10 @@ function countdown()
     <div id="pwdtable" style="display:none">
     <br />
     <table class="table" id="pwdlist">
+	<thead>
     <tr><th>Account</th><th>Password</th></tr>
+	</thead>
+	<tbody></tbody>
     </table> 
 	<hr />
     </div>
@@ -316,7 +327,7 @@ function countdown()
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-body">
-                <span class="alert" id="messageDialogText"></span>
+                <div class="alert" id="messageDialogText"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
@@ -327,6 +338,7 @@ function countdown()
 <script type="text/javascript">
 var ALPHABET;
 var PWsalt;
+var datatablestatus=null;
 function sanitize_json(s){
     var t=s;
     t=t.replace(/\n/g,'')
@@ -370,7 +382,7 @@ function import_raw(json){
     function process(){
         var aeskey=json.KEY;
         var x;
-        timeout=100000;
+        timeout=1000000+Math.floor(Date.now() / 1000);
         for(x in json.data){
             other = JSON.stringify({});
             if (json.data[x].length > 2)
@@ -385,7 +397,7 @@ function import_raw(json){
 function import_csv(csv){
     $.getScript( 'js/jquery.csv.js', function() {
         var accarray = $.csv.toObjects(csv);
-        timeout=100000;
+        timeout=1000000+Math.floor(Date.now() / 1000);
         for (x in accarray) {
             var acc = accarray[x]["name"];
             var pass = accarray[x]["password"];
@@ -411,7 +423,8 @@ function import_csv(csv){
 //type: any of "success", "info", "warning", "danger"
 //message: text
 //modal: if true shows a modal window
-function showMessage(type, message, modal=false){
+function showMessage(type, message, modal){
+	modal = (typeof modal !== 'undefined') ? modal : false;
     if (modal==false) {
         $("#messageText").html(message);
         $("#message").removeClass("alert-success alert-info alert-warning alert-danger");
@@ -425,33 +438,14 @@ function showMessage(type, message, modal=false){
         $("#messageDialog").modal('show');
     }
 }
-function filterTags(tag){//replace by cleaning up and showing only accounts that fit
-    $("#pwdlist").find("tr").show();
-    if (tag == ""){
-        $("#resetFilter").hide();
-        return;
-    }
-    var jo = $("#pwdlist").find("tr");
-    jo.filter(function (i, v) {
-        if ($(this).has("th").length > 0)
-            return false;
-        var $t = $(this).find(".accounttags");
-        if ($t.is(":contains('" +tag + "')")) {
-            return false;
-        }
-        return true;
-    })
-    .hide();
-    $("#resetFilter").show();
-}
 function dataReady(data){
     data = $.parseJSON(data);
     if (data["status"]=="error") {
         window.location.href = './?reason='+encodeURIComponent(data["message"]);
         return;
     }
-    default_timeout = data["default_timeout"] - 1;
-    timeout = default_timeout;
+    default_timeout = data["default_timeout"];
+    timeout = default_timeout+Math.floor(Date.now() / 1000);
     default_letter_used = data["default_letter_used"];
     default_length = data["default_length"];
     salt1 = data["global_salt_1"];
@@ -459,8 +453,8 @@ function dataReady(data){
     user = data["user"];
     fields = $.parseJSON(data["fields"]);
     var accounts = data["accounts"];
-    setInterval(countdown, 60000);
-    
+    setInterval(countdown, 1000);
+    setInterval(checksessionalive,30000); 
     ALPHABET = default_letter_used;
     PWsalt = salt2;
 
@@ -488,6 +482,7 @@ function dataReady(data){
     initFields();
     showAllTags();
     showtable(accountarray);
+	datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true});
 }
 function initFields() {
     $("textarea#fieldsz").val(JSON.stringify(fields));
@@ -504,12 +499,12 @@ function initFields() {
             input = '<input class="form-control" id="%NAME%iteminput'+x+'" type="'+inputtype+'" placeholder="'+fields[x]["hint"]+'"/>';
         var form = '<div class="form-group field"><label for="%NAME%iteminput'+x+'" class="control-label">'+fields[x]["colname"]+':</label>'+input+'</div>';
         if (("position" in fields[x]) && (fields[x]["position"] != 0)) {
-            $('#pwdlist > tbody > tr:first > th:nth-child('+fields[x]["position"]+')').after(header)
+            $('#pwdlist > thead > tr:first > th:nth-child('+fields[x]["position"]+')').after(header)
             $("#add").find('form > .form-group:nth-child('+fields[x]["position"]+')').after(form.replace(/%NAME%/g,"new"));
             $("#edit").find('form > .form-group:nth-child('+fields[x]["position"]+')').after(form.replace(/%NAME%/g,"edit"));
         }
         else {
-            $("#pwdlist > tbody > tr:first").append(header);
+            $("#pwdlist > thead > tr:first").append(header);
             $("#add").find("form").append(form.replace(/%NAME%/g,"new"));
             $("#edit").find("form").append(form.replace(/%NAME%/g,"edit"));
         }
@@ -541,7 +536,6 @@ function showAllTags() {
         $("#tagCloud").show();
     }
 }
-
 // accounts as parameter to have the possibility to only show a subset i.e. for pagination
 function showtable(accounts)
 {
@@ -549,7 +543,7 @@ function showtable(accounts)
     for(index in accounts) {
         var cols = [
             "<td class='namecell'><span class='accountname' data-id='"+index+"'>"+accounts[index]["name"]+'</span><a title="Edit" class="cellOptionButton" href="javascript: edit('+index+')"><span class="glyphicon glyphicon-wrench"></span></a><a title="Details" class="cellOptionButton" style="margin-right:15px;" href="javascript: showdetail('+index+')"><span class="glyphicon glyphicon-eye-open"></span></a></td>',
-            '<td><span passid="'+index+'" enpassword="'+accounts[index]["enpassword"]+'" id="'+index+'"><a href="javascript: clicktoshow(\''+index+'\')">Click to see</a></span></td>']
+            '<td><span passid="'+index+'" enpassword="'+accounts[index]["enpassword"]+'" id="'+index+'"><a title="Click to see" href="javascript: clicktoshow(\''+index+'\')"><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span></a></span></td>']
             //fill in other
             for (x in fields) {
                 var value="";
@@ -576,25 +570,50 @@ function showtable(accounts)
         }
     }
 }
-function cleanUp() {
-    accountarray = new Array();
+function emptyTable() {
     $("#pwdlist tr").not(':first').remove();
-    $("#tags a").remove();
+}
+function cleanUp() {
+	if(datatablestatus!=null) datatablestatus.destroy();
+    accountarray = new Array();
+    emptyTable();
     $(".field").remove();
 }
 function reloadAccounts() {
     cleanUp();
     $.ajax({url : "password_ajax.php"}).done(dataReady);
 }
-
+function filterTags(tag){//replace by cleaning up and showing only accounts that fit
+    emptyTable();
+    filteredAccounts=
+    if (tag == ""){
+        $("#resetFilter").hide();
+        showtable(accountarray);
+        return;
+    }
+    function filter(account){
+        if (!("tags" in account["other"]))
+            return false;
+        return (tag in account["other"]["tags"]);
+        
+    }
+    showtable(accountarray.filter(filter));
+    $("#resetFilter").show();
+}
 $(document).ready(function(){
     $.ajax({url : "password_ajax.php"}).done(dataReady);
+$( window ).resize(function() {
+  if(datatablestatus!=null){
+	  datatablestatus.destroy();
+	  datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true});
+  }
+});
 $("#pinloginform").on('submit',function(e){
     e.preventDefault();
     var pin=$("#pinxx").val();
     var device=getcookie('device');
     var salt=getpwd('abcdefghijklmnopqrstuvwxyz1234567890',500);
-    timeout=default_timeout;
+    timeout=default_timeout+Math.floor(Date.now() / 1000);
     function process()
     {
         $.post("setpin.php",{user:getcookie('username'),device:device,sig:String(CryptoJS.SHA512(pin+salt))},function(msg){
@@ -640,7 +659,7 @@ $("#changefieldsbtn").click(function(){
     if(!isJson(p)) {showMessage('warning', 'illegal format!', true);return;}
     $.post("changefields.php",{fields:a},function(msg){ 
         if(msg==1) {
-            showMessage('success','<strong>Successfull</strong> changed fields!'); 
+            showMessage('success','<strong>Successfully</strong> changed fields!'); 
             $('#changefields').modal('hide');
             reloadAccounts();
         }
@@ -756,11 +775,11 @@ $("#backuppwdbtn").click(function(){
             element.click();
             document.body.removeChild(element);
             $("#backuppwdbtn").attr('disabled',false);
-            timeout=default_timeout;
+            timeout=default_timeout+Math.floor(Date.now() / 1000);
         }
         function first(callback)
         {
-            timeout=100000;
+            timeout=1000000+Math.floor(Date.now() / 1000);
             a=pbkdf2_enc(secretkey,PWsalt,500);
             callback(cback);
         }
@@ -885,10 +904,6 @@ $('#edit').on('shown.bs.modal', function () {
 $('#edit').on('hide.bs.modal', function() {
     $(".popover").popover('hide');
 });
-$('#searchForm').submit(function () {
-    filterAccounts($('#srch-term').val());
-    return false;
-    });
 });
 function edit(row){
     var id = row; //row.find("")
@@ -896,7 +911,7 @@ function edit(row){
     $("#edit").modal("show");
 }
 function clicktoshow(id){ 
-    timeout=default_timeout;
+    timeout=default_timeout+Math.floor(Date.now() / 1000);
     id=parseInt(id);
     var thekey = decryptPassword(accountarray[id]["name"],accountarray[id]["enpassword"]);
     if (thekey==""){
@@ -906,8 +921,8 @@ function clicktoshow(id){
     $("#"+id).html('<span style="font-family:passwordshow"">'+thekey+'</span><a title="Hide" class="cellOptionButton" href="javascript: clicktohide(\''+id+'\')"><span class="glyphicon glyphicon-eye-close"></span></a>');
 } 
 function clicktohide(id){
-    timeout=default_timeout;
-    $("#"+id).html('<a href="javascript: clicktoshow(\''+id+'\')">Click to see</a>'); 
+    timeout=default_timeout+Math.floor(Date.now() / 1000);
+    $("#"+id).html('<a title="Click to see" href="javascript: clicktoshow(\''+id+'\')"><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span></a>'); 
 }
 function delepw(index)
 {   
@@ -923,30 +938,10 @@ function delepw(index)
 	 }); 
 	 }
 }
-function filterAccounts(text) {
-    $("tr.datarow").show();
-    if (text==""){
-        $("#resetSearch").hide();
-        $("#srch-term").val('');
-        return;
-    }
-    $("#resetSearch").show();
-    text = text.toLowerCase();
-    text = text.split(" ");
-    $("tr.datarow").filter(function() {
-        var account = accountarray[$(this).data('id')];
-        function isInAccount(account, term) {
-            if (account["name"].toLowerCase().indexOf(term) > -1)
-                return true;
-            return Object.keys(account["other"]).map(function(key){return account["other"][key];}).some(elem => elem.toLowerCase().indexOf(term) > -1);
-        }
-        return !text.every(term => isInAccount(account, term));
-    }).hide();
-}
 function exportcsv()
 {
     var obj=new Array();
-    timeout=100000;
+    timeout=100000+Math.floor(Date.now() / 1000);
     showMessage('info','CSV file contains all your information in plain text format. It\'s dangerous to keep it as a backup. Only use it for transferring your data. Delete it immediately after you\'ve done. Please note the encoding for the csv file is UTF-8. You might need to specify this encoding in order to open this CSV properly in some software that uses ANSI as default encoding such as Microsoft Office.', true);
     var t,x,i;
     for (x in accountarray){
@@ -969,7 +964,7 @@ function exportcsv()
         element.click();
         document.body.removeChild(element);
     });
-    timeout=default_timeout;
+    timeout=default_timeout+Math.floor(Date.now() / 1000);
 }
 function showdetail(index){
     var i=parseInt(index);

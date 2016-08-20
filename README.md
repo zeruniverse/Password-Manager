@@ -7,16 +7,19 @@
 **'master' branch is a dev-branch, please download stable version from [Release](https://github.com/zeruniverse/Password-Manager/releases) in order to use.**      
   
 ##Version
-v9.08s  
+v9.09-rc  
 From v9.0, this project becomes mature. I've implemented all features planned when I started this project.       
 There will still be infrequent bug fixes and improvements though.  
 Supports are available [here](https://github.com/zeruniverse/Password-Manager/issues) for versions greater than v9.0   
 Older versions will not be supported anymore. Please upgrade to versions later than v9.0    
   
 ##DEMO  
-[pas.jeffery.cc](http://pas.jeffery.cc/)  
-This demo is for test purpose and might be unstable.     
+[phppasswordmanager.sourceforge.net](http://phppasswordmanager.sourceforge.net/)  
 This demo is for test ONLY! Do NOT put your real password there.  
+You can access the database for this demo [here](https://mysql-p.sourceforge.net), with login username **p2663268ro** and password **12345678**   
+  
+Additional test demo available here: [pas.jeffery.cc](http://pas.jeffery.cc/)  
+This demo is for test purpose and might be unstable.  
     
 ##Mechanism 
 This password manager can generate and store random strong passwords for users. Passwords are generated on users' browsers and then encrypted using AES256 (mode CBC).  
@@ -135,6 +138,8 @@ For your passwords safety, your login password to password manager won't be incl
 You can easily add E-mail verification, Google authentication... in your version of password manager. Put your implementation inside `check.php`, which is used for login authentication.   
   
 ##Copyright  
-Jeffery Zhao  
-License: MIT     
-The copyright for Crypto-JS and Bootstrap are reserved by their authors.  
+Jeffery Zhao (Full list in LICENSE file)   
+License: MIT  
+The copyrights for libraries (such as Crypto-JS and Bootstrap) are reserved by their authors.    
+Cooperators with significant contributions will become co-owner of this copyright and noted in LICENSE.   
+All contributors to this project must agree their work to be published under MIT license ONLY (see LICENSE file) before submitting a pull request.   
