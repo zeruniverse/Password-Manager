@@ -18,7 +18,7 @@ require_once("function/encryption.php");
 $link=sqllink();
 if(!checksession($link)) die("0");
 $id = $_SESSION['userid'];
-
+$usr=$_SESSION['user'];
 $username=$_POST['user'];
 $device=$_POST['device'];
 $sig=$_POST['sig'];

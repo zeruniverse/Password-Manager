@@ -1,5 +1,4 @@
 <?php
-session_start();
 require_once("function/sqllink.php");
 require_once("function/encryption.php");
 $link=sqllink();

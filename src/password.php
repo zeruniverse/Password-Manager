@@ -45,6 +45,10 @@ function countdown()
 {
     if(timeout < Math.floor(Date.now() / 1000)) quitpwd();
 }
+function checksessionalive()
+{
+    $.post("session_alive.php",{u:"1"},function(msg){if(msg=='0') quitpwd();});
+}
 </script>
 <script type="text/javascript" src="aes.js"></script>
 <script type="text/javascript" src="sha512.js"></script>
@@ -426,7 +430,7 @@ function dataReady(data){
     fields = $.parseJSON(data["fields"]);
     var accounts = data["accounts"];
     setInterval(countdown, 1000);
-    
+    setInterval(checksessionalive,5000); 
     ALPHABET = default_letter_used;
     PWsalt = salt2;
 
