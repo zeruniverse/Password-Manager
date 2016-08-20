@@ -890,6 +890,9 @@ $("#importbtn").click(function(){
     }
     setTimeout(process,10);
 });
+$('#add').on('show.bs.modal', function () {
+    $(this).find('form')[0].reset();
+});
 $('#edit').on('shown.bs.modal', function () {
     var id = $("#edit").data('id');
     $("#editAccountShowPassword").removeClass("collapse");
