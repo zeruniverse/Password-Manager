@@ -430,7 +430,7 @@ function dataReady(data){
     fields = $.parseJSON(data["fields"]);
     var accounts = data["accounts"];
     setInterval(countdown, 1000);
-    setInterval(checksessionalive,5000); 
+    setInterval(checksessionalive,30000); 
     ALPHABET = default_letter_used;
     PWsalt = salt2;
 
