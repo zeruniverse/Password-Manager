@@ -46,6 +46,7 @@ function checksession($link)
     $record= $res->fetch(PDO::FETCH_ASSOC);
     if($record==FALSE) {session_destroy();return FALSE;}
     $_SESSION['create_time']=time();
+	setcookie("ServerRenew", "1");
     return TRUE;
 }   
 ?>

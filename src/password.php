@@ -22,6 +22,8 @@ echoheader();
 //everything is going to be loaded later
 var secretkey;
 var default_timeout;
+var server_timeout;
+var default_server_timeout;
 var timeout;
 var default_letter_used;
 var default_length;
@@ -47,7 +49,27 @@ function countdown()
 }
 function checksessionalive()
 {
-    $.post("session_alive.php",{u:"1"},function(msg){if(msg=='0') quitpwd();});
+    function getCookie(cname) {
+		var name = cname + "=";
+		var ca = document.cookie.split(';');
+		for(var i = 0; i <ca.length; i++) {
+			var c = ca[i];
+			while (c.charAt(0)==' ') {
+				c = c.substring(1);
+			}
+			if (c.indexOf(name) == 0) {
+				return c.substring(name.length,c.length);
+			}
+		}
+		return "-1";
+	}
+	function setCookie(cname, cvalue) {
+		document.cookie = cname + "=" + cvalue + "; ";
+	}
+	var ck=getCookie("ServerRenew");
+	if(ck=='1') server_timeout=default_server_timeout+Math.floor(Date.now() / 1000);
+	if(ck=="-1"||server_timeout<Math.floor(Date.now() / 1000)) quitpwd();
+	setCookie("ServerRenew",'0');
 }
 </script>
 <script type="text/javascript" src="aes.js"></script>
@@ -445,6 +467,8 @@ function dataReady(data){
         return;
     }
     default_timeout = data["default_timeout"];
+	default_server_timeout = data["server_timeout"];
+	server_timeout = default_server_timeout+Math.floor(Date.now() / 1000);
     timeout = default_timeout+Math.floor(Date.now() / 1000);
     default_letter_used = data["default_letter_used"];
     default_length = data["default_length"];
@@ -454,7 +478,7 @@ function dataReady(data){
     fields = $.parseJSON(data["fields"]);
     var accounts = data["accounts"];
     setInterval(countdown, 1000);
-    setInterval(checksessionalive,30000); 
+    setInterval(checksessionalive,1000); 
     ALPHABET = default_letter_used;
     PWsalt = salt2;
 
