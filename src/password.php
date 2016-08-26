@@ -624,12 +624,12 @@ function filterTags(tag){//replace by cleaning up and showing only accounts that
     $("#resetFilter").show();
 }
 $(document).ready(function(){
-    datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true});
+    datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true, "lengthMenu": [ [10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"] ] });
     $.ajax({url : "password_ajax.php"}).done(dataReady);
 $( window ).resize(function() {
   if(datatablestatus!=null){
 	  datatablestatus.destroy();
-	  datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true});
+	  datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true, "lengthMenu": [ [10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"] ] });
   }
 });
 $("#pinloginform").on('submit',function(e){
