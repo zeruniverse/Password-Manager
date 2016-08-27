@@ -599,7 +599,6 @@ function emptyTable() {
     datatablestatus.clear();
 }
 function cleanUp() {
-    if(datatablestatus!=null) datatablestatus.destroy();
     accountarray = new Array();
     emptyTable();
     $(".field").remove();
