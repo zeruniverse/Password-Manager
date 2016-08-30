@@ -32,6 +32,7 @@ var salt2;
 var user;
 var fields;
 var accountarray=new Array();
+var visibleAccounts;
 function quitpwd()
 {
     delpwdstore(); window.location.href="./logout.php";
@@ -127,7 +128,7 @@ function checksessionalive()
                   </div>
                 </form>-->
                 <div id="tagCloud" style="display:none;">
-                    <p class="lead" style="margin-bottom:0">Tag-Overview</p>
+                    <p class="lead" style="margin-bottom:0">Tag-Overview<a href="javascript:enableGrouping();" id="orderTags" name="enable grouping" class="small" style="padding-left:10px"><span class="glyphicon glyphicon-sort-by-attributes"></span></a><a href="javascript:disableGrouping();" id="orderTagsDisable" name="disable grouping" class="small" style="padding-eleft:10px; display:none;"><span class="glyphicon glyphicon-remove"></span></a></p>
                     <p class="visible-xs small" style ="margin-bottom:0;">
                         <a href="javascript:$('#tags').toggleClass('hidden-xs');$('.tagsShow').toggleClass('hidden');"><span class="tagsShow">show</span><span class="tagsShow hidden">hide</span> tags</a>
                     </p>
@@ -361,6 +362,8 @@ function checksessionalive()
 var ALPHABET;
 var PWsalt;
 var datatablestatus=null;
+var preDrawCallback = function( api, settings ) {};
+var preShowPreparation = function (accounts){ return accounts; };// if you change the array make a copy before sorting! So indexes stay the same in the original array
 function sanitize_json(s){
     var t=s;
     t=t.replace(/\n/g,'')
@@ -491,7 +494,7 @@ function dataReady(data){
 
     for(var i = 0; i<accounts.length; i++) {
         index = accounts[i]["index"];
-        accountarray[index] = { other: {} };
+        accountarray[index] = { "index":index, "other": {} };
         accountarray[index]["name"] = decryptchar(accounts[i]["name"],secretkey);
         accountarray[index]["enpassword"] = accounts[i]["kss"];
         if (accounts[i]["additional"] != "")
@@ -505,7 +508,7 @@ function dataReady(data){
     }
     initFields();
     showAllTags();
-    showtable(accountarray);
+    showTable(accountarray);
 }
 function initFields() {
     $("textarea#fieldsz").val(JSON.stringify(fields));
@@ -552,21 +555,24 @@ function showAllTags() {
         return unique.sort(function (a, b) { return a.toLowerCase().localeCompare(b.toLowerCase()); });
     }
     var tags = gatherDistinctTags();
+    $('#tags').empty();
     for (x in tags){
-        $("#tags").append("<a href=\"javascript:filterTags('"+tags[x]+"');\">" + tags[x] + "</a> ");
+        $("#tags").append("<a href=\"#\" onclick=\"$(this).addClass('activeTag');filterTags('"+tags[x]+"');\">" + tags[x] + "</a> ");
     }
     if (tags.length>0) {
         $("#tagCloud").show();
     }
 }
 // accounts as parameter to have the possibility to only show a subset i.e. for pagination
-function showtable(accounts)
+function showTable(accounts)
 {
+    accounts=preShowPreparation(accounts);
+    visibleAccounts=accounts;
     var tempchar;
     for(index in accounts) {
         var cols = [
-            "<td class='namecell'><span class='accountname' data-id='"+index+"'>"+accounts[index]["name"]+'</span><a title="Edit" class="cellOptionButton" href="javascript: edit('+index+')"><span class="glyphicon glyphicon-wrench"></span></a><a title="Details" class="cellOptionButton" style="margin-right:15px;" href="javascript: showdetail('+index+')"><span class="glyphicon glyphicon-eye-open"></span></a></td>',
-            '<td><span passid="'+index+'" enpassword="'+accounts[index]["enpassword"]+'" id="'+index+'"><a title="Click to see" href="javascript: clicktoshow(\''+index+'\')"><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span></a></span></td>'];
+            "<td class='namecell'><span class='accountname' data-id='"+accounts[index]["index"]+"'>"+accounts[index]["name"]+'</span><a title="Edit" class="cellOptionButton" href="javascript: edit('+accounts[index]["index"]+')"><span class="glyphicon glyphicon-wrench"></span></a><a title="Details" class="cellOptionButton" style="margin-right:15px;" href="javascript: showdetail('+accounts[index]["index"]+')"><span class="glyphicon glyphicon-eye-open"></span></a></td>',
+            '<td><span passid="'+accounts[index]["index"]+'" enpassword="'+accounts[index]["enpassword"]+'" id="'+accounts[index]["index"]+'"><a title="Click to see" href="javascript: clicktoshow(\''+accounts[index]["index"]+'\')"><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span></a></span></td>'];
         // fill in other
         for (x in fields) {
             var value="";
@@ -583,7 +589,7 @@ function showtable(accounts)
                 cols.push(cell);
         }
         // create row for datatable
-        row = $("<tr class='datarow' data-id="+index+">").append(cols.join(""));
+        row = $("<tr class='datarow' data-id="+accounts[index]["index"]+">").append(cols.join(""));
         datatablestatus.row.add(row);
     }
     $("#waitsign").hide();
@@ -611,7 +617,8 @@ function filterTags(tag){//replace by cleaning up and showing only accounts that
     emptyTable();
     if (tag == ""){
         $("#resetFilter").hide();
-        showtable(accountarray);
+        $("#tags>a").removeClass('activeTag');
+        showTable(accountarray);
         return;
     }
     function filter(account){
@@ -619,16 +626,63 @@ function filterTags(tag){//replace by cleaning up and showing only accounts that
             return false;
         return account["other"]["tags"].split(',').map(function (item){ return item.trim(); }).indexOf(tag) > -1;
     }
-    showtable(accountarray.filter(filter));
+    showTable(visibleAccounts.filter(filter));
     $("#resetFilter").show();
 }
+function enableGrouping(){
+    preDrawCallback = function( api, settings ) {
+        var rows = api.rows( {page:'current'} ).nodes();
+        var last = null;
+        $(rows.to$()).each(
+            function ( index, row ) {
+                dbentry = accountarray[$(row).data('id')];
+                firsttag = null;
+                if (! 'tags' in dbentry["other"])
+                    firsttag = null;
+                else
+                    firsttag = dbentry["other"]["tags"].split(',')[0].trim();
+                if ( last !== firsttag) {
+                    $(row).before( '<tr class="group"><td colspan="5"><strong>&nbsp;&nbsp;'+firsttag+'</strong></td></tr>');
+                    last = firsttag;
+                }
+            });
+    };
+    preShowPreparation=function(accounts) {
+        ordering = function (a,b){
+            if (!"tags" in a["other"])
+                return 1;
+            if (!"tags" in b["other"])
+                return -1;
+            atags = a["other"]["tags"].toLowerCase();
+            btags = b["other"]["tags"].toLowerCase();
+            if (atags < btags)
+                return -1;
+            if (atags > btags)
+                return 1;
+            return 0;
+        };
+        return accounts.concat().sort(ordering);
+
+    }
+    emptyTable();
+    showTable(visibleAccounts);
+    $('#orderTags').hide();
+    $('#orderTagsDisable').show();
+}
+function disableGrouping(){
+    preDrawCallback = function( api, settings ) {};
+    preShowPreparation = function( accounts ) { return accounts; };
+    showTable(visibleAccounts);
+    $('#orderTags').show();
+    $('#orderTagsDisable').hide();
+}
 $(document).ready(function(){
-    datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true, "lengthMenu": [ [10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"] ] });
+    datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true, drawCallback: function(settings) { preDrawCallback( this.api(), settings);}, "lengthMenu": [ [10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"] ] });
     $.ajax({url : "password_ajax.php"}).done(dataReady);
 $( window ).resize(function() {
   if(datatablestatus!=null){
 	  datatablestatus.destroy();
-	  datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true, "lengthMenu": [ [10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"] ] });
+	  datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true, drawCallback: function(settings) { preDrawCallback( this.api(), settings);}, "lengthMenu": [ [10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"] ] });
   }
 });
 $("#pinloginform").on('submit',function(e){

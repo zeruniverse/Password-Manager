@@ -2,7 +2,9 @@ body {padding-top: 50px; width:100%;}
 /*.theme-showcase{max-width:100%;}*/
 .cellOptionButton {float:right; }
 /* Tags */
-#rightHandBox{margin-top:10px; padding:5px; }
+#rightHandBox {margin-top:10px; padding:5px; }
+.group { background-color:#f8f8f8; }
+.activeTag { text-decoration:underline; }
 
 .namecell, .usercell {
     word-wrap: break-word;
@@ -47,3 +49,4 @@ body {padding-top: 50px; width:100%;}
     font-size: 16px; 
     height: auto;
 }
+
