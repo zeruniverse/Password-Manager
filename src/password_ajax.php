@@ -28,7 +28,7 @@ while ($i = $res->fetch(PDO::FETCH_ASSOC)){
 }
 $result["accounts"] = $accounts;
 
-$sql = "SELECT `index`,`fname`,`key` FROM `files` WHERE `userid` = ?"
+$sql = "SELECT `index`,`fname`,`key` FROM `files` WHERE `userid` = ?";
 $res = sqlexec($sql,array($id),$link);
 $fdata = array();
 while ($i = $res->fetch(PDO::FETCH_ASSOC)){ 
