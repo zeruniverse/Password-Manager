@@ -128,7 +128,7 @@ function checksessionalive()
                   </div>
                 </form>-->
                 <div id="tagCloud" style="display:none;">
-                    <p class="lead" style="margin-bottom:0">Tag-Overview<a href="javascript:enableGrouping();" id="orderTags" name="enable grouping" class="small" style="padding-left:10px"><span class="glyphicon glyphicon-sort-by-attributes"></span></a><a href="javascript:disableGrouping();" id="orderTagsDisable" name="disable grouping" class="small" style="padding-eleft:10px; display:none;"><span class="glyphicon glyphicon-remove"></span></a></p>
+                    <p class="lead" style="margin-bottom:0">Tag-Overview<a href="javascript:enableGrouping();" id="orderTags" name="enable grouping" class="small" style="padding-left:10px"><span class="glyphicon glyphicon-sort-by-attributes"></span></a><a href="javascript:disableGrouping();" id="orderTagsDisable" name="disable grouping" class="small" style="padding-left:10px; display:none;"><span class="glyphicon glyphicon-remove"></span></a></p>
                     <p class="visible-xs small" style ="margin-bottom:0;">
                         <a href="javascript:$('#tags').toggleClass('hidden-xs');$('.tagsShow').toggleClass('hidden');"><span class="tagsShow">show</span><span class="tagsShow hidden">hide</span> tags</a>
                     </p>
