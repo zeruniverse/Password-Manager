@@ -316,6 +316,31 @@ function checksessionalive()
         </div>
     </div>
 </div>
+
+<div class="modal" tabindex="-1" role="dialog" id="uploadfiledlg">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4>Upload attached file</h4>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="uploadf" class="control-label">You can upload one attachment for <span id="uploadfitemlab1" style="font-weight: bold;"></span>.</label>
+                        <input type="file" id="uploadf" />
+                        <label class="small" style="display:block; clear:both; color:red">Warning: If you already have an attachment for <span id="uploadfitemlab2" style="font-weight: bold;"></span>, the old attachment will be overwritten. Maximal file size allowed is 3MB.</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="uploadfilebtn">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal" tabindex="-1" role="dialog" id="changepwd">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -358,10 +383,23 @@ function checksessionalive()
         </div>
     </div>
 </div>
+
+<div class="modal" tabindex="-1" role="dialog" id="messagewait">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                Please wait while we download and decrypt your file! Your download should start automatically.
+            </div>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript">
 var ALPHABET;
 var PWsalt;
 var datatablestatus=null;
+var fileid=-1;
+var file_enabled;
 var preDrawCallback = function( api, settings ) {};
 var preShowPreparation = function (accounts){ return accounts; };// if you change the array make a copy before sorting! So indexes stay the same in the original array
 function sanitize_json(s){
@@ -471,6 +509,7 @@ function dataReady(data){
     }
     default_timeout = data["default_timeout"];
 	default_server_timeout = data["server_timeout"];
+    file_enabled=data['file_enabled'];
 	server_timeout = default_server_timeout+Math.floor(Date.now() / 1000);
     timeout = default_timeout+Math.floor(Date.now() / 1000);
     default_letter_used = data["default_letter_used"];
@@ -480,6 +519,7 @@ function dataReady(data){
     user = data["user"];
     fields = $.parseJSON(data["fields"]);
     var accounts = data["accounts"];
+    var fdata=data["fdata"];
     setInterval(countdown, 1000);
     setInterval(checksessionalive,1000); 
     ALPHABET = default_letter_used;
@@ -493,8 +533,9 @@ function dataReady(data){
     secretkey=String(CryptoJS.SHA512(secretkey0+salt2));
 
     for(var i = 0; i<accounts.length; i++) {
-        index = accounts[i]["index"];
+        var index = accounts[i]["index"];
         accountarray[index] = { "index":index, "other": {} };
+        accountarray[index]["fname"]=''; 
         accountarray[index]["name"] = decryptchar(accounts[i]["name"],secretkey);
         accountarray[index]["enpassword"] = accounts[i]["kss"];
         if (accounts[i]["additional"] != "")
@@ -506,6 +547,12 @@ function dataReady(data){
 
         }
     }
+    for(var i = 0; i<fdata.length; i++) {
+        var index = fdata[i]["index"];
+        accountarray[index]['fname'] = decryptchar(fdata[i]['fname'],secretkey);
+        accountarray[index]['fkey'] = fdata[i]['fkey'];
+    }
+
     initFields();
     showAllTags();
     showTable(accountarray);
@@ -572,7 +619,13 @@ function showTable(accounts)
     for(index in accounts) {
         var cols = [
             "<td class='namecell'><span class='accountname' data-id='"+accounts[index]["index"]+"'>"+accounts[index]["name"]+'</span><a title="Edit" class="cellOptionButton" href="javascript: edit('+accounts[index]["index"]+')"><span class="glyphicon glyphicon-wrench"></span></a><a title="Details" class="cellOptionButton" style="margin-right:15px;" href="javascript: showdetail('+accounts[index]["index"]+')"><span class="glyphicon glyphicon-eye-open"></span></a></td>',
-            '<td><span passid="'+accounts[index]["index"]+'" enpassword="'+accounts[index]["enpassword"]+'" id="'+accounts[index]["index"]+'"><a title="Click to see" href="javascript: clicktoshow(\''+accounts[index]["index"]+'\')"><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span></a></span></td>'];
+            '<td><span passid="'+accounts[index]["index"]+'" enpassword="'+accounts[index]["enpassword"]+'" id="'+accounts[index]["index"]+'"><a title="Click to see" href="javascript: clicktoshow(\''+accounts[index]["index"]+'\')"><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span></a></span></td>'];
+        //add file buttons
+        var downiconstatus;
+        if(accounts[index]["fname"]!='') downiconstatus='margin-right:15px;'; else downiconstatus="display:none;";
+        if(file_enabled==1) cols = [
+            "<td class='namecell'><span class='accountname' data-id='"+accounts[index]["index"]+"'>"+accounts[index]["name"]+'</span><a title="Upload file" class="cellOptionButton" href="javascript: showuploadfiledlg('+accounts[index]["index"]+')"><span class="glyphicon glyphicon-arrow-up"></span></a><a title="Edit" style="margin-right:15px;" class="cellOptionButton" href="javascript: edit('+accounts[index]["index"]+')"><span class="glyphicon glyphicon-wrench"></span></a><a title="Download '+accounts[index]['fname']+'" class="cellOptionButton" style="'+downiconstatus+'" href="javascript: downloadf('+accounts[index]["index"]+')"><span class="glyphicon glyphicon-arrow-down"></span></a><a title="Details" class="cellOptionButton" style="margin-right:15px;" href="javascript: showdetail('+accounts[index]["index"]+')"><span class="glyphicon glyphicon-eye-open"></span></a></td>',
+            '<td><span passid="'+accounts[index]["index"]+'" enpassword="'+accounts[index]["enpassword"]+'" id="'+accounts[index]["index"]+'"><a title="Click to see" href="javascript: clicktoshow(\''+accounts[index]["index"]+'\')"><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span></a></span></td>'];
         // fill in other
         for (x in fields) {
             var value="";
@@ -906,20 +959,24 @@ $("#changepw").click(function(){
         var postnewpass=pbkdf2_enc(login_sig, salt1, 500);
         //NOTE: login_sig here is the secret_key generated when login.
         var newconfkey=pbkdf2_enc(String(CryptoJS.SHA512(newpass+login_sig)), salt1, 500); 
-        var x,raw_pass;
+        var x,raw_pass,raw_fkey;
         var temps;
         var passarray=new Array();
         var accarray=new Array();
         for (x in accountarray)
         {
-            accarray[x]={"name": encryptchar(accountarray[x]["name"],newsecretkey), "other": encryptchar(JSON.stringify(accountarray[x]["other"]),newsecretkey)};
+            accarray[x]={"name": encryptchar(accountarray[x]["name"],newsecretkey), "is_f":1, "fname": encryptchar(accountarray[x]["fname"],newsecretkey),"other": encryptchar(JSON.stringify(accountarray[x]["other"]),newsecretkey)};
+            if(accountarray[x]["fname"]=='') accarray['is_f']=0;
+            raw_fkey='1';
             raw_pass=decryptPassword(accountarray[x]["name"],accountarray[x]["enpassword"]);
-            if (raw_pass=="") {
+            if(accountarray[x]["fname"]!='') raw_fkey=decryptPassword(accountarray[x]['fname'],accountarray[x]['fkey']);
+            if (raw_pass==""||raw_fkey=='') {
                 showMessage('danger',"FATAL ERROR WHEN TRYING TO DECRYPT ALL PASSWORDS", true);
                 return;
             }
             raw_pass=gen_temp_pwd(newconfkey,PWsalt,String(CryptoJS.SHA512(accountarray[x]["name"])),ALPHABET,raw_pass);
-            passarray[x]=encryptchar(raw_pass,newsecretkey);
+            raw_fkey=gen_temp_pwd(newconfkey,PWsalt,String(CryptoJS.SHA512(accountarray[x]["fname"])),ALPHABET,raw_fkey);
+            passarray[x]={"pw":encryptchar(raw_pass,newsecretkey), "fk":encryptchar(raw_fkey,newsecretkey)};
         }
         $.post("changeuserpw.php",{newpass:String(CryptoJS.SHA512(postnewpass+user)), passarray:JSON.stringify(passarray), accarray:JSON.stringify(accarray)},function(msg){ 
             if(msg==1) {
@@ -967,6 +1024,78 @@ $("#importbtn").click(function(){
     }
     setTimeout(process,10);
 });
+
+
+$("#uploadfilebtn").click(function(){ 
+    $("#uploadfilebtn").attr("disabled",true);
+    $("#uploadfilebtn").html("Processing...");
+    $("#uploadf").attr("disabled",true);
+    function bk(){
+        $("#uploadfilebtn").attr("disabled",false);
+        $("#uploadfilebtn").html("Submit");
+        $("#uploadf").attr("disabled",false);
+    }
+    function process(){
+        if (window.FileReader) {
+        // FileReader are supported.
+        var reader = new FileReader();
+        var a=$("#uploadf")[0].files;
+        var fname='';
+        if (a && a[0]){
+            reader.onload = function (e) {
+                var data = e.target.result;
+                try{
+                    var fkey=getpwd(default_letter_used,Math.floor(Math.random()*18)+19);
+                    var enfkey=encryptPassword(fname,fkey);
+                    var endata=encryptchar(data,fkey);
+                    var enfname=encryptchar(fname,secretkey);
+                    $.post('uploadfile.php',{id:fileid,fkey:enfkey,fname:enfname,data:endata},function(msg){
+                        if(msg=='1') {$('#uploadfiledlg').modal("hide"); showMessage('success','File uploaded!', false); reloadAccounts();}
+                        else {$('#uploadfiledlg').modal("hide"); showMessage('danger','ERROR! Try again!', false); reloadAccounts();}
+                    });
+                }catch (error) {$('#uploadfiledlg').modal("hide"); showMessage('warning','Some error occurs!', true); reloadAccounts();}
+            }
+            reader.onerror = function (e) {
+                showMessage('warning','Error reading file!', true);
+                bk();
+            }
+            var fname = a[0].name;
+            if(fname==''){
+                showMessage('warning','File selected doesn\'t have a name!', true); bk(); return;
+            }
+            reader.readAsDataURL(a[0]);          
+        } else {showMessage('warning','NO FILE SELECTED', true); bk();}
+    } else {
+        showMessage('warning','FileReader are not supported in this browser.', true);
+    }
+    }
+    setTimeout(process,10);
+});
+
+function downloadf(id){ 
+    $("#messagewait").modal("show");
+    $.post('downloadfile.php',{id:id},function(msg){
+        var filedata=$.parseJSON(msg);
+        if(filedata['status']=="error") showMessage('danger','ERROR! '+filedata['message'], false);
+        else{
+            var fname = accountarray[id]['fname'];
+            if(fname=='') showMessage('danger','ERROR! '+filedata['message'], false);
+            else{
+                var fkey = decryptPassword(fname,filedata['key']);
+                var data = decryptchar(filedata['data'],fkey);
+                var element = document.createElement('a');
+                element.setAttribute('href', data);
+                element.setAttribute('download', fname);
+                element.style.display = 'none';
+                document.body.appendChild(element);
+                element.click();
+                document.body.removeChild(element);
+            }
+        }
+        $("#messagewait").modal("hide");
+    });
+};
+
 $('#add').on('show.bs.modal', function () {
     $(this).find('form')[0].reset();
 });
@@ -1000,9 +1129,16 @@ function clicktoshow(id){
     }
     $("#"+id).html('<span style="font-family:passwordshow"">'+thekey+'</span><a title="Hide" class="cellOptionButton" href="javascript: clicktohide(\''+id+'\')"><span class="glyphicon glyphicon-eye-close"></span></a>');
 } 
+function showuploadfiledlg(id){
+    $("#uploadfiledlg").modal("hide");
+    $("#uploadfitemlab1").html(accountarray[id]["name"]);
+    $("#uploadfitemlab2").html(accountarray[id]["name"]);
+    fileid=id;
+    $("#uploadfiledlg").modal("show");
+}
 function clicktohide(id){
     timeout=default_timeout+Math.floor(Date.now() / 1000);
-    $("#"+id).html('<a title="Click to see" href="javascript: clicktoshow(\''+id+'\')"><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span><span class="glyphicon glyphicon-barcode"></span></a>'); 
+    $("#"+id).html('<a title="Click to see" href="javascript: clicktoshow(\''+id+'\')"><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span></a>'); 
 }
 function delepw(index)
 {   

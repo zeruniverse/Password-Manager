@@ -20,7 +20,7 @@ if($record==FALSE) $nid=1; else $nid=(int)$record[0]+1;
 
 $sql="INSERT INTO `password` VALUES (?, ?, ?, ?,?,?)";
 $res=sqlexec($sql,array($nid,$id,$name,$newpw,$pubkey,$other),$link);
-if($record==NULL) {$link->rollBack();die(0);}
+if($res==NULL) {$link->rollBack();die(0);}
 $link->commit();
 echo "1";
 ?>

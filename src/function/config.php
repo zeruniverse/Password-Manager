@@ -27,6 +27,11 @@ date_default_timezone_set('America/Los_Angeles');
 //DEFAULT fields
 $DEFAULT_FIELDS='{"url":{"colname":"URL","hint":"","cls":" hidden"},"user":{"colname":"Username","hint":"","cls":" hidden-xs","position":1},"comment":{"colname":"Comment","hint":"","cls":" hidden","type":"textarea"},"tags":{"colname":"Tags","hint":"Comma separated values","cls":" hidden-xs"}}';
 
+//File upload feature
+$FILE_ENABLED = True;
+//Allow Password-Manager to store files? True -- YES; False -- NO
+//Disabling File feature will hide API on user screen, but the backend won't change.
+
 //PIN expire
 $PIN_EXPIRE_TIME=7776000; 
 //PIN expire in 7776000 seconds.
