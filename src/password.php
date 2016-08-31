@@ -33,6 +33,7 @@ var user;
 var fields;
 var accountarray=new Array();
 var visibleAccounts;
+var lasttimechangearray=new Array();
 function quitpwd()
 {
     delpwdstore(); window.location.href="./logout.php";
@@ -422,6 +423,9 @@ function encryptPassword(name, pass){
 function add_account(acc, pass, other, callback){
     var sk=secretkey;
     pass=encryptPassword(acc, pass);
+    other=JSON.parse(other);
+    if(!("passwordlastchangtime_01_system" in other)) other["passwordlastchangtime_01_system"]=Math.floor(Date.now() / 1000);
+    other=JSON.stringify(other);
     other=encryptchar(other, sk);
     acc=encryptchar(acc,sk);
     $.post("insert.php",{name:acc,newpwd:pass,other:other},callback);
@@ -573,7 +577,11 @@ function dataReady(data){
             //extract json
             var data = $.parseJSON(tempchar);
             accountarray[index]["other"] = data;
-
+            //make the field weird so users won't create one with the same name
+            if("passwordlastchangtime_01_system" in accountarray[index]["other"]){
+                lasttimechangearray[index]=parseInt(accountarray[index]["other"]["passwordlastchangtime_01_system"]);
+                delete accountarray[index]["other"]["passwordlastchangtime_01_system"];
+            } else lasttimechangearray[index]=0;
         }
     }
     for(var i = 0; i<fdata.length; i++) {
@@ -833,6 +841,8 @@ $("#changefieldsbtn").click(function(){
     return true;
     }
     if(!isJson(p)) {showMessage('warning', 'illegal format!', true);return;}
+    var j=JSON.parse(p);
+    if("passwordlastchangtime_01_system" in j) {showMessage('warning', 'illegal fields!', true);return;}
     $.post("changefields.php",{fields:a},function(msg){ 
         if(msg==1) {
             showMessage('success','<strong>Successfully</strong> changed fields!'); 
@@ -885,14 +895,19 @@ $("#editbtn").click(function(){
     function process(){
         var id = $("#edit").data('id');
         var oldname=accountarray[id]["name"];
-        if($("#edititeminputpw").val()=='')
-            newpwd=decryptPassword(oldname, $("#edititeminputpw").data('enpassword'));
-        else
-            newpwd=$("#edititeminputpw").val();
         var other = {};
         for (x in fields){
             other[x] = $("#edititeminput"+x).val().trim();
         }
+        if($("#edititeminputpw").val()==''){
+            newpwd=decryptPassword(oldname, $("#edititeminputpw").data('enpassword'));
+            other["passwordlastchangtime_01_system"]=lasttimechangearray[id];
+        }
+        else{
+            newpwd=$("#edititeminputpw").val();
+            other["passwordlastchangtime_01_system"]=Math.floor(Date.now() / 1000);
+        }
+        
         other = JSON.stringify(other);
         var name = $("#edititeminput").val();
         newpwd=encryptPassword(name, newpwd);
@@ -1213,6 +1228,22 @@ function exportcsv()
     timeout=default_timeout+Math.floor(Date.now() / 1000);
 }
 function showdetail(index){
+    function timeConverter(utctime){
+        if(utctime==0) return 'unknown time';
+        var a = new Date(utctime * 1000);
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; 
+        var year = String(a.getFullYear());
+        var month = months[a.getMonth()];
+        var date = String(a.getDate());
+        var hour = String(a.getHours());
+        var min = String(a.getMinutes());
+        var sec = String(a.getSeconds());
+        if(hour.length==1) hour = '0'+hour;
+        if(min.length==1) min = '0'+min;
+        if(sec.length==1) sec = '0'+sec;
+        var time = month + ' '+date + ', ' + year + ' ' + hour + ':' + min + ':' + sec ;
+        return time;
+    }
     var i=parseInt(index);
     var x,s;
     s='<b>'+accountarray[i]["name"]+'</b><br /><br />';
@@ -1224,6 +1255,7 @@ function showdetail(index){
         }
     }
     s=s+'</table>';
+    s=s+'<br /><p style="color:red">Password last changed at '+timeConverter(lasttimechangearray[i])+'</p>';
 	$('#details').html(s);
     $("#showdetails").modal("show");
 }

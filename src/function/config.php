@@ -25,6 +25,7 @@ date_default_timezone_set('America/Los_Angeles');
 //OPTIONAL
 //****************************************
 //DEFAULT fields
+//Don't include [passwordlastchangtime_01_system] field.
 $DEFAULT_FIELDS='{"url":{"colname":"URL","hint":"","cls":" hidden"},"user":{"colname":"Username","hint":"","cls":" hidden-xs","position":1},"comment":{"colname":"Comment","hint":"","cls":" hidden","type":"textarea"},"tags":{"colname":"Tags","hint":"Comma separated values","cls":" hidden-xs"}}';
 
 //File upload feature
