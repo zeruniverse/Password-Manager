@@ -682,14 +682,18 @@ function showTable(accounts)
         row = $("<tr class='datarow' data-id="+accounts[index]["index"]+">").append(cols.join(""));
         datatablestatus.row.add(row);
     }
-    $("#waitsign").hide();
-    $("#pwdtable").show();
+
+    datatablestatus.draw();
+
     for (x in fields) {
         if (fields[x]["count"] == 0) {
             $("."+x+"cell").remove();
         }
     }
-    datatablestatus.draw();
+
+    $("#waitsign").hide();
+    $("#pwdtable").show();
+
 }
 function downloadf(id){ 
     $("#messagewait").modal("show");
