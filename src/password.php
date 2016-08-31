@@ -628,6 +628,7 @@ function showTable(accounts)
     accounts=preShowPreparation(accounts);
     visibleAccounts=accounts;
     var tempchar;
+    datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true, drawCallback: function(settings) { preDrawCallback( this.api(), settings);}, "lengthMenu": [ [10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"] ] });
     for(index in accounts) {
         var cols = [
             "<td class='namecell'><span class='accountname' data-id='"+accounts[index]["index"]+"'>"+accounts[index]["name"]+'</span><a title="Edit" class="cellOptionButton" href="javascript: edit('+accounts[index]["index"]+')"><span class="glyphicon glyphicon-wrench"></span></a><a title="Details" class="cellOptionButton" style="margin-right:15px;" href="javascript: showdetail('+accounts[index]["index"]+')"><span class="glyphicon glyphicon-eye-open"></span></a></td>',
@@ -765,7 +766,6 @@ function disableGrouping(){
     $('#orderTagsDisable').hide();
 }
 $(document).ready(function(){
-    datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true, drawCallback: function(settings) { preDrawCallback( this.api(), settings);}, "lengthMenu": [ [10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"] ] });
     $.ajax({url : "password_ajax.php"}).done(dataReady);
 $("#pinloginform").on('submit',function(e){
     e.preventDefault();
