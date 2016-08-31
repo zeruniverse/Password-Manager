@@ -21,15 +21,15 @@ echoheader();
     </div>
     <p>The recovery process will be on your browser. It's safe!</p>
 	<form>
-      <p style="color:red">Paste all contents in backup.txt into the following box</p>
-    <textarea id="backupc"></textarea>
+      <p style="color:red">Select backup.txt containing your backup data.</p>
+    <input type="file" id="backupc" accept=".txt" />
     <p> </p>
     <p>Password: <input type="password" name="pwd" id="pwd" /></p><br />
     <p style="color:red">Input the login password when you generate the backup file.</p>
     <p> </p>
     <p style="color:red">Recovering takes long time. (No less than backup time) If your web browser asks you whether to kill the page due to no response, choose [wait]!</p>
     </form>
-    <input type="button" class="btn btn-md btn-success" onClick="rec();" id="chk" value="RECOVER IT!" />
+    <input type="button" class="btn btn-md btn-success" onClick="readfile();" id="chk" value="RECOVER IT!" />
     <a href="./" class="btn btn-md btn-info">Go Back</a>
     <a href="javascript: export_raw();" style="display:none" class="btn btn-md btn-danger" id="raw_button">Export Raw Data</a>
     <p> </p>
@@ -63,14 +63,22 @@ function export_raw(){
     if(!confirm("Confirm: This function is used ONLY to TRANSFER your password to another password manager! DON'T BACK UP this version, it's DANGEROUS!")) return;
     if(!confirm("You agree you will delete the generated content IMMEDIATELY after you finish transferring your passwords")) return;
     var result = { };
-    var aeskey = PWsalt + '1';
+
     result.status="RAW_OK";
-    result.KEY=aeskey;
+
     var x;
     result.data={ };
     for (x in acc_array)
     {
-        result.data[x]=[encryptchar(acc_array[x],aeskey),encryptchar(pass_array[x],aeskey),encryptchar(other_array[x],aeskey)];
+        result.data[x]={
+            'account': utf8Encode(acc_array[x]),
+            'password': utf8Encode(pass_array[x]),
+            'other': utf8Encode(other_array[x])
+        };
+        if(has_file==1 && x in fname_array){
+            result.data[x].fname=utf8Encode(fname_array[x]);
+            result.data[x].filedata=utf8Encode(fdata_array[x]);
+        }
     }
     download("raw_pass.raw",JSON.stringify(result));
 }
@@ -192,12 +200,31 @@ function gen_fkey_array(fname_array,enc_fkey_array)
     }
     return pass_array;
 }
-function rec(){
+function readfile(){
+    if (window.FileReader) {
+        // FileReader are supported.
+        var reader = new FileReader();
+        var a=$("#backupc")[0].files;
+        if (a && a[0]){
+            reader.onload = function (e) {
+                var txt = e.target.result;
+                rec(txt);
+            }
+            reader.onerror = function (e) {
+                alert('Error reading file!');
+            }
+            reader.readAsText(a[0]);          
+        } else {alert('NO FILE SELECTED');}
+    } else {
+        alert('FileReader are not supported in this browser.');
+    }
+}
+function rec(txt){
     if($("#pwd").val()==''){
         alert("EMPTY PASSWORD IS NOT ALLOWED");
         return;
     }
-    var json=JSON.parse(sanitize_json($("#backupc").val()));
+    var json=JSON.parse(sanitize_json(txt));
     if(json.status!="OK") {
         alert("INVALID BACKUP FILE");
         return;
@@ -213,14 +240,17 @@ function rec(){
     gen_key();
     try{
         json.data=JSON.parse(decryptchar(json.data,dkey));
-        json.fdata=JSON.parse(decryptchar(json.fdata,dkey));
-        if(json.fdata.status=='OK'){
-            json.fdata=json.fdata.data;
-            has_file=1;
-        }else
-        {
-            has_file=0;
-        }
+        if(typeof json.fdata != 'undefined'){
+            json.fdata=JSON.parse(decryptchar(json.fdata,dkey));
+            if(json.fdata.status=='OK'){
+                json.fdata=json.fdata.data;
+                has_file=1;
+            }else
+            {
+                has_file=0;
+            }
+        } else has_file=0;
+        
     }catch (e) {
             alert("Wrong password, try again!");
             $("#chk").removeAttr("disabled");
@@ -245,9 +275,9 @@ function rec(){
         var enc_fkey=new Array();
         var enc_fdata=new Array();
         for(x in json.fdata){
-            enc_fname=json.fdata[x][0];
-            enc_fkey=json.fdata[x][1];
-            enc_fdata=json.fdata[x][2];
+            enc_fname[x]=json.fdata[x][0];
+            enc_fkey[x]=json.fdata[x][1];
+            enc_fdata[x]=json.fdata[x][2];
         }
         fname_array=gen_fname_array(enc_fname);
         fkey_array=gen_fkey_array(fname_array,enc_fkey);
@@ -262,7 +292,7 @@ function rec(){
         html=html+'<tr><td>'+acc_array[x]+'</td><td>'+pass_array[x]+'</td><td>'+other_array[x]+'</td>'
         if(has_file==1){
             html=html+'<td>'
-            if(x in fname_array) html=html+'<a href="'+fdata_array[x]+'">'+fname_array[x]+'</a>';
+            if(x in fname_array) html=html+'<a target="_blank" download="'+fname_array[x]+'" href="'+fdata_array[x]+'">'+fname_array[x]+'</a>';
             html=html+'</td>';
         }
         html=html+'</tr>';

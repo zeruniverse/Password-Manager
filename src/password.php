@@ -441,7 +441,23 @@ function import_raw(json){
         if(acc==''||pass=='') {
             showMessage('warning', "one of account or password empty! will continue to process other accounts, check back after this finished", true); return;
         }
-        add_account(acc, pass, other, function(msg) { if(msg!=1) showMessage('warning',"Fail to add "+acc+", please try again manually later.", true); });
+        add_account(acc, pass, other, function(msg) { if(msg==0) showMessage('warning',"Fail to add "+acc+", please try again manually later.", true); });
+    }
+    function add_acc_file(acc,pass,other,fname,fdata){
+        function addfile(msg){
+            if(msg==0) showMessage('warning',"Fail to add "+acc+", please try again manually later.", true); else{
+            var fkey=getpwd(default_letter_used,Math.floor(Math.random()*18)+19);
+            var enfkey=encryptPassword(fname,fkey);
+            var endata=encryptchar(fdata,fkey);
+            var enfname=encryptchar(fname,secretkey);
+            $.post('uploadfile.php',{id:msg,fkey:enfkey,fname:enfname,data:endata},function(msg){
+            if(msg!='1') showMessage('warning',"Fail to add file for "+acc+", please try again manually later.", true);});
+            }
+        }
+        if(acc==''||pass==''||fname=='') {
+            showMessage('warning', "one of account, password or filename empty! will continue to process other accounts, check back after this finished", true); return;
+        }
+        add_account(acc, pass, other, addfile);
     }
     function onsucc(){
     	showMessage('success','IMPORT FINISHED!');
@@ -450,14 +466,14 @@ function import_raw(json){
         reloadAccounts();
     }
     function process(){
-        var aeskey=json.KEY;
         var x;
         timeout=1000000+Math.floor(Date.now() / 1000);
         for(x in json.data){
-            other = JSON.stringify({});
-            if (json.data[x].length > 2)
-                other = decryptchar(json.data[x][2], aeskey);
-            add_acc(decryptchar(json.data[x][0],aeskey),decryptchar(json.data[x][1],aeskey), other);
+            if(typeof json.data[x].fname != 'undefined'){
+                add_acc_file(utf8Decode(json.data[x].account),utf8Decode(json.data[x].password),utf8Decode(json.data[x].other),utf8Decode(json.data[x].fname),utf8Decode(json.data[x].filedata));
+            }
+            else
+            add_acc(utf8Decode(json.data[x].account),utf8Decode(json.data[x].password),utf8Decode(json.data[x].other));
         }
     }
     process();
@@ -480,7 +496,7 @@ function import_csv(csv){
                     other[key]=accarray[x][key];
                 }
             }
-            add_account(acc, pass, JSON.stringify(other), function(msg) { if(msg!=1) showMessage('warning', "Fail to add "+acc+", please try again manually later.", true); });
+            add_account(acc, pass, JSON.stringify(other), function(msg) { if(msg==0) showMessage('warning', "Fail to add "+acc+", please try again manually later.", true); });
         }
         function bk(){
         $("#importbtn").attr("disabled",false);
@@ -843,7 +859,7 @@ $("#newbtn").click(function(){
         other = JSON.stringify(other);
         var name = $("#newiteminput").val();
         add_account(name, newpwd, other, function(msg){ 
-            if(msg==1) {
+            if(msg!=0) {
                 showMessage('success', "Add "+name+" successfully!");
                 $('#add').modal('hide');
                 reloadAccounts();

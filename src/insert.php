@@ -22,5 +22,5 @@ $sql="INSERT INTO `password` VALUES (?, ?, ?, ?,?,?)";
 $res=sqlexec($sql,array($nid,$id,$name,$newpw,$pubkey,$other),$link);
 if($res==NULL) {$link->rollBack();die(0);}
 $link->commit();
-echo "1";
+echo $nid;
 ?>
