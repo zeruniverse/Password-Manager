@@ -75,6 +75,7 @@ Though the probability is low, you can't deny that you may lose your passwords i
 For your passwords safety, your login password to password manager won't be included in the recovery file. You still need your login password to decrypt the recovery file. The backup file is indepandent to config file. You don't need to backup your `config.php`         
 + The purpose of the recovery file is to protect your password in case of data loss. NOT IN CASE THAT YOU FORGET YOUR PASSWORD (No one can get your passwords without your login password!)
 + To recover your passwords, go to the homepage of the password manager and click `Password Recovery`.  
++ **WARNING: Files stored in Password-Manager won't be included in backup file.**
   
 ##Details   
 ###Key Generation    
@@ -116,8 +117,16 @@ For your passwords safety, your login password to password manager won't be incl
     + After receiving server_key, web browser is able to decrypt secretkey and conf_key
     + By using PBKDF2 with 500 iterations, web browser gets login_sig and it uses username in cookie and this login_sig to login.
 + If attacker gets access to your web browser, he needs server_key to decrypt secretkey. Though PIN is much easier to enumerate, he only has 4 chances to guess. Or server_key will be permanantly deleted
-+ If attacker gets access to server, since he doesn't have encrypted secretkey and conf_key, he has nothing to decrypt
-    
++ If attacker gets access to server, since he doesn't have encrypted secretkey and conf_key, he has nothing to decrypt   
+  
+###Files  
+From v9.09, Password Manager supports small binary file storage along with an account. This feature is enabled by default but users might turn it off in `funciton/config.php` by setting `$FILE_ENABLED = False`. This feature is useful when you want to store a ssh key, a certificate or some small images. However, it should not be used as another dropbox. In current design, file is base64 encoded and stored in database after encryption. If file becomes too large, the performance of the system will be undermined. Thus, we recommend you to keep files stored per entry within 500KiB. Since file part is much larger compared to text part, different design is adopted for files. For current version, files won't appear in back-up file.  
++ File name is encrypted with `Secret_key_0` as passphrase by AES256.  
++ A random key is generated and encrypted with `Confusion_Key`, `Secret_key_0`, `File_Name` by the algorithm to encrypt passwords.  
++ Data is first encoded with base64 and then encrypted with the random key.  
++ Encrypted file name, key and data will be uploaded to server.  
++ Therefore, Data decryption is only related to the random key. If the user changes something, we only need to re-encrypt the random key associated with the data instead of the data itself.
+  
 ###Performance  
 + The Login phase cost a lot of time because all keys need to be generated then. If the password is correct, it costs 4 seconds to login in Chrome (Intel i5) and 7 seconds on iPhone 6. If the password is incorrect, it takes 3 seconds for Chrome to know it's incorrect and show an alert.
 + Add a new account or click to show passwords won't take long since all keys are generated. On iPhone 6, they take up to 1 second.
