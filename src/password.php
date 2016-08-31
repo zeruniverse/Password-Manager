@@ -141,7 +141,7 @@ function checksessionalive()
     <div id="waitsign">PLEASE WAIT WHILE WE ARE DECRYPTING YOUR PASSWORD...</div>
     <div id="pwdtable" style="display:none">
     <br />
-    <table class="table" id="pwdlist">
+    <table class="table table-striped table-bordered" id="pwdlist">
 	<thead>
     <tr><th>Account</th><th>Password</th></tr>
 	</thead>
