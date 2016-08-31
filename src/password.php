@@ -742,7 +742,7 @@ function enableGrouping(){
             function ( index, row ) {
                 dbentry = accountarray[$(row).data('id')];
                 firsttag = null;
-                if (! 'tags' in dbentry["other"])
+                if ((! ('tags' in dbentry["other"]))||dbentry["other"]['tags']=='')
                     firsttag = null;
                 else
                     firsttag = dbentry["other"]["tags"].split(',')[0].trim();
@@ -754,9 +754,9 @@ function enableGrouping(){
     };
     preShowPreparation=function(accounts) {
         ordering = function (a,b){
-            if (!"tags" in a["other"])
+            if ((!("tags" in a["other"]))|| a["other"]["tags"]=='')
                 return 1;
-            if (!"tags" in b["other"])
+            if ((!("tags" in b["other"]))|| b["other"]["tags"]=='')
                 return -1;
             atags = a["other"]["tags"].toLowerCase();
             btags = b["other"]["tags"].toLowerCase();
