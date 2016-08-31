@@ -46,6 +46,10 @@ var ALPHABET='';
 var secretkey='';
 var confkey='';
 var dkey='';
+var has_file=0;
+var fname_array;
+var fkey_array;
+var fdata_array;
 function download(filename, text) {
     var element = document.createElement('a');
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
@@ -101,6 +105,38 @@ function gen_account_array(enc_account_array)
     }
     return account_array;
 }
+function gen_fname_array(enc_fname_array)
+{
+    var tempchar,x;
+    var fname_array=new Array();
+    for (x in enc_fname_array){
+        try {
+            tempchar=decryptchar(enc_fname_array[x],secretkey);
+        } catch (e) {
+            tempchar='';
+        }
+        
+        if (tempchar=="") tempchar="Oops, there's some errors!"
+        fname_array[x]=tempchar;
+    }
+    return fname_array;
+}
+function gen_fdata_array(fkey_array,enc_fdata_array)
+{
+    var tempchar,x;
+    var fdata_array=new Array();
+    for (x in enc_fdata_array){
+        try {
+            tempchar=decryptchar(enc_fdata_array[x],fkey_array[x]);
+        } catch (e) {
+            tempchar='';
+        }
+        
+        if (tempchar=="") tempchar="Oops, there's some errors!"
+        fdata_array[x]=tempchar;
+    }
+    return fdata_array;
+}
 function gen_other_array(enc_other_array)
 {
     var tempchar,x;
@@ -136,6 +172,26 @@ function gen_pass_array(account_array,enc_pass_array)
     }
     return pass_array;
 }
+function gen_fkey_array(fname_array,enc_fkey_array)
+{
+    var tempchar,x,name;
+    var pass_array=new Array();
+    for (x in enc_fkey_array){
+        try {
+            tempchar=decryptchar(enc_fkey_array[x],secretkey);
+        } catch (e) {
+            tempchar='';
+        }
+        if (tempchar=="") {
+            tempchar="Oops, there's some errors!";
+        }else{
+            name=fname_array[x];
+            tempchar=get_orig_pwd(confkey,PWsalt,String(CryptoJS.SHA512(name)),ALPHABET,tempchar);
+        }
+        pass_array[x]=tempchar;
+    }
+    return pass_array;
+}
 function rec(){
     if($("#pwd").val()==''){
         alert("EMPTY PASSWORD IS NOT ALLOWED");
@@ -157,6 +213,14 @@ function rec(){
     gen_key();
     try{
         json.data=JSON.parse(decryptchar(json.data,dkey));
+        json.fdata=JSON.parse(decryptchar(json.fdata,dkey));
+        if(json.fdata.status=='OK'){
+            json.fdata=json.fdata.data;
+            has_file=1;
+        }else
+        {
+            has_file=0;
+        }
     }catch (e) {
             alert("Wrong password, try again!");
             $("#chk").removeAttr("disabled");
@@ -175,9 +239,33 @@ function rec(){
     acc_array=gen_account_array(enc_acc);
     other_array=gen_other_array(enc_other)
     pass_array=gen_pass_array(acc_array,enc_pass);
+    
+    if(has_file==1) {
+        var enc_fname=new Array();
+        var enc_fkey=new Array();
+        var enc_fdata=new Array();
+        for(x in json.fdata){
+            enc_fname=json.fdata[x][0];
+            enc_fkey=json.fdata[x][1];
+            enc_fdata=json.fdata[x][2];
+        }
+        fname_array=gen_fname_array(enc_fname);
+        fkey_array=gen_fkey_array(fname_array,enc_fkey);
+        fdata_array=gen_fdata_array(fkey_array,enc_fdata);
+    }
+    
+
+
     var html='<tr><th>Account</th><th>Password</th><th>Other Info</th></tr>';
+    if(has_file==1) html='<tr><th>Account</th><th>Password</th><th>Other Info</th><th>Files</th></tr>';
     for(x in acc_array){
-        html=html+'<tr><td>'+acc_array[x]+'</td><td>'+pass_array[x]+'</td><td>'+other_array[x]+'</td></tr>';
+        html=html+'<tr><td>'+acc_array[x]+'</td><td>'+pass_array[x]+'</td><td>'+other_array[x]+'</td>'
+        if(has_file==1){
+            html=html+'<td>'
+            if(x in fname_array) html=html+'<a href="'+fdata_array[x]+'">'+fname_array[x]+'</a>';
+            html=html+'</td>';
+        }
+        html=html+'</tr>';
     }
     $("#rtable").html(html);
     $("#recover_result").show();
