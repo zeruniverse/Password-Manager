@@ -9,15 +9,15 @@ if(!checksession($link)) error("AUTHENTICATION ERROR, PLEASE RELOGIN");
 $id=$_SESSION['userid'];
 if(!isset($_POST['id'])||(int)$_POST['id']<1) error("Parameter Error");
 $index=(int)$_POST['id'];
-
+$result=array();
 $sql = "SELECT `key`,`files` FROM `files` WHERE `userid`= ? and `index`=?";
 $res = sqlexec($sql,array($id,$index),$link);
-$record = $res->fetch(PDO::FETCH_ASSOC);
-if($record==False) error("No File Can Be Downloaded");
-$result=array();
-$result['status']='success';
-$result['key']=$record['key'];
-$result['data']=$record['files'];
+$res->bindColumn(1, $result['key']);
+$res->bindColumn(2, $lob, PDO::PARAM_LOB);
+$res->fetch(PDO::FETCH_BOUND);
+if($res==False) error("No File Can Be Downloaded");
 
+$result['status']='success';
+$result['data']=$lob;
 echo json_encode($result);
 ?>

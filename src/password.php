@@ -700,13 +700,15 @@ function downloadf(id){
             else{
                 var fkey = decryptPassword(fname,filedata['key']);
                 var data = decryptchar(filedata['data'],fkey);
-                var element = document.createElement('a');
-                element.setAttribute('href', data);
-                element.setAttribute('download', fname);
-                element.style.display = 'none';
-                document.body.appendChild(element);
-                element.click();
-                document.body.removeChild(element);
+                fetch(data).then(res => res.blob().then(blob => {
+                    var a = document.createElement('a');
+                    var url = window.URL.createObjectURL(blob);
+                    var filename = fname;
+                    a.href = url;
+                    a.download = filename;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                }));
             }
         }
         $("#messagewait").modal("hide");

@@ -1,9 +1,9 @@
-<?php 
+<?php
+require_once('function/basic.php');
+require_once("function/sqllink.php");
 session_start();
 if(isset($_SESSION["loginok"])&& $_SESSION['loginok']==1) {header("Location: ./password.php"); die();}
 if(!isset($_SESSION['random_login_stamp'])) $_SESSION['random_login_stamp']=date("Ymdhis").mt_rand(10000,99999);
-require_once('function/basic.php');
-require_once("function/sqllink.php");
 if($DB_NAME=='') die('PLEASE CONFIG function/config.php before using this system!');
 echoheader();
 function usepin()

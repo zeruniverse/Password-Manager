@@ -8,7 +8,7 @@ function sqllink()
     $dbusr=$DB_USER;
     $dbpwd=$DB_PASSWORD;
     $dbhdl=NULL;
-    $opt = array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',); 
+    $opt = array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8', PDO::MYSQL_ATTR_MAX_BUFFER_SIZE => 1024 * 1024 * 19); 
     $dsn='mysql:host=' . $dbhost . ';dbname=' . $dbname.';charset=utf8';
     try {
         $dbhdl = new PDO($dsn, $dbusr, $dbpwd, $opt);

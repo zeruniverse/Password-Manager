@@ -24,8 +24,14 @@ $record= $res->fetch(PDO::FETCH_ASSOC);
 if($record==FALSE) {$link->rollBack();die("0");}
 
 $sql="INSERT INTO `files` VALUES (?, ?, ?, ?,?)";
-$res=sqlexec($sql,array($id,$index,$fkey,$fname,$data),$link);
-if($res==NULL) {$link->rollBack();die(0);}
+$stmt = $link->prepare($sql);
+$stmt->bindParam(1, $id);
+$stmt->bindParam(2, $index);
+$stmt->bindParam(3, $fkey);
+$stmt->bindParam(4, $fname);
+$stmt->bindParam(5, $data, PDO::PARAM_LOB);
+$exeres = $stmt->execute();
+if($exeres==False) {$link->rollBack();die(0);}
 $link->commit();
 echo "1";
 ?>
