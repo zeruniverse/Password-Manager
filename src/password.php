@@ -431,6 +431,11 @@ function import_raw(json){
         showMessage("warning", "INVALID RAW FILE", true);
         return;
     }
+    function bk(){
+        $("#importbtn").attr("disabled",false);
+        $("#importbtn").html("Submit");
+        $("#importc").attr("disabled",false);
+    }
     function add_acc(acc,pass,other){
         if(acc==''||pass=='') {
             showMessage('warning', "one of account or password empty! will continue to process other accounts, check back after this finished", true); return;
@@ -440,6 +445,7 @@ function import_raw(json){
     function onsucc(){
     	showMessage('success','IMPORT FINISHED!');
         $('#import').modal('hide');
+        bk();
         reloadAccounts();
     }
     function process(){
@@ -475,9 +481,15 @@ function import_csv(csv){
             }
             add_account(acc, pass, JSON.stringify(other), function(msg) { if(msg!=1) showMessage('warning', "Fail to add "+acc+", please try again manually later.", true); });
         }
+        function bk(){
+        $("#importbtn").attr("disabled",false);
+        $("#importbtn").html("Submit");
+        $("#importc").attr("disabled",false);
+        }
         function onsucc(){
             showMessage('success', 'IMPORT FINISHED!');
             $('#import').modal('hide');
+            bk();
             reloadAccounts();
         }
         setTimeout(onsucc,1000);
@@ -569,7 +581,7 @@ function initFields() {
         if (inputtype == "textarea")
             input = '<textarea class="form-control" id="%NAME%iteminput'+x+'" placeholder="'+fields[x]["hint"]+'"></textarea>';
         else
-            input = '<input class="form-control" id="%NAME%iteminput'+x+'" type="'+inputtype+'" placeholder="'+fields[x]["hint"]+'"/>';
+            input = '<input class="form-headercontrol" id="%NAME%iteminput'+x+'" type="'+inputtype+'" placeholder="'+fields[x]["hint"]+'"/>';
         var form = '<div class="form-group field"><label for="%NAME%iteminput'+x+'" class="control-label">'+fields[x]["colname"]+':</label>'+input+'</div>';
         if (("position" in fields[x]) && (fields[x]["position"] != 0)) {
             $('#pwdlist > thead > tr:first > th:nth-child('+fields[x]["position"]+')').after(header)
@@ -654,6 +666,29 @@ function showTable(accounts)
     }
     datatablestatus.draw();
 }
+function downloadf(id){ 
+    $("#messagewait").modal("show");
+    $.post('downloadfile.php',{id:id},function(msg){
+        var filedata=$.parseJSON(msg);
+        if(filedata['status']=="error") showMessage('danger','ERROR! '+filedata['message'], false);
+        else{
+            var fname = accountarray[id]['fname'];
+            if(fname=='') showMessage('danger','ERROR! '+filedata['message'], false);
+            else{
+                var fkey = decryptPassword(fname,filedata['key']);
+                var data = decryptchar(filedata['data'],fkey);
+                var element = document.createElement('a');
+                element.setAttribute('href', data);
+                element.setAttribute('download', fname);
+                element.style.display = 'none';
+                document.body.appendChild(element);
+                element.click();
+                document.body.removeChild(element);
+            }
+        }
+        $("#messagewait").modal("hide");
+    });
+};
 function emptyTable() {
     datatablestatus.clear();
 }
@@ -732,12 +767,6 @@ function disableGrouping(){
 $(document).ready(function(){
     datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true, drawCallback: function(settings) { preDrawCallback( this.api(), settings);}, "lengthMenu": [ [10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"] ] });
     $.ajax({url : "password_ajax.php"}).done(dataReady);
-$( window ).resize(function() {
-  if(datatablestatus!=null){
-	  datatablestatus.destroy();
-	  datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true, drawCallback: function(settings) { preDrawCallback( this.api(), settings);}, "lengthMenu": [ [10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"] ] });
-  }
-});
 $("#pinloginform").on('submit',function(e){
     e.preventDefault();
     var pin=$("#pinxx").val();
@@ -1008,7 +1037,7 @@ $("#importbtn").click(function(){
                 var txt = e.target.result;
                 try{
                     if(t==0) import_raw(txt); else import_csv(txt);
-                }catch (error) { showMessage('warning','Some error occurs!', true); reloadAccounts();}
+                }catch (error) { showMessage('warning','Some error occurs!', true); bk(); reloadAccounts();}
             }
             reader.onerror = function (e) {
                 showMessage('warning','Error reading file!', true);
@@ -1072,30 +1101,6 @@ $("#uploadfilebtn").click(function(){
     setTimeout(process,10);
 });
 
-function downloadf(id){ 
-    $("#messagewait").modal("show");
-    $.post('downloadfile.php',{id:id},function(msg){
-        var filedata=$.parseJSON(msg);
-        if(filedata['status']=="error") showMessage('danger','ERROR! '+filedata['message'], false);
-        else{
-            var fname = accountarray[id]['fname'];
-            if(fname=='') showMessage('danger','ERROR! '+filedata['message'], false);
-            else{
-                var fkey = decryptPassword(fname,filedata['key']);
-                var data = decryptchar(filedata['data'],fkey);
-                var element = document.createElement('a');
-                element.setAttribute('href', data);
-                element.setAttribute('download', fname);
-                element.style.display = 'none';
-                document.body.appendChild(element);
-                element.click();
-                document.body.removeChild(element);
-            }
-        }
-        $("#messagewait").modal("hide");
-    });
-};
-
 $('#add').on('show.bs.modal', function () {
     $(this).find('form')[0].reset();
 });
@@ -1133,6 +1138,9 @@ function showuploadfiledlg(id){
     $("#uploadfiledlg").modal("hide");
     $("#uploadfitemlab1").html(accountarray[id]["name"]);
     $("#uploadfitemlab2").html(accountarray[id]["name"]);
+    $("#uploadfilebtn").attr("disabled",false);
+    $("#uploadfilebtn").html("Submit");
+    $("#uploadf").attr("disabled",false);
     fileid=id;
     $("#uploadfiledlg").modal("show");
 }
