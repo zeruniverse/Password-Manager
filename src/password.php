@@ -581,7 +581,7 @@ function initFields() {
         if (inputtype == "textarea")
             input = '<textarea class="form-control" id="%NAME%iteminput'+x+'" placeholder="'+fields[x]["hint"]+'"></textarea>';
         else
-            input = '<input class="form-headercontrol" id="%NAME%iteminput'+x+'" type="'+inputtype+'" placeholder="'+fields[x]["hint"]+'"/>';
+            input = '<input class="form-control" id="%NAME%iteminput'+x+'" type="'+inputtype+'" placeholder="'+fields[x]["hint"]+'"/>';
         var form = '<div class="form-group field"><label for="%NAME%iteminput'+x+'" class="control-label">'+fields[x]["colname"]+':</label>'+input+'</div>';
         if (("position" in fields[x]) && (fields[x]["position"] != 0)) {
             $('#pwdlist > thead > tr:first > th:nth-child('+fields[x]["position"]+')').after(header)
