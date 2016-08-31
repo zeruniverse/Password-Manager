@@ -185,6 +185,7 @@ function checksessionalive()
             </div>
             <div class="modal-body">
             <form>
+                <input type="checkbox" id="fileincludeckb">Include Files</input>
                 <p>You will need your CURRENT login password to unlock the backup file even if you change login password later. Write your CURRENT login password down or remember to generate a new backup file after each time you change the login password.</p>
                 <p style="color:red">Generating backup file is time consuming...</p>
                 <div class="progress"><div class="progress-bar" role="progressbar"  id="backuppwdpb" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%"></div>
@@ -901,7 +902,10 @@ $("#backuppwdbtn").click(function(){
     $("#backuppwdbtn").attr('disabled',true);
     $("#backuppwdpb").attr('aria-valuenow',0);
     $("#backuppwdpb").attr('style','width:0%');
-    $.post("backup.php",{a:'a'},function(msg){
+    $("#fileincludeckb").attr('disabled',true);
+    var fileinclude="a";
+    if($("#fileincludeckb").is(':checked')) fileinclude="farray";
+    $.post("backup.php",{a:fileinclude},function(msg){
         var a,i,count,p;
         function progressbarchange(x)
         {
@@ -922,6 +926,7 @@ $("#backuppwdbtn").click(function(){
         function process()
         {
             p.data=encryptchar(JSON.stringify(p.data),pbkdf2_enc(a,PWsalt,500));
+            p.fdata=encryptchar(JSON.stringify(p.fdata),pbkdf2_enc(a,PWsalt,500));
             $("#backuppwdpb").attr('aria-valuenow',99);
             $("#backuppwdpb").attr('style','width:99%');
             var element = document.createElement('a');
@@ -934,6 +939,7 @@ $("#backuppwdbtn").click(function(){
             element.click();
             document.body.removeChild(element);
             $("#backuppwdbtn").attr('disabled',false);
+            $("#fileincludeckb").attr('disabled',false);
             timeout=default_timeout+Math.floor(Date.now() / 1000);
         }
         function first(callback)
