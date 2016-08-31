@@ -685,12 +685,6 @@ function showTable(accounts)
 
     datatablestatus.draw();
 
-    for (x in fields) {
-        if (fields[x]["count"] == 0) {
-            $("."+x+"cell").remove();
-        }
-    }
-
     $("#waitsign").hide();
     $("#pwdtable").show();
 
