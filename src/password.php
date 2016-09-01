@@ -767,7 +767,7 @@ function enableGrouping(){
                 else
                     firsttag = dbentry["other"]["tags"].split(',')[0].trim();
                 if ( last !== firsttag) {
-                    $(row).before( '<tr class="group"><td colspan="5"><strong>&nbsp;&nbsp;'+firsttag+'</strong></td></tr>');
+                    $(row).before( '<tr class="group"><td colspan="15"><strong>&nbsp;&nbsp;'+firsttag+'</strong></td></tr>');
                     last = firsttag;
                 }
             });
@@ -797,6 +797,7 @@ function enableGrouping(){
 function disableGrouping(){
     preDrawCallback = function( api, settings ) {};
     preShowPreparation = function( accounts ) { return accounts; };
+    emptyTable();
     showTable(visibleAccounts);
     $('#orderTags').show();
     $('#orderTagsDisable').hide();
@@ -1037,7 +1038,9 @@ $("#changepw").click(function(){
         var accarray=new Array();
         for (x in accountarray)
         {
-            accarray[x]={"name": encryptchar(accountarray[x]["name"],newsecretkey), "is_f":1, "fname": encryptchar(accountarray[x]["fname"],newsecretkey),"other": encryptchar(JSON.stringify(accountarray[x]["other"]),newsecretkey)};
+            var tmpother=accountarray[x]["other"];
+            tmpother["passwordlastchangtime_01_system"]=lasttimechangearray[x];
+            accarray[x]={"name": encryptchar(accountarray[x]["name"],newsecretkey), "is_f":1, "fname": encryptchar(accountarray[x]["fname"],newsecretkey),"other": encryptchar(JSON.stringify(tmpother),newsecretkey)};
             if(accountarray[x]["fname"]=='') accarray['is_f']=0;
             raw_fkey='1';
             raw_pass=decryptPassword(accountarray[x]["name"],accountarray[x]["enpassword"]);
