@@ -117,12 +117,14 @@ function reducedinfo(key,charlist) {
 	var newpw = '';
 	var i,a,b;
 	var keylen = key.length;
-    newpw = newpw + keylen.toString();
-    a = getcharpos(key.charAt(0),charlist);
+    	newpw = newpw + keylen.toString();
+    	a = getcharpos(key.charAt(0),charlist);
+    	a = (a==-1)?key.charCodeAt(0):a;
 	for(i=1;i<= keylen - 1;i++){
 		b = getcharpos(key.charAt(i),charlist);
+		b = (b==-1)?key.charCodeAt(i):b;
 		newpw = newpw + charlist.charAt((a+b) % maxpos);
-        a=b;
+        	a=b;
 	}
 	return newpw;
 }
