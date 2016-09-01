@@ -210,8 +210,10 @@ function checksessionalive()
             </div>
             <div class="modal-body">
             <form>
-            <p>Please edit the fields parameter according to the default one shown below. It should be JSON format.</p>
-                <textarea class="form-control" id="fieldsz" style="height:300px"></textarea>
+            <p>Please edit the fields string according to the default one shown below. It should be JSON format. Usually, you don't need to edit this.</p>
+            <p>A field entry should be like: <span style="font-weight:bold">"<span style="color:red">label</span>":{"colname":"<span style="color:red">screen name</span>","hint":"<span style="color:red">input hint</span>","cls":" <span style="color:red">style</span>"}</span>, red parts are for you to customize. Entries should be seperated with comma, and the final fields string should look like <span style="font-weight:bold">{entry1, entry2, entry3}</span>. <span style="font-weight:bold">{}</span> fields string means you don't want any additional fields</p>
+            <p><span style="color:red">label</span> is a system label for this entry, which should be UNIQUE and won't show up in user screen. <span style="color:red">screen name</span> is the name for this entry that the user see on their screen, need not to be unique. <span style="color:red">input hint</span> is the hint string that will show up when you try to edit values for this field. <span style="color:red">style</span> is the display style for this field. If <span style="color:red">style</span> string is empty, this field will always show up. If <span style="color:red">style = hidden</span>, this field will not show up in main table. You can only access it by clicking [view details]. If <span style="color:red">style = hidden-xs</span>, this field will not show up in main table on small screens such as smart phone screens, but will show up on computer screens. NO OTHER VALUES ALLOWED for <span style="color:red">style</span>. There should always be a space before <span style="color:red">style</span> string, don't delete it.</p>
+            <textarea class="form-control" id="fieldsz" style="height:100px"></textarea>
             </form>
             </div>
             <div class="modal-footer">
@@ -475,10 +477,10 @@ function import_raw(json){
         timeout=1000000+Math.floor(Date.now() / 1000);
         for(x in json.data){
             if(typeof json.data[x].fname != 'undefined'){
-                add_acc_file(utf8Decode(json.data[x].account),utf8Decode(json.data[x].password),utf8Decode(json.data[x].other),utf8Decode(json.data[x].fname),utf8Decode(json.data[x].filedata));
+                add_acc_file(json.data[x].account,json.data[x].password,json.data[x].other,json.data[x].fname,json.data[x].filedata);
             }
             else
-            add_acc(utf8Decode(json.data[x].account),utf8Decode(json.data[x].password),utf8Decode(json.data[x].other));
+            add_acc(json.data[x].account,json.data[x].password,json.data[x].other);
         }
     }
     process();
@@ -657,12 +659,6 @@ function showTable(accounts)
     for(index in accounts) {
         var cols = [
             "<td class='namecell'><span class='accountname' data-id='"+accounts[index]["index"]+"'>"+accounts[index]["name"]+'</span><a title="Edit" class="cellOptionButton" href="javascript: edit('+accounts[index]["index"]+')"><span class="glyphicon glyphicon-wrench"></span></a><a title="Details" class="cellOptionButton" style="margin-right:15px;" href="javascript: showdetail('+accounts[index]["index"]+')"><span class="glyphicon glyphicon-eye-open"></span></a></td>',
-            '<td><span passid="'+accounts[index]["index"]+'" enpassword="'+accounts[index]["enpassword"]+'" id="'+accounts[index]["index"]+'"><a title="Click to see" href="javascript: clicktoshow(\''+accounts[index]["index"]+'\')"><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span></a></span></td>'];
-        //add file buttons
-        var downiconstatus;
-        if(accounts[index]["fname"]!='') downiconstatus='margin-right:15px;'; else downiconstatus="display:none;";
-        if(file_enabled==1) cols = [
-            "<td class='namecell'><span class='accountname' data-id='"+accounts[index]["index"]+"'>"+accounts[index]["name"]+'</span><a title="Upload file" class="cellOptionButton" href="javascript: showuploadfiledlg('+accounts[index]["index"]+')"><span class="glyphicon glyphicon-arrow-up"></span></a><a title="Edit" style="margin-right:15px;" class="cellOptionButton" href="javascript: edit('+accounts[index]["index"]+')"><span class="glyphicon glyphicon-wrench"></span></a><a title="Download '+accounts[index]['fname']+'" class="cellOptionButton" style="'+downiconstatus+'" href="javascript: downloadf('+accounts[index]["index"]+')"><span class="glyphicon glyphicon-arrow-down"></span></a><a title="Details" class="cellOptionButton" style="margin-right:15px;" href="javascript: showdetail('+accounts[index]["index"]+')"><span class="glyphicon glyphicon-eye-open"></span></a></td>',
             '<td><span passid="'+accounts[index]["index"]+'" enpassword="'+accounts[index]["enpassword"]+'" id="'+accounts[index]["index"]+'"><a title="Click to see" href="javascript: clicktoshow(\''+accounts[index]["index"]+'\')"><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span></a></span></td>'];
         // fill in other
         for (x in fields) {
@@ -1125,6 +1121,7 @@ $("#uploadfilebtn").click(function(){
                     var enfkey=encryptPassword(fname,fkey);
                     var endata=encryptchar(data,fkey);
                     var enfname=encryptchar(fname,secretkey);
+                    $("#showdetails").modal("hide");
                     $.post('uploadfile.php',{id:fileid,fkey:enfkey,fname:enfname,data:endata},function(msg){
                         if(msg=='1') {$('#uploadfiledlg').modal("hide"); showMessage('success','File uploaded!', false); reloadAccounts();}
                         else {$('#uploadfiledlg').modal("hide"); showMessage('danger','ERROR! Try again!', false); reloadAccounts();}
@@ -1261,9 +1258,12 @@ function showdetail(index){
     s=s+'<colgroup><col width="90"><col width="auto"></colgroup>';
     for (x in accountarray[i]["other"]) {
         if(x in fields){
-            s=s+'<tr><td><font color="#afafaf"><style="font-weight: normal;">'+fields[x]['colname']+'</td><td><font color="#6d6d6d"><b>'+accountarray[i]["other"][x]+'<b></td></tr>';
+            s=s+'<tr><td style="color:#afafaf; font-weight:normal">'+fields[x]['colname']+'</td><td style="color:#6d6d6d; font-weight:bold">'+accountarray[i]["other"][x]+'</td></tr>';
         }
     }
+    if(file_enabled==1){
+        if(accountarray[i]["fname"]!='') s=s+'<tr><td style="color:#66ccff;font-weight:normal">File</td><td style="color:#0000ff;font-weight:bold"><a href="javascript: downloadf('+accountarray[i]["index"]+')" title="Download File">'+accountarray[i]["fname"]+'</a>&nbsp;&nbsp;&nbsp;<a title="Upload file" href="javascript: showuploadfiledlg('+accountarray[i]["index"]+')"><span class="glyphicon glyphicon-arrow-up"></span></a></td>'; else s=s+'<tr><td style="color:#66ccff;font-weight:normal">File</td><td style="color:#0000ff;font-weight:bold">None&nbsp;&nbsp;&nbsp;<a title="Upload file" href="javascript: showuploadfiledlg('+accountarray[i]["index"]+')"><span class="glyphicon glyphicon-arrow-up"></span></a></td>'; 
+    }    
     s=s+'</table>';
     s=s+'<br /><p style="color:red">Password last changed at '+timeConverter(lasttimechangearray[i])+'</p>';
     $('#details').html(s);

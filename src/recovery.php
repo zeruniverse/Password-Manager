@@ -67,13 +67,13 @@ function export_raw(){
     for (x in acc_array)
     {
         result.data[x]={
-            'account': utf8Encode(acc_array[x]),
-            'password': utf8Encode(pass_array[x]),
-            'other': utf8Encode(other_array[x])
+            'account': acc_array[x],
+            'password': pass_array[x],
+            'other': other_array[x]
         };
         if(has_file==1 && x in fname_array){
-            result.data[x].fname=utf8Encode(fname_array[x]);
-            result.data[x].filedata=utf8Encode(fdata_array[x]);
+            result.data[x].fname=fname_array[x];
+            result.data[x].filedata=fdata_array[x];
         }
     }
     download("raw_pass.raw",JSON.stringify(result));
