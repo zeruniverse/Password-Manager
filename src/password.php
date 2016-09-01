@@ -4,12 +4,12 @@ echoheader();
 ?>
 <style type="text/css">
 @font-face {
-	font-family: 'passwordshow';
-	src:url('pw.ttf');
+    font-family: 'passwordshow';
+    src:url('pw.ttf');
 }
 .theme-showcase
 {
-	margin-top:10px !important;
+    margin-top:10px !important;
 }
 </style>
 <link rel="stylesheet" type="text/css" href="css/dataTables.bootstrap.min.css">
@@ -18,6 +18,7 @@ echoheader();
 <script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="js/dataTables.bootstrap.min.js"></script>
 <script type="text/javascript" src="js/dataTables.responsive.min.js"></script>
+<script type="text/javascript" src="js/FileSaver.min.js"></script>
 <script type="text/javascript">
 //everything is going to be loaded later
 var secretkey;
@@ -52,26 +53,26 @@ function countdown()
 function checksessionalive()
 {
     function getCookie(cname) {
-		var name = cname + "=";
-		var ca = document.cookie.split(';');
-		for(var i = 0; i <ca.length; i++) {
-			var c = ca[i];
-			while (c.charAt(0)==' ') {
-				c = c.substring(1);
-			}
-			if (c.indexOf(name) == 0) {
-				return c.substring(name.length,c.length);
-			}
-		}
-		return "-1";
-	}
-	function setCookie(cname, cvalue) {
-		document.cookie = cname + "=" + cvalue + "; ";
-	}
-	var ck=getCookie("ServerRenew");
-	if(ck=='1') server_timeout=default_server_timeout+Math.floor(Date.now() / 1000);
-	if(ck=="-1"||server_timeout<Math.floor(Date.now() / 1000)) quitpwd();
-	setCookie("ServerRenew",'0');
+        var name = cname + "=";
+        var ca = document.cookie.split(';');
+        for(var i = 0; i <ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0)==' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length,c.length);
+            }
+        }
+        return "-1";
+    }
+    function setCookie(cname, cvalue) {
+        document.cookie = cname + "=" + cvalue + "; ";
+    }
+    var ck=getCookie("ServerRenew");
+    if(ck=='1') server_timeout=default_server_timeout+Math.floor(Date.now() / 1000);
+    if(ck=="-1"||server_timeout<Math.floor(Date.now() / 1000)) quitpwd();
+    setCookie("ServerRenew",'0');
 }
 </script>
 <script type="text/javascript" src="aes.js"></script>
@@ -143,12 +144,12 @@ function checksessionalive()
     <div id="pwdtable" style="display:none">
     <br />
     <table class="table table-striped table-bordered" id="pwdlist">
-	<thead>
+    <thead>
     <tr><th>Account</th><th>Password</th></tr>
-	</thead>
-	<tbody></tbody>
+    </thead>
+    <tbody></tbody>
     </table> 
-	<hr />
+    <hr />
     </div>
 </div>
 <div class="modal" tabindex="-1" role="dialog" id="add">
@@ -464,7 +465,7 @@ function import_raw(json){
         add_account(acc, pass, other, addfile);
     }
     function onsucc(){
-    	showMessage('success','IMPORT FINISHED!');
+        showMessage('success','IMPORT FINISHED!');
         $('#import').modal('hide');
         bk();
         reloadAccounts();
@@ -520,7 +521,7 @@ function import_csv(csv){
 //message: text
 //modal: if true shows a modal window
 function showMessage(type, message, modal){
-	modal = (typeof modal !== 'undefined') ? modal : false;
+    modal = (typeof modal !== 'undefined') ? modal : false;
     if (modal==false) {
         $("#messageText").html(message);
         $("#message").removeClass("alert-success alert-info alert-warning alert-danger");
@@ -541,9 +542,9 @@ function dataReady(data){
         return;
     }
     default_timeout = data["default_timeout"];
-	default_server_timeout = data["server_timeout"];
+    default_server_timeout = data["server_timeout"];
     file_enabled=data['file_enabled'];
-	server_timeout = default_server_timeout+Math.floor(Date.now() / 1000);
+    server_timeout = default_server_timeout+Math.floor(Date.now() / 1000);
     timeout = default_timeout+Math.floor(Date.now() / 1000);
     default_letter_used = data["default_letter_used"];
     default_length = data["default_length"];
@@ -698,17 +699,32 @@ function downloadf(id){
             var fname = accountarray[id]['fname'];
             if(fname=='') showMessage('danger','ERROR! '+filedata['message'], false);
             else{
+                function base64toBlob(base64Data, contentType) {
+                    contentType = contentType || '';
+                    var sliceSize = 1024;
+                    var byteCharacters = atob(base64Data);
+                    var bytesLength = byteCharacters.length;
+                    var slicesCount = Math.ceil(bytesLength / sliceSize);
+                    var byteArrays = new Array(slicesCount);
+
+                    for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
+                        var begin = sliceIndex * sliceSize;
+                        var end = Math.min(begin + sliceSize, bytesLength);
+
+                        var bytes = new Array(end - begin);
+                        for (var offset = begin, i = 0 ; offset < end; ++i, ++offset) {
+                            bytes[i] = byteCharacters[offset].charCodeAt(0);
+                        }
+                        byteArrays[sliceIndex] = new Uint8Array(bytes);
+                    }
+                    return new Blob(byteArrays, { type: contentType });
+                }
+                
                 var fkey = decryptPassword(fname,filedata['key']);
                 var data = decryptchar(filedata['data'],fkey);
-                fetch(data).then(res => res.blob().then(blob => {
-                    var a = document.createElement('a');
-                    var url = window.URL.createObjectURL(blob);
-                    var filename = fname;
-                    a.href = url;
-                    a.download = filename;
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                }));
+                var typedata = data.substring(5,data.search(";"));
+                data = data.substring(data.search(",")+1);
+                saveAs(base64toBlob(data,typedata),fname);
             }
         }
         $("#messagewait").modal("hide");
@@ -853,11 +869,11 @@ $("#changefieldsbtn").click(function(){
     });
 });
 $("#newbtn").click(function(){ 
-	var newpwd;
-	if($("#newiteminput").val()=="") {showMessage("warning", "Account entry can't be empty!", true); return;}
-	$("#newbtn").attr("disabled",true);
-	$("#newiteminput").attr("readonly",true);
-	$("#newiteminputpw").attr("readonly",true);
+    var newpwd;
+    if($("#newiteminput").val()=="") {showMessage("warning", "Account entry can't be empty!", true); return;}
+    $("#newbtn").attr("disabled",true);
+    $("#newiteminput").attr("readonly",true);
+    $("#newiteminputpw").attr("readonly",true);
     for (x in fields)
         $("#newiteminput"+x).attr("readonly",true);
     function process(){
@@ -885,11 +901,11 @@ $("#newbtn").click(function(){
     setTimeout(process,50);
 });
 $("#editbtn").click(function(){ 
-	var newpwd;
-	if($("#edititeminput").val()=="") {showMessage('warning',"Account entry can't be empty!", true); return;}
-	$("#editbtn").attr("disabled",true);
-	$("#edititeminput").attr("readonly",true);
-	$("#edititeminputpw").attr("readonly",true);
+    var newpwd;
+    if($("#edititeminput").val()=="") {showMessage('warning',"Account entry can't be empty!", true); return;}
+    $("#editbtn").attr("disabled",true);
+    $("#edititeminput").attr("readonly",true);
+    $("#edititeminputpw").attr("readonly",true);
     for (x in fields)
         $("#edititeminput"+x).attr("readonly",true);
     function process(){
@@ -960,15 +976,9 @@ $("#backuppwdbtn").click(function(){
             p.fdata=encryptchar(JSON.stringify(p.fdata),pbkdf2_enc(a,PWsalt,500));
             $("#backuppwdpb").attr('aria-valuenow',99);
             $("#backuppwdpb").attr('style','width:99%');
-            var element = document.createElement('a');
-            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(p)));
-            element.setAttribute('download', 'backup.txt');
-            element.style.display = 'none';
-            document.body.appendChild(element);
-            $("#backuppwdpb").attr('aria-valuenow',100);
-            $("#backuppwdpb").attr('style','width:100%');
-            element.click();
-            document.body.removeChild(element);
+            var blob = new Blob([JSON.stringify(p)], {type: "text/plain;charset=utf-8"});
+            saveAs(blob, "backup.txt");
+            
             $("#backuppwdbtn").attr('disabled',false);
             $("#fileincludeckb").attr('disabled',false);
             timeout=default_timeout+Math.floor(Date.now() / 1000);
@@ -1052,20 +1062,20 @@ $("#changepw").click(function(){
         });
         }
         setTimeout(process,50);
-	}
+    }
 });
 $("#importbtn").click(function(){ 
     $("#importbtn").attr("disabled",true);
     $("#importbtn").html("Processing...");
     $("#importc").attr("disabled",true);
     function bk(){
-    	$("#importbtn").attr("disabled",false);
+        $("#importbtn").attr("disabled",false);
         $("#importbtn").html("Submit");
         $("#importc").attr("disabled",false);
     }
     function process(){
         if (window.FileReader) {
-		// FileReader are supported.
+        // FileReader are supported.
         var reader = new FileReader();
         var a=$("#importc")[0].files;
         var t = 0;
@@ -1084,9 +1094,9 @@ $("#importbtn").click(function(){
             if(extension=='csv') t=1;
             reader.readAsText(a[0]);          
         } else {showMessage('warning','NO FILE SELECTED', true); bk();}
-	} else {
-		showMessage('warning','FileReader are not supported in this browser.', true);
-	}
+    } else {
+        showMessage('warning','FileReader are not supported in this browser.', true);
+    }
     }
     setTimeout(process,10);
 });
@@ -1188,16 +1198,16 @@ function clicktohide(id){
 function delepw(index)
 {   
     var name=accountarray[parseInt(index)]["name"];
-	if(confirm("Are you sure you want to delete password for "+name+"? (ATTENTION: this is irreversible)"))
-	{
-		$.post("delete.php",{index:index},function(msg){ 
+    if(confirm("Are you sure you want to delete password for "+name+"? (ATTENTION: this is irreversible)"))
+    {
+        $.post("delete.php",{index:index},function(msg){ 
             if(msg==1) {
                 showMessage('success',"delete "+name+" successfully");
                 $('#edit').modal('hide');
                 reloadAccounts();
             } else showMessage('warning',"Fail to delete "+name+", please try again.", true);
-	 }); 
-	 }
+     }); 
+     }
 }
 function exportcsv()
 {
@@ -1247,8 +1257,8 @@ function showdetail(index){
     var i=parseInt(index);
     var x,s;
     s='<b>'+accountarray[i]["name"]+'</b><br /><br />';
-	s=s+'<table style="width: 100%" font color="#ff0000">';
-	s=s+'<colgroup><col width="90"><col width="auto"></colgroup>';
+    s=s+'<table style="width: 100%" font color="#ff0000">';
+    s=s+'<colgroup><col width="90"><col width="auto"></colgroup>';
     for (x in accountarray[i]["other"]) {
         if(x in fields){
             s=s+'<tr><td><font color="#afafaf"><style="font-weight: normal;">'+fields[x]['colname']+'</td><td><font color="#6d6d6d"><b>'+accountarray[i]["other"][x]+'<b></td></tr>';
@@ -1256,7 +1266,7 @@ function showdetail(index){
     }
     s=s+'</table>';
     s=s+'<br /><p style="color:red">Password last changed at '+timeConverter(lasttimechangearray[i])+'</p>';
-	$('#details').html(s);
+    $('#details').html(s);
     $("#showdetails").modal("show");
 }
 </script>

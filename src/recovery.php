@@ -6,6 +6,7 @@ echoheader();
 <script type="text/javascript" src="sha512.js"></script>
 <script type="text/javascript" src="pbkdf2.js"></script>
 <script type="text/javascript" src="password.js"></script>
+<script type="text/javascript" src="js/FileSaver.min.js"></script>
 <div class="container theme-showcase">
     <div class="page-header">
         <h1>Before You Start...</h1>
@@ -51,13 +52,8 @@ var fname_array;
 var fkey_array;
 var fdata_array;
 function download(filename, text) {
-    var element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    element.setAttribute('download', filename);
-    element.style.display = 'none';
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
+    var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+    saveAs(blob, filename);
 }
 function export_raw(){
     if(!confirm("Confirm: This function is used ONLY to TRANSFER your password to another password manager! DON'T BACK UP this version, it's DANGEROUS!")) return;
@@ -219,6 +215,32 @@ function readfile(){
         alert('FileReader are not supported in this browser.');
     }
 }
+function downloada(x){
+    function base64toBlob(base64Data, contentType) {
+        contentType = contentType || '';
+        var sliceSize = 1024;
+        var byteCharacters = atob(base64Data);
+        var bytesLength = byteCharacters.length;
+        var slicesCount = Math.ceil(bytesLength / sliceSize);
+        var byteArrays = new Array(slicesCount);
+
+        for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
+            var begin = sliceIndex * sliceSize;
+            var end = Math.min(begin + sliceSize, bytesLength);
+
+            var bytes = new Array(end - begin);
+            for (var offset = begin, i = 0 ; offset < end; ++i, ++offset) {
+                bytes[i] = byteCharacters[offset].charCodeAt(0);
+            }
+            byteArrays[sliceIndex] = new Uint8Array(bytes);
+        }
+        return new Blob(byteArrays, { type: contentType });
+    }
+    var data=fdata_array[x];
+    var typedata = data.substring(5,data.search(";"));
+    data = data.substring(data.search(",")+1);
+    saveAs(base64toBlob(data,typedata),fname_array[x]);
+}
 function rec(txt){
     if($("#pwd").val()==''){
         alert("EMPTY PASSWORD IS NOT ALLOWED");
@@ -292,7 +314,7 @@ function rec(txt){
         html=html+'<tr><td>'+acc_array[x]+'</td><td>'+pass_array[x]+'</td><td>'+other_array[x]+'</td>'
         if(has_file==1){
             html=html+'<td>'
-            if(x in fname_array) html=html+'<a target="_blank" download="'+fname_array[x]+'" href="'+fdata_array[x]+'">'+fname_array[x]+'</a>';
+            if(x in fname_array) html=html+'<a href="javascript: downloada('+x+')">'+fname_array[x]+'</a>';
             html=html+'</td>';
         }
         html=html+'</tr>';
