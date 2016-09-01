@@ -1,5 +1,5 @@
 <?php
-$VERSION="9.09-rc";
+$VERSION="9.09";
 
 //****************************************
 //PLEASE SPECIFY THE VARIABLES BELOW
