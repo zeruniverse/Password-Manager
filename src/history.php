@@ -4,6 +4,7 @@ require_once("function/basic.php");
 $link=sqllink();
 if(!checksession($link)){header("Location: ./");die();}
 $id = $_SESSION['userid'];
+$usr=$_SESSION['user'];
 echoheader();
 ?>
 <link rel="stylesheet" type="text/css" href="css/dataTables.bootstrap.min.css">
