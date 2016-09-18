@@ -5,17 +5,17 @@ $VERSION="9.10";
 //PLEASE SPECIFY THE VARIABLES BELOW
 //****************************************
 
-$DB_HOST='localhost';
+$DB_HOST='';
 //Make sure MySQL is running at default port 3306. Or you have to edit sqllink.php
 
 //The database name for password_manager
-$DB_NAME='pwtest';
+$DB_NAME='';
 
 //Database Username
-$DB_USER='pwtest';
+$DB_USER='';
 
 //Database Password
-$DB_PASSWORD='pwtesttestpw';
+$DB_PASSWORD='';
 
 //Host Domain - Only Allow Visits to This Domain
 //Note: please specify whether it's HTTP or HTTPS. Use HTTPS if possible
