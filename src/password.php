@@ -554,6 +554,9 @@ function dataReady(data){
     salt2 = data["global_salt_2"];
     user = data["user"];
     fields = $.parseJSON(data["fields"]);
+    for (x in fields) {
+        fields[x]["count"] = 0;
+    }
     var accounts = data["accounts"];
     var fdata=data["fdata"];
     setInterval(countdown, 1000);
@@ -585,6 +588,9 @@ function dataReady(data){
                 lasttimechangearray[index]=parseInt(accountarray[index]["other"]["passwordlastchangtime_01_system"]);
                 delete accountarray[index]["other"]["passwordlastchangtime_01_system"];
             } else lasttimechangearray[index]=0;
+            for (x in accountarray[index]["other"])
+                if (accountarray[index]["other"][x] != "")
+                    fields[x]["count"] += 1;
         }
     }
     for(var i = 0; i<fdata.length; i++) {
@@ -600,8 +606,9 @@ function dataReady(data){
 function initFields() {
     $("textarea#fieldsz").val(JSON.stringify(fields));
     for (x in fields) {
-        fields[x]["count"] = 0;
-        var header = '<th class="'+x+'cell'+fields[x]["cls"]+' field">'+fields[x]["colname"]+'</th>';
+        var header = "";
+        if (fields[x]["count"]>0)
+            header = '<th class="'+x+'cell'+fields[x]["cls"]+' field">'+fields[x]["colname"]+'</th>';
         var input = "";
         var inputtype = "text";
         if ("type" in fields[x])
@@ -662,18 +669,18 @@ function showTable(accounts)
             '<td><span passid="'+accounts[index]["index"]+'" enpassword="'+accounts[index]["enpassword"]+'" id="'+accounts[index]["index"]+'"><a title="Click to see" href="javascript: clicktoshow(\''+accounts[index]["index"]+'\')"><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span></a></span></td>'];
         // fill in other
         for (x in fields) {
-            var value="";
-            if (x in accounts[index]["other"]) {
-                value = accounts[index]["other"][x];
-                if (value!="")
-                    fields[x]["count"] += 1;
+            if (fields[x]["count"]>0)
+            {
+                var value="";
+                if (x in accounts[index]["other"])
+                    value = accounts[index]["other"][x];
+                var cell = '<td class="'+x+'cell'+fields[x]["cls"]+'"><span class="account'+x+'">'+value+'</span></td>';
+                if (("position" in fields[x]) && (fields[x]["position"] != 0)) {
+                    cols.splice(fields[x]["position"], 0, cell);
+                }
+                else
+                    cols.push(cell);
             }
-            var cell = '<td class="'+x+'cell'+fields[x]["cls"]+'"><span class="account'+x+'">'+value+'</span></td>';
-            if (("position" in fields[x]) && (fields[x]["position"] != 0)) {
-                cols.splice(fields[x]["position"], 0, cell);
-            }
-            else
-                cols.push(cell);
         }
         // create row for datatable
         row = $("<tr class='datarow' data-id="+accounts[index]["index"]+">").append(cols.join(""));
