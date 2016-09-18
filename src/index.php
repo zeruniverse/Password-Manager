@@ -10,7 +10,8 @@ setcookie(
     0,//expires at end of session  
     $currentCookieParams['path'],//path  
     $currentCookieParams['domain'],//domain  
-    true //secure  
+    null, //secure  
+    true
 );
 if(isset($_SESSION["loginok"])&& $_SESSION['loginok']==1) {header("Location: ./password.php"); die();}
 if(!isset($_SESSION['random_login_stamp'])) $_SESSION['random_login_stamp']=date("Ymdhis").mt_rand(10000,99999);
