@@ -1200,7 +1200,7 @@ function showuploadfiledlg(id){
 }
 function clicktohide(id){
     timeout=default_timeout+Math.floor(Date.now() / 1000);
-    $("#"+id).html('<a title="Click to see" href="javascript: clicktoshow(\''+id+'\')"><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span></a>'); 
+    $("#"+id).html('<a title="Click to see" href="javascript: clicktoshow(\''+id+'\')"><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span></a>'); 
 }
 function delepw(index)
 {   
