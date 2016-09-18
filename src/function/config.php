@@ -1,22 +1,25 @@
 <?php
-$VERSION="9.09";
+$VERSION="9.10";
 
 //****************************************
 //PLEASE SPECIFY THE VARIABLES BELOW
 //****************************************
 
-//Your database host, e.g. localhost
-$DB_HOST='';
+$DB_HOST='localhost';
 //Make sure MySQL is running at default port 3306. Or you have to edit sqllink.php
 
 //The database name for password_manager
-$DB_NAME='';
+$DB_NAME='pwtest';
 
 //Database Username
-$DB_USER='';
+$DB_USER='pwtest';
 
 //Database Password
-$DB_PASSWORD='';
+$DB_PASSWORD='pwtesttestpw';
+
+//Host Domain - Only Allow Visits to This Domain
+//Note: please specify whether it's HTTP or HTTPS. Use HTTPS if possible
+$HOSTDOMAIN='https://password-manager.example.com';
 
 //Default timezone
 date_default_timezone_set('America/Los_Angeles');

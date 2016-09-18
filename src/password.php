@@ -35,6 +35,14 @@ var fields;
 var accountarray=new Array();
 var visibleAccounts;
 var lasttimechangearray=new Array();
+
+$.ajaxPrefilter(function(options, originalOptions, jqXHR){
+    if (options.type.toLowerCase() === "post") {
+        options.data = options.data || "";
+        options.data += options.data?"&":"";
+        options.data += "session_token=" + sessionStorage.session_token;
+    }
+});
 function quitpwd()
 {
     delpwdstore(); window.location.href="./logout.php";
@@ -81,6 +89,11 @@ function checksessionalive()
 <script type="text/javascript" src="password.js"></script>
    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
       <div class="container">
+        <div style="display:none">
+        <form id="historyform" action="history.php" method="post">
+            <input type="hidden" id="historyformsesstoken" name="session_token" />
+        </form>
+        </div>
         <div class="navbar-header pull-left">
           <a class="navbar-brand" href="#">Password-Manager</a>
         </div>
@@ -104,7 +117,7 @@ function checksessionalive()
               <li><a href="javascript: exportcsv();">Export CSV</a></li>
               <li><a href="" data-toggle="modal" data-target="#changepwd">Change Password</a></li>
               <li><a href="" data-toggle="modal" data-target="#changefields">Customize Fields</a></li>
-              <li><a href="./history.php" target="_blank">Account Activity</a></li>
+              <li><a href="javascript: $('#historyformsesstoken').val(sessionStorage.session_token); $('#historyform').submit();">Account Activity</a></li>
             </ul>
             </li>
           </ul>
@@ -743,7 +756,7 @@ function cleanUp() {
 }
 function reloadAccounts() {
     cleanUp();
-    $.ajax({url : "password_ajax.php"}).done(dataReady);
+    $.post("password_ajax.php",{},function(msg){dataReady(msg);});
 }
 function filterTags(tag){//replace by cleaning up and showing only accounts that fit
     emptyTable();
@@ -811,7 +824,7 @@ function disableGrouping(){
 }
 $(document).ready(function(){
 datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true,autoWidth:false, drawCallback: function(settings) { preDrawCallback( this.api(), settings);}, "lengthMenu": [ [10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"] ] });
-$.ajax({url : "password_ajax.php"}).done(dataReady);
+$.post("password_ajax.php",{},function(msg){dataReady(msg);});
 $("#pinloginform").on('submit',function(e){
     e.preventDefault();
     var pin=$("#pinxx").val();
@@ -1234,13 +1247,8 @@ function exportcsv()
     }
     $.getScript( 'js/jquery.csv.js', function() {
         var csv = $.csv.fromObjects(obj);
-        var element = document.createElement('a');
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(csv));
-        element.setAttribute('download', 'export.csv');
-        element.style.display = 'none';
-        document.body.appendChild(element);
-        element.click();
-        document.body.removeChild(element);
+        var blob = new Blob([csv], {type: "text/plain;charset=utf-8"});
+        saveAs(blob, "export.csv");
     });
     timeout=default_timeout+Math.floor(Date.now() / 1000);
 }

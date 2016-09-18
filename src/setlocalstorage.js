@@ -1,7 +1,7 @@
 function setpwdstore(sk,confusion_key,salt)
 {
 	sessionStorage.pwdsk=encryptchar(sk,salt);
-    sessionStorage.confusion_key=encryptchar(confusion_key,salt);
+  sessionStorage.confusion_key=encryptchar(confusion_key,salt);
 }
 function getpwdstore(salt)
 {

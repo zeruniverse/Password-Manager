@@ -2,6 +2,16 @@
 require_once("function/encryption.php");
 require_once("function/sqllink.php");
 session_start();
+$currentCookieParams = session_get_cookie_params();  
+$sidvalue = session_id();  
+setcookie(  
+    'PHPSESSID',//name  
+    $sidvalue,//value  
+    0,//expires at end of session  
+    $currentCookieParams['path'],//path  
+    $currentCookieParams['domain'],//domain  
+    true //secure  
+);
 function getUserIP()
 {
     $remote  = $_SERVER['REMOTE_ADDR'];
@@ -19,7 +29,7 @@ function loghistory($link,$userid,$ip,$ua,$outcome)
 if(!isset($_SESSION['random_login_stamp']) || $_SESSION['random_login_stamp']=='') {die("4");}
 $usr=$_POST['user'];
 $pw=$_POST['pwd'];
-if($pw==""||$usr=="") die("0");
+if($pw==""||$usr==""||$_POST['session_token']=='') die("0");
 $link=sqllink();
 if(!$link) die('4');
 
@@ -62,6 +72,7 @@ $_SESSION['userid']=$record['id'];
 $_SESSION['pwd']=$record['password'];
 $_SESSION['fields']=$record['fields'];
 $_SESSION['create_time']=time();
+$_SESSION['session_token']=$_POST['session_token'];
 loghistory($link,(int)$record["id"],getUserIP(),$_SERVER['HTTP_USER_AGENT'],1);
 echo "9";
 ?>

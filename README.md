@@ -7,7 +7,7 @@
 **'master' branch is a dev-branch, please download stable version from [Release](https://github.com/zeruniverse/Password-Manager/releases) in order to use.**      
   
 ##Version
-v9.09    
+v9.10    
 From v9.0, this project becomes mature. I've implemented all features planned when I started this project.       
 There will still be infrequent bug fixes and improvements though.  
 Supports are available [here](https://github.com/zeruniverse/Password-Manager/issues) for versions greater than v9.0   

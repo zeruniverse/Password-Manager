@@ -38,9 +38,21 @@ function sqlquery($sql,$link)
 }
 function checksession($link)
 {
-    global $SERVER_TIMEOUT;
+    global $SERVER_TIMEOUT, $HOSTDOMAIN;
     session_start();
     if(!isset($_SESSION['loginok'])||$_SESSION['loginok']!=1) {session_destroy();return FALSE;}
+    if(isset($_SERVER['HTTP_REFERER'])&&($_SERVER['HTTP_REFERER']!='')&&(strpos($_SERVER['HTTP_REFERER'], $HOSTDOMAIN)!==0))
+    {
+        //Users from other sites are banned
+        session_destroy();
+        return FALSE;
+    }
+    if($_POST['session_token']!==$_SESSION['session_token'])
+    {
+        //Must check session_token to prevent cross-site attack
+        session_destroy();
+        return FALSE;
+    }
     if(!$link||!isset($_SESSION['create_time'])||$_SESSION['create_time']+$SERVER_TIMEOUT<time()) {session_destroy(); return FALSE;}
     $usr=$_SESSION['user'];
     $pw=$_SESSION['pwd'];
