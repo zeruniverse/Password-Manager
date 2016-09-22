@@ -8,10 +8,8 @@
   
 ##Version
 v9.10    
-From v9.0, this project becomes mature. I've implemented all features planned when I started this project.       
-There will still be infrequent bug fixes and improvements though.  
 Supports are available [here](https://github.com/zeruniverse/Password-Manager/issues) for versions greater than v9.0   
-Older versions will not be supported anymore. Please upgrade to versions later than v9.0    
+Older versions will not be supported anymore. If you are from old versions, please upgrade to versions later than v9.10    
   
 ##DEMO  
 [phppasswordmanager.sourceforge.net](http://phppasswordmanager.sourceforge.net/)  
