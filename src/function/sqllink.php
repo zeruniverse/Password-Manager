@@ -41,7 +41,7 @@ function checksession($link)
     global $SERVER_TIMEOUT, $HOSTDOMAIN;
     session_start();
     if(!isset($_SESSION['loginok'])||$_SESSION['loginok']!=1) {session_destroy();return FALSE;}
-    if(isset($_SERVER['HTTP_REFERER'])&&($_SERVER['HTTP_REFERER']!='')&&(strpos($_SERVER['HTTP_REFERER'], $HOSTDOMAIN)!==0))
+    if(isset($_SERVER['HTTP_REFERER'])&&($_SERVER['HTTP_REFERER']!='')&&(strpos(strtolower($_SERVER['HTTP_REFERER']), strtolower($HOSTDOMAIN))!==0))
     {
         //Users from other sites are banned
         session_destroy();
