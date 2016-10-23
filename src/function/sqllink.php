@@ -47,7 +47,7 @@ function checksession($link)
         session_destroy();
         return FALSE;
     }
-    if($_POST['session_token']!==$_SESSION['session_token'])
+    if(($_SERVER['REQUEST_METHOD'] == 'POST') && ($_POST['session_token']!==$_SESSION['session_token']))
     {
         //Must check session_token to prevent cross-site attack
         session_destroy();
