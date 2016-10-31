@@ -6,6 +6,8 @@
 ![Environment](https://img.shields.io/badge/MySQL-required-ff69b4.svg)     
 **'master' branch is a dev-branch, please download stable version from [Release](https://github.com/zeruniverse/Password-Manager/releases) in order to use.**      
   
+Benjamin has started the [PwChromeExtension](https://github.com/BenjaminHae/PwChromeExtension) project, which provides a Chrome and Firefox extension for this Password-Manager. The project is currently **under active development**.
+  
 ##Version
 v9.10    
 Supports are available [here](https://github.com/zeruniverse/Password-Manager/issues) for versions greater than v9.0   
