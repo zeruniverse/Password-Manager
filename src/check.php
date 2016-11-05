@@ -11,8 +11,7 @@ setcookie(
     0,//expires at end of session  
     $currentCookieParams['path'],//path  
     $currentCookieParams['domain'],//domain  
-    (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-        || $_SERVER['SERVER_PORT'] == 443, //secure 
+    $currentCookieParams['secure'], //secure 
     true 
 );
 function getUserIP()

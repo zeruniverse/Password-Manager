@@ -10,7 +10,7 @@ setcookie(
     0,//expires at end of session  
     $currentCookieParams['path'],//path  
     $currentCookieParams['domain'],//domain  
-    null, //secure  
+    (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443, //secure 
     true
 );
 if(isset($_SESSION["loginok"])&& $_SESSION['loginok']==1) {header("Location: ./password.php"); die();}
