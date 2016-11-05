@@ -15,6 +15,7 @@ setcookie(
 );
 if(isset($_SESSION["loginok"])&& $_SESSION['loginok']==1) {header("Location: ./password.php"); die();}
 if(!isset($_SESSION['random_login_stamp'])) $_SESSION['random_login_stamp']=date("Ymdhis").mt_rand(10000,99999);
+$_SESSION['session_token']=bin2hex(openssl_random_pseudo_bytes(32));
 if($DB_NAME=='') die('PLEASE CONFIG function/config.php before using this system!');
 echoheader();
 function usepin()
@@ -125,8 +126,7 @@ var PWSalt='<?php echo $GLOBAL_SALT_2; ?>';
 $("#usepin").on("hidden.bs.modal", function () {
     $("#user").focus();
 });
-var session_token=getpwd('1234567890abcdefghjklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',50);
-sessionStorage.session_token=session_token;
+var session_token='<?php echo $_SESSION['session_token']; ?>';
 $.ajaxPrefilter(function(options, originalOptions, jqXHR){
     if (options.type.toLowerCase() === "post") {
         options.data = options.data || "";

@@ -3,7 +3,9 @@ require_once("function/encryption.php");
 require_once("function/sqllink.php");
 session_start();
 $currentCookieParams = session_get_cookie_params();  
+$token = $_SESSION['session_token'];
 session_regenerate_id(true);
+$_SESSION['session_token'] = $token;
 $sidvalue = session_id();  
 setcookie(  
     session_name(),//name  
@@ -74,7 +76,6 @@ $_SESSION['userid']=$record['id'];
 $_SESSION['pwd']=$record['password'];
 $_SESSION['fields']=$record['fields'];
 $_SESSION['create_time']=time();
-$_SESSION['session_token']=$_POST['session_token'];
 loghistory($link,(int)$record["id"],getUserIP(),$_SERVER['HTTP_USER_AGENT'],1);
 echo "9";
 ?>
