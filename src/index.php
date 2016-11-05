@@ -127,6 +127,7 @@ $("#usepin").on("hidden.bs.modal", function () {
     $("#user").focus();
 });
 var session_token='<?php echo $_SESSION['session_token']; ?>';
+localStorage.session_token = session_token;
 $.ajaxPrefilter(function(options, originalOptions, jqXHR){
     if (options.type.toLowerCase() === "post") {
         options.data = options.data || "";

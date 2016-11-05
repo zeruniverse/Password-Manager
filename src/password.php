@@ -41,7 +41,7 @@ $.ajaxPrefilter(function(options, originalOptions, jqXHR){
     if (options.type.toLowerCase() === "post") {
         options.data = options.data || "";
         options.data += options.data?"&":"";
-        options.data += "session_token=" + '<?php echo $_SESSION["session_token"]; ?>';
+        options.data += "session_token=" + localStorage.session_token;
     }
 });
 function quitpwd()
@@ -92,7 +92,7 @@ function checksessionalive()
       <div class="container">
         <div style="display:none">
         <form id="historyform" action="history.php" method="post">
-        <input type="hidden" id="historyformsesstoken" value="<?php echo $_SESSION["session_token"];?>" name="session_token" />
+        <input type="hidden" id="historyformsesstoken" name="session_token" />
         </form>
         </div>
         <div class="navbar-header pull-left">
@@ -118,7 +118,7 @@ function checksessionalive()
               <li><a href="javascript: exportcsv();">Export CSV</a></li>
               <li><a href="" data-toggle="modal" data-target="#changepwd">Change Password</a></li>
               <li><a href="" data-toggle="modal" data-target="#changefields">Customize Fields</a></li>
-              <li><a href="javascript: $('#historyform').submit();">Account Activity</a></li>
+              <li><a href="javascript: $('#historyformsesstoken').val(localStorage.session_token); $('#historyform').submit();">Account Activity</a></li>
             </ul>
             </li>
           </ul>
