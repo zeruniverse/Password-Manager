@@ -6,5 +6,6 @@ if(isset($_SESSION['pwd'])) unset($_SESSION['pwd']);
 if(isset($_SESSION['fields'])) unset($_SESSION['fields']);
 if(isset($_SESSION['userid'])) unset($_SESSION['userid']);
 if(isset($_SESSION['random_login_stamp'])) unset($_SESSION['random_login_stamp']);
+session_destroy();
 header("Location: ./");
 ?>

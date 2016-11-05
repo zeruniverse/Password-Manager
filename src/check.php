@@ -3,6 +3,7 @@ require_once("function/encryption.php");
 require_once("function/sqllink.php");
 session_start();
 $currentCookieParams = session_get_cookie_params();  
+session_regenerate_id(true);
 $sidvalue = session_id();  
 setcookie(  
     'PHPSESSID',//name  
@@ -10,7 +11,8 @@ setcookie(
     0,//expires at end of session  
     $currentCookieParams['path'],//path  
     $currentCookieParams['domain'],//domain  
-    null, //secure 
+    (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+        || $_SERVER['SERVER_PORT'] == 443, //secure 
     true 
 );
 function getUserIP()
