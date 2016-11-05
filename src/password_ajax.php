@@ -3,6 +3,9 @@ function error($msg) {
     echo json_encode(array("status" => "error", "message" => $msg));
     die();
 }
+if ($_SERVER['REQUEST_METHOD'] !== 'POST'){
+    error('Wrong method');
+}
 require_once("function/sqllink.php");
 require_once("function/encryption.php");
 $link=sqllink();
