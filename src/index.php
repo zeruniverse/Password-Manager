@@ -5,16 +5,17 @@ session_start();
 $currentCookieParams = session_get_cookie_params();  
 $sidvalue = session_id();  
 setcookie(  
-    'PHPSESSID',//name  
+    session_name(),//name  
     $sidvalue,//value  
     0,//expires at end of session  
     $currentCookieParams['path'],//path  
     $currentCookieParams['domain'],//domain  
-    null, //secure  
+    (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443, //secure 
     true
 );
 if(isset($_SESSION["loginok"])&& $_SESSION['loginok']==1) {header("Location: ./password.php"); die();}
 if(!isset($_SESSION['random_login_stamp'])) $_SESSION['random_login_stamp']=date("Ymdhis").mt_rand(10000,99999);
+$_SESSION['session_token']=bin2hex(openssl_random_pseudo_bytes(32));
 if($DB_NAME=='') die('PLEASE CONFIG function/config.php before using this system!');
 echoheader();
 function usepin()
@@ -125,8 +126,8 @@ var PWSalt='<?php echo $GLOBAL_SALT_2; ?>';
 $("#usepin").on("hidden.bs.modal", function () {
     $("#user").focus();
 });
-var session_token=getpwd('1234567890abcdefghjklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',50);
-sessionStorage.session_token=session_token;
+var session_token='<?php echo $_SESSION['session_token']; ?>';
+localStorage.session_token = session_token;
 $.ajaxPrefilter(function(options, originalOptions, jqXHR){
     if (options.type.toLowerCase() === "post") {
         options.data = options.data || "";
