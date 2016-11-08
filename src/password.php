@@ -1,7 +1,6 @@
 <?php
 require_once("function/basic.php");
 echoheader();
-session_start();
 ?>
 <style type="text/css">
 @font-face {
