@@ -1199,7 +1199,7 @@ function clicktoshow(id){
         $("#"+id).html("Oops, some error occurs!");
         return;
     }
-    $("#"+id).html('<span class="pwdshowbox" style="font-family:passwordshow""></span><a title="Hide" class="cellOptionButton" href="javascript: clicktohide(\''+id+'\')"><span class="glyphicon glyphicon-eye-close"></span></a>');
+    $("#"+id).html('<span class="pwdshowbox" style="font-family:passwordshow"></span><a title="Hide" class="cellOptionButton" href="javascript: clicktohide(\''+id+'\')"><span class="glyphicon glyphicon-eye-close"></span></a>');
     $("#"+id+" > .pwdshowbox").text(thekey);
 } 
 function showuploadfiledlg(id){
