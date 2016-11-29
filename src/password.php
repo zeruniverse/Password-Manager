@@ -677,26 +677,34 @@ function showTable(accounts)
     visibleAccounts=accounts;
     var tempchar;
     for(index in accounts) {
-        var cols = [
-            "<td class='namecell'><span class='accountname' data-id='"+accounts[index]["index"]+"'>"+accounts[index]["name"]+'</span><a title="Edit" class="cellOptionButton" href="javascript: edit('+accounts[index]["index"]+')"><span class="glyphicon glyphicon-wrench"></span></a><a title="Details" class="cellOptionButton" style="margin-right:15px;" href="javascript: showdetail('+accounts[index]["index"]+')"><span class="glyphicon glyphicon-eye-open"></span></a></td>',
-            '<td><span passid="'+accounts[index]["index"]+'" enpassword="'+accounts[index]["enpassword"]+'" id="'+accounts[index]["index"]+'"><a title="Click to see" href="javascript: clicktoshow(\''+accounts[index]["index"]+'\')"><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span></a></span></td>'];
+        var cols = $();
+        cols.add($("<td class='namecell'></td>")
+            .append($("<span class='accountname' data-id='"+accounts[index]["index"]+"'></span>").text(accounts[index]["name"]))
+            .append($('<a title="Edit" class="cellOptionButton" href="javascript: edit('+accounts[index]["index"]+')"></a>')
+                .append($('<span class="glyphicon glyphicon-wrench"></span>')))
+            .append($('<a title="Details" class="cellOptionButton" style="margin-right:15px;" href="javascript: showdetail('+accounts[index]["index"]+')"></a>')
+                .append($('<span class="glyphicon glyphicon-eye-open"></span>')))
+        );
+        cols.add($('<td><span passid="'+accounts[index]["index"]+'" enpassword="'+accounts[index]["enpassword"]+'" id="'+accounts[index]["index"]+'"><a title="Click to see" href="javascript: clicktoshow(\''+accounts[index]["index"]+'\')"><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span></a></span></td>'));
         // fill in other
         for (x in fields) {
             if (fields[x]["count"]>0)
-            {
+            { 
                 var value="";
                 if (x in accounts[index]["other"])
                     value = accounts[index]["other"][x];
-                var cell = '<td class="'+x+'cell'+fields[x]["cls"]+'"><span class="account'+x+'">'+value+'</span></td>';
+                var cell = $('<td class="'+x+'cell'+fields[x]["cls"]+'"></td>')
+                    .append('<span class="account'+x+'"></span>').text(value);
+                //ToDo. splice in jquery?
                 if (("position" in fields[x]) && (fields[x]["position"] != 0)) {
-                    cols.splice(fields[x]["position"], 0, cell);
+                    cols.eq(fields[x]["position"] - 1).after(cell);
                 }
                 else
-                    cols.push(cell);
+                    cols.add(cell);
             }
         }
         // create row for datatable
-        row = $("<tr class='datarow' data-id="+accounts[index]["index"]+">").append(cols.join(""));
+        row = $("<tr class='datarow' data-id="+accounts[index]["index"]+">").append(cols));
         datatablestatus.row.add(row);
     }
 
