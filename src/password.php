@@ -678,11 +678,23 @@ function showTable(accounts)
     var tempchar;
     for(index in accounts) {
         var cols = [];
-        cols.push($("<td class='namecell'></td>")
-            .append($("<span class='accountname' data-id='"+accounts[index]["index"]+"'></span>").text(accounts[index]["name"]))
-            .append($('<a title="Edit" class="cellOptionButton" href="javascript: edit('+accounts[index]["index"]+')"></a>')
-                .append($('<span class="glyphicon glyphicon-wrench"></span>')))
-            .append($('<a title="Details" class="cellOptionButton" style="margin-right:15px;" href="javascript: showdetail('+accounts[index]["index"]+')"></a>')
+        cols.push($("<td></td>")
+            .attr('class','namecell')
+            .append($("<span></span>")
+                .attr('class','accountname')
+                .data('id',accounts[index]["index"])
+                .text(accounts[index]["name"]))
+            .append($('<a></a>')
+                .attr('title',"Edit")
+                .attr('class','cellOptionButton')
+                .attr('href','javascript:edit('+accounts[index]["index"]+')') 
+                .append($('<span></span>')
+                    .attr('class','glyphicon glyphicon-wrench')))
+            .append($('<a></a>')
+                .attr('title','Details')
+                .attr('class','cellOptionButton')
+                .attr('style','margin-right:15px')
+                .attr('href','javascript: showdetail('+accounts[index]["index"]+')')
                 .append($('<span class="glyphicon glyphicon-eye-open"></span>')))
         );
         cols.push($('<td><span passid="'+accounts[index]["index"]+'" enpassword="'+accounts[index]["enpassword"]+'" id="'+accounts[index]["index"]+'"><a title="Click to see" href="javascript: clicktoshow(\''+accounts[index]["index"]+'\')"><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span></a></span></td>'));
@@ -693,8 +705,8 @@ function showTable(accounts)
                 var value="";
                 if (x in accounts[index]["other"])
                     value = accounts[index]["other"][x];
-                var cell = $('<td class="'+x+'cell'+fields[x]["cls"]+'"></td>')
-                    .append('<span class="account'+x+'"></span>').text(value);
+                var cell = $('<td></td>').attr('class', x+'cell'+fields[x]["cls"])
+                    .append($('<span></span>').attr('class','account'+x).text(value));
                 if (("position" in fields[x]) && (fields[x]["position"] != 0)) {
                     cols.splice(fields[x]["position"], 0, cell);
                 }
@@ -703,7 +715,7 @@ function showTable(accounts)
             }
         }
         // create row for datatable
-        row = $("<tr class='datarow' data-id="+accounts[index]["index"]+">").append(cols));
+        row = $("<tr class='datarow' data-id="+accounts[index]["index"]+">").append(cols);
         datatablestatus.row.add(row);
     }
 
