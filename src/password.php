@@ -689,6 +689,14 @@ function showTable(accounts)
     accounts=preShowPreparation(accounts);
     visibleAccounts=accounts;
     var tempchar;
+    var asterisk = $('<span></span').attr('class','glyphicon glyphicon-asterisk');
+    var pwdLink = $('<a></a>').attr('title','Click to see')
+            .append(asterisk.clone())
+            .append(asterisk.clone())
+            .append(asterisk.clone())
+            .append(asterisk.clone())
+            .append(asterisk.clone())
+            .append(asterisk);
     for(index in accounts) {
         var cols = [];
         cols.push($("<td></td>")
@@ -710,7 +718,13 @@ function showTable(accounts)
                 .attr('href','javascript: showdetail('+accounts[index]["index"]+')')
                 .append($('<span class="glyphicon glyphicon-eye-open"></span>')))
         );
-        cols.push($('<td><span passid="'+accounts[index]["index"]+'" enpassword="'+accounts[index]["enpassword"]+'" id="'+accounts[index]["index"]+'"><a title="Click to see" href="javascript: clicktoshow(\''+accounts[index]["index"]+'\')"><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span></a></span></td>'));
+        cols.push($('<td></td>')
+            .append($('<span></span>')
+                .attr('passid',accounts[index]["index"])
+                .attr('enpassword',accounts[index]["enpassword"])
+                .attr('id',accounts[index]["index"])
+                .append(pwdLink.clone().attr('href','javascript: clicktoshow(\''+accounts[index]["index"]+'\')'))
+            ));
         // fill in other
         for (x in fields) {
             if (fields[x]["count"]>0)
@@ -728,7 +742,7 @@ function showTable(accounts)
             }
         }
         // create row for datatable
-        row = $("<tr class='datarow' data-id="+accounts[index]["index"]+">").append(cols);
+        row = $("<tr></tr>").attr('class','datarow').data('id',accounts[index]["index"]).append(cols);
         datatablestatus.row.add(row);
     }
 
