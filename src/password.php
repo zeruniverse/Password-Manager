@@ -621,25 +621,38 @@ function initFields() {
     for (x in fields) {
         var header = "";
         if (fields[x]["count"]>0)
-            header = '<th class="'+x+'cell'+fields[x]["cls"]+' field">'+fields[x]["colname"]+'</th>';
-        var input = "";
-        var inputtype = "text";
-        if ("type" in fields[x])
-            inputtype = fields[x]["type"];
-        if (inputtype == "textarea")
-            input = '<textarea class="form-control" id="%NAME%iteminput'+x+'" placeholder="'+fields[x]["hint"]+'"></textarea>';
-        else
-            input = '<input class="form-control" id="%NAME%iteminput'+x+'" type="'+inputtype+'" placeholder="'+fields[x]["hint"]+'"/>';
-        var form = '<div class="form-group field"><label for="%NAME%iteminput'+x+'" class="control-label">'+fields[x]["colname"]+':</label>'+input+'</div>';
+            header = $('<th></th>')
+                        .attr('class',x+'cell'+fields[x]["cls"]+' field')
+                        .text(fields[x]["colname"]);
+        var forms = {};
+        for (val of ['new','edit']){
+            var input;
+            var inputtype = "text";
+            if ("type" in fields[x])
+                inputtype = fields[x]["type"];
+            if (inputtype == "textarea")
+                input = $('<textarea></textarea>');
+            else
+                input = $('<input></input>').attr('type',inputtype);
+            input.attr('class','form-control')
+                .attr('id',val+'iteminput'+x)
+                .attr('placeholder',fields[x]["hint"]);
+            var form = $('<div></div>').attr('class','form-group field')
+                .append($('<label></label>')
+                    .attr('for',val+'iteminput'+x)
+                    .attr('class','control-label').text(fields[x]["colname"]))
+                .append(input);
+            forms[val] = form;
+        }
         if (("position" in fields[x]) && (fields[x]["position"] != 0)) {
             $('#pwdlist > thead > tr:first > th:nth-child('+fields[x]["position"]+')').after(header)
-            $("#add").find('form > .form-group:nth-child('+fields[x]["position"]+')').after(form.replace(/%NAME%/g,"new"));
-            $("#edit").find('form > .form-group:nth-child('+fields[x]["position"]+')').after(form.replace(/%NAME%/g,"edit"));
+            $("#add").find('form > .form-group:nth-child('+fields[x]["position"]+')').after(forms["new"]);
+            $("#edit").find('form > .form-group:nth-child('+fields[x]["position"]+')').after(forms["edit"]);
         }
         else {
             $("#pwdlist > thead > tr:first").append(header);
-            $("#add").find("form").append(form.replace(/%NAME%/g,"new"));
-            $("#edit").find("form").append(form.replace(/%NAME%/g,"edit"));
+            $("#add").find("form").append(forms["new"]);
+            $("#edit").find("form").append(forms["edit"]);
         }
     }
 }
