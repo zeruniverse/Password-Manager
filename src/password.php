@@ -621,7 +621,7 @@ function initFields() {
     for (x in fields) {
         var header = "";
         if (fields[x]["count"]>0)
-            header = $('<th></th>')
+            header = $('<th>')
                         .attr('class',x+'cell'+fields[x]["cls"]+' field')
                         .text(fields[x]["colname"]);
         var forms = {};
@@ -631,14 +631,14 @@ function initFields() {
             if ("type" in fields[x])
                 inputtype = fields[x]["type"];
             if (inputtype == "textarea")
-                input = $('<textarea></textarea>');
+                input = $('<textarea>');
             else
-                input = $('<input></input>').attr('type',inputtype);
+                input = $('<input>').attr('type',inputtype);
             input.attr('class','form-control')
                 .attr('id',val+'iteminput'+x)
                 .attr('placeholder',fields[x]["hint"]);
-            var form = $('<div></div>').attr('class','form-group field')
-                .append($('<label></label>')
+            var form = $('<div>').attr('class','form-group field')
+                .append($('<label>')
                     .attr('for',val+'iteminput'+x)
                     .attr('class','control-label').text(fields[x]["colname"]))
                 .append(input);
@@ -689,8 +689,8 @@ function showTable(accounts)
     accounts=preShowPreparation(accounts);
     visibleAccounts=accounts;
     var tempchar;
-    var asterisk = $('<span></span').attr('class','glyphicon glyphicon-asterisk');
-    var pwdLink = $('<a></a>').attr('title','Click to see')
+    var asterisk = $('<span>').attr('class','glyphicon glyphicon-asterisk');
+    var pwdLink = $('<a>').attr('title','Click to see')
             .append(asterisk.clone())
             .append(asterisk.clone())
             .append(asterisk.clone())
@@ -699,27 +699,27 @@ function showTable(accounts)
             .append(asterisk);
     for(index in accounts) {
         var cols = [];
-        cols.push($("<td></td>")
+        cols.push($("<td>")
             .attr('class','namecell')
-            .append($("<span></span>")
+            .append($("<span>")
                 .attr('class','accountname')
                 .data('id',accounts[index]["index"])
                 .text(accounts[index]["name"]))
-            .append($('<a></a>')
+            .append($('<a>')
                 .attr('title',"Edit")
                 .attr('class','cellOptionButton')
                 .attr('href','javascript:edit('+accounts[index]["index"]+')') 
                 .append($('<span></span>')
                     .attr('class','glyphicon glyphicon-wrench')))
-            .append($('<a></a>')
+            .append($('<a>')
                 .attr('title','Details')
                 .attr('class','cellOptionButton')
                 .attr('style','margin-right:15px')
                 .attr('href','javascript: showdetail('+accounts[index]["index"]+')')
                 .append($('<span class="glyphicon glyphicon-eye-open"></span>')))
         );
-        cols.push($('<td></td>')
-            .append($('<span></span>')
+        cols.push($('<td>')
+            .append($('<span>')
                 .attr('passid',accounts[index]["index"])
                 .attr('enpassword',accounts[index]["enpassword"])
                 .attr('id',accounts[index]["index"])
@@ -727,13 +727,12 @@ function showTable(accounts)
             ));
         // fill in other
         for (x in fields) {
-            if (fields[x]["count"]>0)
-            { 
+            if (fields[x]["count"]>0) { 
                 var value="";
                 if (x in accounts[index]["other"])
                     value = accounts[index]["other"][x];
-                var cell = $('<td></td>').attr('class', x+'cell'+fields[x]["cls"])
-                    .append($('<span></span>').attr('class','account'+x).text(value));
+                var cell = $('<td>').attr('class', x+'cell'+fields[x]["cls"])
+                    .append($('<span>').attr('class','account'+x).text(value));
                 if (("position" in fields[x]) && (fields[x]["position"] != 0)) {
                     cols.splice(fields[x]["position"], 0, cell);
                 }
@@ -742,7 +741,7 @@ function showTable(accounts)
             }
         }
         // create row for datatable
-        row = $("<tr></tr>").attr('class','datarow').data('id',accounts[index]["index"]).append(cols);
+        row = $("<tr>").attr('class','datarow').data('id',accounts[index]["index"]).append(cols);
         datatablestatus.row.add(row);
     }
 
