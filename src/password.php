@@ -454,7 +454,7 @@ function import_raw(json){
     }
     function bk(){
         $("#importbtn").attr("disabled",false);
-        $("#importbtn").html("Submit");
+        $("#importbtn").text("Submit");
         $("#importc").attr("disabled",false);
     }
     function add_acc(acc,pass,other){
@@ -520,7 +520,7 @@ function import_csv(csv){
         }
         function bk(){
         $("#importbtn").attr("disabled",false);
-        $("#importbtn").html("Submit");
+        $("#importbtn").text("Submit");
         $("#importc").attr("disabled",false);
         }
         function onsucc(){
@@ -538,13 +538,13 @@ function import_csv(csv){
 function showMessage(type, message, modal){
     modal = (typeof modal !== 'undefined') ? modal : false;
     if (modal==false) {
-        $("#messageText").html(message);
+        $("#messageText").text(message);
         $("#message").removeClass("alert-success alert-info alert-warning alert-danger");
         $("#message").addClass("alert-"+type);
         $("#message").fadeIn();
     }
     else {
-        $("#messageDialogText").html(message);
+        $("#messageDialogText").text(message);
         $("#messageDialogText").removeClass("alert-success alert-info alert-warning alert-danger");
         $("#messageDialogText").addClass("alert-"+type);
         $("#messageDialog").modal('show');
@@ -621,25 +621,38 @@ function initFields() {
     for (x in fields) {
         var header = "";
         if (fields[x]["count"]>0)
-            header = '<th class="'+x+'cell'+fields[x]["cls"]+' field">'+fields[x]["colname"]+'</th>';
-        var input = "";
-        var inputtype = "text";
-        if ("type" in fields[x])
-            inputtype = fields[x]["type"];
-        if (inputtype == "textarea")
-            input = '<textarea class="form-control" id="%NAME%iteminput'+x+'" placeholder="'+fields[x]["hint"]+'"></textarea>';
-        else
-            input = '<input class="form-control" id="%NAME%iteminput'+x+'" type="'+inputtype+'" placeholder="'+fields[x]["hint"]+'"/>';
-        var form = '<div class="form-group field"><label for="%NAME%iteminput'+x+'" class="control-label">'+fields[x]["colname"]+':</label>'+input+'</div>';
+            header = $('<th>')
+                        .attr('class',x+'cell'+fields[x]["cls"]+' field')
+                        .text(fields[x]["colname"]);
+        var forms = {};
+        for (val of ['new','edit']){
+            var input;
+            var inputtype = "text";
+            if ("type" in fields[x])
+                inputtype = fields[x]["type"];
+            if (inputtype == "textarea")
+                input = $('<textarea>');
+            else
+                input = $('<input>').attr('type',inputtype);
+            input.attr('class','form-control')
+                .attr('id',val+'iteminput'+x)
+                .attr('placeholder',fields[x]["hint"]);
+            var form = $('<div>').attr('class','form-group field')
+                .append($('<label>')
+                    .attr('for',val+'iteminput'+x)
+                    .attr('class','control-label').text(fields[x]["colname"]))
+                .append(input);
+            forms[val] = form;
+        }
         if (("position" in fields[x]) && (fields[x]["position"] != 0)) {
             $('#pwdlist > thead > tr:first > th:nth-child('+fields[x]["position"]+')').after(header)
-            $("#add").find('form > .form-group:nth-child('+fields[x]["position"]+')').after(form.replace(/%NAME%/g,"new"));
-            $("#edit").find('form > .form-group:nth-child('+fields[x]["position"]+')').after(form.replace(/%NAME%/g,"edit"));
+            $("#add").find('form > .form-group:nth-child('+fields[x]["position"]+')').after(forms["new"]);
+            $("#edit").find('form > .form-group:nth-child('+fields[x]["position"]+')').after(forms["edit"]);
         }
         else {
             $("#pwdlist > thead > tr:first").append(header);
-            $("#add").find("form").append(form.replace(/%NAME%/g,"new"));
-            $("#edit").find("form").append(form.replace(/%NAME%/g,"edit"));
+            $("#add").find("form").append(forms["new"]);
+            $("#edit").find("form").append(forms["edit"]);
         }
     }
 }
@@ -664,7 +677,7 @@ function showAllTags() {
     var tags = gatherDistinctTags();
     $('#tags').empty();
     for (x in tags){
-        $("#tags").append("<a href=\"#\" onclick=\"$(this).addClass('activeTag');filterTags('"+tags[x]+"');\">" + tags[x] + "</a> ");
+        $("#tags").append($("<a>").attr('href','#').attr('onclick',"$(this).addClass('activeTag');filterTags('"+tags[x]+"');").text(tags[x])).append(" ");
     }
     if (tags.length>0) {
         $("#tagCloud").show();
@@ -676,18 +689,50 @@ function showTable(accounts)
     accounts=preShowPreparation(accounts);
     visibleAccounts=accounts;
     var tempchar;
+    var asterisk = $('<span>').attr('class','glyphicon glyphicon-asterisk');
+    var pwdLink = $('<a>').attr('title','Click to see')
+            .append(asterisk.clone())
+            .append(asterisk.clone())
+            .append(asterisk.clone())
+            .append(asterisk.clone())
+            .append(asterisk.clone())
+            .append(asterisk);
     for(index in accounts) {
-        var cols = [
-            "<td class='namecell'><span class='accountname' data-id='"+accounts[index]["index"]+"'>"+accounts[index]["name"]+'</span><a title="Edit" class="cellOptionButton" href="javascript: edit('+accounts[index]["index"]+')"><span class="glyphicon glyphicon-wrench"></span></a><a title="Details" class="cellOptionButton" style="margin-right:15px;" href="javascript: showdetail('+accounts[index]["index"]+')"><span class="glyphicon glyphicon-eye-open"></span></a></td>',
-            '<td><span passid="'+accounts[index]["index"]+'" enpassword="'+accounts[index]["enpassword"]+'" id="'+accounts[index]["index"]+'"><a title="Click to see" href="javascript: clicktoshow(\''+accounts[index]["index"]+'\')"><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span></a></span></td>'];
+        var cols = [];
+        cols.push($("<td>")
+            .attr('class','namecell')
+            .append($("<span>")
+                .attr('class','accountname')
+                .data('id',accounts[index]["index"])
+                .text(accounts[index]["name"]))
+            .append($('<a>')
+                .attr('title',"Edit")
+                .attr('class','cellOptionButton')
+                .attr('href','javascript:edit('+accounts[index]["index"]+')') 
+                .append($('<span></span>')
+                    .attr('class','glyphicon glyphicon-wrench')))
+            .append($('<a>')
+                .attr('title','Details')
+                .attr('class','cellOptionButton')
+                .attr('style','margin-right:15px')
+                .attr('href','javascript: showdetail('+accounts[index]["index"]+')')
+                .append($('<span class="glyphicon glyphicon-eye-open"></span>')))
+        );
+        cols.push($('<td>')
+            .append($('<span>')
+                .attr('passid',accounts[index]["index"])
+                .attr('enpassword',accounts[index]["enpassword"])
+                .attr('id',accounts[index]["index"])
+                .append(pwdLink.clone().attr('href','javascript: clicktoshow(\''+accounts[index]["index"]+'\')'))
+            ));
         // fill in other
         for (x in fields) {
-            if (fields[x]["count"]>0)
-            {
+            if (fields[x]["count"]>0) { 
                 var value="";
                 if (x in accounts[index]["other"])
                     value = accounts[index]["other"][x];
-                var cell = '<td class="'+x+'cell'+fields[x]["cls"]+'"><span class="account'+x+'">'+value+'</span></td>';
+                var cell = $('<td>').attr('class', x+'cell'+fields[x]["cls"])
+                    .append($('<span>').attr('class','account'+x).text(value));
                 if (("position" in fields[x]) && (fields[x]["position"] != 0)) {
                     cols.splice(fields[x]["position"], 0, cell);
                 }
@@ -696,7 +741,7 @@ function showTable(accounts)
             }
         }
         // create row for datatable
-        row = $("<tr class='datarow' data-id="+accounts[index]["index"]+">").append(cols.join(""));
+        row = $("<tr>").attr('class','datarow').data('id',accounts[index]["index"]).append(cols);
         datatablestatus.row.add(row);
     }
 
@@ -787,7 +832,7 @@ function enableGrouping(){
                 else
                     firsttag = dbentry["other"]["tags"].split(',')[0].trim();
                 if ( last !== firsttag) {
-                    $(row).before( '<tr class="group"><td colspan="15"><strong>&nbsp;&nbsp;'+firsttag+'</strong></td></tr>');
+                    $(row).before( $('<tr>').attr('class',"group").append($('<td>').attr('colspan',"15").append($('<strong>').text(firsttag).prepend('&nbsp;&nbsp;'))));
                     last = firsttag;
                 }
             });
@@ -1085,11 +1130,11 @@ $("#changepw").click(function(){
 });
 $("#importbtn").click(function(){ 
     $("#importbtn").attr("disabled",true);
-    $("#importbtn").html("Processing...");
+    $("#importbtn").text("Processing...");
     $("#importc").attr("disabled",true);
     function bk(){
         $("#importbtn").attr("disabled",false);
-        $("#importbtn").html("Submit");
+        $("#importbtn").text("Submit");
         $("#importc").attr("disabled",false);
     }
     function process(){
@@ -1123,11 +1168,11 @@ $("#importbtn").click(function(){
 
 $("#uploadfilebtn").click(function(){ 
     $("#uploadfilebtn").attr("disabled",true);
-    $("#uploadfilebtn").html("Processing...");
+    $("#uploadfilebtn").text("Processing...");
     $("#uploadf").attr("disabled",true);
     function bk(){
         $("#uploadfilebtn").attr("disabled",false);
-        $("#uploadfilebtn").html("Submit");
+        $("#uploadfilebtn").text("Submit");
         $("#uploadf").attr("disabled",false);
     }
     function process(){
@@ -1196,7 +1241,7 @@ function clicktoshow(id){
     id=parseInt(id);
     var thekey = decryptPassword(accountarray[id]["name"],accountarray[id]["enpassword"]);
     if (thekey==""){
-        $("#"+id).html("Oops, some error occurs!");
+        $("#"+id).text("Oops, some error occurs!");
         return;
     }
     $("#"+id).html('<span class="pwdshowbox" style="font-family:passwordshow"></span><a title="Hide" class="cellOptionButton" href="javascript: clicktohide(\''+id+'\')"><span class="glyphicon glyphicon-eye-close"></span></a>');
@@ -1204,10 +1249,10 @@ function clicktoshow(id){
 } 
 function showuploadfiledlg(id){
     $("#uploadfiledlg").modal("hide");
-    $("#uploadfitemlab1").html(accountarray[id]["name"]);
-    $("#uploadfitemlab2").html(accountarray[id]["name"]);
+    $("#uploadfitemlab1").text(accountarray[id]["name"]);
+    $("#uploadfitemlab2").text(accountarray[id]["name"]);
     $("#uploadfilebtn").attr("disabled",false);
-    $("#uploadfilebtn").html("Submit");
+    $("#uploadfilebtn").text("Submit");
     $("#uploadf").attr("disabled",false);
     fileid=id;
     $("#uploadfiledlg").modal("show");
@@ -1272,20 +1317,36 @@ function showdetail(index){
     }
     var i=parseInt(index);
     var x,s;
-    s='<b>'+accountarray[i]["name"]+'</b><br /><br />';
-    s=s+'<table style="width: 100%" font color="#ff0000">';
-    s=s+'<colgroup><col width="90"><col width="auto"></colgroup>';
+    s=$('#details');
+    s.html('');
+    s.append($('<b>').text(accountarray[i]["name"]))
+     .append($('<br/>')).append($('<br/>'));
+    var table=$('<table style="width: 100%" font color="#ff0000">')
+            .append($('<colgroup><col width="90"><col width="auto"></colgroup>'));
     for (x in accountarray[i]["other"]) {
         if(x in fields){
-            s=s+'<tr><td style="color:#afafaf; font-weight:normal">'+fields[x]['colname']+'</td><td style="color:#6d6d6d; font-weight:bold">'+accountarray[i]["other"][x]+'</td></tr>';
+            table.append($('<tr>')
+                .append($('<td>').attr('style',"color:#afafaf; font-weight:normal").text(fields[x]['colname']))
+                .append($('<td>').attr('style',"color:#6d6d6d; font-weight:bold").text(accountarray[i]["other"][x])));
         }
     }
     if(file_enabled==1){
-        if(accountarray[i]["fname"]!='') s=s+'<tr><td style="color:#66ccff;font-weight:normal">File</td><td style="color:#0000ff;font-weight:bold"><a href="javascript: downloadf('+accountarray[i]["index"]+')" title="Download File">'+accountarray[i]["fname"]+'</a>&nbsp;&nbsp;&nbsp;<a title="Upload file" href="javascript: showuploadfiledlg('+accountarray[i]["index"]+')"><span class="glyphicon glyphicon-arrow-up"></span></a></td>'; else s=s+'<tr><td style="color:#66ccff;font-weight:normal">File</td><td style="color:#0000ff;font-weight:bold">None&nbsp;&nbsp;&nbsp;<a title="Upload file" href="javascript: showuploadfiledlg('+accountarray[i]["index"]+')"><span class="glyphicon glyphicon-arrow-up"></span></a></td>'; 
-    }    
-    s=s+'</table>';
-    s=s+'<br /><p style="color:red">Password last changed at '+timeConverter(lasttimechangearray[i])+'</p>';
-    $('#details').html(s);
+        if(accountarray[i]["fname"]!='') 
+            table.append($('<tr>')
+                .append($('<td>').attr('style',"color:#66ccff;font-weight:normal").text('File'))
+                .append($('<td>').attr('style',"color:#0000ff;font-weight:bold")
+                    .append($('<a>').attr('href',"javascript: downloadf("+accountarray[i]["index"]+")").attr('title',"Download File").text(accountarray[i]["fname"]))
+                    .append('&nbsp;&nbsp;&nbsp;')
+                    .append($('<a>').attr('title',"Upload file").attr('href',"javascript: showuploadfiledlg("+accountarray[i]["index"]+")")
+                        .append($('<span>').attr('class',"glyphicon glyphicon-arrow-up")))));
+        else table.append($('<tr>')
+                    .append($('<td>').attr('style',"color:#66ccff;font-weight:normal").text('File'))
+                    .append($('<td>').attr('style',"color:#0000ff;font-weight:bold").text('None').append('&nbsp;&nbsp;&nbsp;')
+                        .append($('<a>').attr('title',"Upload file").attr('href',"javascript: showuploadfiledlg("+accountarray[i]["index"]+")").append($('<span>').attr('class',"glyphicon glyphicon-arrow-up"))))); 
+    }
+    s.append(table);
+    s.append('<br />').append($('<p>').attr('style',"color:red").text('Password last changed at '+timeConverter(lasttimechangearray[i])));
+    $('#details').append(s);
     $("#showdetails").modal("show");
 }
 </script>
