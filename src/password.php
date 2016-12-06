@@ -20,6 +20,7 @@ echoheader();
 <script type="text/javascript" src="js/dataTables.responsive.min.js"></script>
 <script type="text/javascript" src="js/FileSaver.min.js"></script>
 <script type="text/javascript">
+const thisIsThePasswordManager = "21688ab4-8e22-43b0-a988-2ca2c98e5796";
 //everything is going to be loaded later
 var secretkey;
 var default_timeout;
