@@ -25,7 +25,7 @@ echoheader();
       <p style="color:red">Select backup.txt containing your backup data.</p>
     <input type="file" id="backupc" accept=".txt" />
     <p> </p>
-    <p>Password: <input type="password" name="pwd" id="pwd" /></p><br />
+    <p>Password: <input type="password" autocomplete="off" name="pwd" id="pwd" /></p><br />
     <p style="color:red">Input the login password when you generate the backup file.</p>
     <p> </p>
     <p style="color:red">Recovering takes long time. (No less than backup time) If your web browser asks you whether to kill the page due to no response, choose [wait]!</p>

@@ -80,7 +80,7 @@ if(!isAllHTML5Supports()) {
                 <label for="user" class="control-label sr-only">User Name: </label>
                 <input type="text" class="form-control" placeholder="User Name" name="user" id="user" />
                 <label for="pwd" class="control-label sr-only">Password: </label>
-                <input type="password" class="form-control" placeholder="Password" name="pwd" id="pwd" />
+                <input type="password" autocomplete="off" class="form-control" placeholder="Password" name="pwd" id="pwd" />
             </div>
             <div class="form-group">
                 <input type="submit" class="btn btn-lg btn-success btn-block" id="chk"  value="Login" />
@@ -106,7 +106,7 @@ if(!isAllHTML5Supports()) {
                     <form id="pinloginform">
                         <div class="form-group">
                             <label for="pin" class="control-label">PIN:</label>
-                            <input id="pin" class="form-control" type="password" />
+                            <input id="pin" autocomplete="off" class="form-control" type="password" />
                             <label class="small" style="display:block; clear:both;">You see this window because you or someone set an PIN in this device and choose it as default login method. To switch account or disable PIN, please press the red button below. To use username/password to login only this time, close this window by pressing the 'X' at top-right corner.</label>
                             <label class="small" style="display:block; clear:both; color:red">Closing this window only let you use username/password to login this time. PIN will still be chosen as default method in future. Press red button below if you want to disable current PIN.</label>
                         </div>

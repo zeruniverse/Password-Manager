@@ -299,7 +299,7 @@ function checksessionalive()
                 <form id="pinloginform">
                     <div class="form-group">
                         <label for="pinxx" class="control-label">PIN:</label>
-                        <input id="pinxx" class="form-control" type="password" />
+                        <input id="pinxx" autocomplete="off" class="form-control" type="password" />
                         <label class="small" style="display:block; clear:both; color:red">Only set PIN in your trusted devices!</label>
                         <label class="small" style="display:block; clear:both;">PIN can be set on your trusted devices to give you convenience while login. If you set PIN, you can use PIN instead of username and password to login next time. PIN is safe, you only have 3 chances to input a PIN before it's disabled automatically.</label>
                     </div>
@@ -371,15 +371,15 @@ function checksessionalive()
                 <form>
                     <div class="form-group">
                         <label for="oldpassword" class="control-label">Old Password:</label>
-                        <input id="oldpassword" class="form-control" type="password" />
+                        <input id="oldpassword" autocomplete="off" class="form-control" type="password" />
                     </div>
                     <div class="form-group">
                         <label for="pwd" class="control-label">New Password:</label>
-                        <input id="pwd" class="form-control" type="password" />
+                        <input id="pwd" autocomplete="off" class="form-control" type="password" />
                     </div>
                     <div class="form-group">
                         <label for="pwd1" class="control-label">New Password Again:</label>
-                        <input id="pwd1" class="form-control" type="password" />
+                        <input id="pwd1" autocomplete="off" class="form-control" type="password" />
                     </div>
                 </form>
             </div>
