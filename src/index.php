@@ -74,6 +74,11 @@ if(!isAllHTML5Supports()) {
         <div class="page-header">
             <h1>Password Manager</h1>
         </div>
+        <?php
+        if(isset($_GET["reason"])) {
+            echo '<div id="message" class="alert alert-info"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><span id="messageText">'.htmlspecialchars($_GET['reason'], ENT_QUOTES, 'UTF-8').'</span></div>';
+        }
+        ?>
         <h3>Please Sign in</h3>
         <form style="max-width:300px;" id="loginform">
             <div class="form-group">
