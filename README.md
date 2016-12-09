@@ -14,7 +14,7 @@ Supports are available [here](https://github.com/zeruniverse/Password-Manager/is
 Older versions will not be supported anymore. If you are from old versions, please upgrade to versions later than v9.10    
   
 ##DEMO  
-[phppasswordmanager.sourceforge.net](http://phppasswordmanager.sourceforge.net/)  
+[phppasswordmanager.sourceforge.io](https://phppasswordmanager.sourceforge.io)  
 This demo is for test ONLY! Do NOT put your real password there.  
 You can access the database for this demo [here](https://mysql-p.sourceforge.net), with login username **p2663268ro** and password **12345678**   
   
