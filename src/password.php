@@ -44,9 +44,13 @@ $.ajaxPrefilter(function(options, originalOptions, jqXHR){
         options.data += "session_token=" + localStorage.session_token;
     }
 });
-function quitpwd()
+function quitpwd(reason)
 {
-    delpwdstore(); window.location.href="./logout.php";
+    delpwdstore();
+    reason = reason || "";
+    if (reason != "")
+        reason ="?reason="+encodeURIComponent(reason);
+    window.location.href="./logout.php"+reason;
 }
 function quitpwd_untrust()
 {
@@ -57,7 +61,7 @@ function quitpwd_untrust()
 }
 function countdown()
 {
-    if(timeout < Math.floor(Date.now() / 1000)) quitpwd();
+    if(timeout < Math.floor(Date.now() / 1000)) quitpwd("Logged out due to inactivity");
 }
 function checksessionalive()
 {
@@ -80,7 +84,7 @@ function checksessionalive()
     }
     var ck=getCookie("ServerRenew");
     if(ck=='1') server_timeout=default_server_timeout+Math.floor(Date.now() / 1000);
-    if(ck=="-1"||server_timeout<Math.floor(Date.now() / 1000)) quitpwd();
+    if(ck=="-1"||server_timeout<Math.floor(Date.now() / 1000)) quitpwd("Session timed out");
     setCookie("ServerRenew",'0');
 }
 </script>
@@ -554,7 +558,7 @@ function showMessage(type, message, modal){
 function dataReady(data){
     data = $.parseJSON(data);
     if (data["status"]=="error") {
-        window.location.href = './?reason='+encodeURIComponent(data["message"]);
+        quitpwd("Login failed: " + data["message"]);
         return;
     }
     default_timeout = data["default_timeout"];
@@ -580,7 +584,7 @@ function dataReady(data){
     if(file_enabled==1) $("#fileincludeckbp").attr("style",""); else $("#fileincludeckbp").attr("style","display:none");
     var secretkey0=getpwdstore(salt2);
     if (secretkey0==""){
-        quitpwd();
+        quitpwd("Login failed, due to missing secretkey");
         return;
     }
     secretkey=String(CryptoJS.SHA512(secretkey0+salt2));
@@ -1122,7 +1126,7 @@ $("#changepw").click(function(){
         $.post("changeuserpw.php",{newpass:String(CryptoJS.SHA512(postnewpass+user)), passarray:JSON.stringify(passarray), accarray:JSON.stringify(accarray)},function(msg){ 
             if(msg==1) {
                 alert("Change Password Successfully! Please login with your new password again.");
-                quitpwd();
+                quitpwd("Password changed, please relogin");
             } else {showMessage('warning',"Fail to change your password, please try again.", true); }
         });
         }

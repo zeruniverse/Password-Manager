@@ -11,6 +11,10 @@ setcookie(session_name(), '', time() - 42000,
     $params["path"], $params["domain"],
     $params["secure"], $params["httponly"]
 );
+session_regenerate_id(true);//as suggested by owasp, change sessionId when changing context
 session_destroy();
-header("Location: ./");
+$reason = "";
+if(isset($_GET["reason"]))
+    $reason .= "?reason=".urlencode($_GET["reason"]);
+header("Location: ./".$reason);
 ?>
