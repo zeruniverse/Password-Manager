@@ -44,10 +44,13 @@ $.ajaxPrefilter(function(options, originalOptions, jqXHR){
         options.data += "session_token=" + localStorage.session_token;
     }
 });
-function quitpwd()
+function quitpwd(reason)
 {
-    delpwdstore(); 
-    window.location.href="./logout.php?reason='+encodeURIComponent()";
+    delpwdstore();
+    reason = reason || "";
+    if (reason != "")
+        reason ="?reason="+encodeURIComponent(reason);
+    window.location.href="./logout.php"+reason;
 }
 function quitpwd_untrust()
 {
