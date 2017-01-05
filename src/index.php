@@ -2,17 +2,6 @@
 require_once('function/basic.php');
 require_once("function/sqllink.php");
 session_start();
-$currentCookieParams = session_get_cookie_params();  
-$sidvalue = session_id();  
-setcookie(  
-    session_name(),//name  
-    $sidvalue,//value  
-    0,//expires at end of session  
-    $currentCookieParams['path'],//path  
-    $currentCookieParams['domain'],//domain  
-    (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443, //secure 
-    true
-);
 if(isset($_SESSION["loginok"])&& $_SESSION['loginok']==1) {header("Location: ./password.php"); die();}
 if(!isset($_SESSION['random_login_stamp'])) $_SESSION['random_login_stamp']=date("Ymdhis").mt_rand(10000,99999);
 $_SESSION['session_token']=bin2hex(openssl_random_pseudo_bytes(32));

@@ -2,20 +2,10 @@
 require_once("function/encryption.php");
 require_once("function/sqllink.php");
 session_start();
-$currentCookieParams = session_get_cookie_params();  
 $token = $_SESSION['session_token'];
 session_regenerate_id(true);
 $_SESSION['session_token'] = $token;
 $sidvalue = session_id();  
-setcookie(  
-    session_name(),//name  
-    $sidvalue,//value  
-    0,//expires at end of session  
-    $currentCookieParams['path'],//path  
-    $currentCookieParams['domain'],//domain  
-    $currentCookieParams['secure'], //secure 
-    true 
-);
 function getUserIP()
 {
     $remote  = $_SERVER['REMOTE_ADDR'];

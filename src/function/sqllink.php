@@ -66,4 +66,6 @@ function checksession($link)
 	setcookie("ServerRenew", "1");
     return TRUE;
 }   
+$currentCookieParams = session_get_cookie_params();  
+session_set_cookie_params(0, $currentCookieParams['path'], $currentCookieParams['domain'], (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443, true);
 ?>
