@@ -12,7 +12,11 @@ echoheader();
 	</div>
 	<h3>New User</h3>
     <p>Only numbers and letters are allowed for username</p>
-	<form style="max-width:300px;">
+    <?php
+    if ($ALLOW_SIGN_UP === False)
+        echo '<div id="message" class="alert alert-info"><a href="#" class="close" data-dismiss="alert" aria-label="close">×</a><span id="messageText">Signup is not allowed.</span></div>';
+    ?>
+	<form style="max-width:300px;" <?php if ($ALLOW_SIGN_UP === False) echo 'class="hidden"';?>>
         <div class="form-group">
             <label for="user" class="control-label">User Name: </label>
             <input type="text" class="form-control" name="user" id="user" />
@@ -29,8 +33,8 @@ echoheader();
             <label for="email" class="control-label">Email:</label>
             <input type="text" class="form-control"name="email" id="email" />
         </div>
+        <input type="button" class="btn btn-md btn-success" id="chk"  value="Submit" />
     </form>
-    <input type="button" class="btn btn-md btn-success" id="chk"  value="Submit" />
 <script type="text/javascript">
 var JSsalt='<?php echo $GLOBAL_SALT_1;?>';
     function isEmail(aEmail) {
@@ -54,23 +58,21 @@ var JSsalt='<?php echo $GLOBAL_SALT_1;?>';
         $.post("reg.php",{email:$("#email").val(), pwd:String(CryptoJS.SHA512(login_sig+$("#user").val())),  user: $("#user").val()},function(msg){ 
 		if(msg==0){
 			 	alert("User name already occupied, please choose another user name.");
-				$("#chk").attr("value", "Submit");
-				$("#chk").attr("disabled", false);
 		}else
 		if(msg==1){
 			 	alert("This E-mail has already been used.");
-				$("#chk").attr("value", "Submit");
-				$("#chk").attr("disabled", false);
 		}else
 		if(msg==9){
 			 	alert("Successfully signup, now please sign in!");
 			 	window.location.href="index.php";
-		}else{
+        }else
+        if(msg=="Method not allowed") {
+            alert("Signup is not allowed.");
+        }else{
                 alert("There're some errors, please retry");
-				$("#chk").attr("value", "Submit");
-				$("#chk").attr("disabled", false);
 		}
-		 
+        $("#chk").attr("value", "Submit");
+        $("#chk").attr("disabled", false);
         }); 
         }
         setTimeout(process,50);

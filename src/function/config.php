@@ -36,6 +36,9 @@ $FILE_ENABLED = True;
 //Allow Password-Manager to store files? True -- YES; False -- NO
 //Disabling File feature will hide API on user screen, but the backend won't change.
 
+//Allow new user signup
+$ALLOW_SIGN_UP = True;
+
 //PIN expire
 $PIN_EXPIRE_TIME=7776000; 
 //PIN expire in 7776000 seconds.
