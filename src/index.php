@@ -86,7 +86,7 @@ if(!isAllHTML5Supports()) {
         <span id="accountban" class="errorhint"  style="display:none; color:Red">Your account has been protected due to continuous attack. Try again in <?php echo $ACCOUNT_BAN_TIME;?> seconds<br /></span>
         <span id="othererror" class="errorhint"  style="display:none; color:Red">Oops, our server run into some problems. Please refresh this page and try again.<br /></span>
         <hr />
-        <button class="btn btn-sm btn-default" type="button" onClick="window.location.href='signup.php';" >Sign Up</button>&nbsp; <button class="btn btn-sm btn-warning" type="button" onClick="window.location.href='recovery.php';" >Password Recovery</button>
+        <button class="btn btn-sm btn-default<?php if ($ALLOW_SIGN_UP === False) echo " hidden";?>" type="button" onClick="window.location.href='signup.php';" >Sign Up</button>&nbsp; <button class="btn btn-sm btn-warning" type="button" onClick="window.location.href='recovery.php';" >Password Recovery</button>
     <hr />
     <div>Version <?php echo $VERSION;?> (<a href="https://github.com/zeruniverse/Password-Manager/releases">DOWNLOAD</a>)</div>
     <div class="modal" tabindex="-1" role="dialog" id="usepin">
