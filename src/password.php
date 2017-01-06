@@ -1,5 +1,6 @@
 <?php
 require_once("function/basic.php");
+require_once("function/config.php");
 echoheader();
 ?>
 <style type="text/css">
@@ -121,7 +122,7 @@ function checksessionalive()
               <li><a href="" data-toggle="modal" data-target="#import">Import</a></li>
               <li><a href="javascript: exportcsv();">Export CSV</a></li>
               <li><a href="" data-toggle="modal" data-target="#changepwd">Change Password</a></li>
-              <li><a href="" data-toggle="modal" data-target="#changefields">Customize Fields</a></li>
+              <?php if($CUSTOMIZE_FIELDS) echo '<li><a href="" data-toggle="modal" data-target="#changefields">Customize Fields</a></li>';?>
               <li><a href="javascript: $('#historyformsesstoken').val(localStorage.session_token); $('#historyform').submit();">Account Activity</a></li>
             </ul>
             </li>

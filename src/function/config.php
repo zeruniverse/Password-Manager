@@ -39,6 +39,9 @@ $FILE_ENABLED = True;
 //Allow new user signup
 $ALLOW_SIGN_UP = True;
 
+//Allow users to be able to use the 'Customize fields' option
+$CUSTOMIZE_FIELDS=True;
+
 //PIN expire
 $PIN_EXPIRE_TIME=7776000; 
 //PIN expire in 7776000 seconds.
