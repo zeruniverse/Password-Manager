@@ -16,7 +16,7 @@ echoheader();
     if ($ALLOW_SIGN_UP === False)
         echo '<div id="message" class="alert alert-info"><a href="#" class="close" data-dismiss="alert" aria-label="close">×</a><span id="messageText">Signup is not allowed.</span></div>';
     ?>
-	<form style="max-width:300px;<?php if ($ALLOW_SIGN_UP === False) echo " hidden";?>">
+	<form style="max-width:300px;" <?php if ($ALLOW_SIGN_UP === False) echo 'class="hidden"';?>>
         <div class="form-group">
             <label for="user" class="control-label">User Name: </label>
             <input type="text" class="form-control" name="user" id="user" />
@@ -33,8 +33,8 @@ echoheader();
             <label for="email" class="control-label">Email:</label>
             <input type="text" class="form-control"name="email" id="email" />
         </div>
+        <input type="button" class="btn btn-md btn-success" id="chk"  value="Submit" />
     </form>
-    <input type="button" class="btn btn-md btn-success" id="chk"  value="Submit" />
 <script type="text/javascript">
 var JSsalt='<?php echo $GLOBAL_SALT_1;?>';
     function isEmail(aEmail) {
