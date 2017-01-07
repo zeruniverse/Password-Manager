@@ -3,6 +3,9 @@ $pw=$_POST['pwd'];
 $usr=$_POST['user'];
 $email=$_POST['email'];
 if($pw==''||$usr==''||$email=="")die("7");
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    die("5");
+}
 require_once("function/sqllink.php");
 require_once("function/encryption.php");
 require_once("function/config.php");

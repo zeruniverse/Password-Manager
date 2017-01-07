@@ -62,6 +62,10 @@ var JSsalt='<?php echo $GLOBAL_SALT_1;?>';
 		if(msg==1){
 			 	alert("This E-mail has already been used.");
 		}else
+		if(msg==5){
+			 	alert("Invalid E-mail address.");
+			 	window.location.href="index.php";
+        }else
 		if(msg==9){
 			 	alert("Successfully signup, now please sign in!");
 			 	window.location.href="index.php";
