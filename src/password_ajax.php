@@ -20,6 +20,7 @@ $result["global_salt_1"] = $GLOBAL_SALT_1;
 $result["global_salt_2"] = $GLOBAL_SALT_2;
 $result["user"] = $_SESSION['user'];
 $result["fields"] = $_SESSION['fields'];
+$result["fields_allow_change"] = $CUSTOMIZE_FIELDS;
 $result["server_timeout"]=$SERVER_TIMEOUT;
 $result["file_enabled"]=$FILE_ENABLED?1:0;
 
