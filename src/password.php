@@ -121,7 +121,7 @@ function checksessionalive()
               <li><a href="" data-toggle="modal" data-target="#import">Import</a></li>
               <li><a href="javascript: exportcsv();">Export CSV</a></li>
               <li><a href="" data-toggle="modal" data-target="#changepwd">Change Password</a></li>
-              <li><a href="" data-toggle="modal" data-target="#changefields">Customize Fields</a></li>
+              <li id="changefieldsnav"><a href="" data-toggle="modal" data-target="#changefields">Customize Fields</a></li>
               <li><a href="javascript: $('#historyformsesstoken').val(localStorage.session_token); $('#historyform').submit();">Account Activity</a></li>
             </ul>
             </li>
@@ -582,6 +582,8 @@ function dataReady(data){
     ALPHABET = default_letter_used;
     PWsalt = salt2;
     if(file_enabled==1) $("#fileincludeckbp").attr("style",""); else $("#fileincludeckbp").attr("style","display:none");
+    if(!data["fields_allow_change"])
+        $("#changefieldsnav").hide();
     var secretkey0=getpwdstore(salt2);
     if (secretkey0==""){
         quitpwd("Login failed, due to missing secretkey");
@@ -928,7 +930,7 @@ $("#changefieldsbtn").click(function(){
     if("passwordlastchangtime_01_system" in j) {showMessage('warning', 'illegal fields!', true);return;}
     $.post("changefields.php",{fields:a},function(msg){ 
         if(msg==1) {
-            showMessage('success','<strong>Successfully</strong> changed fields!'); 
+            showMessage('success','Successfully changed fields!'); 
             $('#changefields').modal('hide');
             reloadAccounts();
         }
