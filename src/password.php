@@ -930,7 +930,7 @@ $("#changefieldsbtn").click(function(){
     if("passwordlastchangtime_01_system" in j) {showMessage('warning', 'illegal fields!', true);return;}
     $.post("changefields.php",{fields:a},function(msg){ 
         if(msg==1) {
-            showMessage('success','<strong>Successfully</strong> changed fields!'); 
+            showMessage('success','Successfully changed fields!'); 
             $('#changefields').modal('hide');
             reloadAccounts();
         }
