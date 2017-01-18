@@ -77,7 +77,7 @@ function get_orig_pwd(key,salt,account_sig,orig_alphabet,temp_pwd)
 }
 
 function encryptchar(encryptch,key){  
-    if(encryptchar==""||key==""){  
+    if(encryptch==""||key==""){  
         alert("ERROR: empty key detected!");  
         return;  
     }
