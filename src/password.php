@@ -556,7 +556,6 @@ function showMessage(type, message, modal){
     }
 }
 function dataReady(data){
-    data = $.parseJSON(data);
     if (data["status"]=="error") {
         quitpwd("Login failed: " + data["message"]);
         return;
