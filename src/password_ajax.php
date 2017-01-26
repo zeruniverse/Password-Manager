@@ -1,4 +1,5 @@
 <?php
+header('Content-Type: application/json');
 function error($msg) {
     echo json_encode(array("status" => "error", "message" => $msg));
     die();
@@ -9,7 +10,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST'){
 require_once("function/sqllink.php");
 require_once("function/encryption.php");
 $link=sqllink();
-if(!checksession($link)) error("AUTHENTICATION ERROR, PLEASE RELOGIN");
+if(!checksession($link)) {
+    error("AUTHENTICATION ERROR, PLEASE RELOGIN");
+}
 $id=$_SESSION['userid'];
 $result=array();
 $result["status"] = "success";
