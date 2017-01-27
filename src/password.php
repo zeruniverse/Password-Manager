@@ -1,17 +1,8 @@
 <?php
+header("Content-Security-Policy: default-src 'self';");
 require_once("function/basic.php");
 echoheader();
 ?>
-<style type="text/css">
-@font-face {
-    font-family: 'passwordshow';
-    src:url('pw.ttf');
-}
-.theme-showcase
-{
-    margin-top:10px !important;
-}
-</style>
 <link rel="stylesheet" type="text/css" href="css/dataTables.bootstrap.min.css">
 <link rel="stylesheet" type="text/css" href="css/responsive.dataTables.min.css">
 <script type="text/javascript" src="setlocalstorage.js"></script>

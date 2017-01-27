@@ -28,16 +28,6 @@ echo '<!DOCTYPE html>
     <link rel="shortcut icon" href="favicon.ico">
     <script type="text/javascript" src="js/jquery.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
-    <style>
-    .footer {
-        color: #777;
-        text-align: center;
-        padding: 30px 0;
-        margin-top: 70px;
-        border-top: 1px solid #e5e5e5;
-        background-color: #f5f5f5;
-        }
-    </style>
 </head>
 <body style="color:#666666">';
 }
