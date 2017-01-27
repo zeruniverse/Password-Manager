@@ -34,7 +34,7 @@ body {padding-top: 50px; width:100%;}
 }
 @font-face {
     font-family: 'passwordshow';
-    src:url('pw.ttf');
+    src:url('../pw.ttf');
 }
 .theme-showcase {
     margin-top:10px !important;
