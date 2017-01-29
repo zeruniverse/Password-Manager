@@ -227,7 +227,7 @@ function dataReady(data){
     setInterval(checksessionalive,1000); 
     ALPHABET = default_letter_used;
     PWsalt = salt2;
-    if(file_enabled==1) $("#fileincludeckbp").attr("style",""); else $("#fileincludeckbp").attr("style","display:none");
+    if(file_enabled==1) $("#fileincludeckbp").show(); else $("#fileincludeckbp").hide();
     if(!data["fields_allow_change"])
         $("#changefieldsnav").hide();
     var secretkey0=getpwdstore(salt2);
@@ -367,7 +367,7 @@ function showTable(accounts)
             .append($('<a>')
                 .attr('title','Details')
                 .attr('class','cellOptionButton')
-                .attr('style','margin-right:15px')
+                .css('margin-right','10px')
                 .on('click',{"index":accounts[index]["index"]},function(event){showdetail(event.data.index);}) 
                 .append($('<span class="glyphicon glyphicon-eye-open"></span>')))
         );
@@ -665,7 +665,7 @@ $(document).ready(function(){
     $("#backuppwdbtn").click(function(){
         $("#backuppwdbtn").attr('disabled',true);
         $("#backuppwdpb").attr('aria-valuenow',0);
-        $("#backuppwdpb").attr('style','width:0%');
+        $("#backuppwdpb").css('width','0%');
         $("#fileincludeckb").attr('disabled',true);
         var fileinclude="a";
         if($("#fileincludeckb").is(':checked')) fileinclude="farray";
@@ -674,7 +674,7 @@ $(document).ready(function(){
             function progressbarchange(x)
             {
                 $("#backuppwdpb").attr('aria-valuenow',x);
-                $("#backuppwdpb").attr('style','width:'+x+'%');
+                $("#backuppwdpb").css('width',x+'%');
             }
             function cback()
             {
@@ -692,7 +692,7 @@ $(document).ready(function(){
                 p.data=encryptchar(JSON.stringify(p.data),pbkdf2_enc(a,PWsalt,500));
                 p.fdata=encryptchar(JSON.stringify(p.fdata),pbkdf2_enc(a,PWsalt,500));
                 $("#backuppwdpb").attr('aria-valuenow',99);
-                $("#backuppwdpb").attr('style','width:99%');
+                $("#backuppwdpb").css('width','99%');
                 var blob = new Blob([JSON.stringify(p)], {type: "text/plain;charset=utf-8"});
                 saveAs(blob, "backup.txt");
 
@@ -937,7 +937,7 @@ function clicktoshow(id){
         return;
     }
     $("#"+id).empty()
-        .append($('<span class="pwdshowbox" style="font-family:passwordshow"></span>'))
+        .append($('<span class="pwdshowbox"></span>').css('font-family','passwordshow'))
         .append($('<a title="Hide" class="cellOptionButton"></a>')
                 .on('click',{"index":id},function(event){clicktohide(event.data.index);}) 
                 .append($('<span class="glyphicon glyphicon-eye-close"></span>')));
@@ -1019,20 +1019,20 @@ function showdetail(index){
     s.html('');
     s.append($('<b>').text(accountarray[i]["name"]))
      .append($('<br/>')).append($('<br/>'));
-    var table=$('<table style="width: 100%" font color="#ff0000">')
+    var table=$('<table>').css('width',"100%").css('color',"#ff0000")
             .append($('<colgroup><col width="90"><col width="auto"></colgroup>'));
     for (x in accountarray[i]["other"]) {
         if(x in fields){
             table.append($('<tr>')
-                .append($('<td>').attr('style',"color:#afafaf; font-weight:normal").text(fields[x]['colname']))
-                .append($('<td>').attr('style',"color:#6d6d6d; font-weight:bold").text(accountarray[i]["other"][x])));
+                .append($('<td>').css("color","#afafaf").css("font-weight","normal").text(fields[x]['colname']))
+                .append($('<td>').css("color","#6d6d6d").css("font-weight","bold").text(accountarray[i]["other"][x])));
         }
     }
     if(file_enabled==1){
         if(accountarray[i]["fname"]!='') 
             table.append($('<tr>')
-                .append($('<td>').attr('style',"color:#66ccff;font-weight:normal").text('File'))
-                .append($('<td>').attr('style',"color:#0000ff;font-weight:bold")
+                .append($('<td>').css("color","#66ccff").css("font-weight","normal").text('File'))
+                .append($('<td>').css("color","#0000ff").css("font-weight","bold")
                     .append($('<a>')
                         .attr('title',"Download File").text(accountarray[i]["fname"])
                         .on('click',{"index":accountarray[i]["index"]},function(event){downloadf(event.data.index);}) 
@@ -1042,15 +1042,19 @@ function showdetail(index){
                         .on('click',{"index":accountarray[i]["index"]},function(event){showuploadfiledlg(event.data.index);}) 
                         .append($('<span>').attr('class',"glyphicon glyphicon-arrow-up")))));
         else table.append($('<tr>')
-                    .append($('<td>').attr('style',"color:#66ccff;font-weight:normal").text('File'))
-                    .append($('<td>').attr('style',"color:#0000ff;font-weight:bold").text('None').append('&nbsp;&nbsp;&nbsp;')
+                    .append($('<td>')
+                        .css("color","#66ccff").css("font-weight","normal")
+                        .text('File'))
+                    .append($('<td>')
+                        .css("color","#0000ff").css("font-weight","bold")
+                        .text('None').append('&nbsp;&nbsp;&nbsp;')
                         .append($('<a>').attr('title',"Upload file")
                             .on('click',{"index":accountarray[i]["index"]},function(event){showuploadfiledlg(event.data.index);}) 
                             .append($('<span>')
                                         .attr('class',"glyphicon glyphicon-arrow-up"))))); 
     }
     s.append(table);
-    s.append('<br />').append($('<p>').attr('style',"color:red").text('Password last changed at '+timeConverter(lasttimechangearray[i])));
+    s.append('<br />').append($('<p>').addClass('textred').text('Password last changed at '+timeConverter(lasttimechangearray[i])));
     $('#details').append(s);
     $("#showdetails").modal("show");
 }
