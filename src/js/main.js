@@ -936,7 +936,7 @@ function clicktoshow(id){
         $("#"+id).text("Oops, some error occurs!");
         return;
     }
-    $("#"+id)
+    $("#"+id).empty()
         .append($('<span class="pwdshowbox" style="font-family:passwordshow"></span>'))
         .append($('<a title="Hide" class="cellOptionButton"></a>')
                 .on('click',{"index":id},function(event){clicktohide(event.data.index);}) 
@@ -955,7 +955,7 @@ function showuploadfiledlg(id){
 }
 function clicktohide(id){
     timeout=default_timeout+Math.floor(Date.now() / 1000);
-    $("#"+id).append($('<a title="Click to see"></a>')
+    $("#"+id).empty().append($('<a title="Click to see"></a>')
                         .on('click',{"index":id},function(event){clicktoshow(event.data.index);}) 
                         .append('<span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span>') );
 }
