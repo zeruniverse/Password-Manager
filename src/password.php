@@ -27,8 +27,8 @@ echoheader();
         </div>
         <div class="navbar-header pull-right">
           <div class="pull-left">
-              <a href="#" class="btn btn-info navbar-btn" onClick="quitpwd();"><i class="glyphicon glyphicon-log-out"></i> <strong class="hidden-xs">Log Out</strong></a>
-              <a href="#" class="btn btn-danger navbar-btn" onClick="quitpwd_untrust();" title="Delete all cookies"><i class="glyphicon glyphicon-fire"></i> <strong class="hidden-xs">Untrust</strong></a>
+              <a href="#" id="navBtnLogout" class="btn btn-info navbar-btn"><i class="glyphicon glyphicon-log-out"></i> <strong class="hidden-xs">Log Out</strong></a>
+              <a href="#" id="navBtnUntrust" class="btn btn-danger navbar-btn" title="Delete all cookies"><i class="glyphicon glyphicon-fire"></i> <strong class="hidden-xs">Untrust</strong></a>
           </div>
           <!-- Required bootstrap placeholder for the collapsed menu -->
           <button type="button" data-toggle="collapse" data-target=".navbar-collapse" class="navbar-toggle" style="margin-left:10px"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button>
@@ -42,10 +42,10 @@ echoheader();
             <ul class="dropdown-menu">
               <li><a href="" data-toggle="modal" data-target="#backuppw">Back Up</a></li>
               <li><a href="" data-toggle="modal" data-target="#import">Import</a></li>
-              <li><a href="javascript: exportcsv();">Export CSV</a></li>
+              <li><a id="navBtnExport">Export CSV</a></li>
               <li><a href="" data-toggle="modal" data-target="#changepwd">Change Password</a></li>
               <li id="changefieldsnav"><a href="" data-toggle="modal" data-target="#changefields">Customize Fields</a></li>
-              <li><a href="javascript: $('#historyformsesstoken').val(localStorage.session_token); $('#historyform').submit();">Account Activity</a></li>
+              <li><a id="navBtnActivity">Account Activity</a></li>
             </ul>
             </li>
           </ul>
@@ -61,21 +61,12 @@ echoheader();
         </div>
         <div class="col-md-4">
             <div class="pull-right-sm" id="rightHandBox">
-                <!--<form id="searchForm">
-                  <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
-                    <div class="input-group-btn">
-                        <button class="btn btn-default collapse" id="resetSearch" onClick="filterAccounts('')" type="button" title="reset search"><i class="glyphicon glyphicon-remove"></i></button>
-                        <button class="btn btn-default" type="submit" title="search"><i class="glyphicon glyphicon-search"></i></button>
-                    </div>
-                  </div>
-                </form>-->
                 <div id="tagCloud" style="display:none;">
-                    <p class="lead" style="margin-bottom:0">Tag-Overview<a href="javascript:enableGrouping();" id="orderTags" name="enable grouping" class="small" style="padding-left:10px"><span class="glyphicon glyphicon-sort-by-attributes"></span></a><a href="javascript:disableGrouping();" id="orderTagsDisable" name="disable grouping" class="small" style="padding-left:10px; display:none;"><span class="glyphicon glyphicon-remove"></span></a></p>
+                    <p class="lead" style="margin-bottom:0">Tag-Overview<a id="orderTags" name="enable grouping" class="small" style="padding-left:10px"><span class="glyphicon glyphicon-sort-by-attributes"></span></a><a id="orderTagsDisable" name="disable grouping" class="small" style="padding-left:10px; display:none;"><span class="glyphicon glyphicon-remove"></span></a></p>
                     <p class="visible-xs small" style ="margin-bottom:0;">
-                        <a href="javascript:$('#tags').toggleClass('hidden-xs');$('.tagsShow').toggleClass('hidden');"><span class="tagsShow">show</span><span class="tagsShow hidden">hide</span> tags</a>
+                        <a id="tagsShow"><span class="tagsShow">show</span><span class="tagsShow hidden">hide</span> tags</a>
                     </p>
-                    <span class="hidden-xs" id="tags"></span><p class="small" style="display:none;" id="resetFilter"><a href="javascript:filterTags('');">reset filter</a></p>
+                    <span class="hidden-xs" id="tags"></span><p class="small" style="display:none;" id="resetFilter"><a id="tagsFilter">reset filter</a></p>
                 </div>
             </div>
         </div>
@@ -200,7 +191,7 @@ echoheader();
                     <div class="input-group">
                         <input class="form-control" id="edititeminputpw" type="text" placeholder="Leave blank to generate one"/>
                         <span class="input-group-btn">
-                            <button class="btn btn-warning" onclick="$('#edititeminputpw').val(getpwd(default_letter_used, default_length)); $('#editAccountShowPassword').removeClass('collapse');$('#editAccountShowPassword').popover({ 'placement':'bottom', 'title':'', 'container':'body', 'template':'<div class=\'popover\' role=\'tooltip\' onclick=\'$(&quot;#editAccountShowPassword&quot;).popover(&quot;hide&quot;);\'><div class=\'arrow\'></div><h3 class=\'popover-title hidden\'></h3><div class=\'popover-content\'></div></div>', 'content':'Click here to get your old password back.', 'trigger':'manual' }).popover('show');" type="button" title="generate new password"><i class="glyphicon glyphicon-refresh"></i></button>
+                            <button id="editPasswordInput" class="btn btn-warning" type="button" title="generate new password"><i class="glyphicon glyphicon-refresh"></i></button>
                             <button class="btn btn-default" type="button" id="editAccountShowPassword" title="show current password"><i class="glyphicon glyphicon-eye-open"></i></button>
                         </span>
                     </div>
@@ -233,7 +224,7 @@ echoheader();
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
-                <button type="button" onClick="delpinstore();showMessage('info', 'PIN deleted, use username/password to login next time', true);$('#pin').modal('hide');" class="btn btn-danger" id="delpin">Delete PIN</button>
+                <button id="pinBtnDel" type="button" class="btn btn-danger" id="delpin">Delete PIN</button>
                 <input type="submit" class="btn btn-primary" id="pinlogin" value="Set/Reset" /></form>
             </div>
         </div>
