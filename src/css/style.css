@@ -62,3 +62,39 @@ body {padding-top: 50px; width:100%;}
     border-top: 1px solid #e5e5e5;
     background-color: #f5f5f5;
 }
+.textbold {
+    font-weight:bold;
+}
+.textred {
+    color:red;
+}
+/* Detail View */
+#details {
+    height:230px;
+    background:#efefef;
+    overflow:auto;
+}
+.blocklabel{
+    display:block;
+    clear:both;
+}
+/* Nav */
+.navbar-toggle{
+    margin-left:10px;
+}
+#navbar{
+    min-width:100px;
+}
+#tagCloud p {
+    margin-bottom:0;
+}
+#orderTags, #orderTagsDisable{
+    padding-left:10px;
+}
+/* dialogs */
+#backuppwdpb{
+    width:0%;
+}
+#fieldsz{
+    height:100px;
+}
