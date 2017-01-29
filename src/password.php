@@ -17,7 +17,7 @@ echoheader();
 <script type="text/javascript" src="js/main.js"></script>
    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
       <div class="container">
-        <div class="hidden">
+        <div class="collapse">
         <form id="historyform" action="history.php" method="post">
         <input type="hidden" id="historyformsesstoken" name="session_token" />
         </form>
@@ -61,19 +61,19 @@ echoheader();
         </div>
         <div class="col-md-4">
             <div class="pull-right-sm" id="rightHandBox">
-                <div id="tagCloud" class="hidden">
+                <div id="tagCloud" class="collapse">
                     <p class="lead">Tag-Overview<a id="orderTags" name="enable grouping" class="small"><span class="glyphicon glyphicon-sort-by-attributes"></span></a><a id="orderTagsDisable" name="disable grouping" class="small hidden"><span class="glyphicon glyphicon-remove"></span></a></p>
                     <p class="visible-xs small">
                         <a id="tagsShow"><span class="tagsShow">show</span><span class="tagsShow hidden">hide</span> tags</a>
                     </p>
-                    <span class="hidden-xs" id="tags"></span><p class="small hidden" id="resetFilter"><a id="tagsFilter">reset filter</a></p>
+                    <span class="hidden-xs" id="tags"></span><p class="small collapse" id="resetFilter"><a id="tagsFilter">reset filter</a></p>
                 </div>
             </div>
         </div>
     </div>
-    <div id="message" class="alert hidden"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><span id="messageText"></span></div>
+    <div id="message" class="alert collapse"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><span id="messageText"></span></div>
     <div id="waitsign">PLEASE WAIT WHILE WE ARE DECRYPTING YOUR PASSWORD...</div>
-    <div id="pwdtable" class="hidden">
+    <div id="pwdtable" class="collapse">
     <br />
     <table class="table table-striped table-bordered" id="pwdlist">
     <thead>
@@ -119,7 +119,7 @@ echoheader();
             </div>
             <div class="modal-body">
             <form>
-                <p id="fileincludeckbp" class="hidden"><input type="checkbox" id="fileincludeckb" />Include Files<br /></p>
+                <p id="fileincludeckbp" class="collapse"><input type="checkbox" id="fileincludeckb" />Include Files<br /></p>
                 <p>You will need your CURRENT login password to unlock the backup file even if you change login password later. Write your CURRENT login password down or remember to generate a new backup file after each time you change the login password.</p>
                 <p class="textred">Generating backup file is time consuming...</p>
                 <div class="progress"><div class="progress-bar" role="progressbar"  id="backuppwdpb" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
