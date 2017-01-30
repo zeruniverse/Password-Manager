@@ -40,6 +40,9 @@ body {padding-top: 50px; width:100%; color:#666666;}
     margin-top:10px !important;
 }
 /*Login form */
+#loginform {
+    max-width:300px;
+}
 #loginform #user { 
     margin-bottom: -1px;
     border-bottom-right-radius: 0;
