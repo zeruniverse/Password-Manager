@@ -29,14 +29,6 @@ if(!isAllHTML5Supports()) {
 $("#usepin").on("hidden.bs.modal", function () {
     $("#user").focus();
 });
-localStorage.session_token = session_token;
-$.ajaxPrefilter(function(options, originalOptions, jqXHR){
-    if (options.type.toLowerCase() === "post") {
-        options.data = options.data || "";
-        options.data += options.data?"&":"";
-        options.data += "session_token=" + session_token;
-    }
-});
 function dataReady(data){
     JSsalt = data["global_salt_1"]; 
     PWsalt = data["global_salt_2"];
@@ -49,6 +41,14 @@ function dataReady(data){
     }
     $("#version").text(data["version"]);
     $("#banTime").text(data["banTime"]);
+    localStorage.session_token = session_token;
+    $.ajaxPrefilter(function(options, originalOptions, jqXHR){
+        if (options.type.toLowerCase() === "post") {
+            options.data = options.data || "";
+            options.data += options.data?"&":"";
+            options.data += "session_token=" + session_token;
+        }
+    });
     if(getcookie('device')!="") {
         if(1==usepin) {
             $("#usepin").modal("show");
