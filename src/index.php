@@ -61,7 +61,7 @@ if(isset($_GET["reason"])) {
                 <div class="modal-footer">
                     <p class="collapse" id="pinerrorhint">PIN ERROR, try again.</p>
                     <button type="button" class="btn btn-danger" data-dismiss="modal">Delete PIN</button>
-                    <input type="submit" style="display:inline" class="btn btn-primary" id="pinlogin" value="Login" /></form>
+                    <input type="submit" class="btn btn-primary" id="pinlogin" value="Login" /></form>
                 </div>
             </div>
         </div>
