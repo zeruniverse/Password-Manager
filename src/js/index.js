@@ -100,21 +100,21 @@ function dataReady(data){
                     $("#nouser").show();
                     $("#chk").attr("value", "Login");
                     $("#chk").attr("disabled", false);
-                }else if(msg==4){
-                    $("#othererror").show();
-                    $("#chk").attr("value", "Login");
-                    $("#chk").attr("disabled", false);
                 }else if(msg==7){
                     $("#blockip").show();
                 }else if(msg==8){
                     $("#accountban").show();
                     $("#chk").attr("value", "Login");
                     $("#chk").attr("disabled", false);
-                }else{
+                }else if(msg==9){
                     confkey=pbkdf2_enc(String(CryptoJS.SHA512(pwd+secretkey)),JSsalt,500);
                     setCookie("username",user);
                     setpwdstore(secretkey,confkey,PWsalt);                
                     window.location.href="./password.php";
+                }else{
+                    $("#othererror").show();
+                    $("#chk").attr("value", "Login");
+                    $("#chk").attr("disabled", false);
                 }
             });
         }
