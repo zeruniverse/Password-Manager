@@ -85,6 +85,7 @@ function dataReady(data){
         e.preventDefault();
         $("#chk").attr("disabled", true);
         $("#chk").attr("value", "Wait");
+        $(".errorhint").hide();
         function process(){
             var user = $("#user").val(); 
             var pwd = $("#pwd").val();
