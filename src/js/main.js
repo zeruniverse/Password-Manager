@@ -456,7 +456,7 @@ function cleanUp() {
 }
 function reloadAccounts() {
     cleanUp();
-    $.post("password_ajax.php",{},function(msg){dataReady(msg);});
+    $.post("rest/password.php",{},function(msg){dataReady(msg);});
 }
 function filterTags(tag){//replace by cleaning up and showing only accounts that fit
     emptyTable();
@@ -524,7 +524,7 @@ function disableGrouping(){
 }
 $(document).ready(function(){
     datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true,autoWidth:false, drawCallback: function(settings) { preDrawCallback( this.api(), settings);}, "lengthMenu": [ [10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"] ] });
-    $.post("password_ajax.php",{},function(msg){dataReady(msg);});
+    $.post("rest/password.php",{},function(msg){dataReady(msg);});
     $("#pinloginform").on('submit',function(e){
         e.preventDefault();
         var pin=$("#pinxx").val();

@@ -1,13 +1,6 @@
 <?php
-header('Content-Type: application/json');
-function error($msg) {
-    echo json_encode(array("status" => "error", "message" => $msg));
-    die();
-}
-if ($_SERVER['REQUEST_METHOD'] !== 'POST'){
-    error('Wrong method');
-}
-require_once("../function/sqllink.php");
+require_once(dirname(__FILE__).'/../function/ajax.php');
+require_once(dirname(__FILE__).'/../function/sqllink.php');
 session_start();
 if(!isset($_SESSION['random_login_stamp'])) 
     $_SESSION['random_login_stamp']=date("Ymdhis").mt_rand(10000,99999);
