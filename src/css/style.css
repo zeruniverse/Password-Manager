@@ -41,7 +41,7 @@ a { cursor:pointer; }
     margin-top:10px !important;
 }
 /*Login form */
-#loginform {
+#loginform, #signupform{
     max-width:300px;
 }
 #loginform #user { 
