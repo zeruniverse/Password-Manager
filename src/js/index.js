@@ -60,7 +60,7 @@ function dataReady(data){
         }
     } else $("#user").focus();
     $("#signup").on('click',function(e){window.location.href="signup.php";});
-    $("#recover").on('click',function(e){window.location.href="recover.php";});
+    $("#recover").on('click',function(e){window.location.href="recovery.php";});
     $("#delpin").on('click',function(e){delpinstore();deleteCookie('username');});
     $("#pinloginform").on('submit',function(e){
         var pin;
