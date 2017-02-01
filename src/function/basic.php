@@ -10,6 +10,10 @@ echo '<footer class="footer">
 function echoheader()
 {
     header('X-Frame-Options: DENY');
+    header("Pragma: public");
+    $expires = ONE_DAY;
+    header("Cache-Control: max-age=".$expires.", must-revalidate");
+    header('Expires: ' . gmdate('D, d M Y H:i:s', time()+$expires) . ' GMT');
     echo '<!DOCTYPE html>
 <html lang="en">
 <head>
