@@ -1,4 +1,5 @@
 body {padding-top: 50px; width:100%; color:#666666;}
+a { cursor:pointer; }
 /*.theme-showcase{max-width:100%;}*/
 .cellOptionButton {float:right; }
 /* Tags */
