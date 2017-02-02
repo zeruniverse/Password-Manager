@@ -1,5 +1,4 @@
 <?php
-header("Content-Security-Policy: default-src 'self';");
 require_once('function/basic.php');
 require_once("function/sqllink.php");
 session_start();

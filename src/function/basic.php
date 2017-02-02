@@ -10,6 +10,7 @@ echo '<footer class="footer">
 function echoheader()
 {
     header('X-Frame-Options: DENY');
+    header("Content-Security-Policy: default-src 'self';");
     header("Pragma: public");
     $expires = ONE_DAY;
     header("Cache-Control: max-age=".$expires.", must-revalidate");
