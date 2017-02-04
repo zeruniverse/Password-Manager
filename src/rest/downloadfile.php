@@ -3,7 +3,7 @@ function error($msg) {
     echo json_encode(array("status" => "error", "message" => $msg));
     die();
 }
-require_once("function/sqllink.php");
+require_once(dirname(__FILE__)."/../function/sqllink.php");
 $link=sqllink();
 if(!checksession($link)) error("AUTHENTICATION ERROR, PLEASE RELOGIN");
 $id=$_SESSION['userid'];

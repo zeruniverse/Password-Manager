@@ -1,6 +1,6 @@
 <?php
-require_once("function/sqllink.php");
-require_once("function/encryption.php");
+require_once(dirname(__FILE__).'/../function/sqllink.php');
+require_once(dirname(__FILE__)."/../function/encryption.php");
 if (!$CUSTOMIZE_FIELDS){
     http_response_code(405);
     die('Method not allowed');

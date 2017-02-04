@@ -57,6 +57,6 @@ function setPINstore(device,salt,encryptsec,encryptconf)
 function delpinstore()
 {
     localStorage.clear();
-    if(getcookie('device')!="") $.post("deletepin.php",{user:getcookie('username'),device:getcookie('device')},function(msg){});
+    if(getcookie('device')!="") $.post("rest/deletepin.php",{user:getcookie('username'),device:getcookie('device')},function(msg){});
     deleteCookie('device');
 }
