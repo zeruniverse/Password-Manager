@@ -5,7 +5,7 @@ echoheader();
 <link rel="stylesheet" type="text/css" href="css/dataTables.bootstrap.min.css">
 <link rel="stylesheet" type="text/css" href="css/responsive.dataTables.min.css">
 <script type="text/javascript" src="js/setlocalstorage.js"></script>
-<script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="js/lib/dataTables.bootstrap.min.js"></script>
 <script type="text/javascript" src="js/lib/dataTables.responsive.min.js"></script>
 <script type="text/javascript" src="js/lib/FileSaver.min.js"></script>
