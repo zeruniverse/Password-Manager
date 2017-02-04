@@ -6,9 +6,9 @@ echoheader();
 <link rel="stylesheet" type="text/css" href="css/responsive.dataTables.min.css">
 <script type="text/javascript" src="js/setlocalstorage.js"></script>
 <script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/dataTables.bootstrap.min.js"></script>
-<script type="text/javascript" src="js/dataTables.responsive.min.js"></script>
-<script type="text/javascript" src="js/FileSaver.min.js"></script>
+<script type="text/javascript" src="js/lib/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="js/lib/dataTables.responsive.min.js"></script>
+<script type="text/javascript" src="js/lib/FileSaver.min.js"></script>
 <script type="text/javascript" src="js/crypto/aes.js"></script>
 <script type="text/javascript" src="js/crypto/sha512.js"></script>
 <script type="text/javascript" src="js/crypto/pbkdf2.js"></script>

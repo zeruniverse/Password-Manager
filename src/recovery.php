@@ -6,7 +6,7 @@ echoheader();
 <script type="text/javascript" src="js/crypto/sha512.js"></script>
 <script type="text/javascript" src="js/crypto/pbkdf2.js"></script>
 <script type="text/javascript" src="js/crypto/password.js"></script>
-<script type="text/javascript" src="js/FileSaver.min.js"></script>
+<script type="text/javascript" src="js/lib/FileSaver.min.js"></script>
 <script type="text/javascript" src="js/recovery.js"></script>
 <div class="container theme-showcase">
     <div class="page-header">

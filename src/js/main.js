@@ -153,7 +153,7 @@ function import_raw(json){
     
 }
 function import_csv(csv){
-    $.getScript( 'js/jquery.csv.js', function() {
+    $.getScript( 'js/lib/jquery.csv.js', function() {
         var accarray = $.csv.toObjects(csv);
         timeout=1000000+Math.floor(Date.now() / 1000);
         for (x in accarray) {
@@ -989,7 +989,7 @@ function exportcsv()
         tmp['password']=decryptPassword(accountarray[x]["name"],accountarray[x]["enpassword"]);
         obj.push(tmp);
     }
-    $.getScript( 'js/jquery.csv.js', function() {
+    $.getScript( 'js/lib/jquery.csv.js', function() {
         var csv = $.csv.fromObjects(obj);
         var blob = new Blob([csv], {type: "text/plain;charset=utf-8"});
         saveAs(blob, "export.csv");
