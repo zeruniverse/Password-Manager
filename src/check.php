@@ -58,7 +58,7 @@ if(strcmp(hash('sha512',(string)decrypt($record["password"],$GLOBAL_SALT_3).(str
         $sql="INSERT INTO `blockip` VALUES (?,CURRENT_TIMESTAMP)";
         $res=sqlexec($sql,array(getUserIP()),$link);
     }
-    die("1");
+    die("0");
 }
 $_SESSION['loginok']=1;
 $_SESSION['user']=$usr;
