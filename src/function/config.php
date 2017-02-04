@@ -19,7 +19,7 @@ $DB_PASSWORD='';
 
 //Host Domain - Only Allow Visits to This Domain
 //Note: please specify whether it's HTTP or HTTPS. Use HTTPS if possible
-$HOSTDOMAIN='https://password-manager.example.com';
+$HOSTDOMAIN='https://password-manager.example.com/';
 
 //Default timezone
 date_default_timezone_set('America/Los_Angeles');
