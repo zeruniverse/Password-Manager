@@ -330,7 +330,11 @@ function showAllTags() {
     var tags = gatherDistinctTags();
     $('#tags').empty();
     for (x in tags){
-        $("#tags").append($("<a>").attr('href','#').attr('onclick',"$(this).addClass('activeTag');filterTags('"+tags[x]+"');").text(tags[x])).append(" ");
+        $("#tags").append($("<a>").attr('href','#').on('click',{"tag":tags[x]},function(event){
+            $(this).addClass('activeTag');
+            filterTags(event.data.tag);
+        })
+        .text(tags[x])).append(" ");
     }
     if (tags.length>0) {
         $("#tagCloud").show();
@@ -892,9 +896,14 @@ $(document).ready(function(){
             'placement':'bottom',
             'title':'',
             'container':'body',
-            'template':'<div class=\'popover\' role=\'tooltip\' onclick=\'$(&quot;#editAccountShowPassword&quot;).popover(&quot;hide&quot;);\'><div class=\'arrow\'></div><h3 class=\'popover-title hidden\'></h3><div class=\'popover-content\'></div></div>',
             'content':'Click here to get your old password back.',
-            'trigger':'manual' })
+            'trigger':'focus' })
+            .on('shown.bs.popover', function(){
+                $('.popover').on('click',function(){
+                    $("#editAccountShowPassword").popover("hide");
+                });
+                $('.popover-title').hide();
+            })
             .popover('show'); 
     });
     $('#pinBtnDel').on('click',function(){
