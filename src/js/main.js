@@ -96,7 +96,7 @@ function add_account(acc, pass, other, callback){
     other=JSON.stringify(other);
     other=encryptchar(other, sk);
     acc=encryptchar(acc,sk);
-    $.post("insert.php",{name:acc,newpwd:pass,other:other},callback);
+    $.post("rest/insert.php",{name:acc,newpwd:pass,other:other},callback);
 }
 function import_raw(json){
     json=JSON.parse(sanitize_json(json));
@@ -122,7 +122,7 @@ function import_raw(json){
             var enfkey=encryptPassword(fname,fkey);
             var endata=encryptchar(fdata,fkey);
             var enfname=encryptchar(fname,secretkey);
-            $.post('uploadfile.php',{id:msg,fkey:enfkey,fname:enfname,data:endata},function(msg){
+            $.post('rest/uploadfile.php',{id:msg,fkey:enfkey,fname:enfname,data:endata},function(msg){
             if(msg!='1') showMessage('warning',"Fail to add file for "+acc+", please try again manually later.", true);});
             }
         }
@@ -153,7 +153,7 @@ function import_raw(json){
     
 }
 function import_csv(csv){
-    $.getScript( 'js/jquery.csv.js', function() {
+    $.getScript( 'js/lib/jquery.csv.js', function() {
         var accarray = $.csv.toObjects(csv);
         timeout=1000000+Math.floor(Date.now() / 1000);
         for (x in accarray) {
@@ -412,7 +412,7 @@ function showTable(accounts)
 }
 function downloadf(id){ 
     $("#messagewait").modal("show");
-    $.post('downloadfile.php',{id:id},function(msg){
+    $.post('rest/downloadfile.php',{id:id},function(msg){
         var filedata=$.parseJSON(msg);
         if(filedata['status']=="error") showMessage('danger','ERROR! '+filedata['message'], false);
         else{
@@ -537,7 +537,7 @@ $(document).ready(function(){
         timeout=default_timeout+Math.floor(Date.now() / 1000);
         function process()
         {
-            $.post("setpin.php",{user:getcookie('username'),device:device,sig:String(CryptoJS.SHA512(pin+salt))},function(msg){
+            $.post("rest/setpin.php",{user:getcookie('username'),device:device,sig:String(CryptoJS.SHA512(pin+salt))},function(msg){
                 if(msg=='0'){
                     showMessage('warning', 'ERROR set PIN, try again later!', true);
                     $('#pin').modal('hide');
@@ -556,7 +556,7 @@ $(document).ready(function(){
                 var status=1;
                 device=getpwd('abcdefghijklmnopqrstuvwxyz1234567890',9)
                     setCookie('device',device);
-                $.post("getpinpk.php",{user:getcookie('username'),device:device,sig:'1'},function(msg){
+                $.post("rest/getpinpk.php",{user:getcookie('username'),device:device,sig:'1'},function(msg){
                     status=parseInt(msg);
                     if(status == 0) process();
                     else rand_device();
@@ -580,7 +580,7 @@ $(document).ready(function(){
         if(!isJson(p)) {showMessage('warning', 'illegal format!', true);return;}
         var j=JSON.parse(p);
         if("passwordlastchangtime_01_system" in j) {showMessage('warning', 'illegal fields!', true);return;}
-        $.post("changefields.php",{fields:a},function(msg){ 
+        $.post("rest/changefields.php",{fields:a},function(msg){ 
             if(msg==1) {
                 showMessage('success','Successfully changed fields!'); 
                 $('#changefields').modal('hide');
@@ -650,7 +650,7 @@ $(document).ready(function(){
             newpwd=encryptPassword(name, newpwd);
             other=encryptchar(other, secretkey);
             var enname=encryptchar(name,secretkey);
-            $.post("change.php",{name:enname,newpwd:newpwd,index:id,other:other},function(msg){ 
+            $.post("rest/change.php",{name:enname,newpwd:newpwd,index:id,other:other},function(msg){ 
                 if(msg==1) {
                     showMessage('success',"Data for "+name+" updated!");
                     $('#edit').modal('hide');
@@ -777,7 +777,7 @@ $(document).ready(function(){
                     raw_fkey=gen_temp_pwd(newconfkey,PWsalt,String(CryptoJS.SHA512(accountarray[x]["fname"])),ALPHABET,raw_fkey);
                     passarray[x]={"pw":encryptchar(raw_pass,newsecretkey), "fk":encryptchar(raw_fkey,newsecretkey)};
                 }
-                $.post("changeuserpw.php",{newpass:String(CryptoJS.SHA512(postnewpass+user)), passarray:JSON.stringify(passarray), accarray:JSON.stringify(accarray)},function(msg){ 
+                $.post("rest/changeuserpw.php",{newpass:String(CryptoJS.SHA512(postnewpass+user)), passarray:JSON.stringify(passarray), accarray:JSON.stringify(accarray)},function(msg){ 
                     if(msg==1) {
                         alert("Change Password Successfully! Please login with your new password again.");
                         quitpwd("Password changed, please relogin");
@@ -849,7 +849,7 @@ $(document).ready(function(){
                             var endata=encryptchar(data,fkey);
                             var enfname=encryptchar(fname,secretkey);
                             $("#showdetails").modal("hide");
-                            $.post('uploadfile.php',{id:fileid,fkey:enfkey,fname:enfname,data:endata},function(msg){
+                            $.post('rest/uploadfile.php',{id:fileid,fkey:enfkey,fname:enfname,data:endata},function(msg){
                                 if(msg=='1') {$('#uploadfiledlg').modal("hide"); showMessage('success','File uploaded!', false); reloadAccounts();}
                                 else {$('#uploadfiledlg').modal("hide"); showMessage('danger','ERROR! Try again!', false); reloadAccounts();}
                             });
@@ -973,7 +973,7 @@ function delepw(index)
     var name=accountarray[parseInt(index)]["name"];
     if(confirm("Are you sure you want to delete password for "+name+"? (ATTENTION: this is irreversible)"))
     {
-        $.post("delete.php",{index:index},function(msg){ 
+        $.post("rest/delete.php",{index:index},function(msg){ 
             if(msg==1) {
                 showMessage('success',"delete "+name+" successfully");
                 $('#edit').modal('hide');
@@ -998,7 +998,7 @@ function exportcsv()
         tmp['password']=decryptPassword(accountarray[x]["name"],accountarray[x]["enpassword"]);
         obj.push(tmp);
     }
-    $.getScript( 'js/jquery.csv.js', function() {
+    $.getScript( 'js/lib/jquery.csv.js', function() {
         var csv = $.csv.fromObjects(obj);
         var blob = new Blob([csv], {type: "text/plain;charset=utf-8"});
         saveAs(blob, "export.csv");

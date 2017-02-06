@@ -1,5 +1,5 @@
 <?php
-require_once("function/sqllink.php");
+require_once(dirname(__FILE__)."/../function/sqllink.php");
 $link=sqllink();
 if(!$link) die(0);
 $user=$_POST['user'];

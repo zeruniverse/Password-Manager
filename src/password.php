@@ -4,15 +4,15 @@ echoheader();
 ?>
 <link rel="stylesheet" type="text/css" href="css/dataTables.bootstrap.min.css">
 <link rel="stylesheet" type="text/css" href="css/responsive.dataTables.min.css">
-<script type="text/javascript" src="setlocalstorage.js"></script>
-<script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/dataTables.bootstrap.min.js"></script>
-<script type="text/javascript" src="js/dataTables.responsive.min.js"></script>
-<script type="text/javascript" src="js/FileSaver.min.js"></script>
-<script type="text/javascript" src="aes.js"></script>
-<script type="text/javascript" src="sha512.js"></script>
-<script type="text/javascript" src="pbkdf2.js"></script>
-<script type="text/javascript" src="password.js"></script>
+<script type="text/javascript" src="js/setlocalstorage.js"></script>
+<script type="text/javascript" src="js/lib/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/lib/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="js/lib/dataTables.responsive.min.js"></script>
+<script type="text/javascript" src="js/lib/FileSaver.min.js"></script>
+<script type="text/javascript" src="js/crypto/aes.js"></script>
+<script type="text/javascript" src="js/crypto/sha512.js"></script>
+<script type="text/javascript" src="js/crypto/pbkdf2.js"></script>
+<script type="text/javascript" src="js/crypto/password.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
       <div class="container">

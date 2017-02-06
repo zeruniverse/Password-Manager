@@ -79,5 +79,5 @@ function dataReady(data){
     $("#maindiv").show();
 }
 function unsetpin(devicex){
-    $.post("deletepin.php",{user:usr,device:devicex},function(msg){location.reload(true);});
+    $.post("rest/deletepin.php",{user:usr,device:devicex},function(msg){location.reload(true);});
 }

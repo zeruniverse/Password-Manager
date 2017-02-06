@@ -2,9 +2,9 @@
 require_once('function/basic.php');
 echoheader();
 ?>
-<script type="text/javascript" src="sha512.js"></script>
-<script type="text/javascript" src="pbkdf2.js"></script>
-<script type="text/javascript" src="password.js"></script>
+<script type="text/javascript" src="js/crypto/sha512.js"></script>
+<script type="text/javascript" src="js/crypto/pbkdf2.js"></script>
+<script type="text/javascript" src="js/crypto/password.js"></script>
 <script type="text/javascript" src="js/signup.js"></script>
 <div class="container theme-showcase">
     <div class="page-header">

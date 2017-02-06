@@ -6,11 +6,11 @@ if(isset($_SESSION["loginok"])&& $_SESSION['loginok']==1) {header("Location: ./p
 if($DB_NAME=='') die('PLEASE CONFIG function/config.php before using this system!');
 echoheader();
 ?>
-<script type="text/javascript" src="aes.js"></script>
-<script type="text/javascript" src="sha512.js"></script>
-<script type="text/javascript" src="pbkdf2.js"></script>
-<script type="text/javascript" src="password.js"></script>
-<script type="text/javascript" src="setlocalstorage.js"></script>
+<script type="text/javascript" src="js/crypto/aes.js"></script>
+<script type="text/javascript" src="js/crypto/sha512.js"></script>
+<script type="text/javascript" src="js/crypto/pbkdf2.js"></script>
+<script type="text/javascript" src="js/crypto/password.js"></script>
+<script type="text/javascript" src="js/setlocalstorage.js"></script>
 <script type="text/javascript" src="js/index.js"></script>
     <div class="container theme-showcase">
         <div class="page-header">

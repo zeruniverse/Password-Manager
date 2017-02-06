@@ -1,6 +1,6 @@
 <?php
-require_once("function/encryption.php");
-require_once("function/sqllink.php");
+require_once(dirname(__FILE__)."/../function/encryption.php");
+require_once(dirname(__FILE__)."/../function/sqllink.php");
 session_start();
 $token = $_SESSION['session_token'];
 session_regenerate_id(true);

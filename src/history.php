@@ -26,9 +26,9 @@ echoheader();
     </table>
     </div>
 </div>
-<script type="text/javascript" src="ua-parser.min.js"></script>
+<script type="text/javascript" src="js/lib/ua-parser.min.js"></script>
 <script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/dataTables.bootstrap.min.js"></script>
-<script type="text/javascript" src="js/dataTables.responsive.min.js"></script>
+<script type="text/javascript" src="js/lib/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="js/lib/dataTables.responsive.min.js"></script>
 <script type="text/javascript" src="js/history.js"></script>
 <?php echofooter();?>

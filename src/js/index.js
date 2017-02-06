@@ -69,12 +69,12 @@ function dataReady(data){
         $("#pinlogin").attr("disabled", true);
         $("#pinlogin").val("Wait");
         pin=$("#pin").val();
-        $.post("getpinpk.php",{user:getcookie('username'),device:getcookie('device'),sig:String(CryptoJS.SHA512(String(CryptoJS.SHA512(pin+localStorage.pinsalt))+randomLoginStamp))},function(msg){
+        $.post("rest/getpinpk.php",{user:getcookie('username'),device:getcookie('device'),sig:String(CryptoJS.SHA512(String(CryptoJS.SHA512(pin+localStorage.pinsalt))+randomLoginStamp))},function(msg){
             if(msg == '0') {$("#usepin").modal("hide");delpinstore();$("#user").focus();return;}
             if(msg == '1') {$("#pin").val('');$("#pinerrorhint").show();$("#pinlogin").attr("disabled", false);$("#pinlogin").val("Login"); return;}
             pwdsk=decryptchar(localStorage.en_login_sec,pin+msg);
             confkey=decryptchar(localStorage.en_login_conf,pin+msg)
-                $.post("check.php",{pwd:String(CryptoJS.SHA512(String(CryptoJS.SHA512(pbkdf2_enc(pwdsk,JSsalt,500)+getcookie('username'))) + randomLoginStamp)),  user: getcookie('username')},function(msg){
+                $.post("rest/check.php",{pwd:String(CryptoJS.SHA512(String(CryptoJS.SHA512(pbkdf2_enc(pwdsk,JSsalt,500)+getcookie('username'))) + randomLoginStamp)),  user: getcookie('username')},function(msg){
                     if(msg!=9) {$("#usepin").modal("hide");delpinstore();$("#user").focus();return;}
                     setpwdstore(pwdsk,confkey,PWsalt);
                     window.location.href="./password.php";
@@ -95,7 +95,7 @@ function dataReady(data){
             var login_sig=String(pbkdf2_enc(reducedinfo(pwd,default_letter_used),JSsalt,500));
             secretkey=login_sig;
             login_sig=pbkdf2_enc(login_sig,JSsalt,500);
-            $.post("check.php",{pwd:String(CryptoJS.SHA512(String(CryptoJS.SHA512(login_sig+user)) + randomLoginStamp)),  user: user},function(msg){
+            $.post("rest/check.php",{pwd:String(CryptoJS.SHA512(String(CryptoJS.SHA512(login_sig+user)) + randomLoginStamp)),  user: user},function(msg){
                 $(".errorhint").hide();
                 if(msg==0){
                     $("#nouser").show();
