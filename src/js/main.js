@@ -897,7 +897,7 @@ $(document).ready(function(){
             'title':'',
             'container':'body',
             'content':'Click here to get your old password back.',
-            'trigger':'focus' })
+            'trigger':'manual' })
             .on('shown.bs.popover', function(){
                 $('.popover').on('click',function(){
                     $("#editAccountShowPassword").popover("hide");
