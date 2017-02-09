@@ -412,8 +412,7 @@ function showTable(accounts)
 }
 function downloadf(id){ 
     $("#messagewait").modal("show");
-    $.post('rest/downloadfile.php',{id:id},function(msg){
-        var filedata=$.parseJSON(msg);
+    $.post('rest/downloadfile.php',{id:id},function(filedata){
         if(filedata['status']=="error") showMessage('danger','ERROR! '+filedata['message'], false);
         else{
             var fname = accountarray[id]['fname'];
