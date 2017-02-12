@@ -11,9 +11,9 @@ var salt1;
 var salt2;
 var user;
 var fields;
-var accountarray=new Array();
+var accountarray= [];
 var visibleAccounts;
-var lasttimechangearray=new Array();
+var lasttimechangearray= [];
 
 $.ajaxPrefilter(function(options, originalOptions, jqXHR){
     if (options.type.toLowerCase() === "post") {
@@ -315,7 +315,7 @@ function initFields() {
 function showAllTags() {
     function gatherDistinctTags()
     {
-        var tags = new Array();
+        var tags = [];
         for (x in accountarray) {
             if (!("tags" in accountarray[x]["other"]))
                 continue;
@@ -456,7 +456,7 @@ function emptyTable() {
     datatablestatus.clear();
 }
 function cleanUp() {
-    accountarray = new Array();
+    accountarray = [];
     emptyTable();
     $(".field").remove();
 }
@@ -760,8 +760,8 @@ $(document).ready(function(){
                 var newconfkey=pbkdf2_enc(String(CryptoJS.SHA512(newpass+login_sig)), salt1, 500); 
                 var x,raw_pass,raw_fkey;
                 var temps;
-                var passarray=new Array();
-                var accarray=new Array();
+                var passarray= [];
+                var accarray= [];
                 for (x in accountarray)
                 {
                     var tmpother=accountarray[x]["other"];
@@ -988,7 +988,7 @@ function delepw(index)
 function exportcsv()
 {
     if(!confirm('CSV file contains all your information in plain text format. It\'s dangerous to keep it as a backup. Only use it for transferring your data. Delete it immediately after you\'ve done. Please note the encoding for the csv file is UTF-8. You might need to specify this encoding in order to open this CSV properly in some software that uses ANSI as default encoding such as Microsoft Office.')) return;
-    var obj=new Array();
+    var obj= [];
     timeout=100000+Math.floor(Date.now() / 1000);
     var t,x,i;
     for (x in accountarray){
