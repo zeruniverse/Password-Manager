@@ -258,6 +258,7 @@ function dataReady(data){
                 if (accountarray[index]["other"][x] != "")
                     fields[x]["count"] += 1;
         }
+        callPlugins("readAccount",{"account":accountarray[index]});
     }
     for(var i = 0; i<fdata.length; i++) {
         var index = fdata[i]["index"];
@@ -265,6 +266,7 @@ function dataReady(data){
         accountarray[index]['fkey'] = fdata[i]['fkey'];
     }
 
+    callPlugins("accountsReady");
     initFields();
     showAllTags();
     showTable(accountarray);
@@ -307,6 +309,7 @@ function initFields() {
             $("#add").find("form").append(forms["new"]);
             $("#edit").find("form").append(forms["edit"]);
         }
+        callPlugins("readField", {"field":fields[x]});
     }
 }
 function showAllTags() {
@@ -401,6 +404,7 @@ function showTable(accounts)
         }
         // create row for datatable
         row = $("<tr>").attr('class','datarow').data('id',accounts[index]["index"]).append(cols);
+        callPlugins("drawAccount", {"account": accounts[index], "row":row});
         datatablestatus.row.add(row);
     }
 
