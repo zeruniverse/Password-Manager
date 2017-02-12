@@ -1,5 +1,5 @@
 // This is for the plugin architecture
-var runPlugins = [];
+var runPlugins = {};
 function initPlugins() {
     runPlugins["layoutReady"] = [];
     runPlugins["readField"] = [];
