@@ -1,7 +1,8 @@
 body {padding-top: 50px; width:100%; color:#666666;}
 a { cursor:pointer; }
 /*.theme-showcase{max-width:100%;}*/
-.cellOptionButton {float:right; }
+.cellOptionButton {float:right; margin-right:10px;}
+.cellOptionButton:first-of-type {float:right; margin-right:0px !important;}
 /* Tags */
 #rightHandBox {margin-top:10px; padding:5px; }
 .group { background-color:#f8f8f8; }

@@ -13,9 +13,8 @@ registerPlugin("drawAccount",function(data){
         row.find(".namecell .cellOptionButton:last").before($('<a>')
             .attr('title',"Open")
             .attr('class','cellOptionButton')
-            .attr('href',addHttps(account["other"]["url"]) 
+            .attr('href',addHttps(account["other"]["url"])) 
             .append($('<span></span>')
-                .attr('class','glyphicon glyphicon-globe')))
-            );
+                .attr('class','glyphicon glyphicon-globe')));
     }
 });
