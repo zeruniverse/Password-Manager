@@ -1,7 +1,7 @@
 // This is for the plugin architecture
 var runPlugins = [];
 function initPlugins() {
-    //runPlugins["layout"] = [];
+    runPlugins["layoutReady"] = [];
     runPlugins["readField"] = [];
     runPlugins["readAccount"] = [];
     runPlugins["drawAccount"] = [];

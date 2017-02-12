@@ -374,7 +374,6 @@ function showTable(accounts)
             .append($('<a>')
                 .attr('title','Details')
                 .attr('class','cellOptionButton')
-                .css('margin-right','10px')
                 .on('click',{"index":accounts[index]["index"]},function(event){showdetail(event.data.index);}) 
                 .append($('<span class="glyphicon glyphicon-eye-open"></span>')))
         );
@@ -934,6 +933,7 @@ $(document).ready(function(){
     $('#tagsFilter').on('click',function(){
         filterTags('');
     });
+    callPlugins("layoutReady");
 });
 function edit(row){
     var id = row; //row.find("")
