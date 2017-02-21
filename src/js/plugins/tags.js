@@ -109,7 +109,7 @@ registerPlugin("layoutReady",function(data){
                 .append($('<a>')
                     .attr('id',"orderTagsDisable")
                     .attr('name',"disable grouping")
-                    .attr('class',"small hidden")
+                    .attr('class',"small collapse")
                     .append($("<span>").attr('class',"glyphicon glyphicon-remove"))))
             .append($('<p>')
                 .attr('class',"visible-xs small")
