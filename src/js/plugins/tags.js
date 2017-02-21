@@ -99,7 +99,7 @@ registerPlugin("layoutReady",function(data){
             .attr('class','collapse')
             .append($('<p>')
                 .attr('class','lead')
-                .text('Tag-Overview').
+                .text('Tag-Overview')
                 .append($('<a>')
                     .attr('id',"orderTags")
                     .attr('name',"enable grouping")
