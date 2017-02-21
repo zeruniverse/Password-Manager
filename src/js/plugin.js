@@ -6,6 +6,7 @@ function initPlugins() {
     runPlugins["readAccount"] = [];
     runPlugins["drawAccount"] = [];
     runPlugins["accountsReady"] = [];
+    runPlugins["fieldsReady"] = [];
     //runPlugins["addAccount"] = [];
 }
 function callPlugins(entry, data){
