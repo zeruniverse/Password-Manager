@@ -792,6 +792,7 @@ $(document).ready(function(){
         for (x in fields){
             $("#edititeminput"+x).val(accountarray[id]['other'][x]);
         } 
+        callPlugins("editAccountDialog",{"account": accountarray[id]});
     });
     $('#edit').on('hide.bs.modal', function() {
         $(".popover").popover('hide');
