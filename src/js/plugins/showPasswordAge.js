@@ -23,7 +23,7 @@ registerPlugin("editAccountDialog",function(data){
 registerPlugin("layoutReady",function(data){
     $("label[for='edititeminputpw']").after($("<span>")
             .attr("class","small")
-            .text("Password was last changed on ")
+            .text(" last changed on ")
             .append($("<span>")
                 .attr("id","edititempasswordlastchanged")
                 .attr("class","textred")));
