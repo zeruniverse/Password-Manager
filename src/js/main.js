@@ -526,7 +526,7 @@ function disableGrouping(){
     $('#orderTagsDisable').hide();
 }
 $(document).ready(function(){
-    datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true,autoWidth:false, drawCallback: function(settings) { preDrawCallback( this.api(), settings);}, "lengthMenu": [ [10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"] ] });
+    datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true,autoWidth:false, "deferRender": true, drawCallback: function(settings) { preDrawCallback( this.api(), settings);}, "lengthMenu": [ [10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"] ] });
     $.post("rest/password.php",{},function(msg){dataReady(msg);});
     $("#pinloginform").on('submit',function(e){
         e.preventDefault();
