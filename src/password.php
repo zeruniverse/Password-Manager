@@ -14,6 +14,8 @@ echoheader();
 <script type="text/javascript" src="js/crypto/pbkdf2.js"></script>
 <script type="text/javascript" src="js/crypto/password.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
+<script type="text/javascript" src="js/plugin.js"></script>
+<script type="text/javascript" src="js/plugins/linkButton.js"></script>
    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
       <div class="container">
         <div class="collapse">
