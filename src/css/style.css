@@ -90,16 +90,17 @@ a { cursor:pointer; }
 #navbar{
     min-width:100px;
 }
-#tagCloud p {
-    margin-bottom:0;
-}
-#orderTags, #orderTagsDisable{
-    padding-left:10px;
-}
 /* dialogs */
 #backuppwdpb{
     width:0%;
 }
 #fieldsz{
     height:100px;
+}
+/* tags */
+#tagCloud p {
+    margin-bottom:0;
+}
+#orderTags, #orderTagsDisable{
+    padding-left:10px;
 }
