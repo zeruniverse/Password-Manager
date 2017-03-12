@@ -1,5 +1,5 @@
 <?php
-require_once("/src/function/sqllink.php");
+require_once("src/function/sqllink.php");
 function decrypt($data, $key)
 {
 	$key = md5($key);
