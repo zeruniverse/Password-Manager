@@ -23,7 +23,7 @@ if($record == FALSE) {
     $nid = (int)$record[0]+1;
 }
 
-$sql = "INSERT INTO `password` VALUES (?, ?, ?, ?,?,?)";
+$sql = "INSERT INTO `password` VALUES (?, ?, ?, ?, ?)";
 $res = sqlexec($sql,array($nid,$id,$name,$newpw,$other),$link);
 if($res == NULL) {
     $link->rollBack();
