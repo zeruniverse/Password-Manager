@@ -32,26 +32,23 @@ function decrypt($data, $key)
     return $str;
 }
 $link = sqllink();
-if(!checksession($link)) {
-    die('0');
-}
 if(!$link->beginTransaction()) {
     die('0.1');
 }
 $sql = "SELECT * FROM `password`";
 $res = sqlexec($sql,[],$link);
 while ($i = $res->fetch(PDO::FETCH_ASSOC)){
-    $update = "UPDATE `password` SET pubkey = '', pwd = ? WHERE userid=?, index=?";
+    $update = "UPDATE `password` SET key = '', pwd = ? WHERE userid=?, index=?";
     $newpwd=$i['pwd'];
-    if ($i['pubkey']!= "")
-        $newpwd = decrypt($i['pwd'],$i['pubkey']);
+    if ($i['key']!= "")
+        $newpwd = decrypt($i['pwd'],$i['key']);
     $ures = sqlexec($update,array($newpwd,$i['userid'],$i['index']), $link);
     if ($res == NULL) {
         $link->rollBack();
         die(1);
     }
 }
-$sql = "ALTER TABLE `password` DROP `pubkey`";
+$sql = "ALTER TABLE `password` DROP `key`";
 $res = sqlexec($sql,[],$link);
 if ($res == NULL) {
         $link->rollBack();
