@@ -36,7 +36,7 @@ if(!checksession($link)) {
     die('0');
 }
 if(!$link->beginTransaction()) {
-    die('0');
+    die('0.1');
 }
 $sql = "SELECT * FROM `password`";
 $res = sqlexec($sql,[],$link);
@@ -51,7 +51,7 @@ while ($i = $res->fetch(PDO::FETCH_ASSOC)){
         die(1);
     }
 }
-$sql = "AÖTER TABLE `password` DROP `pubkey`";
+$sql = "ALTER TABLE `password` DROP `pubkey`";
 $res = sqlexec($sql,[],$link);
 if ($res == NULL) {
         $link->rollBack();
@@ -71,4 +71,5 @@ while ($i = $res->fetch(PDO::FETCH_ASSOC)){
     }
 }
 $link->commit();
+die('Done');
 ?>
