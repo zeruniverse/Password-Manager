@@ -41,7 +41,7 @@ if(!$link->beginTransaction()) {
 $sql = "SELECT * FROM `password`";
 $res = sqlexec($sql,[],$link);
 while ($i = $res->fetch(PDO::FETCH_ASSOC)){
-    $update = "UPDATE `password` SET pubkey = "", pwd = ? WHERE userid=?, index=?";
+    $update = "UPDATE `password` SET pubkey = '', pwd = ? WHERE userid=?, index=?";
     $newpwd=$i['pwd'];
     if ($i['pubkey']!= "")
         $newpwd = decrypt($i['pwd'],$i['pubkey']);
