@@ -23,8 +23,8 @@ $sql = "SELECT `index` FROM `password` WHERE `userid` = ?";
 $res = sqlexec($sql,array($id),$link);
 while ($i = $res->fetch(PDO::FETCH_ASSOC)) {
     $storepw = $passarray[(int)$i["index"]]->pw;
-    $sql = "UPDATE `password` SET `name` = ?, `pwd` = ?, `key` = ?, `other` = ? WHERE `userid` = ? AND `index` = ?";
-    $resss = sqlexec($sql,array($accarray[(int)$i["index"]]->name, $storepw,$pubkey,$accarray[(int)$i["index"]]->other,$id,(int)$i['index']),$link);
+    $sql = "UPDATE `password` SET `name` = ?, `pwd` = ?, `other` = ? WHERE `userid` = ? AND `index` = ?";
+    $resss = sqlexec($sql,array($accarray[(int)$i["index"]]->name, $storepw,$accarray[(int)$i["index"]]->other,$id,(int)$i['index']),$link);
     if($resss == NULL) {
         $link->rollBack();
         die("0");
