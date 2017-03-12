@@ -8,7 +8,7 @@ function random_str($length)
     for ($i = 0; $i < $length; $i++)
     {
         $rand = mt_rand(0, $arr_len-1);
-        $str. = $arr[$rand];
+        $str.= $arr[$rand];
     }
  
     return $str;

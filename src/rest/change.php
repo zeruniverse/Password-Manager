@@ -20,11 +20,11 @@ $newpwd = $_POST['newpwd'];
 $changedCols = "`key` = ? ,`pwd` = ?";
 $values = array($newpw);
 if (isset($_POST["name"])){
-    $changedCols . = " ,`name` = ?";
+    $changedCols .= " ,`name` = ?";
     array_push($values, $_POST["name"]);
 }
 if (isset($_POST["other"])){
-    $changedCols . = " ,`other` = ?";
+    $changedCols .= " ,`other` = ?";
     array_push($values, $_POST["other"]);
 }
 array_push($values, $id, (int)$index);
