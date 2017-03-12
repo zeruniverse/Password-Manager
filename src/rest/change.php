@@ -16,7 +16,7 @@ if($record == FALSE) {
     $link->commit();
     die("0");
 }
-$newpwd = $_POST['newpwd'];
+$newpw = $_POST['newpwd'];
 $changedCols = "`key` = ? ,`pwd` = ?";
 $values = array($newpw);
 if (isset($_POST["name"])){
