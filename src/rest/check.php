@@ -56,7 +56,7 @@ if($record == FALSE) {
 $sql = "SELECT count(*) as `m` FROM `history` WHERE `userid` = ? AND outcome = 0 AND UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`time`) < ?";
 $res = sqlexec($sql,array((int)$record["id"],$ACCOUNT_BAN_TIME),$link);
 $count = $res->fetch(PDO::FETCH_ASSOC);
-if((int)$count['m']> = $BLOCK_ACCOUNT_TRY) {
+if((int)$count['m'] >= $BLOCK_ACCOUNT_TRY) {
     die('8');
 }
 
@@ -65,7 +65,7 @@ if(strcmp(hash('sha512',(string)$record["password"].(string)$_SESSION['random_lo
     $sql = "SELECT count(*) as `m` FROM `history` WHERE `ip` = ? AND outcome = 0 AND UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`time`) < ?";
     $res = sqlexec($sql,array(getUserIP(),$BLOCK_IP_TIME),$link);
     $count = $res->fetch(PDO::FETCH_ASSOC);
-    if((int)$count['m']> = $BLOCK_IP_TRY){
+    if((int)$count['m'] >= $BLOCK_IP_TRY){
         $sql = "INSERT INTO `blockip` VALUES (?,CURRENT_TIMESTAMP)";
         $res = sqlexec($sql,array(getUserIP()),$link);
     }
