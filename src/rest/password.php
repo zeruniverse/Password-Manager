@@ -23,7 +23,7 @@ $sql = "SELECT * FROM `password` WHERE `userid` = ?";
 $res = sqlexec($sql,array($id),$link);
 $accounts = array();
 while ($i = $res->fetch(PDO::FETCH_ASSOC)){
-    $accounts[] = array( "index" => $i['index'], "name" => $i['name'], "additional" => $i['other'], "kss" => ['pwd']);
+    $accounts[] = array( "index" => $i['index'], "name" => $i['name'], "additional" => $i['other'], "kss" => $i['pwd']);
 }
 $result["accounts"] = $accounts;
 
