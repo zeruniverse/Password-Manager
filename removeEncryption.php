@@ -59,8 +59,8 @@ $sql = "SELECT * FROM `pwdusrrecord`";
 $res = sqlexec($sql,[],$link);
 while ($i = $res->fetch(PDO::FETCH_ASSOC)){
     $update = "UPDATE `pwdusrrecord` SET password = ? WHERE id=?";
-    $newpwd=$i['pwd'];
-    $newpwd = decrypt($i['pwd'],$GLOBAL_SALT_3);
+    $newpwd=$i['password'];
+    $newpwd = decrypt($i['password'],$GLOBAL_SALT_3);
     $ures = sqlexec($update,array($newpwd,$i['id']), $link);
     if ($res == NULL) {
         $link->rollBack();
