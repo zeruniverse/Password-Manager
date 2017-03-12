@@ -12,7 +12,6 @@ CREATE TABLE IF NOT EXISTS `password` (
   `userid` int(11) NOT NULL,
   `name` text NOT NULL,
   `pwd` text NOT NULL,
-  `key` varchar(100) NOT NULL,
   `other` text,
   PRIMARY KEY (`index`,`userid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
