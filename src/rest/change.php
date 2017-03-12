@@ -17,7 +17,7 @@ if($record == FALSE) {
     die("0");
 }
 $newpw = $_POST['newpwd'];
-$changedCols = "`key` = ? ,`pwd` = ?";
+$changedCols = "`pwd` = ?";
 $values = array($newpw);
 if (isset($_POST["name"])){
     $changedCols .= " ,`name` = ?";
