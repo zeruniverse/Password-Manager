@@ -23,14 +23,14 @@ if(!$link->beginTransaction()) {
 $sql = "SELECT COUNT(*) FROM `pwdusrrecord` WHERE `username` = ?";
 $res = sqlexec($sql,array($usr),$link);
 $num = $res->fetch(PDO::FETCH_NUM);
-if($num[0]! = 0) {
+if($num[0] != 0) {
     $link->commit(); 
     die("0");
 }
 $sql = "SELECT COUNT(*) FROM `pwdusrrecord` WHERE `email` = ?";
 $res = sqlexec($sql,array($email),$link);
 $num = $res->fetch(PDO::FETCH_NUM);
-if($num[0]! = 0) {
+if($num[0] != 0) {
     $link->commit();
     die("1");
 }

@@ -24,7 +24,7 @@ $username = $_POST['user'];
 $device = $_POST['device'];
 $sig = $_POST['sig'];
 
-if($username! = $usr) {
+if($username != $usr) {
     die('0');
 }
 $sql = "DELETE FROM `pin` WHERE `userid` = ? AND `device` = ?";

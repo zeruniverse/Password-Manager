@@ -42,7 +42,7 @@ $res = sqlexec($sql,array($LOG_EXPIRE_TIME),$link);
 $sql = "SELECT * FROM `blockip` WHERE `ip` = ?";
 $res = sqlexec($sql,array(getUserIP()),$link);
 $record = $res->fetch(PDO::FETCH_ASSOC);
-if($record! = FALSE) {
+if($record != FALSE) {
     die('7');
 }
 
