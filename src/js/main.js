@@ -671,8 +671,13 @@ $(document).ready(function(){
                 {
                     var tmpother=accountarray[x]["other"];
                     tmpother["passwordlastchangtime_01_system"]=lasttimechangearray[x];
-                    accarray[x]={"name": encryptchar(accountarray[x]["name"],newsecretkey), "is_f":1, "fname": encryptchar(accountarray[x]["fname"],newsecretkey),"other": encryptchar(JSON.stringify(tmpother),newsecretkey)};
-                    if(accountarray[x]["fname"]=='') accarray['is_f']=0;
+                    accarray[x]={"name": encryptchar(accountarray[x]["name"],newsecretkey), "is_f":1, "fname": '',"other": encryptchar(JSON.stringify(tmpother),newsecretkey)};
+                    if(accountarray[x]["fname"]=='') {
+                        accarray[x]['is_f']=0;
+                    } else
+                    {
+                        accarray[x]["fname"]=encryptchar(accountarray[x]["fname"],newsecretkey);
+                    }
                     raw_fkey='1';
                     raw_pass=decryptPassword(accountarray[x]["name"],accountarray[x]["enpassword"]);
                     if(accountarray[x]["fname"]!='') raw_fkey=decryptPassword(accountarray[x]['fname'],accountarray[x]['fkey']);
