@@ -8,12 +8,12 @@
   
 Benjamin has started the [PwChromeExtension](https://github.com/BenjaminHae/PwChromeExtension) project [[DOWNLOAD](https://github.com/BenjaminHae/PwChromeExtension/releases/latest)], which provides a Chrome and Firefox extension for Password-Manager.  
   
-##Version
+##Version  
 v9.13   
 Supports are available [here](https://github.com/zeruniverse/Password-Manager/issues) for versions greater than v9.0   
-Older versions will not be supported anymore. If you are from old versions, please upgrade to versions later than v9.10    
+From v9.13, Password-Manager only supports **HTTPS** 
   
-##DEMO  
+##DEMO   
 [phppasswordmanager.sourceforge.io](https://phppasswordmanager.sourceforge.io)  
 This demo is for test ONLY! Do NOT put your real password there.  
 You can access the database for this demo [here](https://mysql-p.sourceforge.net), with login username **p2663268ro** and password **12345678**   
