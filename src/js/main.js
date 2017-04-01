@@ -58,7 +58,7 @@ function checksessionalive()
         return "-1";
     }
     function setCookie(cname, cvalue) {
-        document.cookie = cname + "=" + cvalue + "; ";
+        document.cookie = cname + "=" + cvalue + ";path=/ ";
     }
     var ck=getCookie("ServerRenew");
     if(ck=='1') server_timeout=default_server_timeout+Math.floor(Date.now() / 1000);
