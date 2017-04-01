@@ -29,7 +29,12 @@ function sqlexec($sql,$array,$link)
 {
     $stmt = $link->prepare($sql);
     $exeres = $stmt->execute($array);
-    if($exeres) return $stmt; else return NULL;
+    if($exeres) {
+        return $stmt; 
+    }
+    else {
+        return NULL;
+    }
     
 }
 function sqlquery($sql,$link)
@@ -40,7 +45,10 @@ function checksession($link)
 {
     global $SERVER_TIMEOUT, $HOSTDOMAIN;
     session_start();
-    if(!isset($_SESSION['loginok'])||$_SESSION['loginok']!=1) {session_destroy();return FALSE;}
+    if(!isset($_SESSION['loginok'])||$_SESSION['loginok']!=1) {
+        session_destroy();
+        return FALSE;
+    }
     if(isset($_SERVER['HTTP_REFERER'])&&($_SERVER['HTTP_REFERER']!='')&&(strpos(strtolower($_SERVER['HTTP_REFERER']), strtolower($HOSTDOMAIN))!==0))
     {
         //Users from other sites are banned
@@ -53,17 +61,26 @@ function checksession($link)
         session_destroy();
         return FALSE;
     }
-    if(!$link||!isset($_SESSION['create_time'])||$_SESSION['create_time']+$SERVER_TIMEOUT<time()) {session_destroy(); return FALSE;}
+    if(!$link||!isset($_SESSION['create_time'])||$_SESSION['create_time']+$SERVER_TIMEOUT<time()) {
+        session_destroy(); 
+        return FALSE;
+    }
     $usr=$_SESSION['user'];
     $pw=$_SESSION['pwd'];
     $id=$_SESSION['userid'];
-    if($usr==''||$pw==''||$id=='') {session_destroy(); return FALSE;}
+    if($usr==''||$pw==''||$id=='') {
+        session_destroy(); 
+        return FALSE;
+    }
     $sql="SELECT * FROM `pwdusrrecord` WHERE `username`= ? AND `password`= ? AND `id`= ?";
     $res=sqlexec($sql,array($usr,$pw,$id),$link);
     $record= $res->fetch(PDO::FETCH_ASSOC);
-    if($record==FALSE) {session_destroy();return FALSE;}
+    if(!$record) {
+        session_destroy();
+        return FALSE;
+    }
     $_SESSION['create_time']=time();
-	setcookie("ServerRenew", "1");
+	setcookie("ServerRenew", "1", 0, "/");
     return TRUE;
 }   
 $currentCookieParams = session_get_cookie_params();  
