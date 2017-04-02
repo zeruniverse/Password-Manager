@@ -933,6 +933,7 @@ function showdetail(index){
     for (x in accountarray[i]["other"]) {
         if(x in fields){
             table.append($('<tr>')
+                .attr("id","detailsTableOther"+x)
                 .append($('<td>').css("color","#afafaf").css("font-weight","normal").text(fields[x]['colname']))
                 .append($('<td>').css("color","#6d6d6d").css("font-weight","bold").text(accountarray[i]["other"][x])));
         }
@@ -964,7 +965,7 @@ function showdetail(index){
     }
     s.append(table);
     s.append('<br />').append($('<p>').addClass('textred').text('Password last changed at '+timeConverter(lasttimechangearray[i])));
-    $('#details').append(s);
+    callPlugins("showDetails",{"account":accountarray[i], "out":s});
     $("#showdetails").modal("show");
 }
 function timeConverter(utctime){
