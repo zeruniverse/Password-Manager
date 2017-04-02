@@ -236,6 +236,21 @@ function dataReady(data){
         return;
     }
     secretkey=String(CryptoJS.SHA512(secretkey0+salt2));
+    
+    // show last succesfull Login
+    var loginMsgType = 'info';
+    var failedMsg = '';
+    if (data["loginInformation"]["failedCount"] > 0){
+        loginMsgType = 'danger';
+        failedMsg = 'Since then there {0} ' + data["loginInformation"]["failedCount"] + ' failed login attempt{1}.';
+        if (data["loginInformation"]["failedCount"] > 1){
+            failedMsg = failedMsg.replace("\{0\}", "where").replace("\{1\}", "s");
+        }
+        else {
+            failedMsg = failedMsg.replace("\{0\}", "was").replace("\{1\}", "");
+        }
+    }
+    showMessage(loginMsgType, 'Your last login was on ' + timeConverter(data["loginInformation"]["lastLogin"])+'. ' + failedMsg);
 
     for(var i = 0; i<accounts.length; i++) {
         var index = accounts[i]["index"];
@@ -907,22 +922,6 @@ function exportcsv()
     timeout=default_timeout+Math.floor(Date.now() / 1000);
 }
 function showdetail(index){
-    function timeConverter(utctime){
-        if(utctime==0) return 'unknown time';
-        var a = new Date(utctime * 1000);
-        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; 
-        var year = String(a.getFullYear());
-        var month = months[a.getMonth()];
-        var date = String(a.getDate());
-        var hour = String(a.getHours());
-        var min = String(a.getMinutes());
-        var sec = String(a.getSeconds());
-        if(hour.length==1) hour = '0'+hour;
-        if(min.length==1) min = '0'+min;
-        if(sec.length==1) sec = '0'+sec;
-        var time = month + ' '+date + ', ' + year + ' ' + hour + ':' + min + ':' + sec ;
-        return time;
-    }
     var i=parseInt(index);
     var x,s;
     s=$('#details');
@@ -967,4 +966,20 @@ function showdetail(index){
     s.append('<br />').append($('<p>').addClass('textred').text('Password last changed at '+timeConverter(lasttimechangearray[i])));
     $('#details').append(s);
     $("#showdetails").modal("show");
+}
+function timeConverter(utctime){
+    if(utctime==0) return 'unknown time';
+    var a = new Date(utctime * 1000);
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; 
+    var year = String(a.getFullYear());
+    var month = months[a.getMonth()];
+    var date = String(a.getDate());
+    var hour = String(a.getHours());
+    var min = String(a.getMinutes());
+    var sec = String(a.getSeconds());
+    if(hour.length==1) hour = '0'+hour;
+    if(min.length==1) min = '0'+min;
+    if(sec.length==1) sec = '0'+sec;
+    var time = month + ' '+date + ', ' + year + ' ' + hour + ':' + min + ':' + sec ;
+    return time;
 }
