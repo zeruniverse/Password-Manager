@@ -47,7 +47,7 @@ $result["loginInformation"] = array( "lastLogin" => $data["time"] );
 // Select failed login attempts
 $sql = "SELECT COUNT(*) AS `failedLogins` FROM `history` WHERE `userid` = ? AND `outcome` = 0 AND `id` > ?";
 $res = sqlexec($sql, array($id, $loginID),$link);
-$result["loginInformation"]["failedCount"] = int($res->fetch(PDO::FETCH_ASSOC)["failedLogins"]);
+$result["loginInformation"]["failedCount"] = (int)$res->fetch(PDO::FETCH_ASSOC)["failedLogins"];
 
 echo json_encode($result);
 ?>
