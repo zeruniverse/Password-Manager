@@ -13,7 +13,7 @@ echoheader();
 	<h3>New User</h3>
     <p>Only numbers and letters are allowed for username</p>
     <div id="message" class="alert alert-info"><a href="#" class="close" data-dismiss="alert" aria-label="close">×</a><span id="messageText">Signup is not allowed.</span></div>
-	<form id="signupform" class="collapse">
+	<form id="signupform" class="collapse" method="post">
         <div class="form-group">
             <label for="user" class="control-label">User Name: </label>
             <input type="text" class="form-control" name="user" id="user" />

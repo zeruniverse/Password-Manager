@@ -22,7 +22,7 @@ echoheader();
         <h1>Recovery</h1>
     </div>
     <p>The recovery process will be on your browser. It's safe!</p>
-	<form>
+	<form method="post">
       <p class="textred">Select backup.txt containing your backup data.</p>
     <input type="file" id="backupc" accept=".txt" />
     <p> </p>

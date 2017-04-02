@@ -22,7 +22,7 @@ if(isset($_GET["reason"])) {
 }
 ?>
         <h3>Please Sign in</h3>
-        <form id="loginform">
+        <form id="loginform" method="post">
             <div class="form-group">
                 <label for="user" class="control-label sr-only">User Name: </label>
                 <input type="text" class="form-control" placeholder="User Name" name="user" id="user" />
@@ -49,7 +49,7 @@ if(isset($_GET["reason"])) {
                     <h4>Use PIN to login</h4>
                 </div>
                 <div class="modal-body">
-                    <form id="pinloginform">
+                    <form id="pinloginform" method="post">
                         <div class="form-group">
                             <label for="pin" class="control-label">PIN:</label>
                             <input id="pin" autocomplete="off" class="form-control" type="password" />

@@ -88,7 +88,7 @@ echoheader();
                 <h4>Add a new account</h4>
             </div>
             <div class="modal-body">
-            <form>
+            <form method="post">
                 <div class="form-group">
                     <label for="newiteminput" class="control-label">Account (Item):</label>
                     <input class="form-control" id="newiteminput" type="text" />
@@ -114,7 +114,7 @@ echoheader();
                 <h4>Backup Passwords</h4>
             </div>
             <div class="modal-body">
-            <form>
+            <form method="post">
                 <p id="fileincludeckbp" class="collapse"><input type="checkbox" id="fileincludeckb" />Include Files<br /></p>
                 <p>You will need your CURRENT login password to unlock the backup file even if you change login password later. Write your CURRENT login password down or remember to generate a new backup file after each time you change the login password.</p>
                 <p class="textred">Generating backup file is time consuming...</p>
@@ -137,7 +137,7 @@ echoheader();
                 <h4>Customize additional fields</h4>
             </div>
             <div class="modal-body">
-            <form>
+            <form method="post">
             <p>Please edit the fields string according to the default one shown below. It should be JSON format. Usually, you don't need to edit this.</p>
             <p>A field entry should be like: <span class="textbold">"<span class="textred">label</span>":{"colname":"<span class="textred">screen name</span>","hint":"<span class="textred">input hint</span>","cls":" <span class="textred">style</span>"}</span>, red parts are for you to customize. Entries should be seperated with comma, and the final fields string should look like <span class="textbold">{entry1, entry2, entry3}</span>. <span class="textbold">{}</span> fields string means you don't want any additional fields</p>
             <p><span class="textred">label</span> is a system label for this entry, which should be UNIQUE and won't show up in user screen. <span class="textred">screen name</span> is the name for this entry that the user see on their screen, need not to be unique. <span class="textred">input hint</span> is the hint string that will show up when you try to edit values for this field. <span class="textred">style</span> is the display style for this field. If <span class="textred">style</span> string is empty, this field will always show up. If <span class="textred">style = hidden</span>, this field will not show up in main table. You can only access it by clicking [view details]. If <span class="textred">style = hidden-xs</span>, this field will not show up in main table on small screens such as smart phone screens, but will show up on computer screens. NO OTHER VALUES ALLOWED for <span class="textred">style</span>. There should always be a space before <span class="textred">style</span> string, don't delete it.</p>
@@ -159,7 +159,7 @@ echoheader();
                 <h4>Detail Information</h4>
             </div>
             <div class="modal-body">
-            <form>
+            <form method="post">
             <div class="form-control" id="details"></div>
             </form>
             </div>
@@ -177,7 +177,7 @@ echoheader();
                 <h4>Edit account information</h4>
             </div>
             <div class="modal-body">
-            <form>
+            <form method="post">
                 <div class="form-group">
                     <label for="edititeminput" class="control-label">Account (Item):</label>
                     <input class="form-control" id="edititeminput" type="text" />
@@ -210,7 +210,7 @@ echoheader();
                 <h4>Set PIN to login</h4>
             </div>
             <div class="modal-body">
-                <form id="pinloginform">
+                <form id="pinloginform" method="post">
                     <div class="form-group">
                         <label for="pinxx" class="control-label">PIN:</label>
                         <input id="pinxx" autocomplete="off" class="form-control" type="password" />
@@ -234,7 +234,7 @@ echoheader();
                 <h4>Import accounts</h4>
             </div>
             <div class="modal-body">
-                <form>
+                <form method="post">
                     <div class="form-group">
                         <label for="importc" class="control-label">You can import passwords from CSV file or raw backup file. Select a .csv file or .raw file to start.</label>
                         <input type="file" id="importc" accept=".csv,.raw" />
@@ -258,7 +258,7 @@ echoheader();
                 <h4>Upload attached file</h4>
             </div>
             <div class="modal-body">
-                <form>
+                <form method="post">
                     <div class="form-group">
                         <label for="uploadf" class="control-label">You can upload one attachment for <span id="uploadfitemlab1" class="textbold"></span>.</label>
                         <input type="file" id="uploadf" />
@@ -282,7 +282,7 @@ echoheader();
                 <h4>Change Password(Danger Area)</h4>
             </div>
             <div class="modal-body">
-                <form>
+                <form method="post">
                     <div class="form-group">
                         <label for="oldpassword" class="control-label">Old Password:</label>
                         <input id="oldpassword" autocomplete="off" class="form-control" type="password" />
