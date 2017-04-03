@@ -13,7 +13,6 @@ var user;
 var fields;
 var accountarray= [];
 var visibleAccounts;
-var lasttimechangearray= [];
 
 $.ajaxPrefilter(function(options, originalOptions, jqXHR){
     if (options.type.toLowerCase() === "post") {
@@ -92,7 +91,8 @@ function add_account(acc, pass, other, callback){
     var sk=secretkey;
     pass=encryptPassword(acc, pass);
     other=JSON.parse(other);
-    if(!("passwordlastchangtime_01_system" in other)) other["passwordlastchangtime_01_system"]=Math.floor(Date.now() / 1000);
+    if(!("_system_passwordLastChangeTime" in other)) 
+        other["_system_passwordLastChangeTime"] = Math.floor(Date.now() / 1000);
     other=JSON.stringify(other);
     other=encryptchar(other, sk);
     acc=encryptchar(acc,sk);
@@ -264,13 +264,8 @@ function dataReady(data){
             //extract json
             var data = $.parseJSON(tempchar);
             accountarray[index]["other"] = data;
-            //make the field weird so users won't create one with the same name
-            if("passwordlastchangtime_01_system" in accountarray[index]["other"]){
-                lasttimechangearray[index]=parseInt(accountarray[index]["other"]["passwordlastchangtime_01_system"]);
-                delete accountarray[index]["other"]["passwordlastchangtime_01_system"];
-            } else lasttimechangearray[index]=0;
             for (x in accountarray[index]["other"])
-                if (accountarray[index]["other"][x] != "")
+                if ( (accountarray[index]["other"][x] != "") && (x in fields) )
                     fields[x]["count"] += 1;
         }
         callPlugins("readAccount",{"account":accountarray[index]});
@@ -501,7 +496,12 @@ $(document).ready(function(){
         }
         if(!isJson(p)) {showMessage('warning', 'illegal format!', true);return;}
         var j=JSON.parse(p);
-        if("passwordlastchangtime_01_system" in j) {showMessage('warning', 'illegal fields!', true);return;}
+        for (x in j){
+            if (x.substr(0,1) == '_'){
+                showMessage('warning', 'illegal fields!', true);
+                return;
+            }
+        }
         $.post("rest/changefields.php",{fields:a},function(msg){ 
             if(msg==1) {
                 showMessage('success','Successfully changed fields!'); 
@@ -558,13 +558,18 @@ $(document).ready(function(){
             for (x in fields){
                 other[x] = $("#edititeminput"+x).val().trim();
             }
-            if($("#edititeminputpw").val()==''){
+            // get all _Fields from the original data 
+            for (x in accountarray[id]){
+                if (x.substring(0,1) == "_"){
+                    other[x] = accountarray[id]["other"][x];
+                }
+            }
+            if($("#edititeminputpw").val() == ''){
                 newpwd=decryptPassword(oldname, $("#edititeminputpw").data('enpassword'));
-                other["passwordlastchangtime_01_system"]=lasttimechangearray[id];
             }
             else{
                 newpwd=$("#edititeminputpw").val();
-                other["passwordlastchangtime_01_system"]=Math.floor(Date.now() / 1000);
+                other["_system_passwordLastChangeTime"] = Math.floor(Date.now() / 1000);
             }
 
             other = JSON.stringify(other);
@@ -685,7 +690,6 @@ $(document).ready(function(){
                 for (x in accountarray)
                 {
                     var tmpother=accountarray[x]["other"];
-                    tmpother["passwordlastchangtime_01_system"]=lasttimechangearray[x];
                     accarray[x]={"name": encryptchar(accountarray[x]["name"],newsecretkey), "is_f":1, "fname": '',"other": encryptchar(JSON.stringify(tmpother),newsecretkey)};
                     if(accountarray[x]["fname"]=='') {
                         accarray[x]['is_f']=0;
@@ -964,7 +968,9 @@ function showdetail(index){
                                         .attr('class',"glyphicon glyphicon-arrow-up"))))); 
     }
     s.append(table);
-    s.append('<br />').append($('<p>').addClass('textred').text('Password last changed at '+timeConverter(lasttimechangearray[i])));
+    if ("_system_passwordLastChangeTime" in accountarray[i]["other"]) {
+        s.append('<br />').append($('<p>').addClass('textred').text('Password last changed at '+timeConverter(accountarray[i]["other"]["_system_passwordLastChangeTime"])));
+    }
     callPlugins("showDetails",{"account":accountarray[i], "out":s});
     $("#showdetails").modal("show");
 }
