@@ -18,7 +18,9 @@ registerPlugin("editAccountDialog",function(data){
         return time;
     }
     var account = data["account"];
-    $("#edititempasswordlastchanged").text(timeConverter(lasttimechangearray[account["index"]]));
+    if ("_system_passwordLastChangeTime" in account["index"]["other"]) {
+        $("#edititempasswordlastchanged").text(timeConverter(account["index"]["other"]["_system_passwordLastChangeTime"]));
+    }
 });
 registerPlugin("layoutReady",function(data){
     $("label[for='edititeminputpw']").after($("<span>")
