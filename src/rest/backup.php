@@ -1,5 +1,5 @@
 <?php
-if(!isset($_POST['a']) || ($_POST['a']! = 'a' && $_POST['a']! = 'farray')) {
+if(!isset($_POST['a']) || ($_POST['a'] != 'a' && $_POST['a'] != 'farray')) {
     die('Forbidden'); //disallow direct visit;
 }
 require_once(dirname(__FILE__).'/../function/ajax.php');

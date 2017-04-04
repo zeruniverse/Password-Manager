@@ -639,7 +639,7 @@ $(document).ready(function(){
             }
             count=0;
             try {
-                p=JSON.parse(msg);
+                p = msg;
                 if(p.status!="OK") {
                     showMessage('warning',"FAIL TO GENERATE BACKUP FILE, TRY AGAIN", true);
                     $("#backuppwdbtn").attr('disabled',false);
