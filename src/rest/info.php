@@ -4,7 +4,8 @@ require_once(dirname(__FILE__).'/../function/sqllink.php');
 session_start();
 if(!isset($_SESSION['random_login_stamp'])) 
     $_SESSION['random_login_stamp']=date("Ymdhis").mt_rand(10000,99999);
-$_SESSION['session_token']=bin2hex(openssl_random_pseudo_bytes(32));
+if(!isset($_SESSION['session_token']))
+    $_SESSION['session_token']=bin2hex(openssl_random_pseudo_bytes(32));
 function usepin()
 {
     global $PIN_EXPIRE_TIME;
@@ -27,8 +28,12 @@ function usepin()
     if($record==FALSE) return False;
     return True;
 }
-$result=array();
+if($DB_NAME == '') {
+    error("PLEASE CONFIG function/config.php before using this system!");
+}
+$result = array();
 $result["status"] = "success";
+$result["loggedIn"] = (isset($_SESSION["loginok"])&& $_SESSION['loginok']==1);
 $result["default_timeout"] = $BROWSER_TIMEOUT;
 $result["default_letter_used"] = $DEFAULT_LETTER_USED;
 $result["default_length"] = $DEFAULT_LENGTH; 
