@@ -18,8 +18,8 @@ registerPlugin("editAccountDialog",function(data){
         return time;
     }
     var account = data["account"];
-    if ("_system_passwordLastChangeTime" in account["index"]["other"]) {
-        $("#edititempasswordlastchanged").text(timeConverter(account["index"]["other"]["_system_passwordLastChangeTime"]));
+    if ("_system_passwordLastChangeTime" in account["other"]) {
+        $("#edititempasswordlastchanged").text(timeConverter(account["other"]["_system_passwordLastChangeTime"]));
     }
 });
 registerPlugin("layoutReady",function(data){
