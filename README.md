@@ -9,7 +9,7 @@
 Benjamin has started the [PwChromeExtension](https://github.com/BenjaminHae/PwChromeExtension) project [[DOWNLOAD](https://github.com/BenjaminHae/PwChromeExtension/releases/latest)], which provides a Chrome and Firefox extension for Password-Manager.  
   
 ## Version  
-v9.13   
+v9.15  
 Supports are available [here](https://github.com/zeruniverse/Password-Manager/issues) for versions greater than v9.0   
 From v9.13, Password-Manager only supports **HTTPS** 
   
