@@ -7,6 +7,7 @@ echoheader();
 <script type="text/javascript" src="js/crypto/pbkdf2.js"></script>
 <script type="text/javascript" src="js/crypto/password.js"></script>
 <script type="text/javascript" src="js/lib/FileSaver.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery.csv.js"></script>
 <script type="text/javascript" src="js/recovery.js"></script>
 <div class="container theme-showcase">
     <div class="page-header">
@@ -34,6 +35,8 @@ echoheader();
     <input type="button" class="btn btn-md btn-success" id="chk" value="RECOVER IT!" />
     <a href="./" class="btn btn-md btn-info">Go Back</a>
     <a href="javascript: export_raw();" class="btn btn-md btn-danger collapse" id="raw_button">Export Raw Data</a>
+     <a href="javascript: export_csv();" class="btn btn-md btn-warning collapse" id="csv_button">Export CSV</a>
+
     <p> </p>
     <p><br /> </p>
     <div id="recover_result" class="collapse">

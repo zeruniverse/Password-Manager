@@ -36,6 +36,25 @@ function export_raw(){
     }
     download("raw_pass.raw",JSON.stringify(result));
 }
+function export_csv(){
+    if(!confirm('CSV file contains all your information in plain text format. It\'s dangerous to keep it as a backup. Only use it for transferring your data. Delete it immediately after you\'ve done. Please note the encoding for the csv file is UTF-8. You might need to specify this encoding in order to open this CSV properly in some software that uses ANSI as default encoding such as Microsoft Office.')) return;
+    var obj= [];
+    timeout=100000+Math.floor(Date.now() / 1000);
+    var t,x,i;
+    for (x in acc_array){
+        tmp={};
+        tmp['name']=acc_array[x];
+        t=other_array[x];
+        for (i in t){
+            tmp[i] = t[i];
+        }
+        tmp['password']=pass_array[x];
+        obj.push(tmp);
+    }
+    var csv = $.csv.fromObjects(obj);
+    var blob = new Blob([csv], {type: "text/plain;charset=utf-8"});
+    saveAs(blob, "export.csv");
+}
 function sanitize_json(s){
     var t=s;
     t=t.replace(/\n/g,'');
@@ -213,6 +232,7 @@ function rec(txt){
     $("#chk").attr("disabled",true);
     $("#chk").attr("value", "Processing...");
     $("#raw_button").hide();
+    $("#csv_button").hide();
     JSsalt = json.JSsalt;
     PWsalt = json.PWsalt;
     ALPHABET = json.ALPHABET;
@@ -283,6 +303,7 @@ function rec(txt){
     $("#chk").removeAttr("disabled");
     $("#chk").attr("value", "RECOVER IT!");
     $("#raw_button").show();
+    $("#csv_button").show();
     }
     setTimeout(process,50);
 }

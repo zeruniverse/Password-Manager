@@ -904,26 +904,7 @@ function delepw(index)
 }
 function exportcsv()
 {
-    if(!confirm('CSV file contains all your information in plain text format. It\'s dangerous to keep it as a backup. Only use it for transferring your data. Delete it immediately after you\'ve done. Please note the encoding for the csv file is UTF-8. You might need to specify this encoding in order to open this CSV properly in some software that uses ANSI as default encoding such as Microsoft Office.')) return;
-    var obj= [];
-    timeout=100000+Math.floor(Date.now() / 1000);
-    var t,x,i;
-    for (x in accountarray){
-        tmp={};
-        tmp['name']=accountarray[x]["name"];
-        t=accountarray[x]["other"];
-        for (i in t){
-            tmp[i] = t[i];
-        }
-        tmp['password']=decryptPassword(accountarray[x]["name"],accountarray[x]["enpassword"]);
-        obj.push(tmp);
-    }
-    $.getScript( 'js/lib/jquery.csv.js', function() {
-        var csv = $.csv.fromObjects(obj);
-        var blob = new Blob([csv], {type: "text/plain;charset=utf-8"});
-        saveAs(blob, "export.csv");
-    });
-    timeout=default_timeout+Math.floor(Date.now() / 1000);
+    alert('To discourage users from exporting CSV, we have moved this feature to the RECOVERY page');
 }
 function showdetail(index){
     var i=parseInt(index);
