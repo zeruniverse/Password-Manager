@@ -1,9 +1,5 @@
 <?php
 require_once('function/basic.php');
-require_once("function/sqllink.php");
-session_start();
-if(isset($_SESSION["loginok"])&& $_SESSION['loginok']==1) {header("Location: ./password.php"); die();}
-if($DB_NAME=='') die('PLEASE CONFIG function/config.php before using this system!');
 echoheader();
 ?>
 <script type="text/javascript" src="js/crypto/aes.js"></script>

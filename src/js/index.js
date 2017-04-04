@@ -30,6 +30,15 @@ $("#usepin").on("hidden.bs.modal", function () {
     $("#user").focus();
 });
 function dataReady(data){
+    if (data["status"] != "success"){
+        $("body").empty();
+        $("body").text(data["message"]);
+        return;
+    }
+    if (data["loggedIn"]){
+        window.location = "./password.php";
+        return;
+    }
     JSsalt = data["global_salt_1"]; 
     PWsalt = data["global_salt_2"];
     session_token = data["session_token"];
