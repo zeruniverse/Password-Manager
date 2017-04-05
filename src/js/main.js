@@ -188,10 +188,14 @@ function import_csv(csv){
 function showMessage(type, message, modal){
     modal = (typeof modal !== 'undefined') ? modal : false;
     if (modal==false) {
-        $("#messageText").text(message);
-        $("#message").removeClass("alert-success alert-info alert-warning alert-danger");
-        $("#message").addClass("alert-"+type);
-        $("#message").fadeIn();
+        var messageDialog = $("<div>")
+                    .addClass("alert")
+                    .addClass("alert-"+type)
+                    .addClass("collapse")
+                    .append($('<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'))
+                    .append($('<span>').text(message));
+        $("#messageContainer").append(messageDialog);
+        messageDialog.fadeIn();
     }
     else {
         $("#messageDialogText").text(message);
