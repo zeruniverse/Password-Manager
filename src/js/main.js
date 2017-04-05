@@ -197,10 +197,10 @@ function showMessage(type, message, modal){
                     .append($('<span>').text(message));
         $("#messageContainer").append(messageDialog);
         messageDialog.fadeIn();
-		if(type == "success" || type == "info"){
-			messageDialog.fadeTo(6000, 500).slideUp(500, function(){ // 6000 ms
-				messageDialog.alert('close');
-			});
+        if(type == "success" || type == "info"){
+            messageDialog.fadeTo(6000, 500).slideUp(500, function(){ // 6000 ms
+                messageDialog.alert('close');
+            });
 		}
     }
     else {
