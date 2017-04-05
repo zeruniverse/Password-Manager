@@ -285,15 +285,21 @@ function rec(txt){
     }
 
     var rows = [$('<tr><th>Account</th><th>Password</th><th>Other Info</th></tr>')];
-    if(has_file==1) rows.push($('<tr><th>Account</th><th>Password</th><th>Other Info</th><th>Files</th></tr>'));
+    if(has_file==1) rows = [$('<tr><th>Account</th><th>Password</th><th>Other Info</th><th>Files</th></tr>')];
     for(x in acc_array){
         var row = $('<tr></tr>')
                     .append($('<td></td>').text(acc_array[x]))
                     .append($('<td></td>').text(pass_array[x]))
                     .append($('<td></td>').text(other_array[x]));
-        if(has_file==1 && x in fname_array ){
-            row.push($('<td></td>')
-                        .append($('<a></a>').on('click',{"x":x},function(e){downloada(event.data.x);}).text(fname_array[x])));
+        if(has_file==1){
+			if (x in fname_array)
+			{
+				row.append($('<td></td>')
+                        .append($('<a></a>').on('click',{x:x},function(e){downloada(e.data.x);}).text(fname_array[x])));
+			} else 
+			{
+				row.append($('<td></td>'));
+			}
         }
         rows.push(row);
     }
