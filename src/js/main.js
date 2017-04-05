@@ -153,36 +153,34 @@ function import_raw(json){
     
 }
 function import_csv(csv){
-    $.getScript( 'js/lib/jquery.csv.js', function() {
-        var accarray = $.csv.toObjects(csv);
-        timeout=1000000+Math.floor(Date.now() / 1000);
-        for (x in accarray) {
-            var acc = accarray[x]["name"];
-            var pass = accarray[x]["password"];
-            if(acc==''||pass=='') {
-                showMessage('danger',"one of account or password empty! will continue to process other accounts, check back after this finished", true); continue;
-            }
-            var other = {};
-            for (key in accarray[x]){
-                if (key in fields){
-                    other[key]=accarray[x][key];
-                }
-            }
-            add_account(acc, pass, JSON.stringify(other), function(msg) { if(msg==0) showMessage('warning', "Fail to add "+acc+", please try again manually later.", true); });
-        }
-        function bk(){
-        $("#importbtn").attr("disabled",false);
-        $("#importbtn").text("Submit");
-        $("#importc").attr("disabled",false);
-        }
-        function onsucc(){
-            showMessage('success', 'IMPORT FINISHED!');
-            $('#import').modal('hide');
-            bk();
-            reloadAccounts();
-        }
-        setTimeout(onsucc,1000);
-    });
+	var accarray = $.csv.toObjects(csv);
+	timeout=1000000+Math.floor(Date.now() / 1000);
+	for (x in accarray) {
+	    var acc = accarray[x]["name"];
+	    var pass = accarray[x]["password"];
+	    if(acc==''||pass=='') {
+	        showMessage('danger',"one of account or password empty! will continue to process other accounts, check back after this finished", true); continue;
+	    }
+	    var other = {};
+	    for (key in accarray[x]){
+	        if (key in fields){
+	            other[key]=accarray[x][key];
+	        }
+	    }
+	    add_account(acc, pass, JSON.stringify(other), function(msg) { if(msg==0) showMessage('warning', "Fail to add "+acc+", please try again manually later.", true); });
+	}
+	function bk(){
+	$("#importbtn").attr("disabled",false);
+	$("#importbtn").text("Submit");
+	$("#importc").attr("disabled",false);
+	}
+	function onsucc(){
+	    showMessage('success', 'IMPORT FINISHED!');
+	    $('#import').modal('hide');
+	    bk();
+	    reloadAccounts();
+	}
+	setTimeout(onsucc,1000);
 }
 //type: any of "success", "info", "warning", "danger"
 //message: text
@@ -904,7 +902,7 @@ function delepw(index)
 }
 function exportcsv()
 {
-    alert('To discourage users from exporting CSV, we have moved this feature to the RECOVERY page');
+    alert('To discourage users from exporting CSV, we have moved this feature to the RECOVERY page. Please backup the passwords first and go to recovery page (link can be found at the login page).');
 }
 function showdetail(index){
     var i=parseInt(index);
