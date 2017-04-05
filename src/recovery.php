@@ -34,8 +34,8 @@ echoheader();
     </form>
     <input type="button" class="btn btn-md btn-success" id="chk" value="RECOVER IT!" />
     <a href="./" class="btn btn-md btn-info">Go Back</a>
-    <a href="javascript: export_raw();" class="btn btn-md btn-danger collapse" id="raw_button">Export Raw Data</a>
-     <a href="javascript: export_csv();" class="btn btn-md btn-warning collapse" id="csv_button">Export CSV</a>
+    <a class="btn btn-md btn-danger collapse" id="raw_button">Export Raw Data</a>
+    <a class="btn btn-md btn-warning collapse" id="csv_button">Export CSV</a>
 
     <p> </p>
     <p><br /> </p>

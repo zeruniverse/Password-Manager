@@ -44,7 +44,7 @@ function export_csv(){
     for (x in acc_array){
         tmp={};
         tmp['name']=acc_array[x];
-        t=other_array[x];
+        t=JSON.parse(other_array[x]);
         for (i in t){
             tmp[i] = t[i];
         }
@@ -315,4 +315,6 @@ function rec(txt){
 }
 $(function(){
     $("#chk").on('click',function(e){readfile();});
+	$("#raw_button").on('click',function(e){export_raw();});
+	$("#csv_button").on('click',function(e){export_csv();});
 });
