@@ -201,7 +201,7 @@ function showMessage(type, message, modal){
             messageDialog.fadeTo(6000, 500).slideUp(500, function(){ // 6000 ms
                 messageDialog.alert('close');
             });
-		}
+        }
     }
     else {
         $("#messageDialogText").text(message);
