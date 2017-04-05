@@ -13,6 +13,7 @@ var user;
 var fields;
 var accountarray= [];
 var visibleAccounts;
+var seenLoginInformation = false;
 
 $.ajaxPrefilter(function(options, originalOptions, jqXHR){
     if (options.type.toLowerCase() === "post") {
@@ -188,10 +189,14 @@ function import_csv(csv){
 function showMessage(type, message, modal){
     modal = (typeof modal !== 'undefined') ? modal : false;
     if (modal==false) {
-        $("#messageText").text(message);
-        $("#message").removeClass("alert-success alert-info alert-warning alert-danger");
-        $("#message").addClass("alert-"+type);
-        $("#message").fadeIn();
+        var messageDialog = $("<div>")
+                    .addClass("alert")
+                    .addClass("alert-"+type)
+                    .addClass("collapse")
+                    .append($('<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'))
+                    .append($('<span>').text(message));
+        $("#messageContainer").append(messageDialog);
+        messageDialog.fadeIn();
     }
     else {
         $("#messageDialogText").text(message);
@@ -236,19 +241,22 @@ function dataReady(data){
     secretkey=String(CryptoJS.SHA512(secretkey0+salt2));
     
     // show last succesfull Login
-    var loginMsgType = 'info';
-    var failedMsg = '';
-    if (data["loginInformation"]["failedCount"] > 0){
-        loginMsgType = 'danger';
-        failedMsg = 'Since then there {0} ' + data["loginInformation"]["failedCount"] + ' failed login attempt{1}.';
-        if (data["loginInformation"]["failedCount"] > 1){
-            failedMsg = failedMsg.replace("\{0\}", "where").replace("\{1\}", "s");
+    if (!seenLoginInformation) {
+        var loginMsgType = 'info';
+        var failedMsg = '';
+        if (data["loginInformation"]["failedCount"] > 0){
+            loginMsgType = 'danger';
+            failedMsg = 'Since then there {0} ' + data["loginInformation"]["failedCount"] + ' failed login attempt{1}.';
+            if (data["loginInformation"]["failedCount"] > 1){
+                failedMsg = failedMsg.replace("\{0\}", "where").replace("\{1\}", "s");
+            }
+            else {
+                failedMsg = failedMsg.replace("\{0\}", "was").replace("\{1\}", "");
+            }
         }
-        else {
-            failedMsg = failedMsg.replace("\{0\}", "was").replace("\{1\}", "");
-        }
+        showMessage(loginMsgType, 'Your last login was on ' + timeConverter(data["loginInformation"]["lastLogin"])+'. ' + failedMsg);
+        seenLoginInformation = true;
     }
-    showMessage(loginMsgType, 'Your last login was on ' + timeConverter(data["loginInformation"]["lastLogin"])+'. ' + failedMsg);
 
     for(var i = 0; i<accounts.length; i++) {
         var index = accounts[i]["index"];

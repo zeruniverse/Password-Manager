@@ -68,7 +68,7 @@ echoheader();
             </div>
         </div>
     </div>
-    <div id="message" class="alert collapse"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><span id="messageText"></span></div>
+    <div id="messageContainer"></div>
     <div id="waitsign">PLEASE WAIT WHILE WE ARE DECRYPTING YOUR PASSWORD...</div>
     <div id="pwdtable" class="collapse">
     <br />
