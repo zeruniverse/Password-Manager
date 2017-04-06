@@ -21,6 +21,8 @@ registerPlugin("editAccountDialog",function(data){
     if ("_system_passwordLastChangeTime" in account["other"]) {
         $("#edititempasswordlastchanged").text(timeConverter(account["other"]["_system_passwordLastChangeTime"]));
     }
+    else
+        $("#edititempasswordlastchanged").empty();
 });
 registerPlugin("layoutReady",function(data){
     $("label[for='edititeminputpw']").after($("<span>")
