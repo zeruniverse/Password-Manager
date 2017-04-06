@@ -24,14 +24,16 @@ $.ajaxPrefilter(function(options, originalOptions, jqXHR){
 });
 function quitpwd(reason)
 {
-    delpwdstore();
     reason = reason || "";
+    callPlugins("quitpwd",{"reason":reason});
+    delpwdstore();
     if (reason != "")
         reason ="?reason="+encodeURIComponent(reason);
     window.location.href="./logout.php"+reason;
 }
 function quitpwd_untrust()
 {
+    callPlugins("quitpwd_untrust");
     delpwdstore();
     delpinstore();
     deleteCookie('username');
@@ -212,6 +214,7 @@ function showMessage(type, message, modal){
     }
 }
 function dataReady(data){
+    callPlugins("dataReady",{"data":data});
     if (data["status"]=="error") {
         quitpwd("Login failed: " + data["message"]);
         return;
