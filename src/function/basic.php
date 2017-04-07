@@ -12,7 +12,7 @@ function echoheader()
     header('X-Frame-Options: DENY');
     header("Content-Security-Policy: default-src 'self';");
     header("Pragma: public");
-    $expires = ONE_DAY;
+    $expires = 86400;
     header("Cache-Control: max-age=".$expires.", must-revalidate");
     header('Expires: ' . gmdate('D, d M Y H:i:s', time()+$expires) . ' GMT');
     echo '<!DOCTYPE html>
