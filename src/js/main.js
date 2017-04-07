@@ -263,12 +263,14 @@ function dataReady(data){
                 failedMsg = failedMsg.replace("\{0\}", "was").replace("\{1\}", "");
             }
         }
-        showMessage(loginMsgType, 'Your last login was on ' + timeConverter(data["loginInformation"]["lastLogin"])+'. ' + failedMsg + ' Click for more information.')
-            .on('click',function(event){
-                $(this).alert('close');
-                $('#historyformsesstoken').val(localStorage.session_token);
-                $('#historyform').submit();
-            });
+        if((data["loginInformation"]["lastLogin"] > 0) || (data["loginInformation"]["failedCount"]) > 0) {
+            showMessage(loginMsgType, 'Your last login was on ' + timeConverter(data["loginInformation"]["lastLogin"])+'. ' + failedMsg + ' Click for more information.')
+                .on('click',function(event){
+                    $(this).alert('close');
+                    $('#historyformsesstoken').val(localStorage.session_token);
+                    $('#historyform').submit();
+                });
+        }
         seenLoginInformation = true;
     }
 
