@@ -259,7 +259,9 @@ function dataReady(data){
                 failedMsg = failedMsg.replace("\{0\}", "was").replace("\{1\}", "");
             }
         }
-        showMessage(loginMsgType, 'Your last login was on ' + timeConverter(data["loginInformation"]["lastLogin"])+'. ' + failedMsg);
+        if((data["loginInformation"]["lastLogin"] > 0) || (data["loginInformation"]["failedCount"]) > 0) {
+            showMessage(loginMsgType, 'Your last login was on ' + timeConverter(data["loginInformation"]["lastLogin"])+'. ' + failedMsg);
+        }
         seenLoginInformation = true;
     }
 
