@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS `pwdusrrecord` (
   `id` int(11) NOT NULL,
   `username` varchar(50) NOT NULL,
   `password` varchar(510) NOT NULL,
+  `salt` binary(32) NOT NULL,
   `fields` text NOT NULL,
   `email` varchar(50) NOT NULL,
   PRIMARY KEY (`id`)

@@ -8,12 +8,14 @@ $id = $_SESSION['userid'];
 $newpass = $_POST['newpass'];
 $accarray = json_decode($_POST['accarray']);
 $passarray = json_decode($_POST['passarray']);
+$salt = openssl_random_pseudo_bytes(32);
 
 if(!$link->beginTransaction()) {
     die('0');
 }
-$sql = "UPDATE `pwdusrrecord` SET `password` = ? WHERE `id` = ? ";
-$res = sqlexec($sql,array($newpass, $id),$link);
+$sql = "UPDATE `pwdusrrecord` SET `password` = ?, `salt` = ? WHERE `id` = ? ";
+$newpass = hash_pbkdf2('sha256',$newpass,$salt,$PBKDF2_ITERATIONS);
+$res = sqlexec($sql,array($newpass, $salt, $id),$link);
 if($res == NULL) {
     $link->rollBack();
     die("0");

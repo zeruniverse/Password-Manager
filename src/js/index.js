@@ -104,7 +104,7 @@ function dataReady(data){
             var login_sig=String(pbkdf2_enc(reducedinfo(pwd,default_letter_used),JSsalt,500));
             secretkey=login_sig;
             login_sig=pbkdf2_enc(login_sig,JSsalt,500);
-            $.post("rest/check.php",{pwd:String(CryptoJS.SHA512(String(CryptoJS.SHA512(login_sig+user)) + randomLoginStamp)),  user: user},function(msg){
+            $.post("rest/check.php",{pwd:String(CryptoJS.SHA512(login_sig+user)),  user: user},function(msg){
                 $(".errorhint").hide();
                 if(msg==0){
                     $("#nouser").show();
