@@ -195,7 +195,11 @@ function showMessage(type, message, modal){
                     .addClass("alert")
                     .addClass("alert-"+type)
                     .addClass("collapse")
-                    .append($('<a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>'))
+                    .append($('<a href="#" class="close" aria-label="close">&times;</a>')
+                            .click(function(e){
+                                messageDialog.alert('close'); 
+                                e.stopImmediatePropagation()
+                            }))
                     .append($('<span>').text(message));
         $("#messageContainer").append(messageDialog);
         messageDialog.fadeIn();
