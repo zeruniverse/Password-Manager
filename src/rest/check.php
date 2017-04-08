@@ -60,7 +60,7 @@ if((int)$count['m'] >= $BLOCK_ACCOUNT_TRY) {
     die('8');
 }
 
-if(strcmp(hash('sha512',(string)$record["password"].(string)$_SESSION['random_login_stamp']),$pw) != 0) {
+if(strcmp((string)$record["password"],(string)hash_pbkdf2('sha256',$pw,(string)$record["salt"],$PBKDF2_ITERATIONS)) != 0) {
     loghistory($link,(int)$record["id"],getUserIP(),$_SERVER['HTTP_USER_AGENT'],0);
     $sql = "SELECT count(*) as `m` FROM `history` WHERE `ip` = ? AND outcome = 0 AND UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`time`) < ?";
     $res = sqlexec($sql,array(getUserIP(),$BLOCK_IP_TIME),$link);

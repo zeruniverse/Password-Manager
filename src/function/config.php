@@ -81,6 +81,8 @@ $GLOBAL_SALT_1='iunin19dnu9ismcj9IUNuia,cne9e389]{}{}[]*@key';
 $GLOBAL_SALT_2='ncew8d7*(e8fyh2inc osd2)wefcsBIUsdfq2as;dqw[;[]]';
 //Only use salt 3 in server side
 $GLOBAL_SALT_3='*&Kjnskjnaucibiqb9298hv9sHIUWNiukJNIusfbic897*(^)';
+//Number of iterations for the password hashing
+$PBKDF2_ITERATIONS=64000;
 
 //Generating Password (those variables will be written into JavaScript)
 //the default password length to be generated

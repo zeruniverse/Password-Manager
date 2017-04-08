@@ -34,11 +34,13 @@ if($num[0] != 0) {
     $link->commit();
     die("1");
 }
+$salt = openssl_random_pseudo_bytes(32);
+$pw = hash_pbkdf2('sha256',$pw,$salt,$PBKDF2_ITERATIONS);
 $res = sqlquery('SELECT max(`id`) FROM `pwdusrrecord`',$link);
 $result = $res->fetch(PDO::FETCH_NUM);
 $maxnum = $result == FALSE ? 0:(int)($result[0]);
-$sql = "INSERT INTO `pwdusrrecord` VALUES (?,?,?,?,?)";
-$rett = sqlexec($sql,array($maxnum+1,$usr,$pw,$DEFAULT_FIELDS,$email),$link);
+$sql = "INSERT INTO `pwdusrrecord` VALUES (?,?,?,?,?,?)";
+$rett = sqlexec($sql,array($maxnum+1,$usr,$pw,$salt,$DEFAULT_FIELDS,$email),$link);
 if(!$rett) {
     $link->rollBack();
     die('8');
