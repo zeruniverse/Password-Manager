@@ -24,6 +24,10 @@ if(!isset($_SESSION['random_login_stamp']) || $_SESSION['random_login_stamp'] ==
 }
 $usr = $_POST['user'];
 $pw = $_POST['pwd'];
+// check length of password hash for pbkdf2
+if (strlen($pw) > 130) {
+    die('0');
+}
 if($pw == ""||$usr == ""||$_POST['session_token'] == '') {
     die("0");
 }
