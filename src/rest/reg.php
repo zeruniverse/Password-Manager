@@ -5,6 +5,10 @@ $email = $_POST['email'];
 if($pw == ''||$usr == ''||$email == "") {
     die("7");
 }
+// check length of password hash for pbkdf2
+if (strlen($pw) > 130) {
+    die('2');
+}
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     die("5");
 }
@@ -13,6 +17,7 @@ if ($ALLOW_SIGN_UP === False){
     http_response_code(405);
     die('Method not allowed');
 }
+
 $link = sqllink();
 if(!$link) {
     die('6');

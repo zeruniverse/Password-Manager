@@ -6,6 +6,10 @@ if(!checksession($link)) {
 }
 $id = $_SESSION['userid'];
 $newpass = $_POST['newpass'];
+// check length of password hash for pbkdf2
+if (strlen($newpass) > 130) {
+    die('0');
+}
 $accarray = json_decode($_POST['accarray']);
 $passarray = json_decode($_POST['passarray']);
 $salt = openssl_random_pseudo_bytes(32);
