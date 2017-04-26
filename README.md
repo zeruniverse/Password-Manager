@@ -18,7 +18,7 @@ From v9.13, Password-Manager only supports **HTTPS**
 This demo is for test **ONLY**! Do **NOT** put your real password there.  
 You can access the database for this demo [here](https://mysql-p.sourceforge.net), with login username **p2663268ro** and password **12345678**   
   
-Additional test demo is available here: [pas.jeffery.cc](http://pas.jeffery.cc/)  
+Additional test demo is available here: [pas.jeffery.cc](https://pas.jeffery.cc/)  
 This demo is for test purpose and might be unstable. Users are recommended to use the sourceforge demo.
     
 ## Features  
