@@ -711,7 +711,6 @@ $(document).ready(function(){
                 var newconfkey=pbkdf2_enc(String(CryptoJS.SHA512(newpass+login_sig)), salt1, 500); 
                 var x,raw_pass,raw_fkey;
                 var temps;
-                var passarray= [];
                 var accarray= [];
                 for (x in accountarray)
                 {
@@ -719,26 +718,32 @@ $(document).ready(function(){
                     accarray[x]={"name": encryptchar(accountarray[x]["name"],newsecretkey), "is_f":1, "fname": '',"other": encryptchar(JSON.stringify(tmpother),newsecretkey)};
                     if(accountarray[x]["fname"]=='') {
                         accarray[x]['is_f']=0;
-                    } else
-                    {
+                    } 
+                    else {
                         accarray[x]["fname"]=encryptchar(accountarray[x]["fname"],newsecretkey);
                     }
                     raw_fkey='1';
                     raw_pass=decryptPassword(accountarray[x]["name"],accountarray[x]["enpassword"]);
-                    if(accountarray[x]["fname"]!='') raw_fkey=decryptPassword(accountarray[x]['fname'],accountarray[x]['fkey']);
+                    if(accountarray[x]["fname"]!='') {
+                        raw_fkey=decryptPassword(accountarray[x]['fname'],accountarray[x]['fkey']);
+                    }
                     if (raw_pass==""||raw_fkey=='') {
                         showMessage('danger',"FATAL ERROR WHEN TRYING TO DECRYPT ALL PASSWORDS", true);
                         return;
                     }
                     raw_pass=gen_temp_pwd(newconfkey,PWsalt,String(CryptoJS.SHA512(accountarray[x]["name"])),ALPHABET,raw_pass);
                     raw_fkey=gen_temp_pwd(newconfkey,PWsalt,String(CryptoJS.SHA512(accountarray[x]["fname"])),ALPHABET,raw_fkey);
-                    passarray[x]={"pw":encryptchar(raw_pass,newsecretkey), "fk":encryptchar(raw_fkey,newsecretkey)};
+                    accarray[x]["newpwd"] = encryptchar(raw_pass,newsecretkey);
+                    accarray[x]["fk"] = encryptchar(raw_fkey,newsecretkey);
                 }
-                $.post("rest/changeuserpw.php",{newpass:String(CryptoJS.SHA512(postnewpass+user)), passarray:JSON.stringify(passarray), accarray:JSON.stringify(accarray)},function(msg){ 
+                $.post("rest/changeuserpw.php",{newpass:String(CryptoJS.SHA512(postnewpass+user)), accarray:JSON.stringify(accarray)},function(msg){ 
                     if(msg==1) {
                         alert("Change Password Successfully! Please login with your new password again.");
                         quitpwd("Password changed, please relogin");
-                    } else {showMessage('warning',"Fail to change your password, please try again.", true); }
+                    } 
+                    else {
+                        showMessage('warning',"Fail to change your password, please try again.", true); 
+                    }
                 });
             }
             setTimeout(process,50);

@@ -11,7 +11,6 @@ if (strlen($newpass) > 130) {
     die('0');
 }
 $accarray = json_decode($_POST['accarray']);
-$passarray = json_decode($_POST['passarray']);
 $salt = openssl_random_pseudo_bytes(32);
 
 if(!$link->beginTransaction()) {
@@ -28,9 +27,8 @@ if($res == NULL) {
 $sql = "SELECT `index` FROM `password` WHERE `userid` = ?";
 $res = sqlexec($sql,array($id),$link);
 while ($i = $res->fetch(PDO::FETCH_ASSOC)) {
-    $storepw = $passarray[(int)$i["index"]]->pw;
     $sql = "UPDATE `password` SET `name` = ?, `pwd` = ?, `other` = ? WHERE `userid` = ? AND `index` = ?";
-    $resss = sqlexec($sql,array($accarray[(int)$i["index"]]->name, $storepw,$accarray[(int)$i["index"]]->other,$id,(int)$i['index']),$link);
+    $resss = sqlexec($sql,array($accarray[(int)$i["index"]]->name, $accarray[(int)$i["index"]]->newpwd, $accarray[(int)$i["index"]]->other,$id,(int)$i['index']),$link);
     if($resss == NULL) {
         $link->rollBack();
         die("0");
@@ -41,7 +39,7 @@ $sql = "SELECT `index` FROM `files` WHERE `userid` = ?";
 $res = sqlexec($sql,array($id),$link);
 while ($i = $res->fetch(PDO::FETCH_ASSOC)) {
     $sql = "UPDATE `files` SET `key` = ?, `fname` = ? WHERE `userid` = ? AND `index` = ?";
-    $resss = sqlexec($sql,array($passarray[(int)$i["index"]]->fk, $accarray[(int)$i["index"]]->fname, $id, (int)$i['index']),$link);
+    $resss = sqlexec($sql,array($accarray[(int)$i["index"]]->fk, $accarray[(int)$i["index"]]->fname, $id, (int)$i['index']),$link);
     if($resss == NULL) {
         $link->rollBack();
         die("0");
