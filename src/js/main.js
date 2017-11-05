@@ -23,27 +23,6 @@ $.ajaxPrefilter(function(options, originalOptions, jqXHR){
     }
 });
 
-var keyboardShortcuts = {
-    's':"#pwdlist_filter > label > input",
-}
-
-var effectiveKeyboardShortcuts = {}
-// generate keycodes
-function prepareKeyboardShortcuts(){
-    for (var key in keyboardShortcuts){
-        effectiveKeyboardShortcuts[key.toUpperCase().charCodeAt(0)] = keyboardShortcuts[key];
-    }
-}
-
-prepareKeyboardShortcuts();
-
-$(document).delegate(':not(input)', 'keyup', function(e) {
-    var key = e.keyCode;
-    if (key in effectiveKeyboardShortcuts) {
-        $(effectiveKeyboardShortcuts[key]).focus();
-        e.preventDefault();
-    }
-});
 function quitpwd(reason)
 {
     reason = reason || "";
