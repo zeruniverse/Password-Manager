@@ -19,6 +19,7 @@ echoheader();
 <script type="text/javascript" src="js/plugins/linkButton.js"></script>
 <script type="text/javascript" src="js/plugins/tags.js"></script>
 <script type="text/javascript" src="js/plugins/showPasswordAge.js"></script>
+<script type="text/javascript" src="js/plugins/keyboardShortcuts.js"></script>
    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
       <div class="container">
         <div class="collapse">
