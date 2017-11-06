@@ -1,46 +1,38 @@
 // Plugin for Keyboard Shortcuts
 
-// define Shortcuts (keycode: {action: action to do (toggle, click, focus), element: element to focus, description: help text})
+// define Shortcuts (keycode: {action: action to do (modal, click, focus), element: element to focus, description: help text})
 var keyboardShortcuts = {
-    'a': {"action":"toggle", "element":"#add", "description": "show add entry dialog"},
-    's': {"action":"focus", "element":"#pwdlist_filter > label > input", "description": "focus search input"},
-    '?': {"action":"toggle", "element":"#shortcutHelp", "description": "show/hide keyboard shortcut help"},
+    '97': {"action":"modal", "element":"#add", "description": "show add entry dialog"},
+    '115': {"action":"focus", "element":"#pwdlist_filter > label > input", "description": "focus search input"},
+    '63': {"action":"modal", "element":"#shortcuts", "description": "show/hide keyboard shortcut help"},
 }
 
-var effectiveKeyboardShortcuts = {}
-
-// generate keycodes
-function prepareKeyboardShortcuts(){
-    for (var key in keyboardShortcuts){
-        effectiveKeyboardShortcuts[key.toUpperCase().charCodeAt(0)] = keyboardShortcuts[key];
-    }
+var actions = {
+    "focus":function(element){$(element).focus();},
+    "click":function(element){$(element).click();},
+    "modal":function(element){$(element).modal();},
 }
 
 registerPlugin("layoutReady", function(data){
-    prepareKeyboardShortcuts();
-    $(document).delegate(':not(input)', 'keyup', function(e) {
-        var key = e.keyCode;
-        if (! key in effectiveKeyboardShortcuts) {
+    $(document).delegate(':not(input)', 'keypress', function(e) {
+        if (e.target.nodeName.toLowerCase() == 'input') {
             return;
         }
-        var shortcut = effectiveKeyboardShortcuts[key];
-        if (shortcut["action"] == "focus") {
-            $(shortcut["element"]).focus();
+        var key = e.which;
+        if (! (key in keyboardShortcuts)) {
+            return;
         }
-        else if (shortcut["action"] == "toggle") {
-            $(shortcut["element"]).toggle();
-        }
-        else if (shortcut["action"] == "click") {
-            $(shortcut["element"]).click();
-        }
+        var shortcut = keyboardShortcuts[key];
+        actions[shortcut["action"]](shortcut["element"]);
         e.preventDefault();
+        e.stopPropagation();
     });
     var list = $('<ul class="list-group"></ul>');
     for (key in keyboardShortcuts) {
         list.append($('<li class="list-group-item"></li>')
-            .text(keyboardShortcuts["description"})
+            .text(keyboardShortcuts[key]["description"])
             .prepend($('<span class="badge"></span>')
-                .text(key)));
+                .text(String.fromCharCode(key))));
     }
     var modal = $('<div class="modal" tabindex="-1" role="dialog" id="shortcuts"></div>')
                     .append($('<div class="modal-dialog"></div>')
