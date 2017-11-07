@@ -3,8 +3,11 @@
 // define Shortcuts (keycode: {action: action to do (modal, click, focus), element: element to focus, description: help text})
 var keyboardShortcuts = {
     '97': {"action":"modal", "element":"#add", "description": "Show add entry dialog"},
-    '115': {"action":"focus", "element":"#pwdlist_filter > label > input", "description": "Focus search input"},
+    '47': {"action":"focus", "element":"#pwdlist_filter > label > input", "description": "Focus search input"},
     '63': {"action":"modal", "element":"#shortcuts", "description": "Show keyboard shortcut help"},
+    '108': {"action":"click", "element":"#pwdlist_next > a", "description": "Got to next page"},
+    '104': {"action":"click", "element":"#pwdlist_previous > a", "description": "Got to previous page"},
+    // todo n, p for navigating table
 }
 
 var actions = {
