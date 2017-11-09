@@ -1,7 +1,8 @@
 <?php
+
 function echofooter()
 {
-echo '<footer class="footer">
+    echo '<footer class="footer">
 <p>&copy;2015 Jeffery<br /><br />ALL RIGHTS RESERVED</p>
 </footer>
 </body>
@@ -11,10 +12,10 @@ function echoheader()
 {
     header('X-Frame-Options: DENY');
     header("Content-Security-Policy: default-src 'self';");
-    header("Pragma: public");
+    header('Pragma: public');
     $expires = 86400;
-    header("Cache-Control: max-age=".$expires.", must-revalidate");
-    header('Expires: ' . gmdate('D, d M Y H:i:s', time()+$expires) . ' GMT');
+    header('Cache-Control: max-age='.$expires.', must-revalidate');
+    header('Expires: '.gmdate('D, d M Y H:i:s', time() + $expires).' GMT');
     echo '<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -37,4 +38,3 @@ function echoheader()
 </head>
 <body>';
 }
-?>

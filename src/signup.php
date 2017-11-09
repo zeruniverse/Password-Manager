@@ -1,5 +1,5 @@
 <?php
-require_once('function/basic.php');
+require_once 'function/basic.php';
 echoheader();
 ?>
 <script type="text/javascript" src="js/crypto/sha512.js"></script>
@@ -33,4 +33,4 @@ echoheader();
         <input type="button" class="btn btn-md btn-success" id="chk"  value="Submit" />
     </form>
 </div>
-<?php echofooter();?>
+<?php echofooter(); ?>
