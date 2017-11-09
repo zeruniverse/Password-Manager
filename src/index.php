@@ -1,5 +1,5 @@
 <?php
-require_once('function/basic.php');
+require_once 'function/basic.php';
 echoheader();
 ?>
 <script type="text/javascript" src="js/crypto/aes.js"></script>
@@ -13,7 +13,7 @@ echoheader();
             <h1>Password Manager</h1>
         </div>
 <?php
-if(isset($_GET["reason"])) {
+if (isset($_GET['reason'])) {
     echo '<div id="message" class="alert alert-info"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><span id="messageText">'.htmlspecialchars($_GET['reason'], ENT_QUOTES, 'UTF-8').'</span></div>';
 }
 ?>
@@ -62,4 +62,4 @@ if(isset($_GET["reason"])) {
         </div>
     </div>
     </div>
-<?php echofooter();?>
+<?php echofooter(); ?>

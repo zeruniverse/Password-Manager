@@ -1,5 +1,5 @@
 <?php
-require_once("function/basic.php");
+require_once 'function/basic.php';
 echoheader();
 ?>
 <link rel="stylesheet" type="text/css" href="css/dataTables.bootstrap.min.css">
@@ -328,4 +328,4 @@ echoheader();
         </div>
     </div>
 </div>
-<?php echofooter();?>
+<?php echofooter(); ?>

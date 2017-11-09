@@ -1,5 +1,5 @@
 <?php
-require_once('function/basic.php');
+require_once 'function/basic.php';
 echoheader();
 ?>
 <script type="text/javascript" src="js/crypto/aes.js"></script>
@@ -44,4 +44,4 @@ echoheader();
     <table class="table" id="rtable"></table>
     </div>
 </div>
-<?php echofooter();?>
+<?php echofooter(); ?>
