@@ -83,7 +83,7 @@ function dataReady(data){
             if(msg == '1') {$("#pin").val('');$("#pinerrorhint").show();$("#pinlogin").attr("disabled", false);$("#pinlogin").val("Login"); return;}
             pwdsk=decryptchar(localStorage.en_login_sec,pin+msg);
             confkey=decryptchar(localStorage.en_login_conf,pin+msg)
-                $.post("rest/check.php",{pwd:String(CryptoJS.SHA512(String(CryptoJS.SHA512(pbkdf2_enc(pwdsk,JSsalt,500)+getcookie('username'))) + randomLoginStamp)),  user: getcookie('username')},function(msg){
+                $.post("rest/check.php",{pwd:String(CryptoJS.SHA512(pbkdf2_enc(pwdsk,JSsalt,500)+getcookie('username'))),  user: getcookie('username')},function(msg){
                     if(msg!=9) {$("#usepin").modal("hide");delpinstore();$("#user").focus();return;}
                     setpwdstore(pwdsk,confkey,PWsalt);
                     window.location.href="./password.php";
