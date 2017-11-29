@@ -15,7 +15,7 @@ var accountarray= [];
 var visibleAccounts;
 var seenLoginInformation = false;
 
-$.ajaxPrefilter(function(options, originalOptions, jqXHR){
+$.ajaxPrefilter(function(options, originalOptions, jqXHR) {
     if (options.type.toLowerCase() === "post") {
         options.data = options.data || "";
         options.data += options.data?"&":"";
@@ -23,8 +23,7 @@ $.ajaxPrefilter(function(options, originalOptions, jqXHR){
     }
 });
 
-function quitpwd(reason)
-{
+function quitpwd(reason) {
     reason = reason || "";
     callPlugins("quitpwd",{"reason":reason});
     delpwdstore();
@@ -32,17 +31,17 @@ function quitpwd(reason)
         reason ="?reason="+encodeURIComponent(reason);
     window.location.href="./logout.php"+reason;
 }
-function quitpwd_untrust()
-{
+function quitpwd_untrust() {
     callPlugins("quitpwd_untrust");
     delpwdstore();
     delpinstore();
     deleteCookie('username');
     window.location.href="./logout.php";
 }
-function countdown()
-{
-    if(timeout < Math.floor(Date.now() / 1000)) quitpwd("Logged out due to inactivity");
+function countdown() {
+    if(timeout < Math.floor(Date.now() / 1000)) {
+        quitpwd("Logged out due to inactivity");
+    }
 }
 function checksessionalive()
 {
