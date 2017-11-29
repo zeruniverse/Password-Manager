@@ -218,6 +218,53 @@ function showMessage(type, message, modal){
         $("#messageDialog").modal('show');
     }
 }
+// show last succesfull Login
+// changes the seenLoginInformation global variable
+function showLastLoginInformation(failedCount, lastLogin){
+    if (!seenLoginInformation) {
+        var loginMsgType = 'info';
+        var failedMsg = '';
+        if (failedCount > 0){
+            loginMsgType = 'danger';
+            failedMsg = 'Since then there {0} ' + failedCount + ' failed login attempt{1}.';
+            if (failedCount > 1){
+                failedMsg = failedMsg.replace("\{0\}", "where").replace("\{1\}", "s");
+            }
+            else {
+                failedMsg = failedMsg.replace("\{0\}", "was").replace("\{1\}", "");
+            }
+        }
+        if((lastLogin > 0) || (failedCount > 0)) {
+            showMessage(loginMsgType, 'Your last login was on ' + timeConverter(lastLogin)+'. ' + failedMsg + ' Click for more information.')
+                .on('click',function(event){
+                    $(this).alert('close');
+                    $('#historyformsesstoken').val(localStorage.session_token);
+                    $('#historyform').submit();
+                });
+        }
+        seenLoginInformation = true;
+    }
+}
+// decrypts an account entry
+// changes the fields global variable
+function decryptAccount(encryptedAccount) {
+    var index = encryptedAccount["index"];
+    var decryptedAccount = { "index":index, "other": {} };
+    decryptedAccount["fname"]=''; 
+    decryptedAccount["name"] = decryptchar(encryptedAccount["name"],secretkey);
+    decryptedAccount["enpassword"] = encryptedAccount["kss"];
+    if (encryptedAccount["additional"] != "") {
+        //decrypt
+        var tempchar = decryptchar(encryptedAccount["additional"], secretkey);
+        //extract json
+        var data = $.parseJSON(tempchar);
+        decryptedAccount["other"] = data;
+        for (x in decryptedAccount["other"])
+            if ( (decryptedAccount["other"][x] != "") && (x in fields) )
+                fields[x]["count"] += 1;
+    }
+    return decryptedAccount;
+}
 function dataReady(data){
     callPlugins("dataReady",{"data":data});
     if (data["status"]=="error") {
@@ -254,49 +301,16 @@ function dataReady(data){
     }
     secretkey=String(CryptoJS.SHA512(secretkey0+salt2));
     
-    // show last succesfull Login
-    if (!seenLoginInformation) {
-        var loginMsgType = 'info';
-        var failedMsg = '';
-        if (data["loginInformation"]["failedCount"] > 0){
-            loginMsgType = 'danger';
-            failedMsg = 'Since then there {0} ' + data["loginInformation"]["failedCount"] + ' failed login attempt{1}.';
-            if (data["loginInformation"]["failedCount"] > 1){
-                failedMsg = failedMsg.replace("\{0\}", "where").replace("\{1\}", "s");
-            }
-            else {
-                failedMsg = failedMsg.replace("\{0\}", "was").replace("\{1\}", "");
-            }
-        }
-        if((data["loginInformation"]["lastLogin"] > 0) || (data["loginInformation"]["failedCount"]) > 0) {
-            showMessage(loginMsgType, 'Your last login was on ' + timeConverter(data["loginInformation"]["lastLogin"])+'. ' + failedMsg + ' Click for more information.')
-                .on('click',function(event){
-                    $(this).alert('close');
-                    $('#historyformsesstoken').val(localStorage.session_token);
-                    $('#historyform').submit();
-                });
-        }
-        seenLoginInformation = true;
-    }
+    showLastLoginInformation(data["loginInformation"]["failedCount"], data["loginInformation"]["lastLogin"]);
 
+    // decrypt accounts
     for(var i = 0; i<accounts.length; i++) {
         var index = accounts[i]["index"];
-        accountarray[index] = { "index":index, "other": {} };
-        accountarray[index]["fname"]=''; 
-        accountarray[index]["name"] = decryptchar(accounts[i]["name"],secretkey);
-        accountarray[index]["enpassword"] = accounts[i]["kss"];
-        if (accounts[i]["additional"] != "")
-        {//decrypt
-            var tempchar = decryptchar(accounts[i]["additional"], secretkey);
-            //extract json
-            var data = $.parseJSON(tempchar);
-            accountarray[index]["other"] = data;
-            for (x in accountarray[index]["other"])
-                if ( (accountarray[index]["other"][x] != "") && (x in fields) )
-                    fields[x]["count"] += 1;
-        }
+        accountarray[index] = decryptAccount(accounts[i])
         callPlugins("readAccount",{"account":accountarray[index]});
     }
+
+    // add files to accounts
     for(var i = 0; i<fdata.length; i++) {
         var index = fdata[i]["index"];
         accountarray[index]['fname'] = decryptchar(fdata[i]['fname'],secretkey);
