@@ -157,27 +157,32 @@ function import_raw(json){
     
 }
 function import_csv(csv){
+    function importError(msg){ 
+        if(msg==0) {
+            showMessage('warning', "Fail to add "+acc+", please try again manually later.", true); 
+        }
+    }
 	var accarray = $.csv.toObjects(csv);
 	timeout=1000000+Math.floor(Date.now() / 1000);
-	for (x in accarray) {
+	for (var x in accarray) {
 	    var acc = accarray[x]["name"];
 	    var pass = accarray[x]["password"];
 	    if(acc==''||pass=='') {
 	        showMessage('danger',"one of account or password empty! will continue to process other accounts, check back after this finished", true); continue;
 	    }
 	    var other = {};
-	    for (key in accarray[x]){
+	    for (var key in accarray[x]){
 	        if (key in fields){
 	            other[key]=accarray[x][key];
 	        }
 	    }
-	    add_account(acc, pass, JSON.stringify(other), function(msg) { if(msg==0) showMessage('warning', "Fail to add "+acc+", please try again manually later.", true); });
+	    add_account(acc, pass, JSON.stringify(other), importError);
 	}
-	function bk(){
-	$("#importbtn").attr("disabled",false);
-	$("#importbtn").text("Submit");
-	$("#importc").attr("disabled",false);
-	}
+    function bk(){
+        $("#importbtn").attr("disabled",false);
+        $("#importbtn").text("Submit");
+        $("#importc").attr("disabled",false);
+    }
 	function onsucc(){
 	    showMessage('success', 'IMPORT FINISHED!');
 	    $('#import').modal('hide');
