@@ -335,7 +335,7 @@ function initFields() {
                         .attr('class',x+'cell'+fields[x]["cls"]+' field')
                         .text(fields[x]["colname"]);
         var forms = {};
-        for (val of ['new','edit']){
+        for (var val of ['new','edit']){
             var input;
             var inputtype = "text";
             if ("type" in fields[x])
@@ -372,7 +372,6 @@ function showTable(accounts)
 {
     accounts=preShowPreparation(accounts);
     visibleAccounts=accounts;
-    var tempchar;
     var asterisk = $('<span>').attr('class','glyphicon glyphicon-asterisk');
     var pwdLink = $('<a>').attr('title','Click to see')
             .append(asterisk.clone())
@@ -381,7 +380,7 @@ function showTable(accounts)
             .append(asterisk.clone())
             .append(asterisk.clone())
             .append(asterisk);
-    for(index in accounts) {
+    for(var index in accounts) {
         var cols = [];
         cols.push($("<td>")
             .attr('class','namecell')
@@ -426,7 +425,7 @@ function showTable(accounts)
             }
         }
         // create row for datatable
-        row = $("<tr>").attr('class','datarow').data('id',accounts[index]["index"]).append(cols);
+        var row = $("<tr>").attr('class','datarow').data('id',accounts[index]["index"]).append(cols);
         callPlugins("drawAccount", {"account": accounts[index], "row":row});
         datatablestatus.row.add(row);
     }
@@ -646,25 +645,21 @@ $(document).ready(function(){
         var fileinclude="a";
         if($("#fileincludeckb").is(':checked')) fileinclude="farray";
         $.post("rest/backup.php",{a:fileinclude},function(msg){
-            var a,i,count,p;
-            function progressbarchange(x)
-            {
+            var a,count,p;
+            function progressbarchange(x) {
                 $("#backuppwdpb").attr('aria-valuenow',x);
                 $("#backuppwdpb").css('width',x+'%');
             }
-            function cback()
-            {
+            function cback() {
                 if(count<30) pbkdf2_enc_1(cback); else process();
             }
-            function pbkdf2_enc_1(callback)
-            {
+            function pbkdf2_enc_1(callback) {
                 progressbarchange(6+count*3);
                 a=pbkdf2_enc(a,PWsalt,500);
                 count=count+1;
                 setTimeout(callback,1);
             }
-            function process()
-            {
+            function process() {
                 p.data=encryptchar(JSON.stringify(p.data),pbkdf2_enc(a,PWsalt,500));
                 p.fdata=encryptchar(JSON.stringify(p.fdata),pbkdf2_enc(a,PWsalt,500));
                 $("#backuppwdpb").attr('aria-valuenow',99);
@@ -676,8 +671,7 @@ $(document).ready(function(){
                 $("#fileincludeckb").attr('disabled',false);
                 timeout=default_timeout+Math.floor(Date.now() / 1000);
             }
-            function first(callback)
-            {
+            function first(callback) {
                 timeout=1000000+Math.floor(Date.now() / 1000);
                 a=pbkdf2_enc(secretkey,PWsalt,500);
                 callback(cback);
@@ -729,7 +723,6 @@ $(document).ready(function(){
                 //NOTE: login_sig here is the secret_key generated when login.
                 var newconfkey=pbkdf2_enc(String(CryptoJS.SHA512(newpass+login_sig)), salt1, 500); 
                 var x,raw_pass,raw_fkey;
-                var temps;
                 var accarray= [];
                 for (x in accountarray)
                 {
