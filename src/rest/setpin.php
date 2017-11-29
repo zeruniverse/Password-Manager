@@ -3,7 +3,7 @@
 // only even lengths are allowed
 function random_str($length)
 {
-    return bin2hex(openssl_random_pseudo_bytes($length/2));
+    return bin2hex(openssl_random_pseudo_bytes($length / 2));
 }
 require_once dirname(__FILE__).'/../function/sqllink.php';
 $link = sqllink();
