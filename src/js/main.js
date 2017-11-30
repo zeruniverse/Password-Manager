@@ -499,11 +499,13 @@ $(document).ready(function(){
         function process()
         {
             $.post("rest/setpin.php",{user:getcookie('username'),device:device,sig:String(CryptoJS.SHA512(pin+salt))},function(msg){
-                if(msg=='0'){
+                var data = $.parseJSON(msg);
+                if(data["status"] != "success"){
                     showMessage('warning', 'ERROR set PIN, try again later!', true);
                     $('#pin').modal('hide');
-                }else{
-                    setPINstore(device,salt,encryptchar(getpwdstore(PWsalt),pin+msg),encryptchar(getconfkey(PWsalt),pin+msg));
+                }
+                else{
+                    setPINstore(device, salt, encryptchar(getpwdstore(PWsalt), pin + data["pinpk"]), encryptchar(getconfkey(PWsalt), pin + data["pinpk"]));
                     showMessage('success', 'PIN set, use PIN to login next time');
                     $('#pin').modal('hide');
                 }
