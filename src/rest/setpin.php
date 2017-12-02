@@ -9,7 +9,7 @@ require_once dirname(__FILE__).'/../function/sqllink.php';
 require_once dirname(__FILE__).'/../function/ajax.php';
 $link = sqllink();
 if (!checksession($link)) {
-    error("no session found")
+    error("no session found");
 }
 $id = $_SESSION['userid'];
 $usr = $_SESSION['user'];
@@ -18,7 +18,7 @@ $device = $_POST['device'];
 $sig = $_POST['sig'];
 
 if ($username != $usr) {
-    error("wrong user")
+    error("wrong user");
 }
 $sql = 'DELETE FROM `pin` WHERE `userid` = ? AND `device` = ?';
 $res = sqlexec($sql, [$id, $device], $link);
@@ -28,5 +28,5 @@ $pinpk = random_str(30);
 $sql = 'INSERT INTO `pin` (`userid`,`device`,`pinsig`,`pinpk`,`ua`) VALUES (?,?,?,?,?)';
 $res = sqlexec($sql, [$id, $device, $sig, $pinpk, $_SERVER['HTTP_USER_AGENT']], $link);
 
-echo json_encode(['status':"success", "pinpk":$pinpk]);
+echo json_encode(['status' => "success", "pinpk" => $pinpk]);
 ?>
