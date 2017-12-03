@@ -6,6 +6,7 @@
 //otherwise - pk
 session_start();
 require_once dirname(__FILE__).'/../function/sqllink.php';
+require_once dirname(__FILE__).'/../function/ajax.php';
 $link = sqllink();
 if (!$link) {
     error("Database connection failed");
