@@ -1,8 +1,8 @@
 <?php
 
 //return:
-//0 - FORCE TO USE USERNAME/PASSWORD
-//1 - PIN error
+//"PIN error" - FORCE TO USE USERNAME/PASSWORD, DELETE PIN
+//"Wrong PIN" - PIN just retry
 //otherwise - pk
 session_start();
 require_once dirname(__FILE__).'/../function/sqllink.php';
