@@ -119,7 +119,8 @@ function import_raw(json){
         add_account(acc, pass, other, function(msg) { 
             if(msg["status"] != "success") {
                 showMessage('warning',"Fail to add "+acc+", please try again manually later.", true); 
-            });
+            }
+        });
     }
     function add_acc_file(acc,pass,other,fname,fdata){
         function addfile(msg){
