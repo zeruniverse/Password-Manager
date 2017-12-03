@@ -510,22 +510,21 @@ $(document).ready(function(){
                 }
             });
         }
-        if(pin.length<4) {
+        if (pin.length<4) {
             showMessage('warning', 'For security reason, PIN should be at least of length 4.', true); 
             return;
         }
-        if(device=="") {
+        if (device == "") {
             function rand_device() {
-                var status=1;
-                device = getpwd('abcdefghijklmnopqrstuvwxyz1234567890',9)
-                    setCookie('device',device);
-                $.post("rest/getpinpk.php",{user:getcookie('username'),device:device,sig:'1'},function(msg){
-                    status = parseInt(msg);
-                    if(status == 0) {
-                        process();
+                device = getpwd('abcdefghijklmnopqrstuvwxyz1234567890', 9);
+                setCookie('device', device);
+                $.post("rest/getpinpk.php", {user:getcookie('username'), device:device, sig:'1'}, function(msg){
+                    // check if we somehow managed to get an existing PIN
+                    if (msg["status"] == "success") {
+                        rand_device();
                     }
                     else {
-                        rand_device();
+                        process();
                     }
                 });
             }
@@ -536,9 +535,9 @@ $(document).ready(function(){
         }
     });
     $("#changefieldsbtn").click(function(){
-        var a=$('#fieldsz').val();
-        var p=a.replace(/\r\n/g,'');
-        p=p.replace(/\n/g,'');
+        var a = $('#fieldsz').val();
+        var p = a.replace(/\r\n/g,'');
+        p = p.replace(/\n/g,'');
         function isJson(str) {
             try {
                 $.parseJSON(str);
@@ -547,8 +546,11 @@ $(document).ready(function(){
             }
             return true;
         }
-        if(!isJson(p)) {showMessage('warning', 'illegal format!', true);return;}
-        var j=JSON.parse(p);
+        if(!isJson(p)) {
+            showMessage('warning', 'illegal format!', true);
+            return;
+        }
+        var j = JSON.parse(p);
         for (x in j){
             if (x.substr(0,1) == '_'){
                 showMessage('warning', 'illegal fields!', true);
