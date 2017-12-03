@@ -492,41 +492,48 @@ $(document).ready(function(){
     $.post("rest/password.php",{},function(msg){dataReady(msg);});
     $("#pinloginform").on('submit',function(e){
         e.preventDefault();
-        var pin=$("#pinxx").val();
-        var device=getcookie('device');
-        var salt=getpwd('abcdefghijklmnopqrstuvwxyz1234567890',500);
-        timeout=default_timeout+Math.floor(Date.now() / 1000);
+        var pin = $("#pinxx").val();
+        var device = getcookie('device');
+        var salt = getpwd('abcdefghijklmnopqrstuvwxyz1234567890',500);
+        timeout = default_timeout+Math.floor(Date.now() / 1000);
         function process()
         {
             $.post("rest/setpin.php",{user:getcookie('username'),device:device,sig:String(CryptoJS.SHA512(pin+salt))},function(msg){
-                var data = $.parseJSON(msg);
-                if(data["status"] != "success"){
+                if(msg["status"] != "success"){
                     showMessage('warning', 'ERROR set PIN, try again later!', true);
                     $('#pin').modal('hide');
                 }
                 else{
-                    setPINstore(device, salt, encryptchar(getpwdstore(PWsalt), pin + data["pinpk"]), encryptchar(getconfkey(PWsalt), pin + data["pinpk"]));
+                    setPINstore(device, salt, encryptchar(getpwdstore(PWsalt), pin + msg["pinpk"]), encryptchar(getconfkey(PWsalt), pin + msg["pinpk"]));
                     showMessage('success', 'PIN set, use PIN to login next time');
                     $('#pin').modal('hide');
                 }
             });
         }
-        if(pin.length<4) {showMessage('warning', 'For security reason, PIN should be at least of length 4.', true); return;}
-        if(device=="")
-        {
-            function rand_device()
-            {
+        if(pin.length<4) {
+            showMessage('warning', 'For security reason, PIN should be at least of length 4.', true); 
+            return;
+        }
+        if(device=="") {
+            function rand_device() {
                 var status=1;
-                device=getpwd('abcdefghijklmnopqrstuvwxyz1234567890',9)
+                device = getpwd('abcdefghijklmnopqrstuvwxyz1234567890',9)
                     setCookie('device',device);
                 $.post("rest/getpinpk.php",{user:getcookie('username'),device:device,sig:'1'},function(msg){
-                    status=parseInt(msg);
-                    if(status == 0) process();
-                    else rand_device();
+                    status = parseInt(msg);
+                    if(status == 0) {
+                        process();
+                    }
+                    else {
+                        rand_device();
+                    }
                 });
             }
             rand_device();
-        } else process();  
+        } 
+        else {
+            process();  
+        }
     });
     $("#changefieldsbtn").click(function(){
         var a=$('#fieldsz').val();
