@@ -116,21 +116,31 @@ function import_raw(json){
         if(acc==''||pass=='') {
             showMessage('warning', "one of account or password empty! will continue to process other accounts, check back after this finished", true); return;
         }
-        add_account(acc, pass, other, function(msg) { if(msg==0) showMessage('warning',"Fail to add "+acc+", please try again manually later.", true); });
+        add_account(acc, pass, other, function(msg) { 
+            if(msg["status"] != "success") {
+                showMessage('warning',"Fail to add "+acc+", please try again manually later.", true); 
+            });
     }
     function add_acc_file(acc,pass,other,fname,fdata){
         function addfile(msg){
-            if(msg==0) showMessage('warning',"Fail to add "+acc+", please try again manually later.", true); else{
-            var fkey=getpwd(default_letter_used,Math.floor(Math.random()*18)+19);
-            var enfkey=encryptPassword(fname,fkey);
-            var endata=encryptchar(fdata,fkey);
-            var enfname=encryptchar(fname,secretkey);
-            $.post('rest/uploadfile.php',{id:msg,fkey:enfkey,fname:enfname,data:endata},function(msg){
-            if(msg!='1') showMessage('warning',"Fail to add file for "+acc+", please try again manually later.", true);});
+            if(msg != "success") {
+                showMessage('warning', "Fail to add "+acc+",  please try again manually later.",  true); 
+            }
+            else{
+                var fkey = getpwd(default_letter_used, Math.floor(Math.random()*18)+19);
+                var enfkey = encryptPassword(fname, fkey);
+                var endata = encryptchar(fdata, fkey);
+                var enfname = encryptchar(fname, secretkey);
+                $.post('rest/uploadfile.php', {id:msg, fkey:enfkey, fname:enfname, data:endata}, function(msg){
+                    if(msg != '1') {
+                        showMessage('warning',"Fail to add file for "+acc+", please try again manually later.", true);
+                    }
+                });
             }
         }
-        if(acc==''||pass==''||fname=='') {
-            showMessage('warning', "one of account, password or filename empty! will continue to process other accounts, check back after this finished", true); return;
+        if(acc=='' || pass=='' || fname=='') {
+            showMessage('warning', "one of account, password or filename empty! will continue to process other accounts, check back after this finished", true); 
+            return;
         }
         add_account(acc, pass, other, addfile);
     }
@@ -157,8 +167,8 @@ function import_raw(json){
 }
 function import_csv(csv){
     function importError(msg){ 
-        if(msg==0) {
-            showMessage('warning', "Fail to add "+acc+", please try again manually later.", true); 
+        if(msg["status"] != "success") {
+            showMessage('warning', "Fail to add " + acc + ", please try again manually later.", true); 
         }
     }
 	var accarray = $.csv.toObjects(csv);
@@ -166,7 +176,7 @@ function import_csv(csv){
 	for (var x in accarray) {
 	    var acc = accarray[x]["name"];
 	    var pass = accarray[x]["password"];
-	    if(acc==''||pass=='') {
+	    if(acc=='' || pass=='') {
 	        showMessage('danger',"one of account or password empty! will continue to process other accounts, check back after this finished", true); continue;
 	    }
 	    var other = {};
@@ -583,12 +593,14 @@ $(document).ready(function(){
             other = JSON.stringify(other);
             var name = $("#newiteminput").val();
             add_account(name, newpwd, other, function(msg){ 
-                if(msg!=0) {
-                    showMessage('success', "Add "+name+" successfully!");
+                if(msg == "success") {
+                    showMessage('success', "Add " + name + " successfully!");
                     $('#add').modal('hide');
                     reloadAccounts();
                 } 
-                else showMessage('warning',"Fail to add "+name+", please try again.", true);
+                else {
+                    showMessage('warning',"Fail to add "+name+", please try again.", true);
+                }
                 $("#newiteminput").attr("readonly",false);
                 $("#newbtn").attr("disabled",false);
                 $("#newiteminputpw").attr("readonly",false);

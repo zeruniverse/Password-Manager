@@ -1,9 +1,10 @@
 <?php
 
 require_once dirname(__FILE__).'/../function/sqllink.php';
+require_once dirname(__FILE__).'/../function/ajax.php';
 $link = sqllink();
 if (!checksession($link)) {
-    die('0');
+    error("Database connection failed");
 }
 $id = $_SESSION['userid'];
 
@@ -12,7 +13,7 @@ $name = $_POST['name'];
 $other = $_POST['other'];
 
 if (!$link->beginTransaction()) {
-    die('0');
+    error("Database connection failed");
 }
 
 $sql = 'SELECT max(`index`) FROM `password` WHERE `userid` = ?';
@@ -28,7 +29,7 @@ $sql = 'INSERT INTO `password` VALUES (?, ?, ?, ?, ?)';
 $res = sqlexec($sql, [$nid, $id, $name, $newpw, $other], $link);
 if ($res == null) {
     $link->rollBack();
-    die(0);
+    error("Database connection failed");
 }
 $link->commit();
-echo $nid;
+echo json_encode(['status' => "success", "nid" => $nid]);
