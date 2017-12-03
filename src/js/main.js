@@ -642,21 +642,23 @@ $(document).ready(function(){
 
             other = JSON.stringify(other);
             var name = $("#edititeminput").val();
-            newpwd=encryptPassword(name, newpwd);
-            other=encryptchar(other, secretkey);
-            var enname=encryptchar(name,secretkey);
-            $.post("rest/change.php",{name:enname,newpwd:newpwd,index:id,other:other},function(msg){ 
-                if(msg==1) {
-                    showMessage('success',"Data for "+name+" updated!");
+            newpwd = encryptPassword(name, newpwd);
+            other = encryptchar(other, secretkey);
+            var enname = encryptchar(name,secretkey);
+            $.post("rest/change.php", {name:enname, newpwd:newpwd, index:id, other:other}, function(msg){ 
+                if(msg["status"] != "success") {
+                    showMessage('success',"Data for " + name + " updated!");
                     $('#edit').modal('hide');
                     reloadAccounts();
                 } 
-                else showMessage('warning',"Fail to update data for "+name+", please try again.", true);
+                else {
+                    showMessage('warning',"Fail to update data for " + name + ", please try again.", true);
+                }
                 $("#edititeminput").attr("readonly",false);
                 $("#editbtn").attr("disabled",false);
                 $("#edititeminputpw").attr("readonly",false);
                 for (x in fields)
-                    $("#edititeminput"+x).attr("readonly",false);
+                    $("#edititeminput" + x).attr("readonly",false);
             });
         }
         setTimeout(process,50);

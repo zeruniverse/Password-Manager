@@ -1,21 +1,22 @@
 <?php
 
 require_once dirname(__FILE__).'/../function/sqllink.php';
+require_once dirname(__FILE__).'/../function/ajax.php';
 $link = sqllink();
 if (checksession($link) == false) {
-    die('0');
+    error("no session found");
 }
 $id = $_SESSION['userid'];
 $index = $_POST['index'];
 if (!$link->beginTransaction()) {
-    die('0');
+    error("Database connection failed");
 }
 $sql = 'SELECT * FROM `password` WHERE `userid` = ? AND `index` = ? ';
 $res = sqlexec($sql, [$id, (int) $index], $link);
 $record = $res->fetch(PDO::FETCH_ASSOC);
 if ($record == false) {
     $link->commit();
-    die('0');
+    error("Entry not found");
 }
 $newpw = $_POST['newpwd'];
 $changedCols = '`pwd` = ?';
@@ -33,7 +34,8 @@ $sql = 'UPDATE `password` SET '.$changedCols.' WHERE `userid` = ? AND `index` = 
 $res = sqlexec($sql, $values, $link);
 if ($res == null) {
     $link->rollBack();
-    die('0');
+    error("Updating entry failed");
 }
 $link->commit();
-echo '1';
+echo json_encode(['status' => "success"]);
+die();
