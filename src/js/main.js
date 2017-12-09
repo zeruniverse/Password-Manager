@@ -594,7 +594,7 @@ $(document).ready(function(){
             other = JSON.stringify(other);
             var name = $("#newiteminput").val();
             add_account(name, newpwd, other, function(msg){ 
-                if(msg == "success") {
+                if(msg["status"] == "success") {
                     showMessage('success', "Add " + name + " successfully!");
                     $('#add').modal('hide');
                     reloadAccounts();
