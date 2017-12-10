@@ -3,7 +3,7 @@
 header('X-Content-Type-Options: nosniff');
 header('Content-Type: application/json');
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-const errorMessages = array(
+const ERROR_MESSAGE = array(
     'general' => 'Oops, our server run into some problems. Please refresh this page and try again.',
     'config' => 'PLEASE CONFIG function/config.php before using this system!',
     'PINunavailable' => "No PIN available",
@@ -22,13 +22,21 @@ const errorMessages = array(
     'occupiedUser' => 'User name already occupied, please choose another user name.',
     'occupiedMail' => 'This E-mail has already been used.',
     'fileFailed' => 'No File Can Be Downloaded',
-    'userWrong' => "Wrong User"
+    'userWrong' => "Wrong User",
+    'method' => "Method not allowed"
 );
-function error($msg)
-{
+function ajaxError($err) {
+    echo json_encode(['status' => 'error', 'message' => ERROR_MESSAGE[$err]]);
+    die();
+}
+function error($msg) {
     echo json_encode(['status' => 'error', 'message' => $msg]);
     die();
 }
+function ajaxSuccess($data = []){
+    echo json_encode(array_merge(['status' => 'success'], $data));
+    die();
+}
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    error('Wrong method');
+    ajaxError('method');
 }
