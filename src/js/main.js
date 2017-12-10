@@ -569,7 +569,7 @@ $(document).ready(function(){
             }
         }
         $.post("rest/changefields.php",{fields:a},function(msg){ 
-            if(msg==1) {
+            if(msg["status"]=="success") {
                 showMessage('success','Successfully changed fields!'); 
                 $('#changefields').modal('hide');
                 reloadAccounts();
