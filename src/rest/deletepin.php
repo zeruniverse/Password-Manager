@@ -1,22 +1,23 @@
 <?php
 
 require_once dirname(__FILE__).'/../function/sqllink.php';
+require_once dirname(__FILE__).'/../function/ajax.php';
 $link = sqllink();
 if (!$link) {
-    die(0);
+    ajaxError('general');
 }
 $user = $_POST['user'];
 $device = $_POST['device'];
 if ($user == '' || $device == '') {
-    die('0');
+    ajaxError('parameter');
 }
 $sql = 'SELECT id FROM `pwdusrrecord` WHERE `username`= ?';
 $res = sqlexec($sql, [$user], $link);
 $record = $res->fetch(PDO::FETCH_ASSOC);
 if ($record == false) {
-    die('0');
+    ajaxSuccess();//Respond with success to prevent the enumeration of usernames
 }
 $id = $record['id'];
 $sql = 'DELETE FROM `pin` WHERE `userid`= ? AND `device`= ?';
 $res = sqlexec($sql, [$id, $device], $link);
-echo '1';
+ajaxSuccess();
