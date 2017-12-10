@@ -3,8 +3,8 @@
 if (!isset($_POST['a']) || ($_POST['a'] != 'a' && $_POST['a'] != 'farray')) {
     die('Forbidden'); //disallow direct visit;
 }
-require_once dirname(__FILE__).'/../function/ajax.php';
 require_once dirname(__FILE__).'/../function/sqllink.php';
+require_once dirname(__FILE__).'/../function/ajax.php';
 $link = sqllink();
 
 if (!checksession($link)) {

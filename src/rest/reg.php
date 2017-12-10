@@ -1,6 +1,6 @@
 <?php
-require_once dirname(__FILE__).'/../function/ajax.php';
 require_once dirname(__FILE__).'/../function/sqllink.php';
+require_once dirname(__FILE__).'/../function/ajax.php';
 if ($ALLOW_SIGN_UP === false) {
     http_response_code(405);
     error('Signup is not allowed.');
