@@ -99,7 +99,7 @@ function dataReady(data){
             pwdsk = decryptchar(localStorage.en_login_sec, pin + msg["pinpk"]);
             confkey = decryptchar(localStorage.en_login_conf, pin + msg["pinpk"]);
             $.post("rest/check.php", {pwd:String(CryptoJS.SHA512(pbkdf2_enc(pwdsk, JSsalt, 500) + getcookie('username'))), user: getcookie('username')}, function(msg){
-                if(msg!=9) {
+                if(msg["status"] != "success") {
                     $("#usepin").modal("hide");
                     delpinstore();
                     $("#user").focus();
@@ -126,23 +126,15 @@ function dataReady(data){
             login_sig=pbkdf2_enc(login_sig,JSsalt,500);
             $.post("rest/check.php",{pwd:String(CryptoJS.SHA512(login_sig+user)),  user: user},function(msg){
                 $(".errorhint").hide();
-                if(msg==0){
-                    $("#nouser").show();
-                    $("#chk").attr("value", "Login");
-                    $("#chk").attr("disabled", false);
-                }else if(msg==7){
-                    $("#blockip").show();
-                }else if(msg==8){
-                    $("#accountban").show();
-                    $("#chk").attr("value", "Login");
-                    $("#chk").attr("disabled", false);
-                }else if(msg==9){
+                if(msg["status"] == "success"){
                     confkey=pbkdf2_enc(String(CryptoJS.SHA512(pwd+secretkey)),JSsalt,500);
                     setCookie("username",user);
                     setpwdstore(secretkey,confkey,PWsalt);                
                     window.location.href="./password.php";
-                }else{
-                    $("#othererror").show();
+                }
+                else {
+                    $("#error").text(msg["message"]);
+                    $("#error").show();
                     $("#chk").attr("value", "Login");
                     $("#chk").attr("disabled", false);
                 }

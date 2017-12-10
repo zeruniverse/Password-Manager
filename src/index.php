@@ -29,10 +29,7 @@ if (isset($_GET['reason'])) {
                 <input type="submit" class="btn btn-lg btn-success btn-block" id="chk"  value="Login" />
             </div>
         </form>
-        <span id="nouser" class="errorhint collapse textred">Username password combination is unknown<br /></span>
-        <span id="blockip" class="errorhint collapse textred">Your IP has been blocked due to malicious activity<br /></span>
-        <span id="accountban" class="errorhint collapse textred">Your account has been protected due to continuous attack. Try again in <span id="banTime"></span> seconds<br /></span>
-        <span id="othererror" class="errorhint collapse textred">Oops, our server run into some problems. Please refresh this page and try again.<br /></span>
+        <span id="error" class="errorhint collapse textred"></span>
         <hr />
         <button id="signup" class="btn btn-sm btn-default collapse" type="button">Sign Up</button>&nbsp; <button id="recover" class="btn btn-sm btn-warning" type="button">Password Recovery</button>
     <hr />
