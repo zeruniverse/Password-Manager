@@ -963,11 +963,13 @@ function delepw(index)
     if(confirm("Are you sure you want to delete password for "+name+"? (ATTENTION: this is irreversible)"))
     {
         $.post("rest/delete.php",{index:index},function(msg){ 
-            if(msg==1) {
+            if(msg["status"] == "success") {
                 showMessage('success',"delete "+name+" successfully");
                 $('#edit').modal('hide');
                 reloadAccounts();
-            } else showMessage('warning',"Fail to delete "+name+", please try again.", true);
+            } 
+            else 
+                showMessage('warning',"Fail to delete "+name+", please try again.", true);
      }); 
      }
 }
