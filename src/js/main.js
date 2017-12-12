@@ -775,7 +775,7 @@ $(document).ready(function(){
                     accarray[x]["fk"] = encryptchar(raw_fkey,newsecretkey);
                 }
                 $.post("rest/changeuserpw.php",{newpass:String(CryptoJS.SHA512(postnewpass+user)), accarray:JSON.stringify(accarray)},function(msg){ 
-                    if(msg==1) {
+                    if(msg["status"] == "success") {
                         alert("Change Password Successfully! Please login with your new password again.");
                         quitpwd("Password changed, please relogin");
                     } 
