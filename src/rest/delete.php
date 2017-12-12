@@ -9,7 +9,7 @@ $id = $_SESSION['userid'];
 
 $index = (int) $_POST['index'];
 if (!$link->beginTransaction()) {
-    error('error occured');
+    ajaxError('general');
 }
 
 $sql = 'SELECT * FROM `password` WHERE `userid` = ? AND `index` = ?';
@@ -17,7 +17,7 @@ $res = sqlexec($sql, [$id, $index], $link);
 $record = $res->fetch(PDO::FETCH_ASSOC);
 if ($record == false) {
     $link->commit();
-    error('error occured');
+    ajaxError('general');
 }
 
 $sql = 'SELECT max(`index`) FROM `password` WHERE `userid` = ?';
@@ -25,7 +25,7 @@ $res = sqlexec($sql, [$id], $link);
 $record = $res->fetch(PDO::FETCH_NUM);
 if ($record == false) {
     $link->commit();
-    error('error occured');
+    ajaxError('general');
 }
 $nid = (int) $record[0];
 
@@ -33,30 +33,30 @@ $sql = 'DELETE FROM `password` WHERE `userid` = ? AND `index` = ?';
 $res = sqlexec($sql, [$id, $index], $link);
 if ($res == null) {
     $link->rollBack();
-    error('error occured');
+    ajaxError('general');
 }
 
 $sql = 'DELETE FROM `files` WHERE `userid` = ? AND `index` = ?';
 $res = sqlexec($sql, [$id, $index], $link);
 if ($res == null) {
     $link->rollBack();
-    error('error occured');
+    ajaxError('general');
 }
 
 $sql = 'UPDATE `password` SET `index` = ?  WHERE `userid` = ? AND `index` = ?';
 $res = sqlexec($sql, [$index, $id, $nid], $link);
 if ($res == null) {
     $link->rollBack();
-    error('error occured');
+    ajaxError('general');
 }
 
 $sql = 'UPDATE `files` SET `index` = ?  WHERE `userid` = ? AND `index` = ?';
 $res = sqlexec($sql, [$index, $id, $nid], $link);
 if ($res == null) {
     $link->rollBack();
-    error('error occured');
+    ajaxError('general');
 }
 
 $link->commit();
 
-echo json_encode(['status' => "success"]);
+ajaxSuccess();

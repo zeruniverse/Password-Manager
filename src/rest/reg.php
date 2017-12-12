@@ -3,41 +3,41 @@ require_once dirname(__FILE__).'/../function/sqllink.php';
 require_once dirname(__FILE__).'/../function/ajax.php';
 if ($ALLOW_SIGN_UP === false) {
     http_response_code(405);
-    error('Signup is not allowed.');
+    ajaxError('signup');
 }
 $pw = $_POST['pwd'];
 $usr = $_POST['user'];
 $email = $_POST['email'];
 if ($pw == '' || $usr == '' || $email == '') {
-    error("Not all required parameters have been entered.");
+    ajaxError("parameter");
 }
 // check length of password hash for pbkdf2
 if (strlen($pw) > 130) {
-    error("password too long");
+    ajaxError("parameter");
 }
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    error("Invalid E-mail address.");
+    ajaxError("invalidEmail");
 }
 $link = sqllink();
 if (!$link) {
-    error("There're some errors, please retry");
+    ajaxError("general");
 }
 if (!$link->beginTransaction()) {
-    error("There're some errors, please retry");
+    ajaxError("general");
 }
 $sql = 'SELECT COUNT(*) FROM `pwdusrrecord` WHERE `username` = ?';
 $res = sqlexec($sql, [$usr], $link);
 $num = $res->fetch(PDO::FETCH_NUM);
 if ($num[0] != 0) {
     $link->commit();
-    error('User name already occupied, please choose another user name.');
+    ajaxError('occupiedUser');
 }
 $sql = 'SELECT COUNT(*) FROM `pwdusrrecord` WHERE `email` = ?';
 $res = sqlexec($sql, [$email], $link);
 $num = $res->fetch(PDO::FETCH_NUM);
 if ($num[0] != 0) {
     $link->commit();
-    error('This E-mail has already been used.');
+    ajaxError('occupiedEmail');
 }
 $salt = openssl_random_pseudo_bytes(32);
 $pw = hash_pbkdf2('sha256', $pw, $salt, $PBKDF2_ITERATIONS);
@@ -48,7 +48,7 @@ $sql = 'INSERT INTO `pwdusrrecord` VALUES (?,?,?,?,?,?)';
 $rett = sqlexec($sql, [$maxnum + 1, $usr, $pw, $salt, $DEFAULT_FIELDS, $email], $link);
 if (!$rett) {
     $link->rollBack();
-    error("There're some errors, please retry");
+    ajaxError("general");
 }
 $link->commit();
-echo json_encode(['status' => "success"]);
+ajaxSuccess();

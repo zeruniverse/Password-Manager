@@ -43,10 +43,9 @@ function usepin()
     return true;
 }
 if ($DB_NAME == '') {
-    error('PLEASE CONFIG function/config.php before using this system!');
+    ajaxError('config');
 }
 $result = [];
-$result['status'] = 'success';
 $result['loggedIn'] = (isset($_SESSION['loginok']) && $_SESSION['loginok'] == 1);
 $result['default_timeout'] = $BROWSER_TIMEOUT;
 $result['default_letter_used'] = $DEFAULT_LETTER_USED;
@@ -59,4 +58,4 @@ $result['use_pin'] = usepin() ? 1 : 0;
 $result['version'] = $VERSION;
 $result['banTime'] = $ACCOUNT_BAN_TIME;
 $result['allowSignup'] = $ALLOW_SIGN_UP;
-echo json_encode($result);
+ajaxSuccess($result);

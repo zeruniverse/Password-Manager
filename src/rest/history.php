@@ -4,11 +4,10 @@ require_once dirname(__FILE__).'/../function/sqllink.php';
 require_once dirname(__FILE__).'/../function/ajax.php';
 $link = sqllink();
 if (!checksession($link)) {
-    error('session unavailable');
+    ajaxError('session');
 }
 $id = $_SESSION['userid'];
 $result = [];
-$result['status'] = 'success';
 $result['id'] = $id;
 $result['usr'] = $_SESSION['user'];
 $sql = 'SELECT `device`,UNIX_TIMESTAMP(`createtime`) AS `createtime`,`ua` FROM `pin` WHERE `userid`= ?';
@@ -32,4 +31,4 @@ while ($i = $res->fetch(PDO::FETCH_ASSOC)) {
     $ips[] = ['ip' => $ip, 'ua' => $ua, 'ctime' => $ctime, 'outcome' => $i['outcome'] == 0];
 }
 $result['ips'] = $ips;
-echo json_encode($result);
+ajaxSuccess($result);
