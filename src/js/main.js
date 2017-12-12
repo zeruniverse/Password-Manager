@@ -133,7 +133,7 @@ function import_raw(json){
                 var endata = encryptchar(fdata, fkey);
                 var enfname = encryptchar(fname, secretkey);
                 $.post('rest/uploadfile.php', {id:msg, fkey:enfkey, fname:enfname, data:endata}, function(msg){
-                    if(msg != '1') {
+                    if(msg["status"] != 'success') {
                         showMessage('warning',"Fail to add file for "+acc+", please try again manually later.", true);
                     }
                 });
@@ -850,8 +850,16 @@ $(document).ready(function(){
                             var enfname=encryptchar(fname,secretkey);
                             $("#showdetails").modal("hide");
                             $.post('rest/uploadfile.php',{id:fileid,fkey:enfkey,fname:enfname,data:endata},function(msg){
-                                if(msg=='1') {$('#uploadfiledlg').modal("hide"); showMessage('success','File uploaded!', false); reloadAccounts();}
-                                else {$('#uploadfiledlg').modal("hide"); showMessage('danger','ERROR! Try again!', false); reloadAccounts();}
+                                if(msg["status"] == "success") {
+                                    $('#uploadfiledlg').modal("hide"); 
+                                    showMessage('success','File uploaded!', false); 
+                                    reloadAccounts();
+                                }
+                                else {
+                                    $('#uploadfiledlg').modal("hide"); 
+                                    showMessage('danger','ERROR! Try again!', false); 
+                                    reloadAccounts();
+                                }
                             });
                         }catch (error) {$('#uploadfiledlg').modal("hide"); showMessage('warning','Some error occurs!', true); reloadAccounts();}
                     }
