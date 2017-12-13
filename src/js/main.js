@@ -301,7 +301,7 @@ function dataReady(data){
     salt2 = data["global_salt_2"];
     user = data["user"];
     fields = $.parseJSON(data["fields"]);
-    for (x in fields) {
+    for (var x in fields) {
         fields[x]["count"] = 0;
     }
     var accounts = data["accounts"];
@@ -873,7 +873,7 @@ $(document).ready(function(){
                         showMessage('warning','Error reading file!', true);
                         bk();
                     }
-                    var fname = a[0].name;
+                    fname = a[0].name;
                     if(fname==''){
                         showMessage('warning','File selected doesn\'t have a name!', true); 
                         bk(); 

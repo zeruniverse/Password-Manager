@@ -14,7 +14,7 @@ if ($user == '' || $device == '') {
 $sql = 'SELECT id FROM `pwdusrrecord` WHERE `username`= ?';
 $res = sqlexec($sql, [$user], $link);
 $record = $res->fetch(PDO::FETCH_ASSOC);
-if ($record == false) {
+if (!$record) {
     ajaxSuccess();//Respond with success to prevent the enumeration of usernames
 }
 $id = $record['id'];
