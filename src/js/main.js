@@ -425,7 +425,7 @@ function showTable(accounts)
                         )
             ));
         // fill in other
-        for (x in fields) {
+        for (var x in fields) {
             if (fields[x]["count"]>0) { 
                 var value="";
                 if (x in accounts[index]["other"])
