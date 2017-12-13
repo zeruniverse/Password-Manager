@@ -158,7 +158,7 @@ function import_raw(json){
     function process(){
         var x;
         timeout=1000000+Math.floor(Date.now() / 1000);
-        for(x in json.data){
+        for(let x in json.data){
             if(typeof json.data[x].fname != 'undefined'){
                 add_acc_file(json.data[x].account,json.data[x].password,json.data[x].other,json.data[x].fname,json.data[x].filedata);
             }
@@ -568,7 +568,7 @@ $(document).ready(function(){
             return;
         }
         var j = JSON.parse(p);
-        for (x in j){
+        for (var x in j){
             if (x.substr(0,1) == '_'){
                 showMessage('warning', 'illegal fields!', true);
                 return;
@@ -589,12 +589,12 @@ $(document).ready(function(){
         $("#newbtn").attr("disabled",true);
         $("#newiteminput").attr("readonly",true);
         $("#newiteminputpw").attr("readonly",true);
-        for (x in fields)
+        for (let x in fields)
             $("#newiteminput"+x).attr("readonly",true);
         function process(){
             if($("#newiteminputpw").val()=='') newpwd=getpwd(default_letter_used, default_length); else newpwd=$("#newiteminputpw").val();
             var other = {};
-            for (x in fields){
+            for (let x in fields){
                 other[x] = $("#newiteminput"+x).val().trim();
             }
             other = JSON.stringify(other);
@@ -611,7 +611,7 @@ $(document).ready(function(){
                 $("#newiteminput").attr("readonly",false);
                 $("#newbtn").attr("disabled",false);
                 $("#newiteminputpw").attr("readonly",false);
-                for (x in fields)
+                for (let x in fields)
                     $("#newiteminput"+x).attr("readonly",false);
             });
         }
@@ -623,17 +623,17 @@ $(document).ready(function(){
         $("#editbtn").attr("disabled",true);
         $("#edititeminput").attr("readonly",true);
         $("#edititeminputpw").attr("readonly",true);
-        for (x in fields)
+        for (let x in fields)
             $("#edititeminput"+x).attr("readonly",true);
         function process(){
             var id = $("#edit").data('id');
             var oldname=accountarray[id]["name"];
             var other = {};
-            for (x in fields){
+            for (let x in fields){
                 other[x] = $("#edititeminput"+x).val().trim();
             }
             // get all _Fields from the original data 
-            for (x in accountarray[id]){
+            for (let x in accountarray[id]){
                 if (x.substring(0,1) == "_"){
                     other[x] = accountarray[id]["other"][x];
                 }
@@ -663,7 +663,7 @@ $(document).ready(function(){
                 $("#edititeminput").attr("readonly",false);
                 $("#editbtn").attr("disabled",false);
                 $("#edititeminputpw").attr("readonly",false);
-                for (x in fields)
+                for (let x in fields)
                     $("#edititeminput" + x).attr("readonly",false);
             });
         }
@@ -756,7 +756,7 @@ $(document).ready(function(){
                 var newconfkey=pbkdf2_enc(String(CryptoJS.SHA512(newpass+login_sig)), salt1, 500); 
                 var x,raw_pass,raw_fkey;
                 var accarray= [];
-                for (x in accountarray)
+                for (let x in accountarray)
                 {
                     var tmpother=accountarray[x]["other"];
                     accarray[x]={"name": encryptchar(accountarray[x]["name"],newsecretkey), "is_f":1, "fname": '',"other": encryptchar(JSON.stringify(tmpother),newsecretkey)};
@@ -898,7 +898,7 @@ $(document).ready(function(){
         $("#edititeminputpw").attr('placeholder',"Hidden");
         $("#edititeminputpw").val('');
         $("#edititeminputpw").data('enpassword', accountarray[id]["enpassword"]);
-        for (x in fields){
+        for (let x in fields){
             $("#edititeminput"+x).val(accountarray[id]['other'][x]);
         } 
         callPlugins("editAccountDialog",{"account": accountarray[id]});
@@ -1002,7 +1002,7 @@ function showdetail(index){
      .append($('<br/>')).append($('<br/>'));
     var table=$('<table>').css('width',"100%").css('color',"#ff0000")
             .append($('<colgroup><col width="90"><col width="auto"></colgroup>'));
-    for (x in accountarray[i]["other"]) {
+    for (let x in accountarray[i]["other"]) {
         if(x in fields){
             table.append($('<tr>')
                 .attr("id","detailsTableOther"+x)
