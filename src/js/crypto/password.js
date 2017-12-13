@@ -47,7 +47,9 @@ function gen_temp_pwd(key, salt, account_sig,orig_alphabet,pwd)
         }
         
         //LETTER NOT IN ALPHABET, DIRECT MAPPING
-        if(j===alphabet_len) {temp_pwd = temp_pwd + pwd.charAt(i);}
+        if(j===alphabet_len) {
+            temp_pwd = temp_pwd + pwd.charAt(i);
+        }
     }
     
     return temp_pwd;
