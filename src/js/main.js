@@ -343,7 +343,7 @@ function dataReady(data){
 }
 function initFields() {
     $("textarea#fieldsz").val(JSON.stringify(fields));
-    for (x in fields) {
+    for (var x in fields) {
         var header = "";
         if (fields[x]["count"]>0)
             header = $('<th>')
