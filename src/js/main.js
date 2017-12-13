@@ -101,6 +101,14 @@ function add_account(acc, pass, other, callback){
     acc=encryptchar(acc,sk);
     $.post("rest/insert.php",{name:acc,newpwd:pass,other:other},callback);
 }
+function upload_file(fileid, filename, filedata, callback) {
+    var fkey = getpwd(default_letter_used, Math.floor(Math.random()*18)+19);
+    var enfkey = encryptPassword(filename, fkey);
+    var endata = encryptchar(filedata, fkey);
+    var enfname = encryptchar(filename, secretkey);
+    $("#showdetails").modal("hide");
+    $.post('rest/uploadfile.php', {id:fileid, fkey:enfkey, fname:enfname, data:endata}, callback);
+}
 function import_raw(json){
     json=JSON.parse(sanitize_json(json));
     if(json.status!="RAW_OK") {
@@ -124,15 +132,11 @@ function import_raw(json){
     }
     function add_acc_file(acc,pass,other,fname,fdata){
         function addfile(msg){
-            if(msg != "success") {
+            if(msg["status"] != "success") {
                 showMessage('warning', "Fail to add "+acc+",  please try again manually later.",  true); 
             }
             else{
-                var fkey = getpwd(default_letter_used, Math.floor(Math.random()*18)+19);
-                var enfkey = encryptPassword(fname, fkey);
-                var endata = encryptchar(fdata, fkey);
-                var enfname = encryptchar(fname, secretkey);
-                $.post('rest/uploadfile.php', {id:msg, fkey:enfkey, fname:enfname, data:endata}, function(msg){
+                upload_file(msg["nid"], fname, fdata, function(msg){
                     if(msg["status"] != 'success') {
                         showMessage('warning',"Fail to add file for "+acc+", please try again manually later.", true);
                     }
@@ -159,7 +163,7 @@ function import_raw(json){
                 add_acc_file(json.data[x].account,json.data[x].password,json.data[x].other,json.data[x].fname,json.data[x].filedata);
             }
             else
-            add_acc(json.data[x].account,json.data[x].password,json.data[x].other);
+                add_acc(json.data[x].account,json.data[x].password,json.data[x].other);
         }
     }
     process();
@@ -846,12 +850,7 @@ $(document).ready(function(){
                     reader.onload = function (e) {
                         var data = e.target.result;
                         try{
-                            var fkey=getpwd(default_letter_used,Math.floor(Math.random()*18)+19);
-                            var enfkey=encryptPassword(fname,fkey);
-                            var endata=encryptchar(data,fkey);
-                            var enfname=encryptchar(fname,secretkey);
-                            $("#showdetails").modal("hide");
-                            $.post('rest/uploadfile.php',{id:fileid,fkey:enfkey,fname:enfname,data:endata},function(msg){
+                            upload_file(fileid, fname, data, function(msg){
                                 if(msg["status"] == "success") {
                                     $('#uploadfiledlg').modal("hide"); 
                                     showMessage('success','File uploaded!', false); 
@@ -863,7 +862,12 @@ $(document).ready(function(){
                                     reloadAccounts();
                                 }
                             });
-                        }catch (error) {$('#uploadfiledlg').modal("hide"); showMessage('warning','Some error occurs!', true); reloadAccounts();}
+                        }
+                        catch (error) {
+                            $('#uploadfiledlg').modal("hide"); 
+                            showMessage('warning','Some error occurs!', true); 
+                            reloadAccounts();
+                        }
                     }
                     reader.onerror = function (e) {
                         showMessage('warning','Error reading file!', true);
@@ -871,7 +875,9 @@ $(document).ready(function(){
                     }
                     var fname = a[0].name;
                     if(fname==''){
-                        showMessage('warning','File selected doesn\'t have a name!', true); bk(); return;
+                        showMessage('warning','File selected doesn\'t have a name!', true); 
+                        bk(); 
+                        return;
                     }
                     reader.readAsDataURL(a[0]);          
                 } else {showMessage('warning','NO FILE SELECTED', true); bk();}
