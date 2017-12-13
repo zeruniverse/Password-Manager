@@ -278,7 +278,7 @@ function decryptAccount(encryptedAccount) {
         //extract json
         var data = $.parseJSON(tempchar);
         decryptedAccount["other"] = data;
-        for (x in decryptedAccount["other"])
+        for (var x in decryptedAccount["other"])
             if ( (decryptedAccount["other"][x] != "") && (x in fields) )
                 fields[x]["count"] += 1;
     }
