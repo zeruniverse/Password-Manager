@@ -156,7 +156,6 @@ function import_raw(json){
         reloadAccounts();
     }
     function process(){
-        var x;
         timeout=1000000+Math.floor(Date.now() / 1000);
         for(let x in json.data){
             if(typeof json.data[x].fname != 'undefined'){
@@ -754,7 +753,7 @@ $(document).ready(function(){
                 var postnewpass=pbkdf2_enc(login_sig, salt1, 500);
                 //NOTE: login_sig here is the secret_key generated when login.
                 var newconfkey=pbkdf2_enc(String(CryptoJS.SHA512(newpass+login_sig)), salt1, 500); 
-                var x,raw_pass,raw_fkey;
+                var raw_pass,raw_fkey;
                 var accarray= [];
                 for (let x in accountarray)
                 {
@@ -995,7 +994,7 @@ function exportcsv()
 }
 function showdetail(index){
     var i=parseInt(index);
-    var x,s;
+    var s;
     s=$('#details');
     s.html('');
     s.append($('<b>').text(accountarray[i]["name"]))
