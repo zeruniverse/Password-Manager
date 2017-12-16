@@ -25,7 +25,7 @@ $.ajaxPrefilter(function(options, originalOptions, jqXHR) {
 
 function quitpwd(reason) {
     reason = reason || "";
-    callPlugins("quitpwd",{"reason":reason});
+    callPlugins("quitpwd", {"reason":reason});
     delpwdstore();
     if (reason != "")
         reason ="?reason="+encodeURIComponent(reason);
@@ -54,7 +54,7 @@ function checksessionalive()
                 c = c.substring(1);
             }
             if (c.indexOf(name) == 0) {
-                return c.substring(name.length,c.length);
+                return c.substring(name.length, c.length);
             }
         }
         return "-1";
@@ -63,9 +63,11 @@ function checksessionalive()
         document.cookie = cname + "=" + cvalue + ";path=/ ";
     }
     var ck=getCookie("ServerRenew");
-    if(ck=='1') server_timeout=default_server_timeout+Math.floor(Date.now() / 1000);
-    if(ck=="-1"||server_timeout<Math.floor(Date.now() / 1000)) quitpwd("Session timed out");
-    setCookie("ServerRenew",'0');
+    if(ck=='1') 
+        server_timeout = default_server_timeout+Math.floor(Date.now() / 1000);
+    if(ck=="-1"||server_timeout<Math.floor(Date.now() / 1000)) 
+        quitpwd("Session timed out");
+    setCookie("ServerRenew", '0');
 }
 var ALPHABET;
 var PWsalt;
@@ -76,19 +78,19 @@ var preDrawCallback = function( api, settings ) {};
 var preShowPreparation = function (accounts){ return accounts; };// if you change the array make a copy before sorting! So indexes stay the same in the original array
 function sanitize_json(s){
     var t=s;
-    t=t.replace(/\n/g,'')
-    return t.replace(/\r/g,'');
+    t=t.replace(/\n/g, '')
+    return t.replace(/\r/g, '');
 }
 function decryptPassword(name, kss){
-    var thekey=decryptchar(kss,secretkey);
+    var thekey=decryptchar(kss, secretkey);
     if (thekey==""){
         return "";
     }
-    return get_orig_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512(name)),ALPHABET,thekey);
+    return get_orig_pwd(getconfkey(PWsalt), PWsalt, String(CryptoJS.SHA512(name)), ALPHABET, thekey);
 }
 function encryptPassword(name, pass){
-    pass=gen_temp_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512(name)),ALPHABET,pass);
-    return encryptchar(pass,secretkey);
+    pass=gen_temp_pwd(getconfkey(PWsalt), PWsalt, String(CryptoJS.SHA512(name)), ALPHABET, pass);
+    return encryptchar(pass, secretkey);
 }
 function add_account(acc, pass, other, callback){
     var sk=secretkey;
@@ -98,8 +100,8 @@ function add_account(acc, pass, other, callback){
         other["_system_passwordLastChangeTime"] = Math.floor(Date.now() / 1000);
     other=JSON.stringify(other);
     other=encryptchar(other, sk);
-    acc=encryptchar(acc,sk);
-    $.post("rest/insert.php",{name:acc,newpwd:pass,other:other},callback);
+    acc=encryptchar(acc, sk);
+    $.post("rest/insert.php", {name:acc, newpwd:pass, other:other}, callback);
 }
 function upload_file(fileid, filename, filedata, callback) {
     var fkey = getpwd(default_letter_used, Math.floor(Math.random()*18)+19);
@@ -116,13 +118,14 @@ function import_raw(json){
         return;
     }
     function bk(){
-        $("#importbtn").attr("disabled",false);
+        $("#importbtn").attr("disabled", false);
         $("#importbtn").text("Submit");
-        $("#importc").attr("disabled",false);
+        $("#importc").attr("disabled", false);
     }
-    function add_acc(acc,pass,other){
+    function add_acc(acc, pass, other){
         if(acc==''||pass=='') {
-            showMessage('warning', "one of account or password empty! will continue to process other accounts, check back after this finished", true); return;
+            showMessage('warning', "one of account or password empty! will continue to process other accounts, check back after this finished", true); 
+            return;
         }
         add_account(acc, pass, other, function(msg) { 
             if(msg["status"] != "success") {
@@ -130,15 +133,15 @@ function import_raw(json){
             }
         });
     }
-    function add_acc_file(acc,pass,other,fname,fdata){
+    function add_acc_file(acc, pass, other, fname, fdata){
         function addfile(msg){
             if(msg["status"] != "success") {
-                showMessage('warning', "Fail to add "+acc+",  please try again manually later.",  true); 
+                showMessage('warning', "Fail to add " + acc + ", please try again manually later.", true); 
             }
             else{
                 upload_file(msg["nid"], fname, fdata, function(msg){
                     if(msg["status"] != 'success') {
-                        showMessage('warning',"Fail to add file for "+acc+", please try again manually later.", true);
+                        showMessage('warning', "Fail to add file for "+acc+", please try again manually later.", true);
                     }
                 });
             }
@@ -150,7 +153,7 @@ function import_raw(json){
         add_account(acc, pass, other, addfile);
     }
     function onsucc(){
-        showMessage('success','IMPORT FINISHED!');
+        showMessage('success', 'IMPORT FINISHED!');
         $('#import').modal('hide');
         bk();
         reloadAccounts();
@@ -159,10 +162,10 @@ function import_raw(json){
         timeout=1000000+Math.floor(Date.now() / 1000);
         for(let x in json.data){
             if(typeof json.data[x].fname != 'undefined'){
-                add_acc_file(json.data[x].account,json.data[x].password,json.data[x].other,json.data[x].fname,json.data[x].filedata);
+                add_acc_file(json.data[x].account, json.data[x].password, json.data[x].other, json.data[x].fname, json.data[x].filedata);
             }
             else
-                add_acc(json.data[x].account,json.data[x].password,json.data[x].other);
+                add_acc(json.data[x].account, json.data[x].password, json.data[x].other);
         }
     }
     process();
@@ -181,7 +184,7 @@ function import_csv(csv){
 	    var acc = accarray[x]["name"];
 	    var pass = accarray[x]["password"];
 	    if(acc=='' || pass=='') {
-	        showMessage('danger',"one of account or password empty! will continue to process other accounts, check back after this finished", true); continue;
+	        showMessage('danger', "one of account or password empty! will continue to process other accounts, check back after this finished", true); continue;
 	    }
 	    var other = {};
 	    for (var key in accarray[x]){
@@ -192,9 +195,9 @@ function import_csv(csv){
 	    add_account(acc, pass, JSON.stringify(other), importError);
 	}
     function bk(){
-        $("#importbtn").attr("disabled",false);
+        $("#importbtn").attr("disabled", false);
         $("#importbtn").text("Submit");
-        $("#importc").attr("disabled",false);
+        $("#importc").attr("disabled", false);
     }
 	function onsucc(){
 	    showMessage('success', 'IMPORT FINISHED!');
@@ -202,7 +205,7 @@ function import_csv(csv){
 	    bk();
 	    reloadAccounts();
 	}
-	setTimeout(onsucc,1000);
+	setTimeout(onsucc, 1000);
 }
 //type: any of "success", "info", "warning", "danger"
 //message: text
@@ -254,7 +257,7 @@ function showLastLoginInformation(failedCount, lastLogin){
         }
         if((lastLogin > 0) || (failedCount > 0)) {
             showMessage(loginMsgType, 'Your last login was on ' + timeConverter(lastLogin)+'. ' + failedMsg + ' Click for more information.')
-                .on('click',function(event){
+                .on('click', function(event){
                     $(this).alert('close');
                     $('#historyformsesstoken').val(localStorage.session_token);
                     $('#historyform').submit();
@@ -269,7 +272,7 @@ function decryptAccount(encryptedAccount) {
     var index = encryptedAccount["index"];
     var decryptedAccount = { "index":index, "other": {} };
     decryptedAccount["fname"]=''; 
-    decryptedAccount["name"] = decryptchar(encryptedAccount["name"],secretkey);
+    decryptedAccount["name"] = decryptchar(encryptedAccount["name"], secretkey);
     decryptedAccount["enpassword"] = encryptedAccount["kss"];
     if (encryptedAccount["additional"] != "") {
         //decrypt
@@ -284,7 +287,7 @@ function decryptAccount(encryptedAccount) {
     return decryptedAccount;
 }
 function dataReady(data){
-    callPlugins("dataReady",{"data":data});
+    callPlugins("dataReady", {"data":data});
     if (data["status"]=="error") {
         quitpwd("Login failed: " + data["message"]);
         return;
@@ -306,10 +309,13 @@ function dataReady(data){
     var accounts = data["accounts"];
     var fdata=data["fdata"];
     setInterval(countdown, 1000);
-    setInterval(checksessionalive,1000); 
+    setInterval(checksessionalive, 1000); 
     ALPHABET = default_letter_used;
     PWsalt = salt2;
-    if(file_enabled==1) $("#fileincludeckbp").show(); else $("#fileincludeckbp").hide();
+    if(file_enabled==1) 
+        $("#fileincludeckbp").show(); 
+    else 
+        $("#fileincludeckbp").hide();
     if(!data["fields_allow_change"])
         $("#changefieldsnav").hide();
     var secretkey0=getpwdstore(salt2);
@@ -325,13 +331,13 @@ function dataReady(data){
     for(var i = 0; i<accounts.length; i++) {
         var index = accounts[i]["index"];
         accountarray[index] = decryptAccount(accounts[i])
-        callPlugins("readAccount",{"account":accountarray[index]});
+        callPlugins("readAccount", {"account":accountarray[index]});
     }
 
     // add files to accounts
     for(var i = 0; i<fdata.length; i++) {
         var index = fdata[i]["index"];
-        accountarray[index]['fname'] = decryptchar(fdata[i]['fname'],secretkey);
+        accountarray[index]['fname'] = decryptchar(fdata[i]['fname'], secretkey);
         accountarray[index]['fkey'] = fdata[i]['fkey'];
     }
 
@@ -346,10 +352,10 @@ function initFields() {
         var header = "";
         if (fields[x]["count"]>0)
             header = $('<th>')
-                        .attr('class',x+'cell'+fields[x]["cls"]+' field')
+                        .attr('class', x+'cell'+fields[x]["cls"]+' field')
                         .text(fields[x]["colname"]);
         var forms = {};
-        for (var val of ['new','edit']){
+        for (var val of ['new', 'edit']){
             var input;
             var inputtype = "text";
             if ("type" in fields[x])
@@ -357,14 +363,14 @@ function initFields() {
             if (inputtype == "textarea")
                 input = $('<textarea>');
             else
-                input = $('<input>').attr('type',inputtype);
-            input.attr('class','form-control')
-                .attr('id',val+'iteminput'+x)
-                .attr('placeholder',fields[x]["hint"]);
-            var form = $('<div>').attr('class','form-group field')
+                input = $('<input>').attr('type', inputtype);
+            input.attr('class', 'form-control')
+                .attr('id', val+'iteminput'+x)
+                .attr('placeholder', fields[x]["hint"]);
+            var form = $('<div>').attr('class', 'form-group field')
                 .append($('<label>')
-                    .attr('for',val+'iteminput'+x)
-                    .attr('class','control-label').text(fields[x]["colname"]))
+                    .attr('for', val+'iteminput'+x)
+                    .attr('class', 'control-label').text(fields[x]["colname"]))
                 .append(input);
             forms[val] = form;
         }
@@ -386,8 +392,8 @@ function showTable(accounts)
 {
     accounts=preShowPreparation(accounts);
     visibleAccounts=accounts;
-    var asterisk = $('<span>').attr('class','glyphicon glyphicon-asterisk');
-    var pwdLink = $('<a>').attr('title','Click to see')
+    var asterisk = $('<span>').attr('class', 'glyphicon glyphicon-asterisk');
+    var pwdLink = $('<a>').attr('title', 'Click to see')
             .append(asterisk.clone())
             .append(asterisk.clone())
             .append(asterisk.clone())
@@ -397,30 +403,30 @@ function showTable(accounts)
     for(var index in accounts) {
         var cols = [];
         cols.push($("<td>")
-            .attr('class','namecell')
+            .attr('class', 'namecell')
             .append($("<span>")
-                .attr('class','accountname')
-                .data('id',accounts[index]["index"])
+                .attr('class', 'accountname')
+                .data('id', accounts[index]["index"])
                 .text(accounts[index]["name"]))
             .append($('<a>')
-                .attr('title',"Edit")
-                .attr('class','cellOptionButton')
-                .on('click',{"index":accounts[index]["index"]},function(event){edit(event.data.index);}) 
+                .attr('title', "Edit")
+                .attr('class', 'cellOptionButton')
+                .on('click', {"index":accounts[index]["index"]}, function(event){edit(event.data.index);}) 
                 .append($('<span></span>')
-                    .attr('class','glyphicon glyphicon-wrench')))
+                    .attr('class', 'glyphicon glyphicon-wrench')))
             .append($('<a>')
-                .attr('title','Details')
-                .attr('class','cellOptionButton')
-                .on('click',{"index":accounts[index]["index"]},function(event){showdetail(event.data.index);}) 
+                .attr('title', 'Details')
+                .attr('class', 'cellOptionButton')
+                .on('click', {"index":accounts[index]["index"]}, function(event){showdetail(event.data.index);}) 
                 .append($('<span class="glyphicon glyphicon-eye-open"></span>')))
         );
         cols.push($('<td>')
             .append($('<span>')
-                .attr('passid',accounts[index]["index"])
-                .attr('enpassword',accounts[index]["enpassword"])
-                .attr('id',accounts[index]["index"])
+                .attr('passid', accounts[index]["index"])
+                .attr('enpassword', accounts[index]["enpassword"])
+                .attr('id', accounts[index]["index"])
                 .append(pwdLink.clone()
-                            .on('click',{"index":accounts[index]["index"]},function(event){clicktoshow(event.data.index);}) 
+                            .on('click', {"index":accounts[index]["index"]}, function(event){clicktoshow(event.data.index);}) 
                         )
             ));
         // fill in other
@@ -429,8 +435,8 @@ function showTable(accounts)
                 var value="";
                 if (x in accounts[index]["other"])
                     value = accounts[index]["other"][x];
-                var cell = $('<td>').attr('class', x+'cell'+fields[x]["cls"])
-                    .append($('<span>').attr('class','account'+x).text(value));
+                var cell = $('<td>').attr('class',  x+'cell'+fields[x]["cls"])
+                    .append($('<span>').attr('class', 'account'+x).text(value));
                 if (("position" in fields[x]) && (fields[x]["position"] != 0)) {
                     cols.splice(fields[x]["position"], 0, cell);
                 }
@@ -439,7 +445,7 @@ function showTable(accounts)
             }
         }
         // create row for datatable
-        var row = $("<tr>").attr('class','datarow').data('id',accounts[index]["index"]).append(cols);
+        var row = $("<tr>").attr('class', 'datarow').data('id', accounts[index]["index"]).append(cols);
         callPlugins("drawAccount", {"account": accounts[index], "row":row});
         datatablestatus.row.add(row);
     }
@@ -452,13 +458,14 @@ function showTable(accounts)
 }
 function downloadf(id){ 
     $("#messagewait").modal("show");
-    $.post('rest/downloadfile.php',{id:id},function(filedata){
+    $.post('rest/downloadfile.php', {id:id}, function(filedata){
         if(filedata['status'] != "success") {
-            showMessage('danger','ERROR! '+filedata['message'], false);
+            showMessage('danger', 'ERROR! '+filedata['message'], false);
         }
         else{
             var fname = accountarray[id]['fname'];
-            if(fname=='') showMessage('danger','ERROR! '+filedata['message'], false);
+            if(fname=='') 
+                showMessage('danger', 'ERROR! '+filedata['message'], false);
             else{
                 function base64toBlob(base64Data, contentType) {
                     contentType = contentType || '';
@@ -481,11 +488,11 @@ function downloadf(id){
                     return new Blob(byteArrays, { type: contentType });
                 }
                 
-                var fkey = decryptPassword(fname,filedata['key']);
-                var data = decryptchar(filedata['data'],fkey);
-                var typedata = data.substring(5,data.search(";"));
+                var fkey = decryptPassword(fname, filedata['key']);
+                var data = decryptchar(filedata['data'], fkey);
+                var typedata = data.substring(5, data.search(";"));
                 data = data.substring(data.search(",")+1);
-                saveAs(base64toBlob(data,typedata),fname);
+                saveAs(base64toBlob(data, typedata), fname);
             }
         }
         $("#messagewait").modal("hide");
@@ -501,7 +508,7 @@ function cleanUp() {
 }
 function reloadAccounts() {
     cleanUp();
-    $.post("rest/password.php",{},function(msg){dataReady(msg);});
+    $.post("rest/password.php", {}, function(msg){dataReady(msg);});
 }
 $(document).ready(function(){
     datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true,autoWidth:false, "deferRender": true, drawCallback: function(settings) { preDrawCallback( this.api(), settings);}, "lengthMenu": [ [10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"] ] });
@@ -510,11 +517,11 @@ $(document).ready(function(){
         e.preventDefault();
         var pin = $("#pinxx").val();
         var device = getcookie('device');
-        var salt = getpwd('abcdefghijklmnopqrstuvwxyz1234567890',500);
+        var salt = getpwd('abcdefghijklmnopqrstuvwxyz1234567890', 500);
         timeout = default_timeout+Math.floor(Date.now() / 1000);
         function process()
         {
-            $.post("rest/setpin.php",{user:getcookie('username'),device:device,sig:String(CryptoJS.SHA512(pin+salt))},function(msg){
+            $.post("rest/setpin.php", {user:getcookie('username'), device:device, sig:String(CryptoJS.SHA512(pin+salt))}, function(msg){
                 if(msg["status"] != "success"){
                     showMessage('warning', 'ERROR set PIN, try again later!', true);
                     $('#pin').modal('hide');
