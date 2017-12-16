@@ -746,7 +746,10 @@ $(document).ready(function(){
             $("#changepw").attr("value", "Processing...");
             function process(){
                 var login_sig=String(pbkdf2_enc(reducedinfo($("#oldpassword").val(),default_letter_used), salt1, 500));
-                if(secretkey!=String(CryptoJS.SHA512(login_sig+salt2))) {showMessage('warning',"Incorrect Old Password!", true); return;}
+                if(secretkey!=String(CryptoJS.SHA512(login_sig+salt2))) {
+                    showMessage('warning',"Incorrect Old Password!", true); 
+                    return;
+                }
                 var newpass=$("#pwd").val();
                 login_sig=String(pbkdf2_enc(reducedinfo(newpass, default_letter_used), salt1, 500));
                 var newsecretkey=String(CryptoJS.SHA512(login_sig+salt2));
@@ -805,24 +808,41 @@ $(document).ready(function(){
             if (window.FileReader) {
                 // FileReader are supported.
                 var reader = new FileReader();
-                var a=$("#importc")[0].files;
+                var a = $("#importc")[0].files;
                 var t = 0;
                 if (a && a[0]){
                     reader.onload = function (e) {
                         var txt = e.target.result;
                         try{
-                            if(t==0) import_raw(txt); else import_csv(txt);
-                        }catch (error) { showMessage('warning','Some error occurs!', true); bk(); reloadAccounts();}
+                            if(t==0) {
+                                import_raw(txt); 
+                            }
+                            else {
+                                import_csv(txt);
+                            }
+                        }
+                        catch (error) { 
+                            showMessage('warning','Some error occurs!', true); 
+                            bk(); 
+                            reloadAccounts();
+                        }
                     }
                     reader.onerror = function (e) {
                         showMessage('warning','Error reading file!', true);
                         bk();
                     }
                     var extension = a[0].name.split('.').pop().toLowerCase();
-                    if(extension=='csv') t=1;
+                    if(extension=='csv') {
+                        t=1;
+                    }
                     reader.readAsText(a[0]);          
-                } else {showMessage('warning','NO FILE SELECTED', true); bk();}
-            } else {
+                } 
+                else {
+                    showMessage('warning','NO FILE SELECTED', true); 
+                    bk();
+                }
+            } 
+            else {
                 showMessage('warning','FileReader are not supported in this browser.', true);
             }
         }
@@ -843,8 +863,8 @@ $(document).ready(function(){
             if (window.FileReader) {
                 // FileReader are supported.
                 var reader = new FileReader();
-                var a=$("#uploadf")[0].files;
-                var fname='';
+                var a = $("#uploadf")[0].files;
+                var fname = '';
                 if (a && a[0]){
                     reader.onload = function (e) {
                         var data = e.target.result;
@@ -873,14 +893,19 @@ $(document).ready(function(){
                         bk();
                     }
                     fname = a[0].name;
-                    if(fname==''){
+                    if(fname == ''){
                         showMessage('warning','File selected doesn\'t have a name!', true); 
                         bk(); 
                         return;
                     }
                     reader.readAsDataURL(a[0]);          
-                } else {showMessage('warning','NO FILE SELECTED', true); bk();}
-            } else {
+                } 
+                else {
+                    showMessage('warning','NO FILE SELECTED', true); 
+                    bk();
+                }
+            } 
+            else {
                 showMessage('warning','FileReader are not supported in this browser.', true);
             }
         }
@@ -1042,7 +1067,8 @@ function showdetail(index){
     $("#showdetails").modal("show");
 }
 function timeConverter(utctime){
-    if(utctime==0) return 'unknown time';
+    if(utctime==0) 
+        return 'unknown time';
     var a = new Date(utctime * 1000);
     var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; 
     var year = String(a.getFullYear());
@@ -1051,9 +1077,12 @@ function timeConverter(utctime){
     var hour = String(a.getHours());
     var min = String(a.getMinutes());
     var sec = String(a.getSeconds());
-    if(hour.length==1) hour = '0'+hour;
-    if(min.length==1) min = '0'+min;
-    if(sec.length==1) sec = '0'+sec;
+    if(hour.length==1) 
+        hour = '0'+hour;
+    if(min.length==1) 
+        min = '0'+min;
+    if(sec.length==1) 
+        sec = '0'+sec;
     var time = month + ' '+date + ', ' + year + ' ' + hour + ':' + min + ':' + sec ;
     return time;
 }
