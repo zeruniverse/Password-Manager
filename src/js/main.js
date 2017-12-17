@@ -752,54 +752,53 @@ $(document).ready(function(){
                 var postnewpass=pbkdf2_enc(login_sig, salt1, 500);
                 //NOTE: login_sig here is the secret_key generated when login.
                 var newconfkey=pbkdf2_enc(String(CryptoJS.SHA512(newpass+login_sig)), salt1, 500); 
-                var raw_pass,raw_fkey;
+                var raw_pass, raw_fkey;
                 var accarray= [];
                 //ToDo auf Account Class umstellen
-                for (let x in accountarray)
-                {
+                for (let x in accountarray) {
                     var tmpother = accountarray[x]["other"];
-                    accarray[x] = {"name": encryptchar(accountarray[x]["name"],newsecretkey), "is_f":1, "fname": '',"other": encryptchar(JSON.stringify(tmpother),newsecretkey)};
+                    accarray[x] = {"name": encryptchar(accountarray[x]["name"], newsecretkey), "is_f":1, "fname": '', "other": encryptchar(JSON.stringify(tmpother), newsecretkey)};
                     if(accountarray[x]["fname"] == '') {
                         accarray[x]['is_f'] = 0;
                     } 
                     else {
                         accarray[x]["fname"] = encryptchar(accountarray[x]["fname"],newsecretkey);
                     }
-                    raw_fkey='1';
-                    raw_pass=decryptPassword(accountarray[x]["name"],accountarray[x]["enpassword"]);
+                    raw_fkey = '1';
+                    raw_pass = decryptPassword(accountarray[x]["name"], accountarray[x]["enpassword"]);
                     if(accountarray[x]["fname"] != '') {
-                        raw_fkey=decryptPassword(accountarray[x]['fname'],accountarray[x]['fkey']);
+                        raw_fkey = decryptPassword(accountarray[x]['fname'], accountarray[x]['fkey']);
                     }
-                    if (raw_pass==""||raw_fkey=='') {
+                    if (raw_pass == "" || raw_fkey == '') {
                         showMessage('danger',"FATAL ERROR WHEN TRYING TO DECRYPT ALL PASSWORDS", true);
                         return;
                     }
-                    raw_pass=gen_temp_pwd(newconfkey,PWsalt,String(CryptoJS.SHA512(accountarray[x]["name"])),ALPHABET,raw_pass);
-                    raw_fkey=gen_temp_pwd(newconfkey,PWsalt,String(CryptoJS.SHA512(accountarray[x]["fname"])),ALPHABET,raw_fkey);
-                    accarray[x]["newpwd"] = encryptchar(raw_pass,newsecretkey);
-                    accarray[x]["fk"] = encryptchar(raw_fkey,newsecretkey);
+                    raw_pass = gen_temp_pwd(newconfkey, PWsalt, String(CryptoJS.SHA512(accountarray[x]["name"])), ALPHABET, raw_pass);
+                    raw_fkey = gen_temp_pwd(newconfkey, PWsalt, String(CryptoJS.SHA512(accountarray[x]["fname"])), ALPHABET, raw_fkey);
+                    accarray[x]["newpwd"] = encryptchar(raw_pass, newsecretkey);
+                    accarray[x]["fk"] = encryptchar(raw_fkey, newsecretkey);
                 }
-                $.post("rest/changeuserpw.php",{newpass:String(CryptoJS.SHA512(postnewpass+user)), accarray:JSON.stringify(accarray)},function(msg){ 
+                $.post("rest/changeuserpw.php", {newpass:String(CryptoJS.SHA512(postnewpass+user)), accarray:JSON.stringify(accarray)},function(msg){ 
                     if(msg["status"] == "success") {
                         alert("Change Password Successfully! Please login with your new password again.");
                         quitpwd("Password changed, please relogin");
                     } 
                     else {
-                        showMessage('warning',"Fail to change your password, please try again.", true); 
+                        showMessage('warning', "Fail to change your password, please try again.", true); 
                     }
                 });
             }
-            setTimeout(process,50);
+            setTimeout(process, 50);
         }
     });
     $("#importbtn").click(function(){ 
-        $("#importbtn").attr("disabled",true);
+        $("#importbtn").attr("disabled", true);
         $("#importbtn").text("Processing...");
-        $("#importc").attr("disabled",true);
+        $("#importc").attr("disabled", true);
         function bk(){
-            $("#importbtn").attr("disabled",false);
+            $("#importbtn").attr("disabled", false);
             $("#importbtn").text("Submit");
-            $("#importc").attr("disabled",false);
+            $("#importc").attr("disabled", false);
         }
         function process(){
             if (window.FileReader) {
