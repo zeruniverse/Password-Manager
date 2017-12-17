@@ -639,7 +639,6 @@ $(document).ready(function(){
                 accountarray[id].setOther(x, $("#edititeminput"+x).val().trim());
             }
             if($("#edititeminputpw").val() != ''){
-                newpwd = decryptPassword(oldname, $("#edititeminputpw").data('enpassword'));
                 accountarray[id].setOther("_system_passwordLastChangeTime", Math.floor(Date.now() / 1000));
             }
 
