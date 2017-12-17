@@ -184,7 +184,8 @@ function import_csv(csv){
 	    var acc = accarray[x]["name"];
 	    var pass = accarray[x]["password"];
 	    if(acc=='' || pass=='') {
-	        showMessage('danger', "one of account or password empty! will continue to process other accounts, check back after this finished", true); continue;
+	        showMessage('danger', "one of account or password empty! will continue to process other accounts, check back after this finished", true); 
+            continue;
 	    }
 	    var other = {};
 	    for (var key in accarray[x]){
