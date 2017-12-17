@@ -12,7 +12,7 @@ class Account {
     }
     // reads the account from a encrypted dict
     static fromEncrypted(encryptedAccount) {
-        var this = new Account(encryptedAccount["index"], decryptchar(encryptedAccount["name"], secretkey), encryptedAccount["kss"]);
+        this = new Account(encryptedAccount["index"], decryptchar(encryptedAccount["name"], secretkey), encryptedAccount["kss"]);
         if (encryptedAccount["additional"] != "") {
             //decrypt and extract json
             var data = $.parseJSON(decryptchar(encryptedAccount["additional"], secretkey));
