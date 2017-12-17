@@ -1,10 +1,22 @@
+function decryptPassword(name, kss){
+    var thekey=decryptchar(kss, secretkey);
+    if (thekey==""){
+        return "";
+    }
+    return get_orig_pwd(getconfkey(PWsalt), PWsalt, String(CryptoJS.SHA512(name)), ALPHABET, thekey);
+}
+function encryptPassword(name, pass){
+    pass=gen_temp_pwd(getconfkey(PWsalt), PWsalt, String(CryptoJS.SHA512(name)), ALPHABET, pass);
+    return encryptchar(pass, secretkey);
+}
+
 class Account {
     constructor(index, name, enpassword) {
         this.index = index;
         this.name = name;
         this.enpassword = enpassword;
         this.other = {};
-        this.file = null;
+        this.mFile = null;
     }
     // reads the account from a dict (password still encrypted)
     static fromObject(obj) {
@@ -24,7 +36,9 @@ class Account {
 
     // get as encrypted object
     get encrypted() {
-        let encryptedResult = { "kss":this.enpassword, "index":this.index};
+        let encryptedResult = { "kss":this.enpassword };
+        if (this.index != null)
+            encryptedResult["index"] = this.index;
         encryptedResult["name"] = encryptchar(this.name, secretkey);
         let other = JSON.stringify(this.other);
         encryptedResult["other"] = encryptchar(other, secretkey);
@@ -61,9 +75,9 @@ class Account {
     get availableOthers() {
         let availableOthers = [];
         for (let otherName in this.other) {
-            availableOthers += otherName;
+            availableOthers.push(otherName);
         }
-        return availableOthers();
+        return availableOthers;
     }
     setOther(name, value) {
         this.other[name] = value;
@@ -72,7 +86,10 @@ class Account {
         return this.other[name];
     }
     get file(){
-        return this.file;
+        return this.mFile;
+    }
+    set file(file) {
+        this.file = mFile;
     }
     addFile(name, key) {
         this.file = { "name": name, "key": key };

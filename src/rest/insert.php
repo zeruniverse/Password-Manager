@@ -8,7 +8,7 @@ if (!checksession($link)) {
 }
 $id = $_SESSION['userid'];
 
-$newpw = $_POST['newpwd'];
+$newpw = $_POST['kss'];
 $name = $_POST['name'];
 $other = $_POST['other'];
 

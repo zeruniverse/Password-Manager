@@ -81,27 +81,16 @@ function sanitize_json(s){
     t=t.replace(/\n/g, '')
     return t.replace(/\r/g, '');
 }
-function decryptPassword(name, kss){
-    var thekey=decryptchar(kss, secretkey);
-    if (thekey==""){
-        return "";
-    }
-    return get_orig_pwd(getconfkey(PWsalt), PWsalt, String(CryptoJS.SHA512(name)), ALPHABET, thekey);
-}
-function encryptPassword(name, pass){
-    pass=gen_temp_pwd(getconfkey(PWsalt), PWsalt, String(CryptoJS.SHA512(name)), ALPHABET, pass);
-    return encryptchar(pass, secretkey);
-}
 function add_account(acc, pass, other, callback){
-    var sk=secretkey;
-    pass=encryptPassword(acc, pass);
-    other=JSON.parse(other);
+    account = new Account(null, acc, "");
+    account.password = pass;
+
     if(!("_system_passwordLastChangeTime" in other)) 
         other["_system_passwordLastChangeTime"] = Math.floor(Date.now() / 1000);
-    other=JSON.stringify(other);
-    other=encryptchar(other, sk);
-    acc=encryptchar(acc, sk);
-    $.post("rest/insert.php", {name:acc, newpwd:pass, other:other}, callback);
+    for (let key in other) {
+        account.setOther(key, other[key]);
+    }
+    $.post("rest/insert.php", account.encrypted/*{name:acc, newpwd:pass, other:other}*/, callback);
 }
 function upload_file(fileid, filename, filedata, callback) {
     var fkey = getpwd(default_letter_used, Math.floor(Math.random()*18)+19);
@@ -332,7 +321,8 @@ function dataReady(data){
     for(var i = 0; i<accounts.length; i++) {
         var index = accounts[i]["index"];
         accountarray[index] = Account.fromEncrypted(accounts[i]);
-        for (var x in accountarray[index].availableOthers)
+        let others = accountarray[index].availableOthers;
+        for (let x of others)
             if ( (accountarray[index].getOther(x) != "") && (x in fields) )
                 fields[x]["count"] += 1;
         callPlugins("readAccount", {"account":accountarray[index]});
@@ -639,12 +629,13 @@ $(document).ready(function(){
                 accountarray[id].setOther(x, $("#edititeminput"+x).val().trim());
             }
             if($("#edititeminputpw").val() != ''){
+                accountarray[id].password = $("#edititeminputpw").val();
                 accountarray[id].setOther("_system_passwordLastChangeTime", Math.floor(Date.now() / 1000));
             }
 
             accountarray[id].accountName = $("#edititeminput").val();
             $.post("rest/change.php", accountarray[id].encrypted, function(msg){ 
-                if(msg["status"] != "success") {
+                if(msg["status"] == "success") {
                     showMessage('success',"Data for " + name + " updated!");
                     $('#edit').modal('hide');
                     reloadAccounts();
