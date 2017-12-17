@@ -82,7 +82,7 @@ function sanitize_json(s){
     return t.replace(/\r/g, '');
 }
 function add_account(acc, pass, other, callback){
-    account = new Account(null, acc, "");
+    let account = new Account(null, acc, "");
     account.password = pass;
 
     if(!("_system_passwordLastChangeTime" in other)) 
@@ -615,7 +615,6 @@ $(document).ready(function(){
         setTimeout(process,50);
     });
     $("#editbtn").click(function(){ 
-        var newpwd;
         if($("#edititeminput").val()=="") {showMessage('warning',"Account entry can't be empty!", true); return;}
         $("#editbtn").attr("disabled",true);
         $("#edititeminput").attr("readonly",true);
