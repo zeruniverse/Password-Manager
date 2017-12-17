@@ -8,19 +8,18 @@ class Account {
     }
     // reads the account from a dict (password still encrypted)
     static fromObject(obj) {
-        this = new Account(obj["index"], obj["name"], obj["kss"]);
-        return this;
+        //ToDo
     }
     // reads the account from a encrypted dict
     static fromEncrypted(encryptedAccount) {
-        this = new Account(encryptedAccount["index"], decryptchar(encryptedAccount["name"], secretkey), encryptedAccount["kss"]);
+        let account = new Account(encryptedAccount["index"], decryptchar(encryptedAccount["name"], secretkey), encryptedAccount["kss"]);
         if (encryptedAccount["additional"] != "") {
             //decrypt and extract json
             var data = $.parseJSON(decryptchar(encryptedAccount["additional"], secretkey));
             for (var x in data)
-                this.setOther(x, data[x]);
+                account.setOther(x, data[x]);
         }
-        return this;
+        return account;
     }
 
     // get as encrypted object
