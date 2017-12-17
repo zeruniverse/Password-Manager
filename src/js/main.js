@@ -331,15 +331,17 @@ function dataReady(data){
     // decrypt accounts
     for(var i = 0; i<accounts.length; i++) {
         var index = accounts[i]["index"];
-        accountarray[index] = decryptAccount(accounts[i])
+        accountarray[index] = Account.fromEncrypted(accounts[i]);
+        for (var x in accountarray[index].availableOthers)
+            if ( (accountarray[index].getOther(x) != "") && (x in fields) )
+                fields[x]["count"] += 1;
         callPlugins("readAccount", {"account":accountarray[index]});
     }
 
     // add files to accounts
     for(var i = 0; i<fdata.length; i++) {
         var index = fdata[i]["index"];
-        accountarray[index]['fname'] = decryptchar(fdata[i]['fname'], secretkey);
-        accountarray[index]['fkey'] = fdata[i]['fkey'];
+        accountarray[index].addFile(decryptchar(fdata[i]['fname'], secretkey), fdata[i]['fkey']);
     }
 
     callPlugins("accountsReady");
@@ -389,10 +391,9 @@ function initFields() {
     }
 }
 // accounts as parameter to have the possibility to only show a subset i.e. for pagination
-function showTable(accounts)
-{
-    accounts=preShowPreparation(accounts);
-    visibleAccounts=accounts;
+function showTable(accounts) {
+    accounts = preShowPreparation(accounts);
+    visibleAccounts = accounts;
     var asterisk = $('<span>').attr('class', 'glyphicon glyphicon-asterisk');
     var pwdLink = $('<a>').attr('title', 'Click to see')
             .append(asterisk.clone())
@@ -407,12 +408,12 @@ function showTable(accounts)
             .attr('class', 'namecell')
             .append($("<span>")
                 .attr('class', 'accountname')
-                .data('id', accounts[index]["index"])
-                .text(accounts[index]["name"]))
+                .data('id', accounts[index].index)
+                .text(accounts[index].accountName))
             .append($('<a>')
                 .attr('title', "Edit")
                 .attr('class', 'cellOptionButton')
-                .on('click', {"index":accounts[index]["index"]}, function(event){edit(event.data.index);}) 
+                .on('click', {"index":accounts[index].index}, function(event){edit(event.data.index);}) 
                 .append($('<span></span>')
                     .attr('class', 'glyphicon glyphicon-wrench')))
             .append($('<a>')
@@ -423,9 +424,8 @@ function showTable(accounts)
         );
         cols.push($('<td>')
             .append($('<span>')
-                .attr('passid', accounts[index]["index"])
-                .attr('enpassword', accounts[index]["enpassword"])
-                .attr('id', accounts[index]["index"])
+                .attr('passid', accounts[index].index)
+                .attr('id', accounts[index].index)
                 .append(pwdLink.clone()
                             .on('click', {"index":accounts[index]["index"]}, function(event){clicktoshow(event.data.index);}) 
                         )
@@ -446,7 +446,7 @@ function showTable(accounts)
             }
         }
         // create row for datatable
-        var row = $("<tr>").attr('class', 'datarow').data('id', accounts[index]["index"]).append(cols);
+        var row = $("<tr>").attr('class', 'datarow').data('id', accounts[index].index).append(cols);
         callPlugins("drawAccount", {"account": accounts[index], "row":row});
         datatablestatus.row.add(row);
     }
@@ -464,7 +464,7 @@ function downloadf(id){
             showMessage('danger', 'ERROR! '+filedata['message'], false);
         }
         else{
-            var fname = accountarray[id]['fname'];
+            var fname = accountarray[id].file["name"];
             if(fname=='') 
                 showMessage('danger', 'ERROR! '+filedata['message'], false);
             else{
@@ -634,31 +634,17 @@ $(document).ready(function(){
             $("#edititeminput"+x).attr("readonly",true);
         function process(){
             var id = $("#edit").data('id');
-            var oldname=accountarray[id]["name"];
-            var other = {};
+            accountarray[id].clearVisibleOther();
             for (let x in fields){
-                other[x] = $("#edititeminput"+x).val().trim();
+                accountarray[id].setOther(x, $("#edititeminput"+x).val().trim());
             }
-            // get all _Fields from the original data 
-            for (let x in accountarray[id]){
-                if (x.substring(0,1) == "_"){
-                    other[x] = accountarray[id]["other"][x];
-                }
-            }
-            if($("#edititeminputpw").val() == ''){
-                newpwd=decryptPassword(oldname, $("#edititeminputpw").data('enpassword'));
-            }
-            else{
-                newpwd=$("#edititeminputpw").val();
-                other["_system_passwordLastChangeTime"] = Math.floor(Date.now() / 1000);
+            if($("#edititeminputpw").val() != ''){
+                newpwd = decryptPassword(oldname, $("#edititeminputpw").data('enpassword'));
+                accountarray[id].setOther("_system_passwordLastChangeTime", Math.floor(Date.now() / 1000));
             }
 
-            other = JSON.stringify(other);
-            var name = $("#edititeminput").val();
-            newpwd = encryptPassword(name, newpwd);
-            other = encryptchar(other, secretkey);
-            var enname = encryptchar(name,secretkey);
-            $.post("rest/change.php", {name:enname, newpwd:newpwd, index:id, other:other}, function(msg){ 
+            accountarray[id].accountName = $("#edititeminput").val();
+            $.post("rest/change.php", accountarray[id].encrypted, function(msg){ 
                 if(msg["status"] != "success") {
                     showMessage('success',"Data for " + name + " updated!");
                     $('#edit').modal('hide');
@@ -735,8 +721,8 @@ $(document).ready(function(){
     $("#editAccountShowPassword").click(function(){
         $("#editAccountShowPassword").popover('hide');
         var id = parseInt($("#edit").data('id'));
-        var thekey=decryptPassword(accountarray[id]["name"], accountarray[id]['enpassword']);
-        if (thekey==""){
+        var thekey = accountarray[id].password;
+        if (thekey == ""){
             $("#edititeminputpw").val("Oops, some error occurs!");
             return;
         }
@@ -749,7 +735,10 @@ $(document).ready(function(){
     $("#changepw").click(function(){ 
         if(confirm("Your request will be processed on your browser, so it takes some time (up to #of_your_accounts * 10seconds). Do not close your window or some error might happen.\nPlease note we won't have neither your old password nor your new password. \nClick OK to confirm password change request."))
         {
-            if ($("#pwd").val()!=$("#pwd1").val() || $("#pwd").val().length<7){showMessage('warning',"The second password you input doesn't match the first one. Or your password is too weak (length should be at least 7)", true); return;}
+            if ($("#pwd").val()!=$("#pwd1").val() || $("#pwd").val().length<7){
+                showMessage('warning',"The second password you input doesn't match the first one. Or your password is too weak (length should be at least 7)", true); 
+                return;
+            }
             $("#changepw").attr("disabled",true);
             $("#changepw").attr("value", "Processing...");
             function process(){
@@ -766,19 +755,20 @@ $(document).ready(function(){
                 var newconfkey=pbkdf2_enc(String(CryptoJS.SHA512(newpass+login_sig)), salt1, 500); 
                 var raw_pass,raw_fkey;
                 var accarray= [];
+                //ToDo auf Account Class umstellen
                 for (let x in accountarray)
                 {
-                    var tmpother=accountarray[x]["other"];
-                    accarray[x]={"name": encryptchar(accountarray[x]["name"],newsecretkey), "is_f":1, "fname": '',"other": encryptchar(JSON.stringify(tmpother),newsecretkey)};
-                    if(accountarray[x]["fname"]=='') {
-                        accarray[x]['is_f']=0;
+                    var tmpother = accountarray[x]["other"];
+                    accarray[x] = {"name": encryptchar(accountarray[x]["name"],newsecretkey), "is_f":1, "fname": '',"other": encryptchar(JSON.stringify(tmpother),newsecretkey)};
+                    if(accountarray[x]["fname"] == '') {
+                        accarray[x]['is_f'] = 0;
                     } 
                     else {
-                        accarray[x]["fname"]=encryptchar(accountarray[x]["fname"],newsecretkey);
+                        accarray[x]["fname"] = encryptchar(accountarray[x]["fname"],newsecretkey);
                     }
                     raw_fkey='1';
                     raw_pass=decryptPassword(accountarray[x]["name"],accountarray[x]["enpassword"]);
-                    if(accountarray[x]["fname"]!='') {
+                    if(accountarray[x]["fname"] != '') {
                         raw_fkey=decryptPassword(accountarray[x]['fname'],accountarray[x]['fkey']);
                     }
                     if (raw_pass==""||raw_fkey=='') {
@@ -926,12 +916,11 @@ $(document).ready(function(){
     $('#edit').on('shown.bs.modal', function () {
         var id = $("#edit").data('id');
         $("#editAccountShowPassword").removeClass("collapse");
-        $("#edititeminput").val(accountarray[id]['name']);//name
+        $("#edititeminput").val(accountarray[id].accountName);//name
         $("#edititeminputpw").attr('placeholder',"Hidden");
         $("#edititeminputpw").val('');
-        $("#edititeminputpw").data('enpassword', accountarray[id]["enpassword"]);
         for (let x in fields){
-            $("#edititeminput"+x).val(accountarray[id]['other'][x]);
+            $("#edititeminput"+x).val(accountarray[id].getOther(x));
         } 
         callPlugins("editAccountDialog",{"account": accountarray[id]});
     });
@@ -975,10 +964,10 @@ function edit(row){
     $("#edit").modal("show");
 }
 function clicktoshow(id){ 
-    timeout=default_timeout+Math.floor(Date.now() / 1000);
-    id=parseInt(id);
-    var thekey = decryptPassword(accountarray[id]["name"],accountarray[id]["enpassword"]);
-    if (thekey==""){
+    timeout = default_timeout+Math.floor(Date.now() / 1000);
+    id = parseInt(id);
+    var thekey = accountarray[id].password;
+    if (thekey == ""){
         $("#"+id).text("Oops, some error occurs!");
         return;
     }
@@ -991,8 +980,8 @@ function clicktoshow(id){
 } 
 function showuploadfiledlg(id){
     $("#uploadfiledlg").modal("hide");
-    $("#uploadfitemlab1").text(accountarray[id]["name"]);
-    $("#uploadfitemlab2").text(accountarray[id]["name"]);
+    $("#uploadfitemlab1").text(accountarray[id].accountName);
+    $("#uploadfitemlab2").text(accountarray[id].accountName);
     $("#uploadfilebtn").attr("disabled",false);
     $("#uploadfilebtn").text("Submit");
     $("#uploadf").attr("disabled",false);
@@ -1007,7 +996,7 @@ function clicktohide(id){
 }
 function delepw(index)
 {   
-    var name=accountarray[parseInt(index)]["name"];
+    var name = accountarray[parseInt(index)].accountName;
     if(confirm("Are you sure you want to delete password for "+name+"? (ATTENTION: this is irreversible)"))
     {
         $.post("rest/delete.php",{index:index},function(msg){ 
@@ -1030,30 +1019,30 @@ function showdetail(index){
     var s;
     s=$('#details');
     s.html('');
-    s.append($('<b>').text(accountarray[i]["name"]))
+    s.append($('<b>').text(accountarray[i].accountName))
      .append($('<br/>')).append($('<br/>'));
     var table=$('<table>').css('width',"100%").css('color',"#ff0000")
             .append($('<colgroup><col width="90"><col width="auto"></colgroup>'));
-    for (let x in accountarray[i]["other"]) {
+    for (let x in accountarray[i].availableOthers) {
         if(x in fields){
             table.append($('<tr>')
                 .attr("id","detailsTableOther"+x)
                 .append($('<td>').css("color","#afafaf").css("font-weight","normal").text(fields[x]['colname']))
-                .append($('<td>').css("color","#6d6d6d").css("font-weight","bold").text(accountarray[i]["other"][x])));
+                .append($('<td>').css("color","#6d6d6d").css("font-weight","bold").text(accountarray[i].getOther(x))));
         }
     }
     if(file_enabled==1){
-        if(accountarray[i]["fname"]!='') 
+        if(accountarray[i].file != null) 
             table.append($('<tr>')
                 .append($('<td>').css("color","#66ccff").css("font-weight","normal").text('File'))
                 .append($('<td>').css("color","#0000ff").css("font-weight","bold")
                     .append($('<a>')
-                        .attr('title',"Download File").text(accountarray[i]["fname"])
-                        .on('click',{"index":accountarray[i]["index"]},function(event){downloadf(event.data.index);}) 
+                        .attr('title',"Download File").text(accountarray[i].file["name"])
+                        .on('click',{"index":accountarray[i].index},function(event){downloadf(event.data.index);}) 
                         )
                     .append('&nbsp;&nbsp;&nbsp;')
                     .append($('<a>').attr('title',"Upload file")
-                        .on('click',{"index":accountarray[i]["index"]},function(event){showuploadfiledlg(event.data.index);}) 
+                        .on('click',{"index":accountarray[i].index},function(event){showuploadfiledlg(event.data.index);}) 
                         .append($('<span>').attr('class',"glyphicon glyphicon-arrow-up")))));
         else table.append($('<tr>')
                     .append($('<td>')
@@ -1063,13 +1052,13 @@ function showdetail(index){
                         .css("color","#0000ff").css("font-weight","bold")
                         .text('None').append('&nbsp;&nbsp;&nbsp;')
                         .append($('<a>').attr('title',"Upload file")
-                            .on('click',{"index":accountarray[i]["index"]},function(event){showuploadfiledlg(event.data.index);}) 
+                            .on('click',{"index":accountarray[i].index},function(event){showuploadfiledlg(event.data.index);}) 
                             .append($('<span>')
                                         .attr('class',"glyphicon glyphicon-arrow-up"))))); 
     }
     s.append(table);
-    if ("_system_passwordLastChangeTime" in accountarray[i]["other"]) {
-        s.append('<br />').append($('<p>').addClass('textred').text('Password last changed at '+timeConverter(accountarray[i]["other"]["_system_passwordLastChangeTime"])));
+    if ("_system_passwordLastChangeTime" in accountarray[i].availableOthers) {
+        s.append('<br />').append($('<p>').addClass('textred').text('Password last changed at '+timeConverter(accountarray[i].getOther("_system_passwordLastChangeTime"))));
     }
     callPlugins("showDetails",{"account":accountarray[i], "out":s});
     $("#showdetails").modal("show");

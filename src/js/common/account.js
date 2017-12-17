@@ -4,6 +4,7 @@ class Account {
         this.name = name;
         this.enpassword = enpassword;
         this.other = {};
+        this.file = null;
     }
     // reads the account from a dict (password still encrypted)
     static fromObject(obj) {
@@ -51,13 +52,6 @@ class Account {
         //encrypt before storing
         this.enpassword = encryptPassword(this.name, password);
     }
-    get availableOthers() {
-        let availableOthers = [];
-        for (let otherName in this.other) {
-            availableOthers += otherName;
-        }
-        return availableOthers();
-    }
     clearOther() {
         this.other = {};
     }
@@ -68,10 +62,23 @@ class Account {
             }
         }
     }
+    get availableOthers() {
+        let availableOthers = [];
+        for (let otherName in this.other) {
+            availableOthers += otherName;
+        }
+        return availableOthers();
+    }
     setOther(name, value) {
         this.other[name] = value;
     }
     getOther(name) {
         return this.other[name];
+    }
+    get file(){
+        return this.file;
+    }
+    addFile(name, key) {
+        this.file = { "name": name, "key": key };
     }
 }

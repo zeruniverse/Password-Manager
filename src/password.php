@@ -14,6 +14,7 @@ echoheader();
 <script type="text/javascript" src="js/crypto/pbkdf2.js"></script>
 <script type="text/javascript" src="js/crypto/password.js"></script>
 <script type="text/javascript" src="js/lib/jquery.csv.js"></script>
+<script type="text/javascript" src="js/common/account.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
 <script type="text/javascript" src="js/plugin.js"></script>
 <script type="text/javascript" src="js/plugins/linkButton.js"></script>
