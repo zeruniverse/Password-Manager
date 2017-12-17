@@ -31,9 +31,6 @@ class Account {
         return encryptedResult;
     }
 
-    get index() {
-        return this.index;
-    }
     get accountName() {
         return this.name;
     }
