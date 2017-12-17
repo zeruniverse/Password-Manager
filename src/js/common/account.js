@@ -7,7 +7,7 @@ class Account {
     }
     // reads the account from a dict (password still encrypted)
     static fromObject(obj) {
-        var this = new Account(obj["index"], obj["name"], obj["kss"]);
+        this = new Account(obj["index"], obj["name"], obj["kss"]);
         return this;
     }
     // reads the account from a encrypted dict
