@@ -11,5 +11,3 @@ function error($msg)
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     error('Wrong method');
 }
-
-?>
