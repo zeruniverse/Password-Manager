@@ -6,6 +6,7 @@
 
 $DB_HOST = '';
 //Make sure MySQL is running at default port 3306. Or you have to edit sqllink.php
+//If you use localhost, make sure you have localhost defined in /etc/hosts
 
 //The database name for password_manager
 $DB_NAME = '';
@@ -16,7 +17,7 @@ $DB_USER = '';
 //Database Password
 $DB_PASSWORD = '';
 
-//Host Domain - Only Allow Visits to This Domain
+//Host Domain - Only Allow Visits to This Domain (i.e., the address inputed in users' browser).
 //Note: It must start with https://
 //This is to prevent cross-site attacks. If $HOSTDOMAIN is not the prefix of HTTP_REFERER string, an exception will be raised.
 $HOSTDOMAIN = 'https://password-manager.example.com/';
