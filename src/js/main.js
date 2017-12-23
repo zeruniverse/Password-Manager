@@ -291,7 +291,7 @@ function dataReady(data){
     try {
         encryptionWrapper = EncryptionWrapper.fromLocalStorage(salt2, default_letter_used);
     }
-    catch{
+    catch (err){
         quitpwd("Login failed, due to missing secretkey");
         return;
     }
