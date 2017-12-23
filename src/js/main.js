@@ -1,14 +1,11 @@
 const thisIsThePasswordManager = "21688ab4-8e22-43b0-a988-2ca2c98e5796";
 //everything is going to be loaded later
-var secretkey;
+var encryptionWrapper = null;
 var default_timeout;
 var server_timeout;
 var default_server_timeout;
 var timeout;
-var default_letter_used;
 var default_length;
-var salt1;
-var salt2;
 var user;
 var fields;
 var accountarray= [];
@@ -81,8 +78,10 @@ function sanitize_json(s){
     t=t.replace(/\n/g, '')
     return t.replace(/\r/g, '');
 }
+//ToDo: differentiate other as string or object
 function add_account(acc, pass, other, callback){
     let account = new Account(null, acc, "");
+    account.encryptionWrapper = encryptionWrapper;
     account.password = pass;
 
     if(!("_system_passwordLastChangeTime" in other)) 
@@ -94,9 +93,9 @@ function add_account(acc, pass, other, callback){
 }
 function upload_file(fileid, filename, filedata, callback) {
     var fkey = getpwd(default_letter_used, Math.floor(Math.random()*18)+19);
-    var enfkey = encryptPassword(filename, fkey);
-    var endata = encryptchar(filedata, fkey);
-    var enfname = encryptchar(filename, secretkey);
+    var enfkey = encryptionWrapper.encryptPassword(filename, fkey);
+    var endata = encryptionWrapper.encryptCharUsingKey(filedata, fkey);
+    var enfname = encryptionWrapper.encryptChar(filename);
     $("#showdetails").modal("hide");
     $.post('rest/uploadfile.php', {id:fileid, fkey:enfkey, fname:enfname, data:endata}, callback);
 }
@@ -154,7 +153,7 @@ function import_raw(json){
                 add_acc_file(json.data[x].account, json.data[x].password, json.data[x].other, json.data[x].fname, json.data[x].filedata);
             }
             else
-                add_acc(json.data[x].account, json.data[x].password, json.data[x].other);
+                add_acc(json.data[x].account, json.data[x].password, JSON.parse(sanitize_json(json.data[x].other)));
         }
     }
     process();
@@ -256,26 +255,6 @@ function showLastLoginInformation(failedCount, lastLogin){
         seenLoginInformation = true;
     }
 }
-// decrypts an account entry
-// changes the fields global variable
-function decryptAccount(encryptedAccount) {
-    var index = encryptedAccount["index"];
-    var decryptedAccount = { "index":index, "other": {} };
-    decryptedAccount["fname"]=''; 
-    decryptedAccount["name"] = decryptchar(encryptedAccount["name"], secretkey);
-    decryptedAccount["enpassword"] = encryptedAccount["kss"];
-    if (encryptedAccount["additional"] != "") {
-        //decrypt
-        var tempchar = decryptchar(encryptedAccount["additional"], secretkey);
-        //extract json
-        var data = $.parseJSON(tempchar);
-        decryptedAccount["other"] = data;
-        for (var x in decryptedAccount["other"])
-            if ( (decryptedAccount["other"][x] != "") && (x in fields) )
-                fields[x]["count"] += 1;
-    }
-    return decryptedAccount;
-}
 function dataReady(data){
     callPlugins("dataReady", {"data":data});
     if (data["status"]=="error") {
@@ -284,13 +263,13 @@ function dataReady(data){
     }
     default_timeout = data["default_timeout"];
     default_server_timeout = data["server_timeout"];
-    file_enabled=data['file_enabled'];
+    file_enabled = data['file_enabled'];
     server_timeout = default_server_timeout+Math.floor(Date.now() / 1000);
     timeout = default_timeout+Math.floor(Date.now() / 1000);
-    default_letter_used = data["default_letter_used"];
+    var default_letter_used = data["default_letter_used"];
     default_length = data["default_length"];
-    salt1 = data["global_salt_1"];
-    salt2 = data["global_salt_2"];
+    var salt1 = data["global_salt_1"];
+    var salt2 = data["global_salt_2"];
     user = data["user"];
     fields = $.parseJSON(data["fields"]);
     for (var x in fields) {
@@ -301,26 +280,28 @@ function dataReady(data){
     setInterval(countdown, 1000);
     setInterval(checksessionalive, 1000); 
     ALPHABET = default_letter_used;
-    PWsalt = salt2;
+    var PWsalt = salt2;
     if(file_enabled==1) 
         $("#fileincludeckbp").show(); 
     else 
         $("#fileincludeckbp").hide();
     if(!data["fields_allow_change"])
         $("#changefieldsnav").hide();
-    var secretkey0=getpwdstore(salt2);
-    if (secretkey0==""){
+
+    try {
+        encryptionWrapper = EncryptionWrapper.fromLocalStorage(salt2, default_letter_used);
+    }
+    catch{
         quitpwd("Login failed, due to missing secretkey");
         return;
     }
-    secretkey=String(CryptoJS.SHA512(secretkey0+salt2));
     
     showLastLoginInformation(data["loginInformation"]["failedCount"], data["loginInformation"]["lastLogin"]);
 
     // decrypt accounts
     for(var i = 0; i<accounts.length; i++) {
         var index = accounts[i]["index"];
-        accountarray[index] = Account.fromEncrypted(accounts[i]);
+        accountarray[index] = Account.fromEncrypted(encryptionWrapper, accounts[i]);
         let others = accountarray[index].availableOthers;
         for (let x of others)
             if ( (accountarray[index].getOther(x) != "") && (x in fields) )
@@ -331,7 +312,7 @@ function dataReady(data){
     // add files to accounts
     for(var i = 0; i<fdata.length; i++) {
         var index = fdata[i]["index"];
-        accountarray[index].addFile(decryptchar(fdata[i]['fname'], secretkey), fdata[i]['fkey']);
+        accountarray[index].addFile(encryptionWrapper.decryptChar(fdata[i]['fname']), fdata[i]['fkey']);
     }
 
     callPlugins("accountsReady");
@@ -479,8 +460,8 @@ function downloadf(id){
                     return new Blob(byteArrays, { type: contentType });
                 }
                 
-                var fkey = decryptPassword(fname, filedata['key']);
-                var data = decryptchar(filedata['data'], fkey);
+                var fkey = encryptionWrapper.decryptPassword(fname, filedata['key']);
+                var data = encryptionWrapper.decryptCharUsingKey(filedata['data'], fkey);
                 var typedata = data.substring(5, data.search(";"));
                 data = data.substring(data.search(",")+1);
                 saveAs(base64toBlob(data, typedata), fname);
@@ -518,7 +499,8 @@ $(document).ready(function(){
                     $('#pin').modal('hide');
                 }
                 else{
-                    setPINstore(device, salt, encryptchar(getpwdstore(PWsalt), pin + msg["pinpk"]), encryptchar(getconfkey(PWsalt), pin + msg["pinpk"]));
+                    //Todo use encryptionWrapper
+                    setPINstore(device, salt, encryptchar(getpwdstore(PWsalt), pin + msg["pinpk"]), encryptionWrapper.encryptChar(encryptionWrapper.confkey, pin + msg["pinpk"]));
                     showMessage('success', 'PIN set, use PIN to login next time');
                     $('#pin').modal('hide');
                 }
@@ -687,7 +669,7 @@ $(document).ready(function(){
             }
             function first(callback) {
                 timeout=1000000+Math.floor(Date.now() / 1000);
-                a=pbkdf2_enc(secretkey,PWsalt,500);
+                a = pbkdf2_enc(encryptionWrapper.secretkey,encryptionWrapper.pwSalt,500);
                 callback(cback);
             }
             count=0;
@@ -721,6 +703,7 @@ $(document).ready(function(){
     $("#delbtn").click(function(){
         delepw($("#edit").data('id'));
     });
+    //ToDo for encryptionWrapper
     $("#changepw").click(function(){ 
         if(confirm("Your request will be processed on your browser, so it takes some time (up to #of_your_accounts * 10seconds). Do not close your window or some error might happen.\nPlease note we won't have neither your old password nor your new password. \nClick OK to confirm password change request."))
         {
@@ -731,8 +714,8 @@ $(document).ready(function(){
             $("#changepw").attr("disabled",true);
             $("#changepw").attr("value", "Processing...");
             function process(){
-                var login_sig=String(pbkdf2_enc(reducedinfo($("#oldpassword").val(),default_letter_used), salt1, 500));
-                if(secretkey!=String(CryptoJS.SHA512(login_sig+salt2))) {
+                var login_sig = String(pbkdf2_enc(reducedinfo($("#oldpassword").val(),default_letter_used), salt1, 500));
+                if(secretkey != String(CryptoJS.SHA512(login_sig+salt2))) {
                     showMessage('warning',"Incorrect Old Password!", true); 
                     return;
                 }
@@ -744,7 +727,7 @@ $(document).ready(function(){
                 var newconfkey=pbkdf2_enc(String(CryptoJS.SHA512(newpass+login_sig)), salt1, 500); 
                 var raw_pass, raw_fkey;
                 var accarray= [];
-                //ToDo auf Account Class umstellen
+                //ToDo auf Account Class, encryptionWrapper umstellen
                 for (let x in accountarray) {
                     var tmpother = accountarray[x]["other"];
                     accarray[x] = {"name": encryptchar(accountarray[x]["name"], newsecretkey), "is_f":1, "fname": '', "other": encryptchar(JSON.stringify(tmpother), newsecretkey)};

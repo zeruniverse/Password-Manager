@@ -17,21 +17,34 @@ class Account {
         this.enpassword = enpassword;
         this.other = {};
         this.mFile = null;
+        this.mEncryptionWrapper = null;
     }
     // reads the account from a dict (password still encrypted)
     static fromObject(obj) {
         //ToDo
     }
     // reads the account from a encrypted dict
-    static fromEncrypted(encryptedAccount) {
+    static fromEncrypted(encryptionWrapper, encryptedAccount) {
         let account = new Account(encryptedAccount["index"], decryptchar(encryptedAccount["name"], secretkey), encryptedAccount["kss"]);
+        account.encryptionWrapper = encryptionWrapper;
         if (encryptedAccount["additional"] != "") {
             //decrypt and extract json
-            var data = $.parseJSON(decryptchar(encryptedAccount["additional"], secretkey));
+            var data = $.parseJSON(encryptionWrapper.decryptChar(encryptedAccount["additional"]));
             for (var x in data)
                 account.setOther(x, data[x]);
         }
         return account;
+    }
+
+    set encryptionWrapper(wrapper) {
+        if (this.encryptionWrapper != null) {
+            let pwd = this.password;
+            this.mEncryptionWrapper = wrapper;
+            this.password = pwd;
+        }
+        else {
+            this.mEncryptionWrapper = wrapper;
+        }
     }
 
     // get as encrypted object
@@ -39,9 +52,9 @@ class Account {
         let encryptedResult = { "kss":this.enpassword };
         if (this.index != null)
             encryptedResult["index"] = this.index;
-        encryptedResult["name"] = encryptchar(this.name, secretkey);
+        encryptedResult["name"] = this.encryptionWrapper.encryptChar(this.name);
         let other = JSON.stringify(this.other);
-        encryptedResult["other"] = encryptchar(other, secretkey);
+        encryptedResult["other"] = this.encryptionWrapper.encryptChar(other);
         return encryptedResult;
     }
 
@@ -56,11 +69,11 @@ class Account {
     }
     get password() {
         //decrypt then output
-        return decryptPassword(this.name, this.enpassword);
+        return this.encryptionWrapper.decryptPassword(this.name, this.enpassword);
     }
     set password(password) {
         //encrypt before storing
-        this.enpassword = encryptPassword(this.name, password);
+        this.enpassword = this.encryptionWrapper.encryptPassword(this.name, password);
     }
     clearOther() {
         this.other = {};
