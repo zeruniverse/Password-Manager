@@ -25,7 +25,7 @@ class Account {
     }
     // reads the account from a encrypted dict
     static fromEncrypted(encryptionWrapper, encryptedAccount) {
-        let account = new Account(encryptedAccount["index"], decryptchar(encryptedAccount["name"], secretkey), encryptedAccount["kss"]);
+        let account = new Account(encryptedAccount["index"], encryptionWrapper.decryptChar(encryptedAccount["name"]), encryptedAccount["kss"]);
         account.encryptionWrapper = encryptionWrapper;
         if (encryptedAccount["additional"] != "") {
             //decrypt and extract json

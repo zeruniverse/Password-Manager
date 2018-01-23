@@ -576,7 +576,6 @@ $(document).ready(function(){
             for (let x in fields){
                 other[x] = $("#newiteminput"+x).val().trim();
             }
-            other = JSON.stringify(other);
             var name = $("#newiteminput").val();
             add_account(name, newpwd, other, function(msg){ 
                 if(msg["status"] == "success") {
