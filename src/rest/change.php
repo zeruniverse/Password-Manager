@@ -18,7 +18,7 @@ if ($record == false) {
     $link->commit();
     ajaxError("entryNotFound");
 }
-$newpw = $_POST['newpwd'];
+$newpw = $_POST['kss'];
 $changedCols = '`pwd` = ?';
 $values = [$newpw];
 if (isset($_POST['name'])) {
