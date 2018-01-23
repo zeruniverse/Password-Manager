@@ -23,10 +23,10 @@ class EncryptionWrapper {
         if (thekey == ""){
             return "";
         }
-        return EncryptionWrapper.getOrigPwd(this.confkey, this.pwSalt, String(CryptoJS.SHA512(name)), this.ALPHABET, thekey);
+        return EncryptionWrapper.getOrigPwd(this.confkey, this.pwSalt, String(CryptoJS.SHA512(name)), this.alphabet, thekey);
     }
     encryptPassword(name, pass){
-        pass = EncryptionWrapper.genTempPwd(this.confkey, this.pwSalt, String(CryptoJS.SHA512(name)), this.ALPHABET, pass);
+        pass = EncryptionWrapper.genTempPwd(this.confkey, this.pwSalt, String(CryptoJS.SHA512(name)), this.alphabet, pass);
         return this.encryptChar(pass);
     }
     static genTempPwd(key, salt, account_sig, orig_alphabet, pwd) {
