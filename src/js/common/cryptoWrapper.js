@@ -99,7 +99,7 @@ class EncryptionWrapper {
         return new_alphabet;
     }
     get confkey() {
-        return this.getConfKeyUsingSalt(this.pwSalt);
+        return EncryptionWrapper.getConfKeyUsingSalt(this.pwSalt);
     }
     static getConfKeyUsingSalt(salt) {
         if(!sessionStorage.confusion_key) {

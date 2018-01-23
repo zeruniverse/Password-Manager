@@ -46,6 +46,9 @@ class Account {
             this.mEncryptionWrapper = wrapper;
         }
     }
+    get encryptionWrapper() {
+        return this.mEncryptionWrapper;
+    }
 
     // get as encrypted object
     get encrypted() {
