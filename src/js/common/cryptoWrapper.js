@@ -13,20 +13,20 @@ class EncryptionWrapper {
         return new EncryptionWrapper(secretkey0, salt, alphabet);
     }
     decryptChar(crypt){
-        return this.decryptCharUsingKey(crypt, this.secretkey);
+        return EncryptionWrapper.decryptCharUsingKey(crypt, this.secretkey);
     }
     encryptChar(char){
-        return this.encryptCharUsingKey(char, this.secretkey);
+        return EncryptionWrapper.encryptCharUsingKey(char, this.secretkey);
     }
     decryptPassword(name, kss){
         var thekey = this.decryptChar(kss);
         if (thekey == ""){
             return "";
         }
-        return this.getOrigPwd(this.confkey, this.pwSalt, String(CryptoJS.SHA512(name)), this.ALPHABET, thekey);
+        return EncryptionWrapper.getOrigPwd(this.confkey, this.pwSalt, String(CryptoJS.SHA512(name)), this.ALPHABET, thekey);
     }
     encryptPassword(name, pass){
-        pass = this.genTempPwd(this.confkey, this.pwSalt, String(CryptoJS.SHA512(name)), this.ALPHABET, pass);
+        pass = EncryptionWrapper.genTempPwd(this.confkey, this.pwSalt, String(CryptoJS.SHA512(name)), this.ALPHABET, pass);
         return this.encryptChar(pass);
     }
     static genTempPwd(key, salt, account_sig, orig_alphabet, pwd) {
@@ -108,7 +108,7 @@ class EncryptionWrapper {
         return EncryptionWrapper.decryptCharUsingKey(sessionStorage.confusion_key, salt);
     }
     get pwdStore() {
-        return this.getPwdStoreUsingSalt(this.pwSalt);
+        return EncryptionWrapper.getPwdStoreUsingSalt(this.pwSalt);
     }
     static getPwdStoreUsingSalt(salt) {
         if(!sessionStorage.pwdsk) {
