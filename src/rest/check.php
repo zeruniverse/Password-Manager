@@ -1,4 +1,5 @@
 <?php
+
 require_once dirname(__FILE__).'/../function/sqllink.php';
 require_once dirname(__FILE__).'/../function/ajax.php';
 session_start();

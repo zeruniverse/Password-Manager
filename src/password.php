@@ -99,7 +99,7 @@ echoheader();
                 </div>
                 <div class="form-group">
                     <label for="newiteminputpw" class="control-label">Password:</label>
-                    <input class="form-control" id="newiteminputpw" type="text" autocomplete="off" placeholder="Leave blank to generate one"/>
+                    <input class="form-control passwordText" id="newiteminputpw" type="text" autocomplete="off" placeholder="Leave blank to generate one"/>
                 </div>
             </form>
             </div>
@@ -189,7 +189,7 @@ echoheader();
                 <div class="form-group">
                     <label for="edititeminputpw" class="control-label">Password:</label>
                     <div class="input-group">
-                        <input class="form-control" id="edititeminputpw" type="text" autocomplete="off" placeholder="Leave blank to generate one"/>
+                        <input class="form-control passwordText" id="edititeminputpw" type="text" autocomplete="off" placeholder="Leave blank to generate one"/>
                         <span class="input-group-btn">
                             <button id="editPasswordInput" class="btn btn-warning" type="button" title="generate new password"><i class="glyphicon glyphicon-refresh"></i></button>
                             <button class="btn btn-default" type="button" id="editAccountShowPassword" title="show current password"><i class="glyphicon glyphicon-eye-open"></i></button>

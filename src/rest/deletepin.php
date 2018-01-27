@@ -15,7 +15,7 @@ $sql = 'SELECT id FROM `pwdusrrecord` WHERE `username`= ?';
 $res = sqlexec($sql, [$user], $link);
 $record = $res->fetch(PDO::FETCH_ASSOC);
 if (!$record) {
-    ajaxSuccess();//Respond with success to prevent the enumeration of usernames
+    ajaxSuccess(); //Respond with success to prevent the enumeration of usernames
 }
 $id = $record['id'];
 $sql = 'DELETE FROM `pin` WHERE `userid`= ? AND `device`= ?';

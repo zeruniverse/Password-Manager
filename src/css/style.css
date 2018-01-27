@@ -104,3 +104,6 @@ a { cursor:pointer; }
 #orderTags, #orderTagsDisable{
     padding-left:10px;
 }
+.passwordText {
+    font-family: "passwordshow"
+}
