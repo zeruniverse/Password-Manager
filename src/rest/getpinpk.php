@@ -9,18 +9,18 @@ require_once dirname(__FILE__).'/../function/sqllink.php';
 require_once dirname(__FILE__).'/../function/ajax.php';
 $link = sqllink();
 if (!$link) {
-    ajaxError("general");
+    ajaxError('general');
 }
 $user = $_POST['user'];
 $device = $_POST['device'];
 if ($user == '' || $device == '') {
-    ajaxError("PINunavailable");
+    ajaxError('PINunavailable');
 }
 $sql = 'SELECT `id` FROM `pwdusrrecord` WHERE `username`= ?';
 $res = sqlexec($sql, [$user], $link);
 $record = $res->fetch(PDO::FETCH_ASSOC);
 if ($record == false) {
-    ajaxError("PINunavailable");
+    ajaxError('PINunavailable');
 }
 //Delete PIN in case of too many tries
 $id = $record['id'];
@@ -32,7 +32,7 @@ $sql = 'SELECT `pinsig`,`pinpk` FROM `pin` WHERE `userid`= ? AND `device`=?';
 $res = sqlexec($sql, [$id, $device], $link);
 $record = $res->fetch(PDO::FETCH_ASSOC);
 if ($record == false) {
-    ajaxError("PINunavailable");
+    ajaxError('PINunavailable');
 }
 $sig = $record['pinsig'];
 //Correct PIN
@@ -40,9 +40,9 @@ if (strcmp(hash('sha512', (string) $sig.(string) $_SESSION['random_login_stamp']
     $sql = 'UPDATE `pin` SET `errortimes`=0 WHERE `userid`= ? AND `device`=?';
     $res = sqlexec($sql, [$id, $device], $link);
 
-    ajaxSuccess(["pinpk" => $record['pinpk']]);
+    ajaxSuccess(['pinpk' => $record['pinpk']]);
 }
 //Wrong PIN
 $sql = 'UPDATE `pin` SET `errortimes`=`errortimes`+1 WHERE `userid`= ? AND `device`=?';
 $res = sqlexec($sql, [$id, $device], $link);
-ajaxError("PINwrong");
+ajaxError('PINwrong');

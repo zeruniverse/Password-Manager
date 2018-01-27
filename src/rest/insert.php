@@ -4,7 +4,7 @@ require_once dirname(__FILE__).'/../function/sqllink.php';
 require_once dirname(__FILE__).'/../function/ajax.php';
 $link = sqllink();
 if (!checksession($link)) {
-    ajaxError("general");
+    ajaxError('general');
 }
 $id = $_SESSION['userid'];
 
@@ -13,7 +13,7 @@ $name = $_POST['name'];
 $other = $_POST['other'];
 
 if (!$link->beginTransaction()) {
-    ajaxError("general");
+    ajaxError('general');
 }
 
 $sql = 'SELECT max(`index`) FROM `password` WHERE `userid` = ?';
@@ -29,7 +29,7 @@ $sql = 'INSERT INTO `password` VALUES (?, ?, ?, ?, ?)';
 $res = sqlexec($sql, [$nid, $id, $name, $newpw, $other], $link);
 if ($res == null) {
     $link->rollBack();
-    ajaxError("general");
+    ajaxError('general');
 }
 $link->commit();
-ajaxSuccess(["nid" => $nid]);
+ajaxSuccess(['nid' => $nid]);

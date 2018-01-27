@@ -1,4 +1,5 @@
 <?php
+
 require_once dirname(__FILE__).'/../function/sqllink.php';
 require_once dirname(__FILE__).'/../function/ajax.php';
 if ($ALLOW_SIGN_UP === false) {
@@ -9,21 +10,21 @@ $pw = $_POST['pwd'];
 $usr = $_POST['user'];
 $email = $_POST['email'];
 if ($pw == '' || $usr == '' || $email == '') {
-    ajaxError("parameter");
+    ajaxError('parameter');
 }
 // check length of password hash for pbkdf2
 if (strlen($pw) > 130) {
-    ajaxError("parameter");
+    ajaxError('parameter');
 }
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    ajaxError("invalidEmail");
+    ajaxError('invalidEmail');
 }
 $link = sqllink();
 if (!$link) {
-    ajaxError("general");
+    ajaxError('general');
 }
 if (!$link->beginTransaction()) {
-    ajaxError("general");
+    ajaxError('general');
 }
 $sql = 'SELECT COUNT(*) FROM `pwdusrrecord` WHERE `username` = ?';
 $res = sqlexec($sql, [$usr], $link);
@@ -48,7 +49,7 @@ $sql = 'INSERT INTO `pwdusrrecord` VALUES (?,?,?,?,?,?)';
 $rett = sqlexec($sql, [$maxnum + 1, $usr, $pw, $salt, $DEFAULT_FIELDS, $email], $link);
 if (!$rett) {
     $link->rollBack();
-    ajaxError("general");
+    ajaxError('general');
 }
 $link->commit();
 ajaxSuccess();
