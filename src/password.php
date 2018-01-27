@@ -210,21 +210,21 @@ echoheader();
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h2>Set PIN to login</h2>
             </div>
-            <div class="modal-body">
-                <form id="pinloginform" method="post">
+            <form id="pinloginform" method="post">
+                <div class="modal-body">
                     <div class="form-group">
                         <label for="pinxx" class="control-label">PIN:</label>
                         <input id="pinxx" autocomplete="off" class="form-control" type="password" />
                         <label class="small textred blocklabel">Only set PIN in your trusted devices!</label>
                         <label class="small blocklabel">PIN can be set on your trusted devices to give you convenience while login. If you set PIN, you can use PIN instead of username and password to login next time. PIN is safe, you only have 3 chances to input a PIN before it's disabled automatically.</label>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
-                        <button id="pinBtnDel" type="button" class="btn btn-danger">Delete PIN</button>
-                        <input type="submit" class="btn btn-primary" id="pinlogin" value="Set/Reset" />
-                    </div>
-                </form>
-            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
+                    <button id="pinBtnDel" type="button" class="btn btn-danger">Delete PIN</button>
+                    <input type="submit" class="btn btn-primary" id="pinlogin" value="Set/Reset" />
+                </div>
+            </form>
         </div>
     </div>
 </div>
