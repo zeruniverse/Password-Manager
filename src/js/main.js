@@ -983,7 +983,7 @@ function clicktoshow(id){
         return;
     }
     $("#"+id).empty()
-        .append($('<span class="pwdshowbox"></span>').css('font-family','passwordshow'))
+        .append($('<span class="pwdshowbox passwordText"></span>'))
         .append($('<a title="Hide" class="cellOptionButton"></a>')
                 .on('click',{"index":id},function(event){clicktohide(event.data.index);}) 
                 .append($('<span class="glyphicon glyphicon-eye-close"></span>')));

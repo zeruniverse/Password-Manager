@@ -18,7 +18,7 @@ var actions = {
 
 registerPlugin("layoutReady", function(data){
     $(document).delegate(':not(input)', 'keypress', function(e) {
-        if (e.target.nodeName.toLowerCase() == 'input') {
+        if (e.target.nodeName.toLowerCase() == 'input' || e.target.nodeName.toLowerCase() == 'textarea') {
             return;
         }
         var key = e.which;
