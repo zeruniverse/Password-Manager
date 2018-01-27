@@ -120,7 +120,7 @@ echoheader();
                 <p id="fileincludeckbp" class="collapse"><input type="checkbox" id="fileincludeckb" />Include Files<br /></p>
                 <p>You will need your CURRENT login password to unlock the backup file even if you change login password later. Write your CURRENT login password down or remember to generate a new backup file after each time you change the login password.</p>
                 <p class="textred">Generating backup file is time consuming...</p>
-                <div class="progress"><div class="progress-bar" role="progressbar"  id="backuppwdpb" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                <div class="progress"><div class="progress-bar" role="progressbar"  id="backuppwdpb" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div></div>
             </form>
             </div>
             <div class="modal-footer">
@@ -219,11 +219,12 @@ echoheader();
                         <label class="small textred blocklabel">Only set PIN in your trusted devices!</label>
                         <label class="small blocklabel">PIN can be set on your trusted devices to give you convenience while login. If you set PIN, you can use PIN instead of username and password to login next time. PIN is safe, you only have 3 chances to input a PIN before it's disabled automatically.</label>
                     </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
-                <button id="pinBtnDel" type="button" class="btn btn-danger" id="delpin">Delete PIN</button>
-                <input type="submit" class="btn btn-primary" id="pinlogin" value="Set/Reset" /></form>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
+                        <button id="pinBtnDel" type="button" class="btn btn-danger" id="delpin">Delete PIN</button>
+                        <input type="submit" class="btn btn-primary" id="pinlogin" value="Set/Reset" />
+                    </div>
+                </form>
             </div>
         </div>
     </div>

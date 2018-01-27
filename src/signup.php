@@ -20,17 +20,17 @@ echoheader();
         </div>
         <div class="form-group">
             <label for="pwd" class="control-label">Password: </label>
-            <input type="password" autocomplete="off" class="form-control"name="pwd" id="pwd" />
+            <input type="password" autocomplete="off" class="form-control" name="pwd" id="pwd" />
         </div>
         <div class="form-group">
             <label for="pwd1" class="control-label">Input Password Again: </label>
-            <input type="password" autocomplete="off" class="form-control"name="pwd1" id="pwd1" />
+            <input type="password" autocomplete="off" class="form-control" name="pwd1" id="pwd1" />
         </div>
         <div class="form-group">
             <label for="email" class="control-label">Email:</label>
-            <input type="text" class="form-control"name="email" id="email" />
+            <input type="text" class="form-control" name="email" id="email" />
         </div>
-        <input type="button" class="btn btn-md btn-success" id="chk"  value="Submit" />
+        <input type="button" class="btn btn-md btn-success" id="chk" value="Submit" />
     </form>
 </div>
 <?php echofooter(); ?>
