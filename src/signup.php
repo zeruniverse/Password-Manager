@@ -2,15 +2,15 @@
 require_once 'function/basic.php';
 echoheader();
 ?>
-<script type="text/javascript" src="js/crypto/sha512.js"></script>
-<script type="text/javascript" src="js/crypto/pbkdf2.js"></script>
-<script type="text/javascript" src="js/crypto/password.js"></script>
-<script type="text/javascript" src="js/signup.js"></script>
+<script src="js/crypto/sha512.js"></script>
+<script src="js/crypto/pbkdf2.js"></script>
+<script src="js/crypto/password.js"></script>
+<script src="js/signup.js"></script>
 <div class="container theme-showcase">
     <div class="page-header">
         <h1>Password Manager</h1>
 	</div>
-	<h3>New User</h3>
+	<h2>New User</h2>
     <p>Only numbers and letters are allowed for username</p>
     <div id="message" class="alert alert-info"><a href="#" class="close" data-dismiss="alert" aria-label="close">×</a><span id="messageText">Signup is not allowed.</span></div>
 	<form id="signupform" class="collapse" method="post">

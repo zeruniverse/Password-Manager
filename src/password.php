@@ -4,23 +4,23 @@ echoheader();
 ?>
 <link rel="stylesheet" type="text/css" href="css/dataTables.bootstrap.min.css">
 <link rel="stylesheet" type="text/css" href="css/responsive.dataTables.min.css">
-<script type="text/javascript" src="js/setlocalstorage.js"></script>
-<script type="text/javascript" src="js/lib/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/lib/dataTables.bootstrap.min.js"></script>
-<script type="text/javascript" src="js/lib/dataTables.responsive.min.js"></script>
-<script type="text/javascript" src="js/lib/FileSaver.min.js"></script>
-<script type="text/javascript" src="js/crypto/aes.js"></script>
-<script type="text/javascript" src="js/crypto/sha512.js"></script>
-<script type="text/javascript" src="js/crypto/pbkdf2.js"></script>
-<script type="text/javascript" src="js/crypto/password.js"></script>
-<script type="text/javascript" src="js/lib/jquery.csv.js"></script>
-<script type="text/javascript" src="js/main.js"></script>
-<script type="text/javascript" src="js/plugin.js"></script>
-<script type="text/javascript" src="js/plugins/linkButton.js"></script>
-<script type="text/javascript" src="js/plugins/tags.js"></script>
-<script type="text/javascript" src="js/plugins/showPasswordAge.js"></script>
-<script type="text/javascript" src="js/plugins/keyboardShortcuts.js"></script>
-   <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+<script src="js/setlocalstorage.js"></script>
+<script src="js/lib/jquery.dataTables.min.js"></script>
+<script src="js/lib/dataTables.bootstrap.min.js"></script>
+<script src="js/lib/dataTables.responsive.min.js"></script>
+<script src="js/lib/FileSaver.min.js"></script>
+<script src="js/crypto/aes.js"></script>
+<script src="js/crypto/sha512.js"></script>
+<script src="js/crypto/pbkdf2.js"></script>
+<script src="js/crypto/password.js"></script>
+<script src="js/lib/jquery.csv.js"></script>
+<script src="js/main.js"></script>
+<script src="js/plugin.js"></script>
+<script src="js/plugins/linkButton.js"></script>
+<script src="js/plugins/tags.js"></script>
+<script src="js/plugins/showPasswordAge.js"></script>
+<script src="js/plugins/keyboardShortcuts.js"></script>
+   <nav class="navbar navbar-default navbar-fixed-top">
       <div class="container">
         <div class="collapse">
         <form id="historyform" action="history.php" method="post">
@@ -87,7 +87,7 @@ echoheader();
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4>Add a new account</h4>
+                <h2>Add a new account</h2>
             </div>
             <div class="modal-body">
             <form method="post">
@@ -113,7 +113,7 @@ echoheader();
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4>Backup Passwords</h4>
+                <h2>Backup Passwords</h2>
             </div>
             <div class="modal-body">
             <form method="post">
@@ -130,13 +130,12 @@ echoheader();
         </div>
     </div>
 </div>
-</div>
 <div class="modal" tabindex="-1" role="dialog" id="changefields">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4>Customize additional fields</h4>
+                <h2>Customize additional fields</h2>
             </div>
             <div class="modal-body">
             <form method="post">
@@ -158,7 +157,7 @@ echoheader();
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4>Detail Information</h4>
+                <h2>Detail Information</h2>
             </div>
             <div class="modal-body">
             <form method="post">
@@ -176,7 +175,7 @@ echoheader();
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4>Edit account information</h4>
+                <h2>Edit account information</h2>
             </div>
             <div class="modal-body">
             <form method="post">
@@ -209,7 +208,7 @@ echoheader();
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4>Set PIN to login</h4>
+                <h2>Set PIN to login</h2>
             </div>
             <div class="modal-body">
                 <form id="pinloginform" method="post">
@@ -221,7 +220,7 @@ echoheader();
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
-                        <button id="pinBtnDel" type="button" class="btn btn-danger" id="delpin">Delete PIN</button>
+                        <button id="pinBtnDel" type="button" class="btn btn-danger">Delete PIN</button>
                         <input type="submit" class="btn btn-primary" id="pinlogin" value="Set/Reset" />
                     </div>
                 </form>
@@ -234,7 +233,7 @@ echoheader();
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4>Import accounts</h4>
+                <h2>Import accounts</h2>
             </div>
             <div class="modal-body">
                 <form method="post">
@@ -258,7 +257,7 @@ echoheader();
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4>Upload attached file</h4>
+                <h2>Upload attached file</h2>
             </div>
             <div class="modal-body">
                 <form method="post">
@@ -282,7 +281,7 @@ echoheader();
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4>Change Password(Danger Area)</h4>
+                <h2>Change Password(Danger Area)</h2>
             </div>
             <div class="modal-body">
                 <form method="post">

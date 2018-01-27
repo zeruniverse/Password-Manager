@@ -21,7 +21,7 @@ function echoheader()
 <head>
     <meta charset="utf-8">
     <title>Password Manager</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Password Manager">
     <meta name="author" content="Jeffery">
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -33,8 +33,8 @@ function echoheader()
     <![endif]-->
     <!-- Fav and touch icons -->
     <link rel="shortcut icon" href="favicon.ico">
-    <script type="text/javascript" src="js/lib/jquery.min.js"></script>
-    <script type="text/javascript" src="js/lib/bootstrap.min.js"></script>
+    <script src="js/lib/jquery.min.js"></script>
+    <script src="js/lib/bootstrap.min.js"></script>
 </head>
 <body>';
 }
