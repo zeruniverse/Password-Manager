@@ -25,7 +25,6 @@ echoheader();
                 <input type="submit" class="btn btn-lg btn-success btn-block" id="chk"  value="Login" />
             </div>
         </form>
-        <span id="error" class="errorhint collapse textred"></span>
         <hr />
         <button id="signup" class="btn btn-sm btn-default collapse" type="button">Sign Up</button>&nbsp; <button id="recover" class="btn btn-sm btn-warning" type="button">Password Recovery</button>
     <hr />

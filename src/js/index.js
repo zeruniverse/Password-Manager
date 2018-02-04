@@ -171,8 +171,7 @@ function dataReady(data){
                     window.location.href="./password.php";
                 }
                 else {
-                    $("#error").text(msg["message"]);
-                    $("#error").show();
+                    showMessage("warning", msg["message"]);
                     $("#chk").attr("value", "Login");
                     $("#chk").attr("disabled", false);
                 }
