@@ -63,11 +63,11 @@ $("#usepin").on("hidden.bs.modal", function () {
 });
 function checkHostdomain(hostdomain) {
     var full = location.protocol+'//'+location.hostname;
-    return full.lower() != hostdomain.lower();
+    return hostdomain.toLowerCase().startsWith(full.toLowerCase());
 }
 function dataReady(data){
     if (data["status"] != "success"){
-        showMessage(data["message"]);
+        showMessage("warning", data["message"]);
         return;
     }
     if (data["loggedIn"]){
@@ -81,7 +81,7 @@ function dataReady(data){
     usepin = data["use_pin"];
     default_letter_used = data["default_letter_used"];
     if (!checkHostdomain(data["hostdomain"])) {
-        showMessage('Hostdomain mismatch. Please check your config file.');
+        showMessage("warning", 'Hostdomain mismatch. Please check your config file.');
     }
     if (data["allowSignup"]) {
         $("#signup").show();
@@ -178,7 +178,7 @@ $(function(){
         return null;
     }
     if($.urlParam("reason")) {
-        showMessage($.urlParam("reason"));
+        showMessage("warning",$.urlParam("reason"));
     }
     $.post("rest/info.php",{},function(msg){dataReady(msg);});
 }); 
