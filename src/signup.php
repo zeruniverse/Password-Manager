@@ -10,7 +10,7 @@ echoheader();
     <div class="page-header">
         <h1>Password Manager</h1>
 	</div>
-	<h2>New User</h2>
+	<h3>New User</h3>
     <p>Only numbers and letters are allowed for username</p>
     <div id="message" class="alert alert-info"><a href="#" class="close" data-dismiss="alert" aria-label="close">×</a><span id="messageText">Signup is not allowed.</span></div>
 	<form id="signupform" class="collapse" method="post">

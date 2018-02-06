@@ -87,7 +87,7 @@ echoheader();
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h2>Add a new account</h2>
+                <h4>Add a new account</h4>
             </div>
             <div class="modal-body">
             <form method="post">
@@ -113,7 +113,7 @@ echoheader();
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h2>Backup Passwords</h2>
+                <h4>Backup Passwords</h4>
             </div>
             <div class="modal-body">
             <form method="post">
@@ -135,7 +135,7 @@ echoheader();
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h2>Customize additional fields</h2>
+                <h4>Customize additional fields</h4>
             </div>
             <div class="modal-body">
             <form method="post">
@@ -157,7 +157,7 @@ echoheader();
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h2>Detail Information</h2>
+                <h4>Detail Information</h4>
             </div>
             <div class="modal-body">
             <form method="post">
@@ -175,7 +175,7 @@ echoheader();
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h2>Edit account information</h2>
+                <h4>Edit account information</h4>
             </div>
             <div class="modal-body">
             <form method="post">
@@ -208,7 +208,7 @@ echoheader();
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h2>Set PIN to login</h2>
+                <h4>Set PIN to login</h4>
             </div>
             <form id="pinloginform" method="post">
                 <div class="modal-body">
@@ -233,7 +233,7 @@ echoheader();
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h2>Import accounts</h2>
+                <h4>Import accounts</h4>
             </div>
             <div class="modal-body">
                 <form method="post">
@@ -257,7 +257,7 @@ echoheader();
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h2>Upload attached file</h2>
+                <h4>Upload attached file</h4>
             </div>
             <div class="modal-body">
                 <form method="post">
@@ -281,7 +281,7 @@ echoheader();
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h2>Change Password(Danger Area)</h2>
+                <h4>Change Password(Danger Area)</h4>
             </div>
             <div class="modal-body">
                 <form method="post">

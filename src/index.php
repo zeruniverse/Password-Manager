@@ -17,7 +17,7 @@ if (isset($_GET['reason'])) {
     echo '<div id="message" class="alert alert-info"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><span id="messageText">'.htmlspecialchars($_GET['reason'], ENT_QUOTES, 'UTF-8').'</span></div>';
 }
 ?>
-        <h2>Please Sign in</h2>
+        <h3>Please Sign in</h3>
         <form id="loginform" method="post">
             <div class="form-group">
                 <label for="user" class="control-label sr-only">User Name: </label>
@@ -42,7 +42,7 @@ if (isset($_GET['reason'])) {
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h3>Use PIN to login</h3>
+                    <h4>Use PIN to login</h4>
                 </div>
                 <form id="pinloginform" method="post">
                     <div class="modal-body">
