@@ -47,6 +47,7 @@ if ($DB_NAME == '') {
 }
 $result = [];
 $result['status'] = 'success';
+$result['hostdomain'] = $HOSTDOMAIN;
 $result['loggedIn'] = (isset($_SESSION['loginok']) && $_SESSION['loginok'] == 1);
 $result['default_timeout'] = $BROWSER_TIMEOUT;
 $result['default_letter_used'] = $DEFAULT_LETTER_USED;
