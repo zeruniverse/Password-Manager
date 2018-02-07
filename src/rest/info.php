@@ -1,7 +1,7 @@
 <?php
 
-require_once dirname(__FILE__).'/../function/ajax.php';
 require_once dirname(__FILE__).'/../function/sqllink.php';
+require_once dirname(__FILE__).'/../function/ajax.php';
 session_start();
 if (!isset($_SESSION['random_login_stamp'])) {
     $_SESSION['random_login_stamp'] = date('Ymdhis').bin2hex(openssl_random_pseudo_bytes(32));
@@ -43,10 +43,9 @@ function usepin()
     return true;
 }
 if ($DB_NAME == '') {
-    error('PLEASE CONFIG function/config.php before using this system!');
+    ajaxError('config');
 }
 $result = [];
-$result['status'] = 'success';
 $result['hostdomain'] = $HOSTDOMAIN;
 $result['loggedIn'] = (isset($_SESSION['loginok']) && $_SESSION['loginok'] == 1);
 $result['default_timeout'] = $BROWSER_TIMEOUT;
@@ -60,4 +59,4 @@ $result['use_pin'] = usepin() ? 1 : 0;
 $result['version'] = $VERSION;
 $result['banTime'] = $ACCOUNT_BAN_TIME;
 $result['allowSignup'] = $ALLOW_SIGN_UP;
-echo json_encode($result);
+ajaxSuccess($result);

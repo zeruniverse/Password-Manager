@@ -1,6 +1,7 @@
 <?php
 
 require_once dirname(__FILE__).'/../function/sqllink.php';
+require_once dirname(__FILE__).'/../function/ajax.php';
 session_start();
 $token = $_SESSION['session_token'];
 session_regenerate_id(true);
@@ -22,20 +23,20 @@ function loghistory($link, $userid, $ip, $ua, $outcome)
     $res = sqlexec($sql, [$i, $userid, $ip, $ua, $outcome], $link);
 }
 if (!isset($_SESSION['random_login_stamp']) || $_SESSION['random_login_stamp'] == '') {
-    die('4');
+    ajaxError('general');
 }
 $usr = $_POST['user'];
 $pw = $_POST['pwd'];
 // check length of password hash for pbkdf2
 if (strlen($pw) > 130) {
-    die('0');
+    ajaxError('general');
 }
 if ($pw == '' || $usr == '' || $_POST['session_token'] == '') {
-    die('0');
+    ajaxError('general');
 }
 $link = sqllink();
 if (!$link) {
-    die('4');
+    ajaxError('general');
 }
 
 //Clear Up.
@@ -49,21 +50,21 @@ $sql = 'SELECT * FROM `blockip` WHERE `ip` = ?';
 $res = sqlexec($sql, [getUserIP()], $link);
 $record = $res->fetch(PDO::FETCH_ASSOC);
 if ($record != false) {
-    die('7');
+    ajaxError('blockIP');
 }
 
 $sql = 'SELECT * FROM `pwdusrrecord` WHERE `username` = ?';
 $res = sqlexec($sql, [$usr], $link);
 $record = $res->fetch(PDO::FETCH_ASSOC);
 if ($record == false) {
-    die('0');
+    ajaxError('loginFailed');
 }
 
 $sql = 'SELECT count(*) as `m` FROM `history` WHERE `userid` = ? AND outcome = 0 AND UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`time`) < ?';
 $res = sqlexec($sql, [(int) $record['id'], $ACCOUNT_BAN_TIME], $link);
 $count = $res->fetch(PDO::FETCH_ASSOC);
 if ((int) $count['m'] >= $BLOCK_ACCOUNT_TRY) {
-    die('8');
+    ajaxError('blockAccount');
 }
 
 if (strcmp((string) $record['password'], (string) hash_pbkdf2('sha256', $pw, (string) $record['salt'], $PBKDF2_ITERATIONS)) != 0) {
@@ -75,7 +76,7 @@ if (strcmp((string) $record['password'], (string) hash_pbkdf2('sha256', $pw, (st
         $sql = 'INSERT INTO `blockip` VALUES (?,CURRENT_TIMESTAMP)';
         $res = sqlexec($sql, [getUserIP()], $link);
     }
-    die('0');
+    ajaxError('loginFailed');
 }
 $_SESSION['loginok'] = 1;
 $_SESSION['user'] = $usr;
@@ -85,4 +86,4 @@ $_SESSION['fields'] = $record['fields'];
 $_SESSION['create_time'] = time();
 setcookie('ServerRenew', '1', 0, '/');
 loghistory($link, (int) $record['id'], getUserIP(), $_SERVER['HTTP_USER_AGENT'], 1);
-echo '9';
+ajaxSuccess();

@@ -116,16 +116,36 @@ function dataReady(data){
         $("#pinlogin").attr("disabled", true);
         $("#pinlogin").val("Wait");
         pin=$("#pin").val();
-        $.post("rest/getpinpk.php",{user:getcookie('username'),device:getcookie('device'),sig:String(CryptoJS.SHA512(String(CryptoJS.SHA512(pin+localStorage.pinsalt))+randomLoginStamp))},function(msg){
-            if(msg == '0') {$("#usepin").modal("hide");delpinstore();$("#user").focus();return;}
-            if(msg == '1') {$("#pin").val('');$("#pinerrorhint").show();$("#pinlogin").attr("disabled", false);$("#pinlogin").val("Login"); return;}
-            pwdsk=decryptchar(localStorage.en_login_sec,pin+msg);
-            confkey=decryptchar(localStorage.en_login_conf,pin+msg)
-                $.post("rest/check.php",{pwd:String(CryptoJS.SHA512(pbkdf2_enc(pwdsk,JSsalt,500)+getcookie('username'))),  user: getcookie('username')},function(msg){
-                    if(msg!=9) {$("#usepin").modal("hide");delpinstore();$("#user").focus();return;}
-                    setpwdstore(pwdsk,confkey,PWsalt);
-                    window.location.href="./password.php";
-                });
+        $.post("rest/getpinpk.php", {user:getcookie('username'), device:getcookie('device'), sig:String(CryptoJS.SHA512(String(CryptoJS.SHA512(pin + localStorage.pinsalt)) + randomLoginStamp))}, function(msg){
+            if (msg["status"] != 'success') {
+                if (msg["message"] == "No PIN available") {
+                    $("#usepin").modal("hide");
+                    delpinstore();
+                    $("#user").focus();
+                    return;
+                }
+                else if (msg["message"] == "Wrong PIN") {
+                    $("#pin").val('');
+                    $("#pinerrorhint").show();
+                    $("#pinlogin").attr("disabled", false);
+                    $("#pinlogin").val("Login");
+                    return;
+                }
+                $("#pinerrorhint").show();
+                return;
+            }
+            pwdsk = decryptchar(localStorage.en_login_sec, pin + msg["pinpk"]);
+            confkey = decryptchar(localStorage.en_login_conf, pin + msg["pinpk"]);
+            $.post("rest/check.php", {pwd:String(CryptoJS.SHA512(pbkdf2_enc(pwdsk, JSsalt, 500) + getcookie('username'))), user: getcookie('username')}, function(msg){
+                if(msg["status"] != "success") {
+                    $("#usepin").modal("hide");
+                    delpinstore();
+                    $("#user").focus();
+                    return;
+                }
+                setpwdstore(pwdsk,confkey,PWsalt);
+                window.location.href="./password.php";
+            });
         });
     });
     $("#loginform").on('submit',function(e){ 
@@ -144,23 +164,14 @@ function dataReady(data){
             login_sig=pbkdf2_enc(login_sig,JSsalt,500);
             $.post("rest/check.php",{pwd:String(CryptoJS.SHA512(login_sig+user)),  user: user},function(msg){
                 $(".errorhint").hide();
-                if(msg==0){
-                    $("#nouser").show();
-                    $("#chk").attr("value", "Login");
-                    $("#chk").attr("disabled", false);
-                }else if(msg==7){
-                    $("#blockip").show();
-                }else if(msg==8){
-                    $("#accountban").show();
-                    $("#chk").attr("value", "Login");
-                    $("#chk").attr("disabled", false);
-                }else if(msg==9){
+                if(msg["status"] == "success"){
                     confkey=pbkdf2_enc(String(CryptoJS.SHA512(pwd+secretkey)),JSsalt,500);
                     setCookie("username",user);
                     setpwdstore(secretkey,confkey,PWsalt);                
                     window.location.href="./password.php";
-                }else{
-                    $("#othererror").show();
+                }
+                else {
+                    showMessage("warning", msg["message"]);
                     $("#chk").attr("value", "Login");
                     $("#chk").attr("disabled", false);
                 }

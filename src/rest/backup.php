@@ -1,14 +1,14 @@
 <?php
 
 if (!isset($_POST['a']) || ($_POST['a'] != 'a' && $_POST['a'] != 'farray')) {
-    die('Forbidden'); //disallow direct visit;
+    ajaxError('method'); //disallow direct visit;
 }
-require_once dirname(__FILE__).'/../function/ajax.php';
 require_once dirname(__FILE__).'/../function/sqllink.php';
+require_once dirname(__FILE__).'/../function/ajax.php';
 $link = sqllink();
 
 if (!checksession($link)) {
-    error('AUTHENTICATION ERROR, PLEASE RELOGIN');
+    ajaxError('authentication');
 }
 $id = $_SESSION['userid'];
 $arr = [];
@@ -35,5 +35,5 @@ if ($_POST['a'] == 'farray') {
     }
     $farray = ['status' => 'OK', 'data' => $tmparr];
 }
-$ret = ['status' => 'OK', 'VERSION' => $VERSION, 'JSsalt' => $GLOBAL_SALT_1, 'PWsalt' => $GLOBAL_SALT_2, 'ALPHABET' => $DEFAULT_LETTER_USED, 'data' => $arr, 'fdata' => $farray];
-echo json_encode($ret);
+$ret = ['VERSION' => $VERSION, 'JSsalt' => $GLOBAL_SALT_1, 'PWsalt' => $GLOBAL_SALT_2, 'ALPHABET' => $DEFAULT_LETTER_USED, 'data' => $arr, 'fdata' => $farray];
+ajaxSuccess($ret);

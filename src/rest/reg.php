@@ -1,44 +1,44 @@
 <?php
 
+require_once dirname(__FILE__).'/../function/sqllink.php';
+require_once dirname(__FILE__).'/../function/ajax.php';
+if ($ALLOW_SIGN_UP === false) {
+    http_response_code(405);
+    ajaxError('signup');
+}
 $pw = $_POST['pwd'];
 $usr = $_POST['user'];
 $email = $_POST['email'];
 if ($pw == '' || $usr == '' || $email == '') {
-    die('7');
+    ajaxError('parameter');
 }
 // check length of password hash for pbkdf2
 if (strlen($pw) > 130) {
-    die('2');
+    ajaxError('parameter');
 }
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    die('5');
+    ajaxError('invalidEmail');
 }
-require_once dirname(__FILE__).'/../function/sqllink.php';
-if ($ALLOW_SIGN_UP === false) {
-    http_response_code(405);
-    die('Method not allowed');
-}
-
 $link = sqllink();
 if (!$link) {
-    die('6');
+    ajaxError('general');
 }
 if (!$link->beginTransaction()) {
-    die('4');
+    ajaxError('general');
 }
 $sql = 'SELECT COUNT(*) FROM `pwdusrrecord` WHERE `username` = ?';
 $res = sqlexec($sql, [$usr], $link);
 $num = $res->fetch(PDO::FETCH_NUM);
 if ($num[0] != 0) {
     $link->commit();
-    die('0');
+    ajaxError('occupiedUser');
 }
 $sql = 'SELECT COUNT(*) FROM `pwdusrrecord` WHERE `email` = ?';
 $res = sqlexec($sql, [$email], $link);
 $num = $res->fetch(PDO::FETCH_NUM);
 if ($num[0] != 0) {
     $link->commit();
-    die('1');
+    ajaxError('occupiedEmail');
 }
 $salt = openssl_random_pseudo_bytes(32);
 $pw = hash_pbkdf2('sha256', $pw, $salt, $PBKDF2_ITERATIONS);
@@ -49,7 +49,7 @@ $sql = 'INSERT INTO `pwdusrrecord` VALUES (?,?,?,?,?,?)';
 $rett = sqlexec($sql, [$maxnum + 1, $usr, $pw, $salt, $DEFAULT_FIELDS, $email], $link);
 if (!$rett) {
     $link->rollBack();
-    die('8');
+    ajaxError('general');
 }
 $link->commit();
-die('9');
+ajaxSuccess();

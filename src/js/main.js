@@ -15,7 +15,7 @@ var accountarray= [];
 var visibleAccounts;
 var seenLoginInformation = false;
 
-$.ajaxPrefilter(function(options, originalOptions, jqXHR){
+$.ajaxPrefilter(function(options, originalOptions, jqXHR) {
     if (options.type.toLowerCase() === "post") {
         options.data = options.data || "";
         options.data += options.data?"&":"";
@@ -23,26 +23,25 @@ $.ajaxPrefilter(function(options, originalOptions, jqXHR){
     }
 });
 
-function quitpwd(reason)
-{
+function quitpwd(reason) {
     reason = reason || "";
-    callPlugins("quitpwd",{"reason":reason});
+    callPlugins("quitpwd", {"reason":reason});
     delpwdstore();
     if (reason != "")
         reason ="?reason="+encodeURIComponent(reason);
     window.location.href="./logout.php"+reason;
 }
-function quitpwd_untrust()
-{
+function quitpwd_untrust() {
     callPlugins("quitpwd_untrust");
     delpwdstore();
     delpinstore();
     deleteCookie('username');
     window.location.href="./logout.php";
 }
-function countdown()
-{
-    if(timeout < Math.floor(Date.now() / 1000)) quitpwd("Logged out due to inactivity");
+function countdown() {
+    if(timeout < Math.floor(Date.now() / 1000)) {
+        quitpwd("Logged out due to inactivity");
+    }
 }
 function checksessionalive()
 {
@@ -55,7 +54,7 @@ function checksessionalive()
                 c = c.substring(1);
             }
             if (c.indexOf(name) == 0) {
-                return c.substring(name.length,c.length);
+                return c.substring(name.length, c.length);
             }
         }
         return "-1";
@@ -64,9 +63,11 @@ function checksessionalive()
         document.cookie = cname + "=" + cvalue + ";path=/ ";
     }
     var ck=getCookie("ServerRenew");
-    if(ck=='1') server_timeout=default_server_timeout+Math.floor(Date.now() / 1000);
-    if(ck=="-1"||server_timeout<Math.floor(Date.now() / 1000)) quitpwd("Session timed out");
-    setCookie("ServerRenew",'0');
+    if(ck=='1') 
+        server_timeout = default_server_timeout+Math.floor(Date.now() / 1000);
+    if(ck=="-1"||server_timeout<Math.floor(Date.now() / 1000)) 
+        quitpwd("Session timed out");
+    setCookie("ServerRenew", '0');
 }
 var ALPHABET;
 var PWsalt;
@@ -77,19 +78,19 @@ var preDrawCallback = function( api, settings ) {};
 var preShowPreparation = function (accounts){ return accounts; };// if you change the array make a copy before sorting! So indexes stay the same in the original array
 function sanitize_json(s){
     var t=s;
-    t=t.replace(/\n/g,'')
-    return t.replace(/\r/g,'');
+    t=t.replace(/\n/g, '')
+    return t.replace(/\r/g, '');
 }
 function decryptPassword(name, kss){
-    var thekey=decryptchar(kss,secretkey);
+    var thekey=decryptchar(kss, secretkey);
     if (thekey==""){
         return "";
     }
-    return get_orig_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512(name)),ALPHABET,thekey);
+    return get_orig_pwd(getconfkey(PWsalt), PWsalt, String(CryptoJS.SHA512(name)), ALPHABET, thekey);
 }
 function encryptPassword(name, pass){
-    pass=gen_temp_pwd(getconfkey(PWsalt),PWsalt,String(CryptoJS.SHA512(name)),ALPHABET,pass);
-    return encryptchar(pass,secretkey);
+    pass=gen_temp_pwd(getconfkey(PWsalt), PWsalt, String(CryptoJS.SHA512(name)), ALPHABET, pass);
+    return encryptchar(pass, secretkey);
 }
 function add_account(acc, pass, other, callback){
     var sk=secretkey;
@@ -99,8 +100,16 @@ function add_account(acc, pass, other, callback){
         other["_system_passwordLastChangeTime"] = Math.floor(Date.now() / 1000);
     other=JSON.stringify(other);
     other=encryptchar(other, sk);
-    acc=encryptchar(acc,sk);
-    $.post("rest/insert.php",{name:acc,newpwd:pass,other:other},callback);
+    acc=encryptchar(acc, sk);
+    $.post("rest/insert.php", {name:acc, newpwd:pass, other:other}, callback);
+}
+function upload_file(fileid, filename, filedata, callback) {
+    var fkey = getpwd(default_letter_used, Math.floor(Math.random()*18)+19);
+    var enfkey = encryptPassword(filename, fkey);
+    var endata = encryptchar(filedata, fkey);
+    var enfname = encryptchar(filename, secretkey);
+    $("#showdetails").modal("hide");
+    $.post('rest/uploadfile.php', {id:fileid, fkey:enfkey, fname:enfname, data:endata}, callback);
 }
 function import_raw(json){
     json=JSON.parse(sanitize_json(json));
@@ -109,47 +118,54 @@ function import_raw(json){
         return;
     }
     function bk(){
-        $("#importbtn").attr("disabled",false);
+        $("#importbtn").attr("disabled", false);
         $("#importbtn").text("Submit");
-        $("#importc").attr("disabled",false);
+        $("#importc").attr("disabled", false);
     }
-    function add_acc(acc,pass,other){
+    function add_acc(acc, pass, other){
         if(acc==''||pass=='') {
-            showMessage('warning', "one of account or password empty! will continue to process other accounts, check back after this finished", true); return;
+            showMessage('warning', "one of account or password empty! will continue to process other accounts, check back after this finished", true); 
+            return;
         }
-        add_account(acc, pass, other, function(msg) { if(msg==0) showMessage('warning',"Fail to add "+acc+", please try again manually later.", true); });
+        add_account(acc, pass, other, function(msg) { 
+            if(msg["status"] != "success") {
+                showMessage('warning',"Fail to add "+acc+", please try again manually later.", true); 
+            }
+        });
     }
-    function add_acc_file(acc,pass,other,fname,fdata){
+    function add_acc_file(acc, pass, other, fname, fdata){
         function addfile(msg){
-            if(msg==0) showMessage('warning',"Fail to add "+acc+", please try again manually later.", true); else{
-            var fkey=getpwd(default_letter_used,Math.floor(Math.random()*18)+19);
-            var enfkey=encryptPassword(fname,fkey);
-            var endata=encryptchar(fdata,fkey);
-            var enfname=encryptchar(fname,secretkey);
-            $.post('rest/uploadfile.php',{id:msg,fkey:enfkey,fname:enfname,data:endata},function(msg){
-            if(msg!='1') showMessage('warning',"Fail to add file for "+acc+", please try again manually later.", true);});
+            if(msg["status"] != "success") {
+                showMessage('warning', "Fail to add " + acc + ", please try again manually later.", true); 
+            }
+            else{
+                upload_file(msg["nid"], fname, fdata, function(msg){
+                    if(msg["status"] != 'success') {
+                        showMessage('warning', "Fail to add file for "+acc+", please try again manually later.", true);
+                    }
+                });
             }
         }
-        if(acc==''||pass==''||fname=='') {
-            showMessage('warning', "one of account, password or filename empty! will continue to process other accounts, check back after this finished", true); return;
+        if(acc=='' || pass=='' || fname=='') {
+            showMessage('warning', "one of account, password or filename empty! will continue to process other accounts, check back after this finished", true); 
+            return;
         }
         add_account(acc, pass, other, addfile);
     }
     function onsucc(){
-        showMessage('success','IMPORT FINISHED!');
+        showMessage('success', 'IMPORT FINISHED!');
         $('#import').modal('hide');
         bk();
         reloadAccounts();
     }
     function process(){
-        var x;
         timeout=1000000+Math.floor(Date.now() / 1000);
-        for(x in json.data){
+        for(let x in json.data){
             if(typeof json.data[x].fname != 'undefined'){
-                add_acc_file(json.data[x].account,json.data[x].password,json.data[x].other,json.data[x].fname,json.data[x].filedata);
+                add_acc_file(json.data[x].account, json.data[x].password, json.data[x].other, json.data[x].fname, json.data[x].filedata);
             }
             else
-            add_acc(json.data[x].account,json.data[x].password,json.data[x].other);
+                add_acc(json.data[x].account, json.data[x].password, json.data[x].other);
         }
     }
     process();
@@ -157,34 +173,40 @@ function import_raw(json){
     
 }
 function import_csv(csv){
+    function importError(msg){ 
+        if(msg["status"] != "success") {
+            showMessage('warning', "Fail to add " + acc + ", please try again manually later.", true); 
+        }
+    }
 	var accarray = $.csv.toObjects(csv);
 	timeout=1000000+Math.floor(Date.now() / 1000);
-	for (x in accarray) {
+	for (var x in accarray) {
 	    var acc = accarray[x]["name"];
 	    var pass = accarray[x]["password"];
-	    if(acc==''||pass=='') {
-	        showMessage('danger',"one of account or password empty! will continue to process other accounts, check back after this finished", true); continue;
+	    if(acc=='' || pass=='') {
+	        showMessage('danger', "one of account or password empty! will continue to process other accounts, check back after this finished", true); 
+            continue;
 	    }
 	    var other = {};
-	    for (key in accarray[x]){
+	    for (var key in accarray[x]){
 	        if (key in fields){
 	            other[key]=accarray[x][key];
 	        }
 	    }
-	    add_account(acc, pass, JSON.stringify(other), function(msg) { if(msg==0) showMessage('warning', "Fail to add "+acc+", please try again manually later.", true); });
+	    add_account(acc, pass, JSON.stringify(other), importError);
 	}
-	function bk(){
-	$("#importbtn").attr("disabled",false);
-	$("#importbtn").text("Submit");
-	$("#importc").attr("disabled",false);
-	}
+    function bk(){
+        $("#importbtn").attr("disabled", false);
+        $("#importbtn").text("Submit");
+        $("#importc").attr("disabled", false);
+    }
 	function onsucc(){
 	    showMessage('success', 'IMPORT FINISHED!');
 	    $('#import').modal('hide');
 	    bk();
 	    reloadAccounts();
 	}
-	setTimeout(onsucc,1000);
+	setTimeout(onsucc, 1000);
 }
 //type: any of "success", "info", "warning", "danger"
 //message: text
@@ -218,8 +240,55 @@ function showMessage(type, message, modal){
         $("#messageDialog").modal('show');
     }
 }
+// show last succesfull Login
+// changes the seenLoginInformation global variable
+function showLastLoginInformation(failedCount, lastLogin){
+    if (!seenLoginInformation) {
+        var loginMsgType = 'info';
+        var failedMsg = '';
+        if (failedCount > 0){
+            loginMsgType = 'danger';
+            failedMsg = 'Since then there {0} ' + failedCount + ' failed login attempt{1}.';
+            if (failedCount > 1){
+                failedMsg = failedMsg.replace("\{0\}", "where").replace("\{1\}", "s");
+            }
+            else {
+                failedMsg = failedMsg.replace("\{0\}", "was").replace("\{1\}", "");
+            }
+        }
+        if((lastLogin > 0) || (failedCount > 0)) {
+            showMessage(loginMsgType, 'Your last login was on ' + timeConverter(lastLogin)+'. ' + failedMsg + ' Click for more information.')
+                .on('click', function(event){
+                    $(this).alert('close');
+                    $('#historyformsesstoken').val(localStorage.session_token);
+                    $('#historyform').submit();
+                });
+        }
+        seenLoginInformation = true;
+    }
+}
+// decrypts an account entry
+// changes the fields global variable
+function decryptAccount(encryptedAccount) {
+    var index = encryptedAccount["index"];
+    var decryptedAccount = { "index":index, "other": {} };
+    decryptedAccount["fname"]=''; 
+    decryptedAccount["name"] = decryptchar(encryptedAccount["name"], secretkey);
+    decryptedAccount["enpassword"] = encryptedAccount["kss"];
+    if (encryptedAccount["additional"] != "") {
+        //decrypt
+        var tempchar = decryptchar(encryptedAccount["additional"], secretkey);
+        //extract json
+        var data = $.parseJSON(tempchar);
+        decryptedAccount["other"] = data;
+        for (var x in decryptedAccount["other"])
+            if ( (decryptedAccount["other"][x] != "") && (x in fields) )
+                fields[x]["count"] += 1;
+    }
+    return decryptedAccount;
+}
 function dataReady(data){
-    callPlugins("dataReady",{"data":data});
+    callPlugins("dataReady", {"data":data});
     if (data["status"]=="error") {
         quitpwd("Login failed: " + data["message"]);
         return;
@@ -235,16 +304,19 @@ function dataReady(data){
     salt2 = data["global_salt_2"];
     user = data["user"];
     fields = $.parseJSON(data["fields"]);
-    for (x in fields) {
+    for (var x in fields) {
         fields[x]["count"] = 0;
     }
     var accounts = data["accounts"];
     var fdata=data["fdata"];
     setInterval(countdown, 1000);
-    setInterval(checksessionalive,1000); 
+    setInterval(checksessionalive, 1000); 
     ALPHABET = default_letter_used;
     PWsalt = salt2;
-    if(file_enabled==1) $("#fileincludeckbp").show(); else $("#fileincludeckbp").hide();
+    if(file_enabled==1) 
+        $("#fileincludeckbp").show(); 
+    else 
+        $("#fileincludeckbp").hide();
     if(!data["fields_allow_change"])
         $("#changefieldsnav").hide();
     var secretkey0=getpwdstore(salt2);
@@ -254,52 +326,19 @@ function dataReady(data){
     }
     secretkey=String(CryptoJS.SHA512(secretkey0+salt2));
     
-    // show last succesfull Login
-    if (!seenLoginInformation) {
-        var loginMsgType = 'info';
-        var failedMsg = '';
-        if (data["loginInformation"]["failedCount"] > 0){
-            loginMsgType = 'danger';
-            failedMsg = 'Since then there {0} ' + data["loginInformation"]["failedCount"] + ' failed login attempt{1}.';
-            if (data["loginInformation"]["failedCount"] > 1){
-                failedMsg = failedMsg.replace("\{0\}", "where").replace("\{1\}", "s");
-            }
-            else {
-                failedMsg = failedMsg.replace("\{0\}", "was").replace("\{1\}", "");
-            }
-        }
-        if((data["loginInformation"]["lastLogin"] > 0) || (data["loginInformation"]["failedCount"]) > 0) {
-            showMessage(loginMsgType, 'Your last login was on ' + timeConverter(data["loginInformation"]["lastLogin"])+'. ' + failedMsg + ' Click for more information.')
-                .on('click',function(event){
-                    $(this).alert('close');
-                    $('#historyformsesstoken').val(localStorage.session_token);
-                    $('#historyform').submit();
-                });
-        }
-        seenLoginInformation = true;
-    }
+    showLastLoginInformation(data["loginInformation"]["failedCount"], data["loginInformation"]["lastLogin"]);
 
+    // decrypt accounts
     for(var i = 0; i<accounts.length; i++) {
         var index = accounts[i]["index"];
-        accountarray[index] = { "index":index, "other": {} };
-        accountarray[index]["fname"]=''; 
-        accountarray[index]["name"] = decryptchar(accounts[i]["name"],secretkey);
-        accountarray[index]["enpassword"] = accounts[i]["kss"];
-        if (accounts[i]["additional"] != "")
-        {//decrypt
-            var tempchar = decryptchar(accounts[i]["additional"], secretkey);
-            //extract json
-            var data = $.parseJSON(tempchar);
-            accountarray[index]["other"] = data;
-            for (x in accountarray[index]["other"])
-                if ( (accountarray[index]["other"][x] != "") && (x in fields) )
-                    fields[x]["count"] += 1;
-        }
-        callPlugins("readAccount",{"account":accountarray[index]});
+        accountarray[index] = decryptAccount(accounts[i])
+        callPlugins("readAccount", {"account":accountarray[index]});
     }
+
+    // add files to accounts
     for(var i = 0; i<fdata.length; i++) {
         var index = fdata[i]["index"];
-        accountarray[index]['fname'] = decryptchar(fdata[i]['fname'],secretkey);
+        accountarray[index]['fname'] = decryptchar(fdata[i]['fname'], secretkey);
         accountarray[index]['fkey'] = fdata[i]['fkey'];
     }
 
@@ -310,14 +349,14 @@ function dataReady(data){
 }
 function initFields() {
     $("textarea#fieldsz").val(JSON.stringify(fields));
-    for (x in fields) {
+    for (var x in fields) {
         var header = "";
         if (fields[x]["count"]>0)
             header = $('<th>')
-                        .attr('class',x+'cell'+fields[x]["cls"]+' field')
+                        .attr('class', x+'cell'+fields[x]["cls"]+' field')
                         .text(fields[x]["colname"]);
         var forms = {};
-        for (val of ['new','edit']){
+        for (var val of ['new', 'edit']){
             var input;
             var inputtype = "text";
             if ("type" in fields[x])
@@ -325,14 +364,14 @@ function initFields() {
             if (inputtype == "textarea")
                 input = $('<textarea>');
             else
-                input = $('<input>').attr('type',inputtype);
-            input.attr('class','form-control')
-                .attr('id',val+'iteminput'+x)
-                .attr('placeholder',fields[x]["hint"]);
-            var form = $('<div>').attr('class','form-group field')
+                input = $('<input>').attr('type', inputtype);
+            input.attr('class', 'form-control')
+                .attr('id', val+'iteminput'+x)
+                .attr('placeholder', fields[x]["hint"]);
+            var form = $('<div>').attr('class', 'form-group field')
                 .append($('<label>')
-                    .attr('for',val+'iteminput'+x)
-                    .attr('class','control-label').text(fields[x]["colname"]))
+                    .attr('for', val+'iteminput'+x)
+                    .attr('class', 'control-label').text(fields[x]["colname"]))
                 .append(input);
             forms[val] = form;
         }
@@ -354,52 +393,51 @@ function showTable(accounts)
 {
     accounts=preShowPreparation(accounts);
     visibleAccounts=accounts;
-    var tempchar;
-    var asterisk = $('<span>').attr('class','glyphicon glyphicon-asterisk');
-    var pwdLink = $('<a>').attr('title','Click to see')
+    var asterisk = $('<span>').attr('class', 'glyphicon glyphicon-asterisk');
+    var pwdLink = $('<a>').attr('title', 'Click to see')
             .append(asterisk.clone())
             .append(asterisk.clone())
             .append(asterisk.clone())
             .append(asterisk.clone())
             .append(asterisk.clone())
             .append(asterisk);
-    for(index in accounts) {
+    for(var index in accounts) {
         var cols = [];
         cols.push($("<td>")
-            .attr('class','namecell')
+            .attr('class', 'namecell')
             .append($("<span>")
-                .attr('class','accountname')
-                .data('id',accounts[index]["index"])
+                .attr('class', 'accountname')
+                .data('id', accounts[index]["index"])
                 .text(accounts[index]["name"]))
             .append($('<a>')
-                .attr('title',"Edit")
-                .attr('class','cellOptionButton')
-                .on('click',{"index":accounts[index]["index"]},function(event){edit(event.data.index);}) 
+                .attr('title', "Edit")
+                .attr('class', 'cellOptionButton')
+                .on('click', {"index":accounts[index]["index"]}, function(event){edit(event.data.index);}) 
                 .append($('<span></span>')
-                    .attr('class','glyphicon glyphicon-wrench')))
+                    .attr('class', 'glyphicon glyphicon-wrench')))
             .append($('<a>')
-                .attr('title','Details')
-                .attr('class','cellOptionButton')
-                .on('click',{"index":accounts[index]["index"]},function(event){showdetail(event.data.index);}) 
+                .attr('title', 'Details')
+                .attr('class', 'cellOptionButton')
+                .on('click', {"index":accounts[index]["index"]}, function(event){showdetail(event.data.index);}) 
                 .append($('<span class="glyphicon glyphicon-eye-open"></span>')))
         );
         cols.push($('<td>')
             .append($('<span>')
-                .attr('passid',accounts[index]["index"])
-                .attr('enpassword',accounts[index]["enpassword"])
-                .attr('id',accounts[index]["index"])
+                .attr('passid', accounts[index]["index"])
+                .attr('enpassword', accounts[index]["enpassword"])
+                .attr('id', accounts[index]["index"])
                 .append(pwdLink.clone()
-                            .on('click',{"index":accounts[index]["index"]},function(event){clicktoshow(event.data.index);}) 
+                            .on('click', {"index":accounts[index]["index"]}, function(event){clicktoshow(event.data.index);}) 
                         )
             ));
         // fill in other
-        for (x in fields) {
+        for (var x in fields) {
             if (fields[x]["count"]>0) { 
                 var value="";
                 if (x in accounts[index]["other"])
                     value = accounts[index]["other"][x];
-                var cell = $('<td>').attr('class', x+'cell'+fields[x]["cls"])
-                    .append($('<span>').attr('class','account'+x).text(value));
+                var cell = $('<td>').attr('class',  x+'cell'+fields[x]["cls"])
+                    .append($('<span>').attr('class', 'account'+x).text(value));
                 if (("position" in fields[x]) && (fields[x]["position"] != 0)) {
                     cols.splice(fields[x]["position"], 0, cell);
                 }
@@ -408,7 +446,7 @@ function showTable(accounts)
             }
         }
         // create row for datatable
-        row = $("<tr>").attr('class','datarow').data('id',accounts[index]["index"]).append(cols);
+        var row = $("<tr>").attr('class', 'datarow').data('id', accounts[index]["index"]).append(cols);
         callPlugins("drawAccount", {"account": accounts[index], "row":row});
         datatablestatus.row.add(row);
     }
@@ -421,11 +459,14 @@ function showTable(accounts)
 }
 function downloadf(id){ 
     $("#messagewait").modal("show");
-    $.post('rest/downloadfile.php',{id:id},function(filedata){
-        if(filedata['status']=="error") showMessage('danger','ERROR! '+filedata['message'], false);
+    $.post('rest/downloadfile.php', {id:id}, function(filedata){
+        if(filedata['status'] != "success") {
+            showMessage('danger', 'ERROR! '+filedata['message'], false);
+        }
         else{
             var fname = accountarray[id]['fname'];
-            if(fname=='') showMessage('danger','ERROR! '+filedata['message'], false);
+            if(fname=='') 
+                showMessage('danger', 'ERROR! '+filedata['message'], false);
             else{
                 function base64toBlob(base64Data, contentType) {
                     contentType = contentType || '';
@@ -448,11 +489,11 @@ function downloadf(id){
                     return new Blob(byteArrays, { type: contentType });
                 }
                 
-                var fkey = decryptPassword(fname,filedata['key']);
-                var data = decryptchar(filedata['data'],fkey);
-                var typedata = data.substring(5,data.search(";"));
+                var fkey = decryptPassword(fname, filedata['key']);
+                var data = decryptchar(filedata['data'], fkey);
+                var typedata = data.substring(5, data.search(";"));
                 data = data.substring(data.search(",")+1);
-                saveAs(base64toBlob(data,typedata),fname);
+                saveAs(base64toBlob(data, typedata), fname);
             }
         }
         $("#messagewait").modal("hide");
@@ -468,51 +509,59 @@ function cleanUp() {
 }
 function reloadAccounts() {
     cleanUp();
-    $.post("rest/password.php",{},function(msg){dataReady(msg);});
+    $.post("rest/password.php", {}, function(msg){dataReady(msg);});
 }
 $(document).ready(function(){
     datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true,autoWidth:false, "deferRender": true, drawCallback: function(settings) { preDrawCallback( this.api(), settings);}, "lengthMenu": [ [10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"] ] });
     $.post("rest/password.php",{},function(msg){dataReady(msg);});
     $("#pinloginform").on('submit',function(e){
         e.preventDefault();
-        var pin=$("#pinxx").val();
-        var device=getcookie('device');
-        var salt=getpwd('abcdefghijklmnopqrstuvwxyz1234567890',500);
-        timeout=default_timeout+Math.floor(Date.now() / 1000);
+        var pin = $("#pinxx").val();
+        var device = getcookie('device');
+        var salt = getpwd('abcdefghijklmnopqrstuvwxyz1234567890', 500);
+        timeout = default_timeout+Math.floor(Date.now() / 1000);
         function process()
         {
-            $.post("rest/setpin.php",{user:getcookie('username'),device:device,sig:String(CryptoJS.SHA512(pin+salt))},function(msg){
-                if(msg=='0'){
+            $.post("rest/setpin.php", {user:getcookie('username'), device:device, sig:String(CryptoJS.SHA512(pin+salt))}, function(msg){
+                if(msg["status"] != "success"){
                     showMessage('warning', 'ERROR set PIN, try again later!', true);
                     $('#pin').modal('hide');
-                }else{
-                    setPINstore(device,salt,encryptchar(getpwdstore(PWsalt),pin+msg),encryptchar(getconfkey(PWsalt),pin+msg));
+                }
+                else{
+                    setPINstore(device, salt, encryptchar(getpwdstore(PWsalt), pin + msg["pinpk"]), encryptchar(getconfkey(PWsalt), pin + msg["pinpk"]));
                     showMessage('success', 'PIN set, use PIN to login next time');
                     $('#pin').modal('hide');
                 }
             });
         }
-        if(pin.length<4) {showMessage('warning', 'For security reason, PIN should be at least of length 4.', true); return;}
-        if(device=="")
-        {
-            function rand_device()
-            {
-                var status=1;
-                device=getpwd('abcdefghijklmnopqrstuvwxyz1234567890',9)
-                    setCookie('device',device);
-                $.post("rest/getpinpk.php",{user:getcookie('username'),device:device,sig:'1'},function(msg){
-                    status=parseInt(msg);
-                    if(status == 0) process();
-                    else rand_device();
+        if (pin.length<4) {
+            showMessage('warning', 'For security reason, PIN should be at least of length 4.', true); 
+            return;
+        }
+        if (device == "") {
+            function rand_device() {
+                device = getpwd('abcdefghijklmnopqrstuvwxyz1234567890', 9);
+                setCookie('device', device);
+                $.post("rest/getpinpk.php", {user:getcookie('username'), device:device, sig:'1'}, function(msg){
+                    // check if we somehow managed to get an existing PIN
+                    if (msg["status"] == "success") {
+                        rand_device();
+                    }
+                    else {
+                        process();
+                    }
                 });
             }
             rand_device();
-        } else process();  
+        } 
+        else {
+            process();  
+        }
     });
     $("#changefieldsbtn").click(function(){
-        var a=$('#fieldsz').val();
-        var p=a.replace(/\r\n/g,'');
-        p=p.replace(/\n/g,'');
+        var a = $('#fieldsz').val();
+        var p = a.replace(/\r\n/g,'');
+        p = p.replace(/\n/g,'');
         function isJson(str) {
             try {
                 $.parseJSON(str);
@@ -521,16 +570,19 @@ $(document).ready(function(){
             }
             return true;
         }
-        if(!isJson(p)) {showMessage('warning', 'illegal format!', true);return;}
-        var j=JSON.parse(p);
-        for (x in j){
+        if(!isJson(p)) {
+            showMessage('warning', 'illegal format!', true);
+            return;
+        }
+        var j = JSON.parse(p);
+        for (var x in j){
             if (x.substr(0,1) == '_'){
                 showMessage('warning', 'illegal fields!', true);
                 return;
             }
         }
         $.post("rest/changefields.php",{fields:a},function(msg){ 
-            if(msg==1) {
+            if(msg["status"]=="success") {
                 showMessage('success','Successfully changed fields!'); 
                 $('#changefields').modal('hide');
                 reloadAccounts();
@@ -544,27 +596,29 @@ $(document).ready(function(){
         $("#newbtn").attr("disabled",true);
         $("#newiteminput").attr("readonly",true);
         $("#newiteminputpw").attr("readonly",true);
-        for (x in fields)
+        for (let x in fields)
             $("#newiteminput"+x).attr("readonly",true);
         function process(){
             if($("#newiteminputpw").val()=='') newpwd=getpwd(default_letter_used, default_length); else newpwd=$("#newiteminputpw").val();
             var other = {};
-            for (x in fields){
+            for (let x in fields){
                 other[x] = $("#newiteminput"+x).val().trim();
             }
             other = JSON.stringify(other);
             var name = $("#newiteminput").val();
             add_account(name, newpwd, other, function(msg){ 
-                if(msg!=0) {
-                    showMessage('success', "Add "+name+" successfully!");
+                if(msg["status"] == "success") {
+                    showMessage('success', "Add " + name + " successfully!");
                     $('#add').modal('hide');
                     reloadAccounts();
                 } 
-                else showMessage('warning',"Fail to add "+name+", please try again.", true);
+                else {
+                    showMessage('warning',"Fail to add "+name+", please try again.", true);
+                }
                 $("#newiteminput").attr("readonly",false);
                 $("#newbtn").attr("disabled",false);
                 $("#newiteminputpw").attr("readonly",false);
-                for (x in fields)
+                for (let x in fields)
                     $("#newiteminput"+x).attr("readonly",false);
             });
         }
@@ -576,17 +630,17 @@ $(document).ready(function(){
         $("#editbtn").attr("disabled",true);
         $("#edititeminput").attr("readonly",true);
         $("#edititeminputpw").attr("readonly",true);
-        for (x in fields)
+        for (let x in fields)
             $("#edititeminput"+x).attr("readonly",true);
         function process(){
             var id = $("#edit").data('id');
             var oldname=accountarray[id]["name"];
             var other = {};
-            for (x in fields){
+            for (let x in fields){
                 other[x] = $("#edititeminput"+x).val().trim();
             }
             // get all _Fields from the original data 
-            for (x in accountarray[id]){
+            for (let x in accountarray[id]){
                 if (x.substring(0,1) == "_"){
                     other[x] = accountarray[id]["other"][x];
                 }
@@ -601,21 +655,23 @@ $(document).ready(function(){
 
             other = JSON.stringify(other);
             var name = $("#edititeminput").val();
-            newpwd=encryptPassword(name, newpwd);
-            other=encryptchar(other, secretkey);
-            var enname=encryptchar(name,secretkey);
-            $.post("rest/change.php",{name:enname,newpwd:newpwd,index:id,other:other},function(msg){ 
-                if(msg==1) {
-                    showMessage('success',"Data for "+name+" updated!");
+            newpwd = encryptPassword(name, newpwd);
+            other = encryptchar(other, secretkey);
+            var enname = encryptchar(name,secretkey);
+            $.post("rest/change.php", {name:enname, newpwd:newpwd, index:id, other:other}, function(msg){ 
+                if(msg["status"] != "success") {
+                    showMessage('success',"Data for " + name + " updated!");
                     $('#edit').modal('hide');
                     reloadAccounts();
                 } 
-                else showMessage('warning',"Fail to update data for "+name+", please try again.", true);
+                else {
+                    showMessage('warning',"Fail to update data for " + name + ", please try again.", true);
+                }
                 $("#edititeminput").attr("readonly",false);
                 $("#editbtn").attr("disabled",false);
                 $("#edititeminputpw").attr("readonly",false);
-                for (x in fields)
-                    $("#edititeminput"+x).attr("readonly",false);
+                for (let x in fields)
+                    $("#edititeminput" + x).attr("readonly",false);
             });
         }
         setTimeout(process,50);
@@ -628,25 +684,21 @@ $(document).ready(function(){
         var fileinclude="a";
         if($("#fileincludeckb").is(':checked')) fileinclude="farray";
         $.post("rest/backup.php",{a:fileinclude},function(msg){
-            var a,i,count,p;
-            function progressbarchange(x)
-            {
+            var a,count,p;
+            function progressbarchange(x) {
                 $("#backuppwdpb").attr('aria-valuenow',x);
                 $("#backuppwdpb").css('width',x+'%');
             }
-            function cback()
-            {
+            function cback() {
                 if(count<30) pbkdf2_enc_1(cback); else process();
             }
-            function pbkdf2_enc_1(callback)
-            {
+            function pbkdf2_enc_1(callback) {
                 progressbarchange(6+count*3);
                 a=pbkdf2_enc(a,PWsalt,500);
                 count=count+1;
                 setTimeout(callback,1);
             }
-            function process()
-            {
+            function process() {
                 p.data=encryptchar(JSON.stringify(p.data),pbkdf2_enc(a,PWsalt,500));
                 p.fdata=encryptchar(JSON.stringify(p.fdata),pbkdf2_enc(a,PWsalt,500));
                 $("#backuppwdpb").attr('aria-valuenow',99);
@@ -658,8 +710,7 @@ $(document).ready(function(){
                 $("#fileincludeckb").attr('disabled',false);
                 timeout=default_timeout+Math.floor(Date.now() / 1000);
             }
-            function first(callback)
-            {
+            function first(callback) {
                 timeout=1000000+Math.floor(Date.now() / 1000);
                 a=pbkdf2_enc(secretkey,PWsalt,500);
                 callback(cback);
@@ -703,17 +754,19 @@ $(document).ready(function(){
             $("#changepw").attr("value", "Processing...");
             function process(){
                 var login_sig=String(pbkdf2_enc(reducedinfo($("#oldpassword").val(),default_letter_used), salt1, 500));
-                if(secretkey!=String(CryptoJS.SHA512(login_sig+salt2))) {showMessage('warning',"Incorrect Old Password!", true); return;}
+                if(secretkey!=String(CryptoJS.SHA512(login_sig+salt2))) {
+                    showMessage('warning',"Incorrect Old Password!", true); 
+                    return;
+                }
                 var newpass=$("#pwd").val();
                 login_sig=String(pbkdf2_enc(reducedinfo(newpass, default_letter_used), salt1, 500));
                 var newsecretkey=String(CryptoJS.SHA512(login_sig+salt2));
                 var postnewpass=pbkdf2_enc(login_sig, salt1, 500);
                 //NOTE: login_sig here is the secret_key generated when login.
                 var newconfkey=pbkdf2_enc(String(CryptoJS.SHA512(newpass+login_sig)), salt1, 500); 
-                var x,raw_pass,raw_fkey;
-                var temps;
+                var raw_pass,raw_fkey;
                 var accarray= [];
-                for (x in accountarray)
+                for (let x in accountarray)
                 {
                     var tmpother=accountarray[x]["other"];
                     accarray[x]={"name": encryptchar(accountarray[x]["name"],newsecretkey), "is_f":1, "fname": '',"other": encryptchar(JSON.stringify(tmpother),newsecretkey)};
@@ -738,7 +791,7 @@ $(document).ready(function(){
                     accarray[x]["fk"] = encryptchar(raw_fkey,newsecretkey);
                 }
                 $.post("rest/changeuserpw.php",{newpass:String(CryptoJS.SHA512(postnewpass+user)), accarray:JSON.stringify(accarray)},function(msg){ 
-                    if(msg==1) {
+                    if(msg["status"] == "success") {
                         alert("Change Password Successfully! Please login with your new password again.");
                         quitpwd("Password changed, please relogin");
                     } 
@@ -763,24 +816,41 @@ $(document).ready(function(){
             if (window.FileReader) {
                 // FileReader are supported.
                 var reader = new FileReader();
-                var a=$("#importc")[0].files;
+                var a = $("#importc")[0].files;
                 var t = 0;
                 if (a && a[0]){
                     reader.onload = function (e) {
                         var txt = e.target.result;
                         try{
-                            if(t==0) import_raw(txt); else import_csv(txt);
-                        }catch (error) { showMessage('warning','Some error occurs!', true); bk(); reloadAccounts();}
+                            if(t==0) {
+                                import_raw(txt); 
+                            }
+                            else {
+                                import_csv(txt);
+                            }
+                        }
+                        catch (error) { 
+                            showMessage('warning','Some error occurs!', true); 
+                            bk(); 
+                            reloadAccounts();
+                        }
                     }
                     reader.onerror = function (e) {
                         showMessage('warning','Error reading file!', true);
                         bk();
                     }
                     var extension = a[0].name.split('.').pop().toLowerCase();
-                    if(extension=='csv') t=1;
+                    if(extension=='csv') {
+                        t=1;
+                    }
                     reader.readAsText(a[0]);          
-                } else {showMessage('warning','NO FILE SELECTED', true); bk();}
-            } else {
+                } 
+                else {
+                    showMessage('warning','NO FILE SELECTED', true); 
+                    bk();
+                }
+            } 
+            else {
                 showMessage('warning','FileReader are not supported in this browser.', true);
             }
         }
@@ -801,34 +871,49 @@ $(document).ready(function(){
             if (window.FileReader) {
                 // FileReader are supported.
                 var reader = new FileReader();
-                var a=$("#uploadf")[0].files;
-                var fname='';
+                var a = $("#uploadf")[0].files;
+                var fname = '';
                 if (a && a[0]){
                     reader.onload = function (e) {
                         var data = e.target.result;
                         try{
-                            var fkey=getpwd(default_letter_used,Math.floor(Math.random()*18)+19);
-                            var enfkey=encryptPassword(fname,fkey);
-                            var endata=encryptchar(data,fkey);
-                            var enfname=encryptchar(fname,secretkey);
-                            $("#showdetails").modal("hide");
-                            $.post('rest/uploadfile.php',{id:fileid,fkey:enfkey,fname:enfname,data:endata},function(msg){
-                                if(msg=='1') {$('#uploadfiledlg').modal("hide"); showMessage('success','File uploaded!', false); reloadAccounts();}
-                                else {$('#uploadfiledlg').modal("hide"); showMessage('danger','ERROR! Try again!', false); reloadAccounts();}
+                            upload_file(fileid, fname, data, function(msg){
+                                if(msg["status"] == "success") {
+                                    $('#uploadfiledlg').modal("hide"); 
+                                    showMessage('success','File uploaded!', false); 
+                                    reloadAccounts();
+                                }
+                                else {
+                                    $('#uploadfiledlg').modal("hide"); 
+                                    showMessage('danger','ERROR! Try again!', false); 
+                                    reloadAccounts();
+                                }
                             });
-                        }catch (error) {$('#uploadfiledlg').modal("hide"); showMessage('warning','Some error occurs!', true); reloadAccounts();}
+                        }
+                        catch (error) {
+                            $('#uploadfiledlg').modal("hide"); 
+                            showMessage('warning','Some error occurs!', true); 
+                            reloadAccounts();
+                        }
                     }
                     reader.onerror = function (e) {
                         showMessage('warning','Error reading file!', true);
                         bk();
                     }
-                    var fname = a[0].name;
-                    if(fname==''){
-                        showMessage('warning','File selected doesn\'t have a name!', true); bk(); return;
+                    fname = a[0].name;
+                    if(fname == ''){
+                        showMessage('warning','File selected doesn\'t have a name!', true); 
+                        bk(); 
+                        return;
                     }
                     reader.readAsDataURL(a[0]);          
-                } else {showMessage('warning','NO FILE SELECTED', true); bk();}
-            } else {
+                } 
+                else {
+                    showMessage('warning','NO FILE SELECTED', true); 
+                    bk();
+                }
+            } 
+            else {
                 showMessage('warning','FileReader are not supported in this browser.', true);
             }
         }
@@ -845,7 +930,7 @@ $(document).ready(function(){
         $("#edititeminputpw").attr('placeholder',"Hidden");
         $("#edititeminputpw").val('');
         $("#edititeminputpw").data('enpassword', accountarray[id]["enpassword"]);
-        for (x in fields){
+        for (let x in fields){
             $("#edititeminput"+x).val(accountarray[id]['other'][x]);
         } 
         callPlugins("editAccountDialog",{"account": accountarray[id]});
@@ -926,11 +1011,13 @@ function delepw(index)
     if(confirm("Are you sure you want to delete password for "+name+"? (ATTENTION: this is irreversible)"))
     {
         $.post("rest/delete.php",{index:index},function(msg){ 
-            if(msg==1) {
+            if(msg["status"] == "success") {
                 showMessage('success',"delete "+name+" successfully");
                 $('#edit').modal('hide');
                 reloadAccounts();
-            } else showMessage('warning',"Fail to delete "+name+", please try again.", true);
+            } 
+            else 
+                showMessage('warning',"Fail to delete "+name+", please try again.", true);
      }); 
      }
 }
@@ -940,14 +1027,14 @@ function exportcsv()
 }
 function showdetail(index){
     var i=parseInt(index);
-    var x,s;
+    var s;
     s=$('#details');
     s.html('');
     s.append($('<b>').text(accountarray[i]["name"]))
      .append($('<br/>')).append($('<br/>'));
     var table=$('<table>').css('width',"100%").css('color',"#ff0000")
             .append($('<colgroup><col width="90"><col width="auto"></colgroup>'));
-    for (x in accountarray[i]["other"]) {
+    for (let x in accountarray[i]["other"]) {
         if(x in fields){
             table.append($('<tr>')
                 .attr("id","detailsTableOther"+x)
@@ -988,7 +1075,8 @@ function showdetail(index){
     $("#showdetails").modal("show");
 }
 function timeConverter(utctime){
-    if(utctime==0) return 'unknown time';
+    if(utctime==0) 
+        return 'unknown time';
     var a = new Date(utctime * 1000);
     var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; 
     var year = String(a.getFullYear());
@@ -997,9 +1085,12 @@ function timeConverter(utctime){
     var hour = String(a.getHours());
     var min = String(a.getMinutes());
     var sec = String(a.getSeconds());
-    if(hour.length==1) hour = '0'+hour;
-    if(min.length==1) min = '0'+min;
-    if(sec.length==1) sec = '0'+sec;
+    if(hour.length==1) 
+        hour = '0'+hour;
+    if(min.length==1) 
+        min = '0'+min;
+    if(sec.length==1) 
+        sec = '0'+sec;
     var time = month + ' '+date + ', ' + year + ' ' + hour + ':' + min + ':' + sec ;
     return time;
 }
