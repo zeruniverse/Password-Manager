@@ -6,7 +6,7 @@ echoheader();
 <link rel="stylesheet" type="text/css" href="css/responsive.dataTables.min.css">
 <div class="container theme-showcase">
     <p id="placeholder">PLEASE WAIT...</p>
-    <div id="maindiv collapse">
+    <div id="maindiv" class="collapse">
     <div class="page-header">
         <h1>Trusted Devices</h1>
     </div>
@@ -26,9 +26,9 @@ echoheader();
     </table>
     </div>
 </div>
-<script type="text/javascript" src="js/lib/ua-parser.min.js"></script>
-<script type="text/javascript" src="js/lib/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/lib/dataTables.bootstrap.min.js"></script>
-<script type="text/javascript" src="js/lib/dataTables.responsive.min.js"></script>
-<script type="text/javascript" src="js/history.js"></script>
+<script src="js/lib/ua-parser.min.js"></script>
+<script src="js/lib/jquery.dataTables.min.js"></script>
+<script src="js/lib/dataTables.bootstrap.min.js"></script>
+<script src="js/lib/dataTables.responsive.min.js"></script>
+<script src="js/history.js"></script>
 <?php echofooter(); ?>

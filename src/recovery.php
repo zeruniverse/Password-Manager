@@ -2,13 +2,13 @@
 require_once 'function/basic.php';
 echoheader();
 ?>
-<script type="text/javascript" src="js/crypto/aes.js"></script>
-<script type="text/javascript" src="js/crypto/sha512.js"></script>
-<script type="text/javascript" src="js/crypto/pbkdf2.js"></script>
-<script type="text/javascript" src="js/crypto/password.js"></script>
-<script type="text/javascript" src="js/lib/FileSaver.min.js"></script>
-<script type="text/javascript" src="js/lib/jquery.csv.js"></script>
-<script type="text/javascript" src="js/recovery.js"></script>
+<script src="js/crypto/aes.js"></script>
+<script src="js/crypto/sha512.js"></script>
+<script src="js/crypto/pbkdf2.js"></script>
+<script src="js/crypto/password.js"></script>
+<script src="js/lib/FileSaver.min.js"></script>
+<script src="js/lib/jquery.csv.js"></script>
+<script src="js/recovery.js"></script>
 <div class="container theme-showcase">
     <div class="page-header">
         <h1>Before You Start...</h1>

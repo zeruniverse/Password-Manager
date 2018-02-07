@@ -4,23 +4,23 @@ echoheader();
 ?>
 <link rel="stylesheet" type="text/css" href="css/dataTables.bootstrap.min.css">
 <link rel="stylesheet" type="text/css" href="css/responsive.dataTables.min.css">
-<script type="text/javascript" src="js/setlocalstorage.js"></script>
-<script type="text/javascript" src="js/lib/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="js/lib/dataTables.bootstrap.min.js"></script>
-<script type="text/javascript" src="js/lib/dataTables.responsive.min.js"></script>
-<script type="text/javascript" src="js/lib/FileSaver.min.js"></script>
-<script type="text/javascript" src="js/crypto/aes.js"></script>
-<script type="text/javascript" src="js/crypto/sha512.js"></script>
-<script type="text/javascript" src="js/crypto/pbkdf2.js"></script>
-<script type="text/javascript" src="js/crypto/password.js"></script>
-<script type="text/javascript" src="js/lib/jquery.csv.js"></script>
-<script type="text/javascript" src="js/main.js"></script>
-<script type="text/javascript" src="js/plugin.js"></script>
-<script type="text/javascript" src="js/plugins/linkButton.js"></script>
-<script type="text/javascript" src="js/plugins/tags.js"></script>
-<script type="text/javascript" src="js/plugins/showPasswordAge.js"></script>
-<script type="text/javascript" src="js/plugins/keyboardShortcuts.js"></script>
-   <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+<script src="js/setlocalstorage.js"></script>
+<script src="js/lib/jquery.dataTables.min.js"></script>
+<script src="js/lib/dataTables.bootstrap.min.js"></script>
+<script src="js/lib/dataTables.responsive.min.js"></script>
+<script src="js/lib/FileSaver.min.js"></script>
+<script src="js/crypto/aes.js"></script>
+<script src="js/crypto/sha512.js"></script>
+<script src="js/crypto/pbkdf2.js"></script>
+<script src="js/crypto/password.js"></script>
+<script src="js/lib/jquery.csv.js"></script>
+<script src="js/main.js"></script>
+<script src="js/plugin.js"></script>
+<script src="js/plugins/linkButton.js"></script>
+<script src="js/plugins/tags.js"></script>
+<script src="js/plugins/showPasswordAge.js"></script>
+<script src="js/plugins/keyboardShortcuts.js"></script>
+   <nav class="navbar navbar-default navbar-fixed-top">
       <div class="container">
         <div class="collapse">
         <form id="historyform" action="history.php" method="post">
@@ -120,7 +120,7 @@ echoheader();
                 <p id="fileincludeckbp" class="collapse"><input type="checkbox" id="fileincludeckb" />Include Files<br /></p>
                 <p>You will need your CURRENT login password to unlock the backup file even if you change login password later. Write your CURRENT login password down or remember to generate a new backup file after each time you change the login password.</p>
                 <p class="textred">Generating backup file is time consuming...</p>
-                <div class="progress"><div class="progress-bar" role="progressbar"  id="backuppwdpb" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                <div class="progress"><div class="progress-bar" role="progressbar"  id="backuppwdpb" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div></div>
             </form>
             </div>
             <div class="modal-footer">
@@ -129,7 +129,6 @@ echoheader();
             </div>
         </div>
     </div>
-</div>
 </div>
 <div class="modal" tabindex="-1" role="dialog" id="changefields">
     <div class="modal-dialog">
@@ -211,20 +210,21 @@ echoheader();
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4>Set PIN to login</h4>
             </div>
-            <div class="modal-body">
-                <form id="pinloginform" method="post">
+            <form id="pinloginform" method="post">
+                <div class="modal-body">
                     <div class="form-group">
                         <label for="pinxx" class="control-label">PIN:</label>
                         <input id="pinxx" autocomplete="off" class="form-control" type="password" />
                         <label class="small textred blocklabel">Only set PIN in your trusted devices!</label>
                         <label class="small blocklabel">PIN can be set on your trusted devices to give you convenience while login. If you set PIN, you can use PIN instead of username and password to login next time. PIN is safe, you only have 3 chances to input a PIN before it's disabled automatically.</label>
                     </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
-                <button id="pinBtnDel" type="button" class="btn btn-danger" id="delpin">Delete PIN</button>
-                <input type="submit" class="btn btn-primary" id="pinlogin" value="Set/Reset" /></form>
-            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
+                    <button id="pinBtnDel" type="button" class="btn btn-danger">Delete PIN</button>
+                    <input type="submit" class="btn btn-primary" id="pinlogin" value="Set/Reset" />
+                </div>
+            </form>
         </div>
     </div>
 </div>
