@@ -85,7 +85,28 @@ class Backend {
         return Promise.All(filesPromises);
     }
     function addAccount(name, pwd, other) {
-        //do check for empty name
+        if (name == "") {
+            return Promise.reject("Account name can't be empty");
+        }
+        let account = new Account(null, name, "");
+        account.encryptionWrapper = this.encryptionWrapper;
+        account.password = pwd;
+
+        if(!("_system_passwordLastChangeTime" in other)) 
+            other["_system_passwordLastChangeTime"] = Math.floor(Date.now() / 1000);
+        for (let key in other) {
+            account.setOther(key, other[key]);
+        }
+        return account.getEncrypted()
+            .then(function(encAccount) {
+                return $.post("rest/insert.php", encAccount);
+            })
+            .then(function(result) {
+                if (result["status"] != "success") {
+                    throw(results["message"]);
+                }
+                return result;
+            });
     }
     function updateAccount(id, name, newpwd, other) {
         //do check for empty name

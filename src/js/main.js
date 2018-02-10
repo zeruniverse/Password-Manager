@@ -71,25 +71,12 @@ function sanitize_json(s){
     t=t.replace(/\n/g, '')
     return t.replace(/\r/g, '');
 }
-//ToDo: differentiate other as string or object
-function add_account(acc, pass, other, callback){
-    let account = new Account(null, acc, "");
-    account.encryptionWrapper = encryptionWrapper;
-    account.password = pass;
-
-    if(!("_system_passwordLastChangeTime" in other)) 
-        other["_system_passwordLastChangeTime"] = Math.floor(Date.now() / 1000);
-    for (let key in other) {
-        account.setOther(key, other[key]);
-    }
-    $.post("rest/insert.php", account.encrypted/*{name:acc, newpwd:pass, other:other}*/, callback);
-}
 /*
 * callback: function(msg){}
 */
 function upload_file(fileid, filename, filedata, callback) {
-$("#showdetails").modal("hide");
-    Backend.uploadFile(accountId, fileName, fileData)
+    $("#showdetails").modal("hide");
+    backend.uploadFile(accountId, fileName, fileData)
         .then(callback);
 }
 function import_raw(json){

@@ -60,6 +60,9 @@ class Account {
         encryptedResult["other"] = this.encryptionWrapper.encryptChar(other);
         return encryptedResult;
     }
+    function getEncrypted(){
+        return Promise.resolve(this.encrypted);
+    }
 
     get accountName() {
         return this.name;
