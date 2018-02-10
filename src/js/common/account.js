@@ -60,7 +60,7 @@ class Account {
         encryptedResult["other"] = this.encryptionWrapper.encryptChar(other);
         return encryptedResult;
     }
-    function getEncrypted(){
+    getEncrypted(){
         return Promise.resolve(this.encrypted);
     }
 

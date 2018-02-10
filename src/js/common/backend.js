@@ -2,11 +2,11 @@ class Backend {
     constructor() {
         this.cleanUp();
     }
-    function cleanUp(){
+    cleanUp(){
         this.accounts = [];
         this.fields = [];
     }
-    function load() {
+    load() {
         return $.post("rest/password.php", {})
             .then(function(data){
                 callPlugins("dataReady", {"data":data});
@@ -25,7 +25,7 @@ class Backend {
                 return this.prepareFiles(this.receivedData["fdata"]);
             });
     }
-    function prepareData(data) {
+    prepareData(data) {
         this.default_timeout = data["default_timeout"];
         this.default_server_timeout = data["server_timeout"];		
         this.file_enabled = data["file_enabled"];		
@@ -37,7 +37,7 @@ class Backend {
         this.user = data["user"];		
         this.loginInformation =  data["loginInformation"];
     }
-    function prepareCrypto(salt, default_letter) {
+    prepareCrypto(salt, default_letter) {
         try {
             this.encryptionWrapper = EncryptionWrapper.fromLocalStorage(salt, default_letter);
         }
@@ -45,7 +45,7 @@ class Backend {
             throw("Missing secretkey");
         }
     }
-    function decryptAccounts(accountData) {
+    decryptAccounts(accountData) {
         var accountPromises = [];
         for(var i = 0; i < accountData.length; i++) {
             accountPromises.push(Account.fromEncrypted(this.encryptionWrapper, accountData[i])
@@ -63,7 +63,7 @@ class Backend {
                 callPlugins("accountsReady");
             });
     }
-    function prepareFields(fields) {
+    prepareFields(fields) {
         this.fields = $.parseJSON(fields);
         for (let x in this.fields) {		
             this.fields[x]["count"] = 0;
@@ -77,14 +77,14 @@ class Backend {
             }
         }
     }
-    function prepareFiles(files) {
+    prepareFiles(files) {
         var filesPromises = [];
         for (file of files) {
             filesPromises.push(this.accounts[file["index"]].addEncryptedFile(file["fname"], file["fkey"]));
         }
         return Promise.All(filesPromises);
     }
-    function addAccount(name, pwd, other) {
+    addAccount(name, pwd, other) {
         if (name == "") {
             return Promise.reject("Account name can't be empty");
         }
@@ -108,17 +108,17 @@ class Backend {
                 return result;
             });
     }
-    function updateAccount(id, name, newpwd, other) {
+    updateAccount(id, name, newpwd, other) {
         //do check for empty name
         //do check for new password
     }
-    function deleteAccount(id) {
+    deleteAccount(id) {
     }
-    function getFiles() {
+    getFiles() {
     }
-    function setPin(pin) {
+    setPin(pin) {
     }
-    function updateFields(fields) {
+    updateFields(fields) {
     }
     get fileEnabled() {
         return this.file_enabled;
