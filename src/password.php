@@ -15,6 +15,7 @@ echoheader();
 <script src="js/crypto/password.js"></script>
 <script src="js/lib/jquery.csv.js"></script>
 <script src="js/common/account.js"></script>
+<script src="js/common/backend.js"></script>
 <script src="js/common/cryptoWrapper.js"></script>
 <script src="js/main.js"></script>
 <script src="js/plugin.js"></script>
