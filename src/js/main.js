@@ -67,9 +67,9 @@ var file_enabled;
 var preDrawCallback = function( api, settings ) {};
 var preShowPreparation = function (accounts){ return accounts; };// if you change the array make a copy before sorting! So indexes stay the same in the original array
 function sanitize_json(s){
-var t=s;
-t=t.replace(/\n/g, '')
-return t.replace(/\r/g, '');
+    var t=s;
+    t=t.replace(/\n/g, '')
+    return t.replace(/\r/g, '');
 }
 //ToDo: differentiate other as string or object
 function add_account(acc, pass, other, callback){
