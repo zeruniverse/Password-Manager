@@ -33,7 +33,7 @@ class Account {
             for (var x in data)
                 account.setOther(x, data[x]);
         }
-        return account;
+        return Promise.resolve(account);
     }
 
     set encryptionWrapper(wrapper) {
@@ -110,4 +110,8 @@ class Account {
     addFile(name, key) {
         this.file = { "name": name, "key": key };
     }
+    addEncryptedFile(name, fkey) {
+        //ToDo
+    }
+    
 }
