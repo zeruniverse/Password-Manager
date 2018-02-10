@@ -1,70 +1,63 @@
 const thisIsThePasswordManager = "21688ab4-8e22-43b0-a988-2ca2c98e5796";
 //everything is going to be loaded later
-var encryptionWrapper = null;
-var default_timeout;
-var server_timeout;
-var default_server_timeout;
 var timeout; //Todo function for reset
-var default_length;
-var user;
-var fields;
-var accountarray= [];
 var visibleAccounts;
 var seenLoginInformation = false;
+var backend;
 
 $.ajaxPrefilter(function(options, originalOptions, jqXHR) {
-if (options.type.toLowerCase() === "post") {
-    options.data = options.data || "";
-    options.data += options.data?"&":"";
-    options.data += "session_token=" + localStorage.session_token;
-}
+    if (options.type.toLowerCase() === "post") {
+        options.data = options.data || "";
+        options.data += options.data?"&":"";
+        options.data += "session_token=" + localStorage.session_token;
+    }
 });
 
 function quitpwd(reason) {
-reason = reason || "";
-callPlugins("quitpwd", {"reason":reason});
-delpwdstore();
-if (reason != "")
-    reason ="?reason="+encodeURIComponent(reason);
-window.location.href="./logout.php"+reason;
+    reason = reason || "";
+    callPlugins("quitpwd", {"reason":reason});
+    delpwdstore();
+    if (reason != "")
+        reason ="?reason="+encodeURIComponent(reason);
+    window.location.href="./logout.php"+reason;
 }
 function quitpwd_untrust() {
-callPlugins("quitpwd_untrust");
-delpwdstore();
-delpinstore();
-deleteCookie('username');
-window.location.href="./logout.php";
+    callPlugins("quitpwd_untrust");
+    delpwdstore();
+    delpinstore();
+    deleteCookie('username');
+    window.location.href="./logout.php";
 }
 function countdown() {
-if(timeout < Math.floor(Date.now() / 1000)) {
-    quitpwd("Logged out due to inactivity");
-}
+    if(timeout < Math.floor(Date.now() / 1000)) {
+        quitpwd("Logged out due to inactivity");
+    }
 }
 function checksessionalive()
 {
-function getCookie(cname) {
-    var name = cname + "=";
-    var ca = document.cookie.split(';');
-    for(var i = 0; i <ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0)==' ') {
-            c = c.substring(1);
+    function getCookie(cname) {
+        var name = cname + "=";
+        var ca = document.cookie.split(';');
+        for(var i = 0; i <ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0)==' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
         }
-        if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length);
-        }
+        return "-1";
     }
-    return "-1";
-}
-function setCookie(cname, cvalue) {
-    document.cookie = cname + "=" + cvalue + ";path=/ ";
-}
-var ck=getCookie("ServerRenew");
-if(ck=='1') 
-    server_timeout = default_server_timeout+Math.floor(Date.now() / 1000);
-if(ck=="-1"||server_timeout<Math.floor(Date.now() / 1000)) 
-    quitpwd("Session timed out");
-setCookie("ServerRenew", '0');
+    function setCookie(cname, cvalue) {
+        document.cookie = cname + "=" + cvalue + ";path=/ ";
+    }
+    var ck=getCookie("ServerRenew");
+    if(ck=='1') 
+        server_timeout = default_server_timeout+Math.floor(Date.now() / 1000);
+    if(ck=="-1"||server_timeout<Math.floor(Date.now() / 1000)) 
+        quitpwd("Session timed out");
+    setCookie("ServerRenew", '0');
 }
 var ALPHABET;
 var PWsalt;
@@ -256,34 +249,16 @@ function showLastLoginInformation(failedCount, lastLogin){
     }
 }
 //alles in backend klasse machen
-function dataReady(data){
-    callPlugins("dataReady", {"data":data});
-    //move to backend promise
-    if (data["status"]=="error") {
-        quitpwd("Login failed: " + data["message"]);
-        return;
-    }
-    
-    var accounts = data["accounts"];
-    backend.prepareData(data);
-    backend.decryptAccounts(accounts);
+function dataReady(){
 
-    files = backend.getFiles();
-
-    if(backend.fileEnabled()) 
-        $("#fileincludeckbp").show(); 
-    else 
-        $("#fileincludeckbp").hide();
-
-    if(!backend.allowFieldChange())
-        $("#changefieldsnav").hide();
+    $("#fileincludeckbp").toggle(backend.fileEnabled()); 
+    $("#changefieldsnav").toggle(backend.allowFieldChange());
     
     showLastLoginInformation(backend.loginInformation["failedCount"], backend.loginInformation["lastLogin"]);
 
     setInterval(countdown, 1000);
     setInterval(checksessionalive, 1000); 
 
-    callPlugins("accountsReady");
     initFields(backend.fields);
     callPlugins("fieldsReady", {"fields":backend.fields, "accounts":backend.accounts});
     showTable(backend.accounts);
@@ -424,6 +399,7 @@ function reloadAccounts() {
 }
 $(document).ready(function(){
     datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true,autoWidth:false, "deferRender": true, drawCallback: function(settings) { preDrawCallback( this.api(), settings);}, "lengthMenu": [ [10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"] ] });
+    backend = new Backend();
     backend.load()
         .then(dataReady);
     $("#pinloginform").on('submit',function(e){
