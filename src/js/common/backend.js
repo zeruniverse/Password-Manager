@@ -86,7 +86,7 @@ class Backend {
     prepareFiles(files) {
         var self = this;
         var filesPromises = [];
-        for (file of files) {
+        for (let file of files) {
             filesPromises.push(self.accounts[file["index"]].addEncryptedFile(file["fname"], file["fkey"]));
         }
         return Promise.all(filesPromises);

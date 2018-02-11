@@ -412,7 +412,7 @@ $(document).ready(function(){
         //todo for backend
         if (device == "") {
             function rand_device() {
-                device = getpwd('abcdefghijklmnopqrstuvwxyz1234567890', 9);
+                var device = getpwd('abcdefghijklmnopqrstuvwxyz1234567890', 9);
                 setCookie('device', device);
                 $.post("rest/getpinpk.php", {user:getcookie('username'), device:device, sig:'1'}, function(msg){
                     // check if we somehow managed to get an existing PIN
@@ -431,7 +431,7 @@ $(document).ready(function(){
         }
     });
     $("#changefieldsbtn").click(function(){
-        var a = $('#fieldsz').val();
+        var fields = $('#fieldsz').val();
         backend.updateFields(fields)
             .then(function(){
                 showMessage('success','Successfully changed fields!'); 
@@ -823,7 +823,7 @@ function edit(row){
 }
 function clicktoshow(id){ 
     backend.resetTimeout();
-    var id = parseInt(id);
+    id = parseInt(id);
     backend.accounts[id].getPassword()
         .then(function(pwd){
             $("#"+id).empty()

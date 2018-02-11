@@ -17,7 +17,6 @@ echoheader();
 <script src="js/common/account.js"></script>
 <script src="js/common/backend.js"></script>
 <script src="js/common/cryptoWrapper.js"></script>
-<script src="js/common/commonFunctions.js"></script>
 <script src="js/main.js"></script>
 <script src="js/plugin.js"></script>
 <script src="js/plugins/linkButton.js"></script>
