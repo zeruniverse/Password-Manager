@@ -139,6 +139,13 @@ class Backend {
             });
     }
     deleteAccount(id) {
+        return $.post("rest/delete.php", {index: id})
+            .then(function(msg){
+                if(msg["status"] != "success") {
+                    throw(msg["message"]);
+                }
+                return msg;
+            });
     }
     getFiles() {
     }
