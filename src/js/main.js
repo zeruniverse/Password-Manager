@@ -1,6 +1,5 @@
 const thisIsThePasswordManager = "21688ab4-8e22-43b0-a988-2ca2c98e5796";
 //everything is going to be loaded later
-var timeout; //Todo function for reset
 var visibleAccounts;
 var seenLoginInformation = false;
 var backend;
@@ -29,7 +28,7 @@ function quitpwd_untrust() {
     window.location.href="./logout.php";
 }
 function countdown() {
-    if(timeout < Math.floor(Date.now() / 1000)) {
+    if (backend.isTimeout) {
         quitpwd("Logged out due to inactivity");
     }
 }
@@ -127,7 +126,7 @@ function import_raw(json){
         reloadAccounts();
     }
     function process(){
-        timeout=1000000+Math.floor(Date.now() / 1000);
+        backend.extendedTimeout();
         for(let x in json.data){
             if(typeof json.data[x].fname != 'undefined'){
                 add_acc_file(json.data[x].account, json.data[x].password, json.data[x].other, json.data[x].fname, json.data[x].filedata);
@@ -147,7 +146,7 @@ function import_csv(csv){
         }
     }
 	var accarray = $.csv.toObjects(csv);
-	timeout=1000000+Math.floor(Date.now() / 1000);
+    this.extendedTimeout();
 	for (var x in accarray) {
 	    var acc = accarray[x]["name"];
 	    var pass = accarray[x]["password"];
@@ -332,6 +331,7 @@ function showTable(accounts) {
                         )
             ));
         // fill in other
+        fields = backend.fields;
         for (var x in fields) {
             if (fields[x]["count"]>0) { 
                 var value="";
@@ -395,7 +395,7 @@ $(document).ready(function(){
     $("#pinloginform").on('submit',function(e){
         e.preventDefault();
         var pin = $("#pinxx").val();
-        timeout = default_timeout+Math.floor(Date.now() / 1000);
+        backend.resetTimeout();
         function process()
         {
             backend.setPin(pin)
@@ -554,10 +554,10 @@ $(document).ready(function(){
 
                 $("#backuppwdbtn").attr('disabled',false);
                 $("#fileincludeckb").attr('disabled',false);
-                timeout=default_timeout+Math.floor(Date.now() / 1000);
+                backend.resetTimeout();
             }
             function first(callback) {
-                timeout=1000000+Math.floor(Date.now() / 1000);
+                this.extendedTimeout();
                 a = pbkdf2_enc(encryptionWrapper.secretkey,encryptionWrapper.pwSalt,500);
                 callback(cback);
             }
@@ -777,13 +777,13 @@ $(document).ready(function(){
     $('#edit').on('shown.bs.modal', function () {
         var id = $("#edit").data('id');
         $("#editAccountShowPassword").removeClass("collapse");
-        $("#edititeminput").val(accountarray[id].accountName);//name
+        $("#edititeminput").val(backend.accounts[id].accountName);
         $("#edititeminputpw").attr('placeholder',"Hidden");
         $("#edititeminputpw").val('');
         for (let x in fields){
-            $("#edititeminput"+x).val(accountarray[id].getOther(x));
+            $("#edititeminput"+x).val(backend.accounts[id].getOther(x));
         } 
-        callPlugins("editAccountDialog",{"account": accountarray[id]});
+        callPlugins("editAccountDialog",{"account": backend.accounts[id]});
     });
     $('#edit').on('hide.bs.modal', function() {
         $(".popover").popover('hide');
@@ -825,7 +825,7 @@ function edit(row){
     $("#edit").modal("show");
 }
 function clicktoshow(id){ 
-    timeout = default_timeout+Math.floor(Date.now() / 1000);
+    backend.resetTimeout();
     var id = parseInt(id);
     backend.accounts[id].getPassword()
         .then(function(pwd){
@@ -851,7 +851,7 @@ function showuploadfiledlg(id){
     $("#uploadfiledlg").modal("show");
 }
 function clicktohide(id){
-    timeout=default_timeout+Math.floor(Date.now() / 1000);
+    backend.resetTimeout();
     $("#"+id).empty().append($('<a title="Click to see"></a>')
                         .on('click',{"index":id},function(event){clicktoshow(event.data.index);}) 
                         .append('<span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span>') );

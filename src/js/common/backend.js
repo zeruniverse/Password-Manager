@@ -63,9 +63,6 @@ class Backend {
         }
         return Promise.all(accountPromises)
             .then(function(accounts){
-                if (typeof(accounts) == "undefined") {
-                    return;
-                }
                 for (let account of accounts) {
                     self.accounts[account.index] = account;
                 }
@@ -135,5 +132,15 @@ class Backend {
     }
     get allowFieldChange() {
         return this.fields_allow_change;
+    }
+    resetTimeout() {
+        this.timeout = this.defaut_timeout + Math.floor(Date.now() / 1000);
+    }
+    // extended timeout for actions that take a long time
+    extendedTimeout() {
+        this.timeout = 1000000 + Math.floor(Date.now() / 1000);
+    }
+    get isTimeout() {
+        return this.timeout < Math.floor(Date.now() / 1000);
     }
 }
