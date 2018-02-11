@@ -861,7 +861,7 @@ function delepw(index)
     var name = backend.accounts[parseInt(index)].accountName;
     if(confirm("Are you sure you want to delete password for " + name + "? (ATTENTION: this is irreversible)"))
     {
-        backend.delete(index)
+        backend.deleteAccount(index)
             .then(function(){
                 showMessage('success',"delete " + name + " successfully");
                 $('#edit').modal('hide');
