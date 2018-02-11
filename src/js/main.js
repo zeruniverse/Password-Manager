@@ -71,9 +71,9 @@ function sanitize_json(s){
 /*
 * callback: function(msg){}
 */
-function upload_file(fileid, filename, filedata, callback) {
+function upload_file(fileId, fileName, fileData, callback) {
     $("#showdetails").modal("hide");
-    backend.uploadFile(fileid, fileName, fileData)
+    backend.uploadFile(fileId, fileName, fileData)
         .then(callback);
 }
 function import_raw(json){
@@ -326,7 +326,7 @@ function showTable(accounts) {
 }
 function downloadf(id){ 
     $("#messagewait").modal("show");
-    backend.getFile(id)
+    backend.downloadFile(id)
         .then(function(file){
             saveAs(file["data"], file["name"]);
         })

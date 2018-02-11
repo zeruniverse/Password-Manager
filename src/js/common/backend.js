@@ -93,11 +93,12 @@ class Backend {
         return Promise.all(filesPromises);
     }
     addAccount(name, pwd, other) {
+        var self = this;
         if (name == "") {
             return Promise.reject("Account name can't be empty");
         }
         let account = new Account(null, name, "");
-        account.encryptionWrapper = this.encryptionWrapper;
+        account.encryptionWrapper = self.encryptionWrapper;
         account.password = pwd;
 
         if(!("_system_passwordLastChangeTime" in other))
@@ -110,10 +111,11 @@ class Backend {
                 return $.post("rest/insert.php", encAccount);
             })
             .then(function(msg) {
-                return checkResult(msg);
+                return Backend.checkResult(msg);
             });
     }
     updateAccount(id, name, newpwd, other) {
+        var self = this;
         if (name == "") {
             return Promise.reject("Account name can't be empty");
         }
@@ -131,13 +133,14 @@ class Backend {
                 return $.post("rest/change.php", account.encrypted)
             })
             .then(function(msg){
-                return checkResult(msg);
+                return Backend.checkResult(msg);
             });
     }
     deleteAccount(id) {
+        var self = this;
         return $.post("rest/delete.php", {index: id})
             .then(function(msg){
-                return checkResult(msg);
+                return Backend.checkResult(msg);
             });
     }
 
@@ -147,26 +150,26 @@ class Backend {
         var data = {
             id:id, 
             fkey:self.encryptionWrapper.encryptPassword(name, fkey),
-            data: self.encryptionWrapper.encryptCharUsingKey(payload, fkey),
+            data: EncryptionWrapper.encryptCharUsingKey(payload, fkey),
             fname: self.encryptionWrapper.encryptChar(name)
         };
 
         return $.post('rest/uploadfile.php', data)
             .then(function(msg){
-                return checkResult(msg);
+                return Backend.checkResult(msg);
             });
     }
     downloadFile(id) {
         var self = this;
         return $.post('rest/downloadfile.php', {id:id})
             .then(function(msg) {
-                return checkResult(msg);
+                return Backend.checkResult(msg);
             })
             .then(function(filedata) {
                 var file = {};
                 file["name"] = self.accounts[id].file["name"];
-                var fkey = self.encryptionWrapper.decryptPassword(fname, filedata["key"]);
-                var data = self.encryptionWrapper.decryptCharUsingKey(filedata['data'], fkey);
+                var fkey = self.encryptionWrapper.decryptPassword(file["name"], filedata["key"]);
+                var data = EncryptionWrapper.decryptCharUsingKey(filedata["data"], fkey);
                 var typedata = data.substring(5, data.search(";"));
                 data = data.substring(data.search(",") + 1);
                 file["data"] = base64toBlob(data, typedata);
