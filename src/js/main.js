@@ -68,14 +68,7 @@ function sanitize_json(s){
     t=t.replace(/\n/g, '')
     return t.replace(/\r/g, '');
 }
-/*
-* callback: function(msg){}
-*/
-function upload_file(fileId, fileName, fileData) {
-    $("#showdetails").modal("hide");
-    backend.uploadFile(fileId, fileName, fileData)
-        .then(callback);
-}
+//ToDo: Use Promise.all
 function import_raw(json){
     json=JSON.parse(sanitize_json(json));
     if(json.status!="RAW_OK") {
@@ -99,7 +92,7 @@ function import_raw(json){
     }
     function add_acc_file(acc, pass, other, fname, fdata){
         function addfile(msg){
-                return upload_file(msg["nid"], fname, fdata)
+                return backend.uploadFile(msg["nid"], fname, fdata)
                     .catch(function(msg){
                         showMessage('warning', "Fail to add file for " + acc + ", please try again manually later.", true);
                     });
@@ -137,11 +130,6 @@ function import_raw(json){
     
 }
 function import_csv(csv){
-    function importError(msg){ 
-        if(msg["status"] != "success") {
-            showMessage('warning', "Fail to add " + acc + ", please try again manually later.", true); 
-        }
-    }
 	var accarray = $.csv.toObjects(csv);
     this.extendedTimeout();
 	for (var x in accarray) {
@@ -157,7 +145,11 @@ function import_csv(csv){
 	            other[key]=accarray[x][key];
 	        }
 	    }
-	    add_account(acc, pass, JSON.stringify(other), importError);
+
+        backend.addAccount(acc, pass, other)
+            .catch(function(msg) { 
+                showMessage('warning',"Fail to add " + acc + ", please try again manually later.", true); 
+            });
 	}
     function bk(){
         $("#importbtn").attr("disabled", false);
@@ -691,7 +683,7 @@ $(document).ready(function(){
                 if (a && a[0]){
                     reader.onload = function (e) {
                         var data = e.target.result;
-                        upload_file(fileid, fname, data)
+                        backend.uploadFile(fileid, fname, data)
                             .then(function(msg){
                                 showMessage('success','File uploaded!', false); 
                             })
@@ -700,6 +692,7 @@ $(document).ready(function(){
                             })
                             .then(function(){
                                 $('#uploadfiledlg').modal("hide"); 
+                                $("#showdetails").modal("hide");
                                 reloadAccounts();
                             });
                     }
