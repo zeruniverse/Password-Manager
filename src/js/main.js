@@ -238,8 +238,8 @@ function showLastLoginInformation(failedCount, lastLogin){
 //alles in backend klasse machen
 function dataReady(){
 
-    $("#fileincludeckbp").toggle(backend.fileEnabled()); 
-    $("#changefieldsnav").toggle(backend.allowFieldChange());
+    $("#fileincludeckbp").toggle(backend.fileEnabled); 
+    $("#changefieldsnav").toggle(backend.allowFieldChange);
     
     showLastLoginInformation(backend.loginInformation["failedCount"], backend.loginInformation["lastLogin"]);
 
@@ -388,7 +388,10 @@ $(document).ready(function(){
     datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true,autoWidth:false, "deferRender": true, drawCallback: function(settings) { preDrawCallback( this.api(), settings);}, "lengthMenu": [ [10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"] ] });
     backend = new Backend();
     backend.load()
-        .then(dataReady);
+        .then(function(dat){
+            console.log(dat);
+            dataReady();
+        });
     $("#pinloginform").on('submit',function(e){
         e.preventDefault();
         var pin = $("#pinxx").val();
@@ -458,7 +461,7 @@ $(document).ready(function(){
         $("#newbtn").attr("disabled",true);
         $("#newiteminput").attr("readonly",true);
         $("#newiteminputpw").attr("readonly",true);
-        for (let x in fields)
+        for (let x in backend.fields)
             $("#newiteminput"+x).attr("readonly",true);
         var newpwd;
         var name = $("#newiteminput").val();
@@ -467,7 +470,7 @@ $(document).ready(function(){
         else 
             newpwd = getpwd(default_letter_used, default_length); 
         var other = {};
-        for (let x in fields)
+        for (let x in backend.fields)
             other[x] = $("#newiteminput"+x).val().trim();
         backend.addAccount(name, newpwd, other) //do check for empty name again
             .then(function() {
@@ -482,7 +485,7 @@ $(document).ready(function(){
                 $("#newiteminput").attr("readonly",false);
                 $("#newbtn").attr("disabled",false);
                 $("#newiteminputpw").attr("readonly",false);
-                for (let x in fields)
+                for (let x in backend.fields)
                     $("#newiteminput"+x).attr("readonly",false);
             });
     });

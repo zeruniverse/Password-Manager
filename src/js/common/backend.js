@@ -1,5 +1,10 @@
 class Backend {
     constructor() {
+        this.cleanUp = this.cleanUp.bind(this);
+        this.load = this.load.bind(this);
+        this.prepareData = this.prepareData.bind(this);
+        this.prepareCrypto = this.prepareCrypto.bind(this);
+        this.decryptAccounts = this.decryptAccounts.bind(this);
         this.cleanUp();
     }
     cleanUp(){
@@ -7,22 +12,23 @@ class Backend {
         this.fields = [];
     }
     load() {
+        var self = this;
         return $.post("rest/password.php", {})
             .then(function(data){
                 callPlugins("dataReady", {"data":data});
                 if (data["status"] == "error") {
                     throw(data["message"]);
                 }
-                this.receivedData = data;
-                this.prepareData(data);
-                return this.prepareCrypto(data["global_salt_2"], data["default_letter_used"])
+                self.receivedData = data;
+                self.prepareData(data);
+                return self.prepareCrypto(data["global_salt_2"], data["default_letter_used"]);
             })
             .then(function(){
-                return this.decryptAccounts(this.receivedData["accounts"]);
+                return self.decryptAccounts(self.receivedData["accounts"]);
             })
             .then(function(){
-                this.prepareFields(this.receivedData["fields"]);
-                return this.prepareFiles(this.receivedData["fdata"]);
+                self.prepareFields(self.receivedData["fields"]);
+                return self.prepareFiles(self.receivedData["fdata"]);
             });
     }
     prepareData(data) {
@@ -30,8 +36,8 @@ class Backend {
         this.default_server_timeout = data["server_timeout"];		
         this.file_enabled = data["file_enabled"];		
         this.fields_allow_change = data["fields_allow_change"];
-        this.server_timeout = default_server_timeout + Math.floor(Date.now() / 1000);		
-        this.timeout = default_timeout + Math.floor(Date.now() / 1000);		
+        this.server_timeout = this.default_server_timeout + Math.floor(Date.now() / 1000);		
+        this.timeout = self.default_timeout + Math.floor(Date.now() / 1000);		
         this.default_length = data["default_length"];		
         this.salt1 = data["global_salt_1"]; //Only needed for changing the logon password
         this.user = data["user"];		
@@ -46,19 +52,22 @@ class Backend {
         }
     }
     decryptAccounts(accountData) {
+        var self = this;
         var accountPromises = [];
         for(var i = 0; i < accountData.length; i++) {
-            accountPromises.push(Account.fromEncrypted(this.encryptionWrapper, accountData[i])
-                .then(function(newAccount) {
-                    account = newAccount.account;
+            accountPromises.push(Account.fromEncrypted(self.encryptionWrapper, accountData[i])
+                .then(function(account) {
                     callPlugins("readAccount", {"account": account});
                     return account;
                 }));
         }
-        return Promise.All(accountPromises)
+        return Promise.all(accountPromises)
             .then(function(accounts){
-                for (account of accounts) {
-                    this.accounts[account.index] = account;:w
+                if (typeof(accounts) == "undefined") {
+                    return;
+                }
+                for (let account of accounts) {
+                    self.accounts[account.index] = account;
                 }
                 callPlugins("accountsReady");
             });
@@ -78,11 +87,12 @@ class Backend {
         }
     }
     prepareFiles(files) {
+        var self = this;
         var filesPromises = [];
         for (file of files) {
-            filesPromises.push(this.accounts[file["index"]].addEncryptedFile(file["fname"], file["fkey"]));
+            filesPromises.push(self.accounts[file["index"]].addEncryptedFile(file["fname"], file["fkey"]));
         }
-        return Promise.All(filesPromises);
+        return Promise.all(filesPromises);
     }
     addAccount(name, pwd, other) {
         if (name == "") {
