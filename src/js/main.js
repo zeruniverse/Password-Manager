@@ -32,6 +32,7 @@ function countdown() {
         quitpwd("Logged out due to inactivity");
     }
 }
+//ToDo is this necessary?
 function checksessionalive()
 {
     function getCookie(cname) {
@@ -53,16 +54,13 @@ function checksessionalive()
     }
     var ck=getCookie("ServerRenew");
     if(ck=='1') 
-        server_timeout = default_server_timeout+Math.floor(Date.now() / 1000);
+        server_timeout = backend.default_server_timeout+Math.floor(Date.now() / 1000);
     if(ck=="-1"||server_timeout<Math.floor(Date.now() / 1000)) 
         quitpwd("Session timed out");
     setCookie("ServerRenew", '0');
 }
-var ALPHABET;
-var PWsalt;
 var datatablestatus=null;
 var fileid=-1;
-var file_enabled;
 var preDrawCallback = function( api, settings ) {};
 var preShowPreparation = function (accounts){ return accounts; };// if you change the array make a copy before sorting! So indexes stay the same in the original array
 function sanitize_json(s){
@@ -388,10 +386,9 @@ $(document).ready(function(){
     datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true,autoWidth:false, "deferRender": true, drawCallback: function(settings) { preDrawCallback( this.api(), settings);}, "lengthMenu": [ [10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"] ] });
     backend = new Backend();
     backend.load()
-        .then(function(dat){
-            console.log(dat);
-            dataReady();
-        });
+        .then(dataReady);
+
+    // Define event handlers
     $("#pinloginform").on('submit',function(e){
         e.preventDefault();
         var pin = $("#pinxx").val();
@@ -885,15 +882,15 @@ function showdetail(index){
      .append($('<br/>')).append($('<br/>'));
     var table = $('<table>').css('width',"100%").css('color',"#ff0000")
             .append($('<colgroup><col width="90"><col width="auto"></colgroup>'));
-    for (let x in account.availableOthers) {
+    for (let x of account.availableOthers) {
         if(x in backend.fields){
             table.append($('<tr>')
                 .attr("id","detailsTableOther" + x)
-                .append($('<td>').css("color","#afafaf").css("font-weight","normal").text(fields[x]['colname']))
+                .append($('<td>').css("color","#afafaf").css("font-weight","normal").text(backend.fields[x]['colname']))
                 .append($('<td>').css("color","#6d6d6d").css("font-weight","bold").text(account.getOther(x))));
         }
     }
-    if(file_enabled==1){
+    if(backend.fileEnabled){
         if(account.file != null) 
             table.append($('<tr>')
                 .append($('<td>').css("color","#66ccff").css("font-weight","normal").text('File'))
