@@ -77,6 +77,9 @@ class Account {
         //decrypt then output
         return this.encryptionWrapper.decryptPassword(this.name, this.enpassword);
     }
+    getPassword(){
+        return Promise.resolve(this.encryptionWrapper.decryptPassword(this.name, this.enpassword));
+    }
     set password(password) {
         //encrypt before storing
         this.enpassword = this.encryptionWrapper.encryptPassword(this.name, password);
