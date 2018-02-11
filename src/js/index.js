@@ -26,38 +26,6 @@ function isAllHTML5Supports(){
 if(!isAllHTML5Supports()) {
     window.location.href="./sorry_for_old_browser_update_hint.html";
 }
-//type: any of "success", "info", "warning", "danger"
-//message: text
-//modal: if true shows a modal window
-function showMessage(type, message, modal){
-    modal = (typeof modal !== 'undefined') ? modal : false;
-    if (modal==false) {
-        var messageDialog = $("<div>")
-                    .addClass("alert")
-                    .addClass("alert-"+type)
-                    .addClass("collapse")
-                    .append($('<a href="#" class="close" aria-label="close">&times;</a>')
-                            .click(function(e){
-                                messageDialog.alert('close'); 
-                                e.stopImmediatePropagation()
-                            }))
-                    .append($('<span>').text(message));
-        $("#messageContainer").append(messageDialog);
-        messageDialog.fadeIn();
-        if(type == "success" || type == "info"){
-            messageDialog.fadeTo(6000, 500).slideUp(500, function(){ // 6000 ms
-                messageDialog.alert('close');
-            });
-        }
-        return messageDialog;
-    }
-    else {
-        $("#messageDialogText").text(message);
-        $("#messageDialogText").removeClass("alert-success alert-info alert-warning alert-danger");
-        $("#messageDialogText").addClass("alert-"+type);
-        $("#messageDialog").modal('show');
-    }
-}
 $("#usepin").on("hidden.bs.modal", function () {
     $("#user").focus();
 });
