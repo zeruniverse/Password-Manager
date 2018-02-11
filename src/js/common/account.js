@@ -84,6 +84,10 @@ class Account {
         //encrypt before storing
         this.enpassword = this.encryptionWrapper.encryptPassword(this.name, password);
     }
+    setPassword(password){
+        this.enpassword = this.encryptionWrapper.encryptPassword(this.name, password);
+        return Promise.resolve();
+    }
     clearOther() {
         this.other = {};
     }
