@@ -182,6 +182,24 @@ class Backend {
     }
 
     updateFields(fields) {
+        var self = this;
+        var p = fields.replace(/\r\n/g,'');
+        p = p.replace(/\n/g,'');
+        var j;
+        try {
+            j = JSON.parse(p);
+        } catch (e) {
+            return Promise.reject("parse");
+        }
+        for (var x in j) {
+            if (x.substr(0,1) == '_') {
+                return Promise.reject("illegalFields");
+            }
+        }
+        return $.post("rest/changefields.php", {fields: JSON.stringify(j)})
+            .then(function(msg){
+                return Backend.checkResult(msg);
+            });
     }
 
     get fileEnabled() {
