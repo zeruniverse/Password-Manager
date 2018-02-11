@@ -842,8 +842,8 @@ function clicktoshow(id){
 } 
 function showuploadfiledlg(id){
     $("#uploadfiledlg").modal("hide");
-    $("#uploadfitemlab1").text(accountarray[id].accountName);
-    $("#uploadfitemlab2").text(accountarray[id].accountName);
+    $("#uploadfitemlab1").text(backend.accounts[id].accountName);
+    $("#uploadfitemlab2").text(backend.accounts[id].accountName);
     $("#uploadfilebtn").attr("disabled",false);
     $("#uploadfilebtn").text("Submit");
     $("#uploadf").attr("disabled",false);
@@ -858,7 +858,7 @@ function clicktohide(id){
 }
 function delepw(index)
 {   
-    var name = accountarray[parseInt(index)].accountName;
+    var name = backend.accounts[parseInt(index)].accountName;
     if(confirm("Are you sure you want to delete password for " + name + "? (ATTENTION: this is irreversible)"))
     {
         backend.delete(index)
