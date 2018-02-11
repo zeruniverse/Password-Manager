@@ -156,7 +156,7 @@ function import_csv(csv){
 	    }
 	    var other = {};
 	    for (var key in accarray[x]){
-	        if (key in fields){
+	        if (key in backend.fields){
 	            other[key]=accarray[x][key];
 	        }
 	    }
@@ -331,7 +331,7 @@ function showTable(accounts) {
                         )
             ));
         // fill in other
-        fields = backend.fields;
+        let fields = backend.fields;
         for (var x in fields) {
             if (fields[x]["count"]>0) { 
                 var value="";
@@ -497,13 +497,13 @@ $(document).ready(function(){
         $("#editbtn").attr("disabled",true);
         $("#edititeminput").attr("readonly",true);
         $("#edititeminputpw").attr("readonly",true);
-        for (let x in fields)
+        for (let x in backend.fields)
             $("#edititeminput"+x).attr("readonly",true);
         var id = $("#edit").data('id');
         var name = $("#edititeminput").val();
         var newpwd = $("#edititeminputpw").val();
         var other = {};
-        for (let x in fields)
+        for (let x in backend.fields)
             other[x] = $("#edititeminput"+x).val().trim();
         backend.updateAccount(id, name, newpwd, other)
             .then(function(){
@@ -518,7 +518,7 @@ $(document).ready(function(){
                 $("#edititeminput").attr("readonly",false);
                 $("#editbtn").attr("disabled",false);
                 $("#edititeminputpw").attr("readonly",false);
-                for (let x in fields)
+                for (let x in backend.fields)
                     $("#edititeminput" + x).attr("readonly",false);
             });
     }); 
@@ -780,7 +780,7 @@ $(document).ready(function(){
         $("#edititeminput").val(backend.accounts[id].accountName);
         $("#edititeminputpw").attr('placeholder',"Hidden");
         $("#edititeminputpw").val('');
-        for (let x in fields){
+        for (let x in backend.fields){
             $("#edititeminput"+x).val(backend.accounts[id].getOther(x));
         } 
         callPlugins("editAccountDialog",{"account": backend.accounts[id]});
@@ -886,7 +886,7 @@ function showdetail(index){
     var table = $('<table>').css('width',"100%").css('color',"#ff0000")
             .append($('<colgroup><col width="90"><col width="auto"></colgroup>'));
     for (let x in account.availableOthers) {
-        if(x in fields){
+        if(x in backend.fields){
             table.append($('<tr>')
                 .attr("id","detailsTableOther" + x)
                 .append($('<td>').css("color","#afafaf").css("font-weight","normal").text(fields[x]['colname']))
