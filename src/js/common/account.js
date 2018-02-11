@@ -123,5 +123,4 @@ class Account {
     addEncryptedFile(name, fkey) {
         //ToDo
     }
-    
 }

@@ -21,6 +21,7 @@ class Backend {
                 }
                 self.receivedData = data;
                 self.prepareData(data);
+                self.resetTimeout();
                 return self.prepareCrypto(data["global_salt_2"], data["default_letter_used"]);
             })
             .then(function(){
@@ -33,14 +34,14 @@ class Backend {
     }
     prepareData(data) {
         this.default_timeout = data["default_timeout"];
-        this.default_server_timeout = data["server_timeout"];		
-        this.file_enabled = data["file_enabled"];		
+        this.default_server_timeout = data["server_timeout"];
+        this.file_enabled = data["file_enabled"];
         this.fields_allow_change = data["fields_allow_change"];
-        this.server_timeout = this.default_server_timeout + Math.floor(Date.now() / 1000);		
-        this.timeout = self.default_timeout + Math.floor(Date.now() / 1000);		
-        this.default_length = data["default_length"];		
+        //Todo necessary? see checksessionalive
+        this.server_timeout = this.default_server_timeout + Math.floor(Date.now() / 1000);
+        this.default_length = data["default_length"];
         this.salt1 = data["global_salt_1"]; //Only needed for changing the logon password
-        this.user = data["user"];		
+        this.user = data["user"];
         this.loginInformation =  data["loginInformation"];
     }
     prepareCrypto(salt, default_letter) {
@@ -71,7 +72,7 @@ class Backend {
     }
     prepareFields(fields) {
         this.fields = $.parseJSON(fields);
-        for (let x in this.fields) {		
+        for (let x in this.fields) {
             this.fields[x]["count"] = 0;
         }
         for (var index in this.accounts) {
@@ -99,7 +100,7 @@ class Backend {
         account.encryptionWrapper = this.encryptionWrapper;
         account.password = pwd;
 
-        if(!("_system_passwordLastChangeTime" in other)) 
+        if(!("_system_passwordLastChangeTime" in other))
             other["_system_passwordLastChangeTime"] = Math.floor(Date.now() / 1000);
         for (let key in other) {
             account.setOther(key, other[key]);
@@ -148,18 +149,21 @@ class Backend {
                 return msg;
             });
     }
-    getFiles() {
-    }
+
     setPin(pin) {
     }
+
     updateFields(fields) {
     }
+
     get fileEnabled() {
         return this.file_enabled;
     }
     get allowFieldChange() {
         return this.fields_allow_change;
     }
+
+    //Timout
     resetTimeout() {
         this.timeout = this.defaut_timeout + Math.floor(Date.now() / 1000);
     }
