@@ -111,16 +111,12 @@ class Account {
     getOther(name) {
         return this.other[name];
     }
-    get file(){
-        return this.mFile;
-    }
-    set file(file) {
-        this.file = mFile;
-    }
     addFile(name, key) {
         this.file = { "name": name, "key": key };
     }
     addEncryptedFile(name, fkey) {
-        //ToDo
+        var self = this;
+        self.file = { "name":self.encryptionWrapper.decryptChar(name), "key": fkey };
+        return Promise.resolve(self.file);
     }
 }
