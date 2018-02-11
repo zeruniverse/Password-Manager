@@ -71,7 +71,7 @@ function sanitize_json(s){
 /*
 * callback: function(msg){}
 */
-function upload_file(fileId, fileName, fileData, callback) {
+function upload_file(fileId, fileName, fileData) {
     $("#showdetails").modal("hide");
     backend.uploadFile(fileId, fileName, fileData)
         .then(callback);
@@ -92,30 +92,29 @@ function import_raw(json){
             showMessage('warning', "one of account or password empty! will continue to process other accounts, check back after this finished", true); 
             return;
         }
-        add_account(acc, pass, other, function(msg) { 
-            if(msg["status"] != "success") {
-                showMessage('warning',"Fail to add "+acc+", please try again manually later.", true); 
-            }
-        });
+        backend.addAccount(acc, pass, other)
+            .catch(function(msg) { 
+                showMessage('warning',"Fail to add " + acc + ", please try again manually later.", true); 
+            });
     }
     function add_acc_file(acc, pass, other, fname, fdata){
         function addfile(msg){
-            if(msg["status"] != "success") {
-                showMessage('warning', "Fail to add " + acc + ", please try again manually later.", true); 
-            }
-            else{
-                upload_file(msg["nid"], fname, fdata, function(msg){
-                    if(msg["status"] != 'success') {
-                        showMessage('warning', "Fail to add file for "+acc+", please try again manually later.", true);
-                    }
-                });
-            }
+                return upload_file(msg["nid"], fname, fdata)
+                    .catch(function(msg){
+                        showMessage('warning', "Fail to add file for " + acc + ", please try again manually later.", true);
+                    });
         }
         if(acc=='' || pass=='' || fname=='') {
             showMessage('warning', "one of account, password or filename empty! will continue to process other accounts, check back after this finished", true); 
             return;
         }
-        add_account(acc, pass, other, addfile);
+        backend.addAccount(acc, pass, other)
+            .then(function(msg){
+                addfile(msg);
+            })
+            .catch(function(msg){
+                showMessage('warning', "Fail to add " + acc + ", please try again manually later.", true); 
+            });
     }
     function onsucc(){
         showMessage('success', 'IMPORT FINISHED!');
@@ -444,7 +443,7 @@ $(document).ready(function(){
                 reloadAccounts();
             })
             .catch(function(){
-                showMessage('warning',"Fail to add "+name+", please try again.", true);
+                showMessage('warning',"Fail to add " + name + ", please try again.", true);
             })
             .then(function(){
                 $("#newiteminput").attr("readonly",false);
@@ -692,25 +691,17 @@ $(document).ready(function(){
                 if (a && a[0]){
                     reader.onload = function (e) {
                         var data = e.target.result;
-                        try{
-                            upload_file(fileid, fname, data, function(msg){
-                                if(msg["status"] == "success") {
-                                    $('#uploadfiledlg').modal("hide"); 
-                                    showMessage('success','File uploaded!', false); 
-                                    reloadAccounts();
-                                }
-                                else {
-                                    $('#uploadfiledlg').modal("hide"); 
-                                    showMessage('danger','ERROR! Try again!', false); 
-                                    reloadAccounts();
-                                }
+                        upload_file(fileid, fname, data)
+                            .then(function(msg){
+                                showMessage('success','File uploaded!', false); 
+                            })
+                            .catch(function(msg) {
+                                showMessage('danger','ERROR! Try again!', false); 
+                            })
+                            .then(function(){
+                                $('#uploadfiledlg').modal("hide"); 
+                                reloadAccounts();
                             });
-                        }
-                        catch (error) {
-                            $('#uploadfiledlg').modal("hide"); 
-                            showMessage('warning','Some error occurs!', true); 
-                            reloadAccounts();
-                        }
                     }
                     reader.onerror = function (e) {
                         showMessage('warning','Error reading file!', true);
