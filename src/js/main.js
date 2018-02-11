@@ -131,7 +131,7 @@ function import_raw(json){
 }
 function import_csv(csv){
 	var accarray = $.csv.toObjects(csv);
-    this.extendedTimeout();
+    backend.extendedTimeout();
 	for (var x in accarray) {
 	    var acc = accarray[x]["name"];
 	    var pass = accarray[x]["password"];
