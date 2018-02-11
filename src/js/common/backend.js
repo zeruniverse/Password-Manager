@@ -109,11 +109,8 @@ class Backend {
             .then(function(encAccount) {
                 return $.post("rest/insert.php", encAccount);
             })
-            .then(function(result) {
-                if (result["status"] != "success") {
-                    throw(results["message"]);
-                }
-                return result;
+            .then(function(msg) {
+                return checkResult(msg);
             });
     }
     updateAccount(id, name, newpwd, other) {
@@ -134,20 +131,48 @@ class Backend {
                 return $.post("rest/change.php", account.encrypted)
             })
             .then(function(msg){
-                if(msg["status"] != "success") {
-                    throw(msg["message"]);
-                }
-                return msg;
+                return checkResult(msg);
             });
     }
     deleteAccount(id) {
         return $.post("rest/delete.php", {index: id})
             .then(function(msg){
-                if(msg["status"] != "success") {
-                    throw(msg["message"]);
-                }
-                return msg;
+                return checkResult(msg);
             });
+    }
+
+    uploadFile(id, name, payload) {
+        var self = this;
+        var fkey = self.encryptionWrapper.generatePassphrase(Math.floor(Math.random() * 18) + 19);
+        var data = {
+            id:id, 
+            fkey:self.encryptionWrapper.encryptPassword(name, fkey),
+            data: self.encryptionWrapper.encryptCharUsingKey(payload, fkey),
+            fname: self.encryptionWrapper.encryptChar(name)
+        };
+
+        return $.post('rest/uploadfile.php', data)
+            .then(function(msg){
+                return checkResult(msg);
+            });
+    }
+    downloadFile(id) {
+        var self = this;
+        return $.post('rest/downloadfile.php', {id:id})
+            .then(function(msg) {
+                return checkResult(msg);
+            })
+            .then(function(filedata) {
+                var file = {};
+                file["name"] = self.accounts[id].file["name"];
+                var fkey = self.encryptionWrapper.decryptPassword(fname, filedata["key"]);
+                var data = self.encryptionWrapper.decryptCharUsingKey(filedata['data'], fkey);
+                var typedata = data.substring(5, data.search(";"));
+                data = data.substring(data.search(",") + 1);
+                file["data"] = base64toBlob(data, typedata);
+                return file;
+            })
+        ;
     }
 
     setPin(pin) {
@@ -173,5 +198,12 @@ class Backend {
     }
     get isTimeout() {
         return this.timeout < Math.floor(Date.now() / 1000);
+    }
+
+    static checkResult(msg) {
+        if(msg["status"] != "success") {
+            throw(msg["message"]);
+        }
+        return msg;
     }
 }

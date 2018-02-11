@@ -73,7 +73,7 @@ function sanitize_json(s){
 */
 function upload_file(fileid, filename, filedata, callback) {
     $("#showdetails").modal("hide");
-    backend.uploadFile(accountId, fileName, fileData)
+    backend.uploadFile(fileid, fileName, fileData)
         .then(callback);
 }
 function import_raw(json){
@@ -327,11 +327,11 @@ function showTable(accounts) {
 function downloadf(id){ 
     $("#messagewait").modal("show");
     backend.getFile(id)
-        .then(function(filename, filetype, content){
-            saveAs(base64toBlob(content, filetype), filename);
+        .then(function(file){
+            saveAs(file["data"], file["name"]);
         })
-        .catch(function(){
-            showMessage('danger', 'ERROR! ' + filedata['message'], false);
+        .catch(function(msg){
+            showMessage('danger', 'ERROR! ' + msg, false);
         })
         .then(function(){
             $("#messagewait").modal("hide");
