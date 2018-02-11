@@ -120,6 +120,7 @@ class Backend {
             return Promise.reject("Account name can't be empty");
         }
         var account = this.accounts[id];
+        account.accountName = name;
         account.clearVisibleOther();
         for (let x in other) {
             account.setOther(x, other[x]);
@@ -129,7 +130,7 @@ class Backend {
             promises.push(account.setPassword(newpwd))
         return Promise.all(promises)
             .then(function(){
-                return $.post("rest/change.php", account[id].encrypted)
+                return $.post("rest/change.php", account.encrypted)
             })
             .then(function(msg){
                 if(msg["status"] != "success") {
