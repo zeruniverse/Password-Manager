@@ -85,7 +85,7 @@ function import_raw(json){
             showMessage('warning', "one of account or password empty! will continue to process other accounts, check back after this finished", true); 
             return;
         }
-        backend.addAccount(acc, pass, other)
+        return backend.addAccount(acc, pass, other)
             .catch(function(msg) { 
                 showMessage('warning',"Fail to add " + acc + ", please try again manually later.", true); 
             });
@@ -101,9 +101,9 @@ function import_raw(json){
             showMessage('warning', "one of account, password or filename empty! will continue to process other accounts, check back after this finished", true); 
             return;
         }
-        backend.addAccount(acc, pass, other)
+        return backend.addAccount(acc, pass, other)
             .then(function(msg){
-                addfile(msg);
+                return addfile(msg);
             })
             .catch(function(msg){
                 showMessage('warning', "Fail to add " + acc + ", please try again manually later.", true); 
@@ -116,40 +116,43 @@ function import_raw(json){
         reloadAccounts();
     }
     function process(){
-        backend.extendedTimeout();
+        var promises = [];
         for(let x in json.data){
             if(typeof json.data[x].fname != 'undefined'){
-                add_acc_file(json.data[x].account, json.data[x].password, json.data[x].other, json.data[x].fname, json.data[x].filedata);
+                promises.push(add_acc_file(json.data[x].account, json.data[x].password, json.data[x].other, json.data[x].fname, json.data[x].filedata));
             }
-            else
-                add_acc(json.data[x].account, json.data[x].password, JSON.parse(sanitize_json(json.data[x].other)));
+            else {
+                promises.push(add_acc(json.data[x].account, json.data[x].password, JSON.parse(sanitize_json(json.data[x].other))));
+            }
         }
+        return promises;
     }
-    process();
-    setTimeout(onsucc,1000);
-    
+    backend.extendedTimeout();
+    Promise.all(process())
+        .then(onsucc);
 }
 function import_csv(csv){
 	var accarray = $.csv.toObjects(csv);
     backend.extendedTimeout();
+    var promises = [];
 	for (var x in accarray) {
 	    var acc = accarray[x]["name"];
 	    var pass = accarray[x]["password"];
-	    if(acc=='' || pass=='') {
+	    if(acc == '' || pass == '') {
 	        showMessage('danger', "one of account or password empty! will continue to process other accounts, check back after this finished", true); 
             continue;
 	    }
 	    var other = {};
 	    for (var key in accarray[x]){
 	        if (key in backend.fields){
-	            other[key]=accarray[x][key];
+	            other[key] = accarray[x][key];
 	        }
 	    }
 
-        backend.addAccount(acc, pass, other)
+        promises.push(backend.addAccount(acc, pass, other)
             .catch(function(msg) { 
                 showMessage('warning',"Fail to add " + acc + ", please try again manually later.", true); 
-            });
+            }));
 	}
     function bk(){
         $("#importbtn").attr("disabled", false);
@@ -162,7 +165,8 @@ function import_csv(csv){
 	    bk();
 	    reloadAccounts();
 	}
-	setTimeout(onsucc, 1000);
+    Promise.all(promises)
+        .then(onsucc);
 }
 // show last succesfull Login
 // changes the seenLoginInformation global variable
