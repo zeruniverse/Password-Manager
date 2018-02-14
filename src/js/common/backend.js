@@ -1,10 +1,5 @@
 class Backend {
     constructor() {
-        this.cleanUp = this.cleanUp.bind(this);
-        this.load = this.load.bind(this);
-        this.prepareData = this.prepareData.bind(this);
-        this.prepareCrypto = this.prepareCrypto.bind(this);
-        this.decryptAccounts = this.decryptAccounts.bind(this);
         this.cleanUp();
     }
     doPost(endpoint, data) {
