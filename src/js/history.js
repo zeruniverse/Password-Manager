@@ -1,18 +1,14 @@
 var usr = null;
-$.ajaxPrefilter(function(options, originalOptions, jqXHR){
-    if (options.type.toLowerCase() === "post") {
-        options.data = options.data || "";
-        options.data += options.data?"&":"";
-        options.data += "session_token=" + localStorage.session_token;
-    }
-});
+var backend;
 $(document).ready(function(){
-    $.post("rest/history.php", function(msg){dataReady(msg);});
+    backend = new Backend();
+    backend.getHistory()
+        .then(dataReady)
+        .catch(){
+            window.location = "./";
+        };
 });
 function dataReady(data){
-    if (data["status"] != "success"){
-        window.location = "./";
-    }
     for (var kpin in data["pins"]){
         pin = data["pins"][kpin];
         $("#pinTable")
@@ -64,5 +60,6 @@ function dataReady(data){
     $("#maindiv").show();
 }
 function unsetpin(devicex){
-    $.post("rest/deletepin.php",{user:usr,device:devicex},function(msg){location.reload(true);});
+    backend.unSetPin(devicex);
+    //$.post("rest/deletepin.php",{user:usr,device:devicex},function(msg){location.reload(true);});
 }

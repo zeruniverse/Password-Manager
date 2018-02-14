@@ -4,7 +4,10 @@ class Backend {
     }
     doPost(endpoint, data) {
         data["session_token"] = localStorage.session_token;
-        return $.post("rest/" + endpoint + ".php", data);
+        return $.post("rest/" + endpoint + ".php", data)
+            .then(function(msg) {
+                return Backend.checkResult(msg);
+            });
     }
     cleanUp(){
         this.accounts = [];
@@ -108,9 +111,6 @@ class Backend {
         return account.getEncrypted()
             .then(function(encAccount) {
                 return self.doPost("insert", encAccount);
-            })
-            .then(function(msg) {
-                return Backend.checkResult(msg);
             });
     }
     updateAccount(id, name, newpwd, other) {
@@ -133,17 +133,11 @@ class Backend {
             })
             .then(function(encAccount){
                 return self.doPost("change", encAccount);
-            })
-            .then(function(msg){
-                return Backend.checkResult(msg);
             });
     }
     deleteAccount(id) {
         var self = this;
-        return self.doPost("delete", {index: id})
-            .then(function(msg){
-                return Backend.checkResult(msg);
-            });
+        return self.doPost("delete", {index: id});
     }
 
     uploadFile(id, name, payload) {
@@ -156,17 +150,11 @@ class Backend {
             fname: self.encryptionWrapper.encryptChar(name)
         };
 
-        return $.post('rest/uploadfile.php', data)
-            .then(function(msg){
-                return Backend.checkResult(msg);
-            });
+        return self.doPost('uploadfile', data);
     }
     downloadFile(id) {
         var self = this;
-        return $.post('rest/downloadfile.php', {id:id})
-            .then(function(msg) {
-                return Backend.checkResult(msg);
-            })
+        return self.doPost('downloadfile', {id:id})
             .then(function(filedata) {
                 var file = {};
                 file["name"] = self.accounts[id].file["name"];
@@ -198,10 +186,7 @@ class Backend {
                 return Promise.reject("illegalFields");
             }
         }
-        return self.doPost("changefields", {fields: JSON.stringify(j)})
-            .then(function(msg){
-                return Backend.checkResult(msg);
-            });
+        return self.doPost("changefields", {fields: JSON.stringify(j)});
     }
 
     get fileEnabled() {
@@ -228,5 +213,8 @@ class Backend {
             throw(msg["message"]);
         }
         return msg;
+    }
+    getHistory() {
+        return this.doPost("history", {});
     }
 }
