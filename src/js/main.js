@@ -180,8 +180,7 @@ function showLastLoginInformation(failedCount, lastLogin){
             showMessage(loginMsgType, 'Your last login was on ' + timeConverter(lastLogin)+'. ' + failedMsg + ' Click for more information.')
                 .on('click', function(event){
                     $(this).alert('close');
-                    $('#historyformsesstoken').val(localStorage.session_token);
-                    $('#historyform').submit();
+                    window.location.href="./history.php";
                 });
         }
         seenLoginInformation = true;
@@ -759,8 +758,7 @@ $(document).ready(function(){
     $('#navBtnUntrust').on('click',function(){quitpwd_untrust();});
     $('#navBtnExport').on('click',function(){exportcsv()});
     $('#navBtnActivity').on('click',function(){
-        $('#historyformsesstoken').val(localStorage.session_token);
-        $('#historyform').submit();
+        window.location.href="./history.php";
     });
     callPlugins("layoutReady");
 });

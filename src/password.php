@@ -25,11 +25,6 @@ echoheader();
 <script src="js/plugins/keyboardShortcuts.js"></script>
    <nav class="navbar navbar-default navbar-fixed-top">
       <div class="container">
-        <div class="collapse">
-        <form id="historyform" action="history.php" method="post">
-        <input type="hidden" id="historyformsesstoken" name="session_token" />
-        </form>
-        </div>
         <div class="navbar-header pull-left">
           <a class="navbar-brand" href="#">Password-Manager</a>
         </div>
