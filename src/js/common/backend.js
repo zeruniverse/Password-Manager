@@ -7,13 +7,17 @@ class Backend {
         this.decryptAccounts = this.decryptAccounts.bind(this);
         this.cleanUp();
     }
+    doPost(endpoint, data) {
+        data["session_token"] = localStorage.session_token;
+        return $.post("rest/" + endpoint + ".php", data);
+    }
     cleanUp(){
         this.accounts = [];
         this.fields = [];
     }
     load() {
         var self = this;
-        return $.post("rest/password.php", {})
+        return self.doPost("password", {})
             .then(function(data){
                 callPlugins("dataReady", {"data":data});
                 if (data["status"] == "error") {
@@ -108,7 +112,7 @@ class Backend {
         }
         return account.getEncrypted()
             .then(function(encAccount) {
-                return $.post("rest/insert.php", encAccount);
+                return self.doPost("insert", encAccount);
             })
             .then(function(msg) {
                 return Backend.checkResult(msg);
@@ -130,7 +134,10 @@ class Backend {
             promises.push(account.setPassword(newpwd))
         return Promise.all(promises)
             .then(function(){
-                return $.post("rest/change.php", account.encrypted)
+                return account.getEncrypted();
+            })
+            .then(function(encAccount){
+                return self.doPost("change", encAccount);
             })
             .then(function(msg){
                 return Backend.checkResult(msg);
@@ -138,7 +145,7 @@ class Backend {
     }
     deleteAccount(id) {
         var self = this;
-        return $.post("rest/delete.php", {index: id})
+        return self.doPost("delete", {index: id})
             .then(function(msg){
                 return Backend.checkResult(msg);
             });
@@ -196,7 +203,7 @@ class Backend {
                 return Promise.reject("illegalFields");
             }
         }
-        return $.post("rest/changefields.php", {fields: JSON.stringify(j)})
+        return self.doPost("changefields", {fields: JSON.stringify(j)})
             .then(function(msg){
                 return Backend.checkResult(msg);
             });

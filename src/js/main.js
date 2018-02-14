@@ -4,14 +4,6 @@ var visibleAccounts;
 var seenLoginInformation = false;
 var backend;
 
-$.ajaxPrefilter(function(options, originalOptions, jqXHR) {
-    if (options.type.toLowerCase() === "post") {
-        options.data = options.data || "";
-        options.data += options.data?"&":"";
-        options.data += "session_token=" + localStorage.session_token;
-    }
-});
-
 function quitpwd(reason) {
     reason = reason || "";
     callPlugins("quitpwd", {"reason":reason});
