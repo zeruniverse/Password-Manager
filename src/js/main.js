@@ -1,6 +1,5 @@
 const thisIsThePasswordManager = "21688ab4-8e22-43b0-a988-2ca2c98e5796";
 //everything is going to be loaded later
-var visibleAccounts;
 var seenLoginInformation = false;
 var backend;
 
@@ -60,7 +59,16 @@ function sanitize_json(s){
     t=t.replace(/\n/g, '')
     return t.replace(/\r/g, '');
 }
-//ToDo: Use Promise.all
+function import_add_acc(acc, pass, other) {
+        if(acc==''||pass=='') {
+            showMessage('warning', "one of account or password empty! will continue to process other accounts, check back after this finished", true); 
+            return;
+        }
+        return backend.addAccount(acc, pass, other)
+            .catch(function(msg) { 
+                showMessage('warning',"Fail to add " + acc + ", please try again manually later.", true); 
+            });
+}
 function import_raw(json){
     json=JSON.parse(sanitize_json(json));
     if(json.status!="RAW_OK") {
@@ -71,16 +79,6 @@ function import_raw(json){
         $("#importbtn").attr("disabled", false);
         $("#importbtn").text("Submit");
         $("#importc").attr("disabled", false);
-    }
-    function add_acc(acc, pass, other){
-        if(acc==''||pass=='') {
-            showMessage('warning', "one of account or password empty! will continue to process other accounts, check back after this finished", true); 
-            return;
-        }
-        return backend.addAccount(acc, pass, other)
-            .catch(function(msg) { 
-                showMessage('warning',"Fail to add " + acc + ", please try again manually later.", true); 
-            });
     }
     function add_acc_file(acc, pass, other, fname, fdata){
         function addfile(msg){
@@ -130,21 +128,13 @@ function import_csv(csv){
 	for (var x in accarray) {
 	    var acc = accarray[x]["name"];
 	    var pass = accarray[x]["password"];
-	    if(acc == '' || pass == '') {
-	        showMessage('danger', "one of account or password empty! will continue to process other accounts, check back after this finished", true); 
-            continue;
-	    }
 	    var other = {};
 	    for (var key in accarray[x]){
 	        if (key in backend.fields){
 	            other[key] = accarray[x][key];
 	        }
 	    }
-
-        promises.push(backend.addAccount(acc, pass, other)
-            .catch(function(msg) { 
-                showMessage('warning',"Fail to add " + acc + ", please try again manually later.", true); 
-            }));
+        promises.push(import_add_acc(acc, pass, other));
 	}
     function bk(){
         $("#importbtn").attr("disabled", false);
