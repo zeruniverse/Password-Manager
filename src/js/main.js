@@ -59,15 +59,26 @@ function sanitize_json(s){
     t=t.replace(/\n/g, '')
     return t.replace(/\r/g, '');
 }
-function import_add_acc(acc, pass, other) {
-        if(acc==''||pass=='') {
-            showMessage('warning', "one of account or password empty! will continue to process other accounts, check back after this finished", true); 
-            return;
-        }
-        return backend.addAccount(acc, pass, other)
-            .catch(function(msg) { 
-                showMessage('warning',"Fail to add " + acc + ", please try again manually later.", true); 
-            });
+function import_add_acc(acc, pass, other, file) {
+    file = (typeof file !== 'undefined') ? file : null;
+    if(acc==''||pass=='') {
+        showMessage('warning', "one of account or password empty! will continue to process other accounts, check back after this finished", true); 
+        return;
+    }
+    if(file != null && file.name == ""){
+        showMessage('warning', "Filename empty! will continue to process other accounts, check back after this finished", true); 
+        return;
+    }
+    return backend.addAccount(acc, pass, other)
+        .then(function(msg) {
+            if (file == null) {
+                return msg;
+            }
+            return backend.uploadFile(msg["nid"], file["name"], file["data"]);
+        })
+        .catch(function(msg) {
+            showMessage('warning',"Fail to add " + acc + " (or corresponding file), please try again manually later.", true); 
+        });
 }
 function import_raw(json){
     json=JSON.parse(sanitize_json(json));
@@ -81,23 +92,7 @@ function import_raw(json){
         $("#importc").attr("disabled", false);
     }
     function add_acc_file(acc, pass, other, fname, fdata){
-        function addfile(msg){
-                return backend.uploadFile(msg["nid"], fname, fdata)
-                    .catch(function(msg){
-                        showMessage('warning', "Fail to add file for " + acc + ", please try again manually later.", true);
-                    });
-        }
-        if(acc=='' || pass=='' || fname=='') {
-            showMessage('warning', "one of account, password or filename empty! will continue to process other accounts, check back after this finished", true); 
-            return;
-        }
-        return backend.addAccount(acc, pass, other)
-            .then(function(msg){
-                return addfile(msg);
-            })
-            .catch(function(msg){
-                showMessage('warning', "Fail to add " + acc + ", please try again manually later.", true); 
-            });
+        return import_add_acc(acc, pass, other, {name:fname, data:fdata});
     }
     function onsucc(){
         showMessage('success', 'IMPORT FINISHED!');
@@ -167,7 +162,7 @@ function showLastLoginInformation(failedCount, lastLogin){
             }
         }
         if((lastLogin > 0) || (failedCount > 0)) {
-            showMessage(loginMsgType, 'Your last login was on ' + timeConverter(lastLogin)+'. ' + failedMsg + ' Click for more information.')
+            showMessage(loginMsgType, 'Your last login was on ' + timeConverter(lastLogin) + '. ' + failedMsg + ' Click for more information.')
                 .on('click', function(event){
                     $(this).alert('close');
                     window.location.href="./history.php";
