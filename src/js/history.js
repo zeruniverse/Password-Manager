@@ -47,11 +47,11 @@ function dataReady(data){
     $( ".uacell" ).each(function() {
        uastring=$(this).html();
        parser.setUA(uastring);
-       $(this).html(parser.getBrowser().name+' '+parser.getBrowser().version+'; '+parser.getOS().name+' '+parser.getOS().version+'; '+parser.getDevice().model+' '+parser.getCPU().architecture);
+       $(this).text(parser.getBrowser().name+' '+parser.getBrowser().version+'; '+parser.getOS().name+' '+parser.getOS().version+'; '+parser.getDevice().model+' '+parser.getCPU().architecture);
     });
     $( ".timestampcell" ).each(function(){
        nowtime=timeConverter($(this).attr('atttimestamp'));
-       $(this).html(nowtime);
+       $(this).text(nowtime);
     });
     $("#placeholder").hide();
 	$("#loginhistorytable").DataTable({ordering:false, searching:false});
