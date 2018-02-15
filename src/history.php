@@ -10,6 +10,7 @@ echoheader();
     <div class="page-header">
         <h1>Trusted Devices</h1>
     </div>
+    <div id="messageContainer"></div>
     <table class="table" id="pinTable">
     <tr><th>Device Type</th><th>Set Time</th><th>Untrust (Disable PIN)</th></tr>
     </table>

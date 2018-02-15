@@ -58,6 +58,11 @@ function dataReady(data){
     $("#maindiv").show();
 }
 function unsetpin(devicex){
-    backend.unSetPin(devicex);
-    //$.post("rest/deletepin.php",{user:usr,device:devicex},function(msg){location.reload(true);});
+    backend.unSetPin(devicex)
+        .then(function(){
+            location.reload(true);
+        })
+        .catch(function(msg){
+            showMessage('warning', "Failed to remove Pin: " + msg);
+        });
 }

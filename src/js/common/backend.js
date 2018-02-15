@@ -221,4 +221,7 @@ class Backend {
                 return msg;
             });
     }
+    unSetPin(device) {
+        return this.doPost("deletepin", {user:this.user, device:device});
+    }
 }
