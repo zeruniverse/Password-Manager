@@ -13,7 +13,7 @@ class Backend {
         this.accounts = [];
         this.fields = [];
     }
-    load() {
+    loadAccounts() {
         var self = this;
         return self.doPost("password", {})
             .then(function(data){
@@ -215,6 +215,10 @@ class Backend {
         return msg;
     }
     getHistory() {
-        return this.doPost("history", {});
+        return this.doPost("history", {})
+            .then(function(msg){
+                this.user = msg["usr"];
+                return msg;
+            });
     }
 }

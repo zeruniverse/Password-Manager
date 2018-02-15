@@ -9,8 +9,7 @@ $(document).ready(function(){
         };
 });
 function dataReady(data){
-    for (var kpin in data["pins"]){
-        pin = data["pins"][kpin];
+    for (var pin of data["pins"]){
         $("#pinTable")
             .append($("<tr></tr>")
                     .append($("<td></td>")
@@ -26,8 +25,7 @@ function dataReady(data){
                                 unsetpin(event.data.did);
                             }))));
     }
-    for (var kip in data["ips"]){
-        var ip = data["ips"][kip];
+    for (var ip of data["ips"]){
         var row = $('<tr></tr>');
         if (ip["outcome"])
             row.addClass("textred");

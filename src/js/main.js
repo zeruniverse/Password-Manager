@@ -323,14 +323,13 @@ function cleanUp() {
 }
 function reloadAccounts() {
     cleanUp();
-    backend.load()
+    backend.loadAccounts()
         .then(dataReady);
 }
 $(document).ready(function(){
     datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true,autoWidth:false, "deferRender": true, drawCallback: function(settings) { preDrawCallback( this.api(), settings);}, "lengthMenu": [ [10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"] ] });
     backend = new Backend();
-    backend.load()
-        .then(dataReady);
+    reloadAccounts();
 
     // Define event handlers
     $("#pinloginform").on('submit',function(e){
