@@ -184,7 +184,7 @@ $(function(){
     $.urlParam = function(name){
         var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
         if (results) {
-            return results[1];
+            return decodeURIComponent(results[1].replace(/\+/g, '%20'));
         }
         return null;
     }
