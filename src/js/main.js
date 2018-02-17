@@ -16,9 +16,9 @@ function quitpwd(reason) {
 }
 function quitpwd_untrust() {
     callPlugins("quitpwd_untrust");
-    backend.quit()
+    backend.untrust()
         .then(function(){
-            return backend.untrust();
+            return backend.quit();
         })
         .then(function(){
             window.location.href="./logout.php";
