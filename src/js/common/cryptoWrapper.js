@@ -82,7 +82,7 @@ class EncryptionWrapper {
         var i, j, k;
         var tempchar;
         var orig_alphabet_len = orig_alphabet.length;
-        shift_str = pbkdf2_enc(key + account_sig, salt, 100);
+        shift_str = EncryptionWrapper.pbkdf2_enc(key + account_sig, salt, 100);
         shift_str_len = shift_str.length;
 
         for (i = 0;i < orig_alphabet_len;i++){
@@ -132,7 +132,12 @@ class EncryptionWrapper {
         var p = CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(echar,key));
         return p;  
     }
-
+    static pbkdf2_enc(key, orig_salt, iter){
+        var hash = CryptoJS.SHA512(key);
+        var salt = CryptoJS.SHA512(orig_salt);
+        var gen_key = CryptoJS.PBKDF2(hash, salt, { keySize: 512/32, iterations: iter });   
+        return String(gen_key);
+    }
 
     generatePassphrase(plength) {
         var charlist = this.alphabet;
