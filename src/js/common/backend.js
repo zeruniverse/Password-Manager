@@ -224,4 +224,21 @@ class Backend {
     unSetPin(device) {
         return this.doPost("deletepin", {user:this.user, device:device});
     }
+    quit() {
+        //Todo raise event
+        return Promise.resolve(sessionStorage.clear());
+    }
+    untrust() {
+        //Todo raise event
+        localStorage.clear();
+        var promises = [];
+        if (getcookie('device') != "") {
+            promises.push(this.doPost("deletepin", {user:getcookie('username'), device:getcookie('device')}));
+        }
+        return Promise.all(promises)
+            .then(function(){
+                deleteCookie('device');
+                deleteCookie('username');
+            });
+    }
 }
