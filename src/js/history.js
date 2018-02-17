@@ -4,9 +4,9 @@ $(document).ready(function(){
     backend = new Backend();
     backend.getHistory()
         .then(dataReady)
-        .catch(){
+        .catch(function(){
             window.location = "./";
-        };
+        });
 });
 function dataReady(data){
     for (var pin of data["pins"]){
