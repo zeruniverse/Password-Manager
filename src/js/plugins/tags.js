@@ -1,5 +1,4 @@
 //Plugin for the tag
-var visibleAccounts;
 function showAllTags(accounts) {
     function gatherDistinctTags(accounts) {
         var tags = [];

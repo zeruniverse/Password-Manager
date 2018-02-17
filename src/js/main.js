@@ -2,6 +2,7 @@ const thisIsThePasswordManager = "21688ab4-8e22-43b0-a988-2ca2c98e5796";
 //everything is going to be loaded later
 var seenLoginInformation = false;
 var backend;
+var visibleAccounts;
 
 function quitpwd(reason) {
     reason = reason || "";
