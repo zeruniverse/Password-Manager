@@ -1,13 +1,29 @@
-class Backend {
-    constructor() {
-        this.cleanUp();
-    }
+class commonBackend {
     doPost(endpoint, data) {
-        data["session_token"] = localStorage.session_token;
+        data["session_token"] = this.sessionToken;
         return $.post("rest/" + endpoint + ".php", data)
             .then(function(msg) {
-                return Backend.checkResult(msg);
+                return commonBackend.checkResult(msg);
             });
+    }
+    get sessionToken() {
+        return localStorage.session_token;
+    }
+    static checkResult(msg) {
+        if(msg["status"] != "success") {
+            throw(msg["message"]);
+        }
+        return msg;
+    }
+}
+class Backend extends commonBackend{
+    constructor() {
+        this.cleanUp();
+        this.events = ["logout"];
+        this.eventSubscribers = {};
+        for (event in events){
+            eventSubscribers[events[event]] = [];
+        }
     }
     cleanUp(){
         this.accounts = [];
@@ -208,12 +224,6 @@ class Backend {
         return this.timeout < Math.floor(Date.now() / 1000);
     }
 
-    static checkResult(msg) {
-        if(msg["status"] != "success") {
-            throw(msg["message"]);
-        }
-        return msg;
-    }
     getHistory() {
         return this.doPost("history", {})
             .then(function(msg){
@@ -224,11 +234,20 @@ class Backend {
     unSetPin(device) {
         return this.doPost("deletepin", {user:this.user, device:device});
     }
-    quit() {
+
+    logout(reason) {
+        reason = reason || "";
+        var self = this;
         //Todo raise event
-        return Promise.resolve(sessionStorage.clear());
+        sessionStorage.clear();
+        return this.doPost("logout", {})
+            .then(function(){
+                self.callEvent("logout", {reason: reason});
+                return reason;
+            });
     }
-    untrust() {
+    untrustAndLogout() {
+        var self = this;
         //Todo raise event
         localStorage.clear();
         var promises = [];
@@ -239,6 +258,16 @@ class Backend {
             .then(function(){
                 deleteCookie('device');
                 deleteCookie('username');
+                return self.logout();
             });
+    }
+
+    registerEvent(entry, callback) {
+        this.eventSubscribers[entry].push(callback);
+    }
+    callEvent(entry, data) {
+        for (var callback of this.eventsSubscribers[entry]) {
+            callback(data);
+        }
     }
 }

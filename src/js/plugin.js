@@ -7,8 +7,8 @@ function initPlugins() {
     }
 }
 function callPlugins(entry, data){
-    for (var call in runPlugins[entry]){
-        runPlugins[entry][call](data);
+    for (var callback of runPlugins[entry]){
+        callback(data);
     }
 }
 function registerPlugin(entry, call){

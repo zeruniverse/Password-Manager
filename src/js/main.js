@@ -4,29 +4,25 @@ var seenLoginInformation = false;
 var backend;
 var visibleAccounts;
 
-function quitpwd(reason) {
+// ToDo: move countdown to backend
+function eventLogout(data) {
+    var reason = data["reason"];
     reason = reason || "";
     callPlugins("quitpwd", {"reason":reason});
     if (reason != "")
-        reason ="?reason="+encodeURIComponent(reason);
-    backend.quit()
-        .then(function() {
-            window.location.href="./logout.php"+reason;
-        });
+        reason = "?reason=" + encodeURIComponent(reason);
+    window.location.href = "./logout.php" + reason;
 }
 function quitpwd_untrust() {
     callPlugins("quitpwd_untrust");
-    backend.untrust()
-        .then(function(){
-            return backend.quit();
-        })
+    backend.untrustAndLogout()
         .then(function(){
             window.location.href="./logout.php";
         });
 }
 function countdown() {
     if (backend.isTimeout) {
-        quitpwd("Logged out due to inactivity");
+        backend.logout("Logged out due to inactivity");
     }
 }
 //ToDo is this necessary?
@@ -50,11 +46,11 @@ function checksessionalive()
         document.cookie = cname + "=" + cvalue + ";path=/ ";
     }
     var ck=getCookie("ServerRenew");
-    if(ck=='1')
+    if(ck=='1') // Reset timer
         server_timeout = backend.default_server_timeout+Math.floor(Date.now() / 1000);
-    if(ck=="-1"||server_timeout<Math.floor(Date.now() / 1000))
-        quitpwd("Session timed out");
-    setCookie("ServerRenew", '0');
+    if(ck=="-1" || server_timeout < Math.floor(Date.now() / 1000)) // Timer has expired
+        backend.logout("Session timed out");
+    setCookie("ServerRenew", '0');// nothing happened
 }
 var datatablestatus=null;
 var fileid=-1;
@@ -330,6 +326,7 @@ function reloadAccounts() {
 $(document).ready(function(){
     datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true,autoWidth:false, "deferRender": true, drawCallback: function(settings) { preDrawCallback( this.api(), settings);}, "lengthMenu": [ [10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"] ] });
     backend = new Backend();
+    backend.registerEvent("logout", eventLogout);
     reloadAccounts();
 
     // Define event handlers
@@ -585,7 +582,7 @@ $(document).ready(function(){
                 $.post("rest/changeuserpw.php", {newpass:String(CryptoJS.SHA512(postnewpass+user)), accarray:JSON.stringify(accarray)},function(msg){
                     if(msg["status"] == "success") {
                         alert("Change Password Successfully! Please login with your new password again.");
-                        quitpwd("Password changed, please relogin");
+                        backend.logout("Password changed, please relogin");
                     }
                     else {
                         showMessage('warning', "Fail to change your password, please try again.", true);
@@ -744,9 +741,9 @@ $(document).ready(function(){
         showMessage('info', 'PIN deleted, use username/password to login next time', true);
         $('#pin').modal('hide');
     });
-    $('#navBtnLogout').on('click',function(){quitpwd();});
-    $('#navBtnUntrust').on('click',function(){quitpwd_untrust();});
-    $('#navBtnExport').on('click',function(){exportcsv()});
+    $('#navBtnLogout').on('click',function(){ backend.logout(); });
+    $('#navBtnUntrust').on('click',function(){ quitpwd_untrust(); });
+    $('#navBtnExport').on('click',function(){ exportcsv(); });
     $('#navBtnActivity').on('click',function(){
         window.location.href="./history.php";
     });
@@ -777,16 +774,16 @@ function showuploadfiledlg(id){
     $("#uploadfiledlg").modal("hide");
     $("#uploadfitemlab1").text(backend.accounts[id].accountName);
     $("#uploadfitemlab2").text(backend.accounts[id].accountName);
-    $("#uploadfilebtn").attr("disabled",false);
+    $("#uploadfilebtn").attr("disabled", false);
     $("#uploadfilebtn").text("Submit");
-    $("#uploadf").attr("disabled",false);
-    fileid=id;
+    $("#uploadf").attr("disabled", false);
+    fileid = id;
     $("#uploadfiledlg").modal("show");
 }
 function clicktohide(id){
     backend.resetTimeout();
-    $("#"+id).empty().append($('<a title="Click to see"></a>')
-                        .on('click',{"index":id},function(event){clicktoshow(event.data.index);})
+    $("#" + id).empty().append($('<a title="Click to see"></a>')
+                        .on('click', {"index":id}, function(event){ clicktoshow(event.data.index); })
                         .append('<span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span>') );
 }
 function delepw(index)
