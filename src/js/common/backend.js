@@ -40,6 +40,7 @@ class Backend extends commonBackend{
                 self.receivedData = data;
                 self.prepareData(data);
                 self.resetTimeout();
+                self.initTimeout();
                 return self.prepareCrypto(data["global_salt_2"], data["default_letter_used"]);
             })
             .then(function(){
@@ -215,6 +216,14 @@ class Backend extends commonBackend{
     //Timout
     resetTimeout() {
         this.timeout = this.defaut_timeout + Math.floor(Date.now() / 1000);
+    }
+    countdown() {
+        if (backend.isTimeout) {
+            backend.logout("Logged out due to inactivity");
+        }
+    }
+    initTimeout() {
+        setInterval(this.countdown().bind(this), 5000);
     }
     // extended timeout for actions that take a long time
     extendedTimeout() {

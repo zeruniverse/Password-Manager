@@ -4,7 +4,6 @@ var seenLoginInformation = false;
 var backend;
 var visibleAccounts;
 
-// ToDo: move countdown to backend
 function eventLogout(data) {
     var reason = data["reason"];
     reason = reason || "";
@@ -20,31 +19,9 @@ function quitpwd_untrust() {
             window.location.href="./logout.php";
         });
 }
-function countdown() {
-    if (backend.isTimeout) {
-        backend.logout("Logged out due to inactivity");
-    }
-}
 //ToDo is this necessary?
 function checksessionalive()
 {
-    function getCookie(cname) {
-        var name = cname + "=";
-        var ca = document.cookie.split(';');
-        for(var i = 0; i <ca.length; i++) {
-            var c = ca[i];
-            while (c.charAt(0)==' ') {
-                c = c.substring(1);
-            }
-            if (c.indexOf(name) == 0) {
-                return c.substring(name.length, c.length);
-            }
-        }
-        return "-1";
-    }
-    function setCookie(cname, cvalue) {
-        document.cookie = cname + "=" + cvalue + ";path=/ ";
-    }
     var ck=getCookie("ServerRenew");
     if(ck=='1') // Reset timer
         server_timeout = backend.default_server_timeout+Math.floor(Date.now() / 1000);
@@ -181,7 +158,6 @@ function dataReady(){
 
     showLastLoginInformation(backend.loginInformation["failedCount"], backend.loginInformation["lastLogin"]);
 
-    setInterval(countdown, 1000);
     setInterval(checksessionalive, 1000);
 
     initFields(backend.fields);
