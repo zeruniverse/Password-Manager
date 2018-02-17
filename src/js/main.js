@@ -7,17 +7,22 @@ var visibleAccounts;
 function quitpwd(reason) {
     reason = reason || "";
     callPlugins("quitpwd", {"reason":reason});
-    delpwdstore();
     if (reason != "")
         reason ="?reason="+encodeURIComponent(reason);
-    window.location.href="./logout.php"+reason;
+    backend.quit()
+        .then(function() {
+            window.location.href="./logout.php"+reason;
+        });
 }
 function quitpwd_untrust() {
     callPlugins("quitpwd_untrust");
-    delpwdstore();
-    delpinstore();
-    deleteCookie('username');
-    window.location.href="./logout.php";
+    backend.quit()
+        .then(function(){
+            return backend.untrust();
+        })
+        .then(function(){
+            window.location.href="./logout.php";
+        });
 }
 function countdown() {
     if (backend.isTimeout) {
@@ -45,9 +50,9 @@ function checksessionalive()
         document.cookie = cname + "=" + cvalue + ";path=/ ";
     }
     var ck=getCookie("ServerRenew");
-    if(ck=='1') 
+    if(ck=='1')
         server_timeout = backend.default_server_timeout+Math.floor(Date.now() / 1000);
-    if(ck=="-1"||server_timeout<Math.floor(Date.now() / 1000)) 
+    if(ck=="-1"||server_timeout<Math.floor(Date.now() / 1000))
         quitpwd("Session timed out");
     setCookie("ServerRenew", '0');
 }
@@ -63,11 +68,11 @@ function sanitize_json(s){
 function import_add_acc(acc, pass, other, file) {
     file = (typeof file !== 'undefined') ? file : null;
     if(acc==''||pass=='') {
-        showMessage('warning', "one of account or password empty! will continue to process other accounts, check back after this finished", true); 
+        showMessage('warning', "one of account or password empty! will continue to process other accounts, check back after this finished", true);
         return;
     }
     if(file != null && file.name == ""){
-        showMessage('warning', "Filename empty! will continue to process other accounts, check back after this finished", true); 
+        showMessage('warning', "Filename empty! will continue to process other accounts, check back after this finished", true);
         return;
     }
     return backend.addAccount(acc, pass, other)
@@ -78,7 +83,7 @@ function import_add_acc(acc, pass, other, file) {
             return backend.uploadFile(msg["nid"], file["name"], file["data"]);
         })
         .catch(function(msg) {
-            showMessage('warning',"Fail to add " + acc + " (or corresponding file), please try again manually later.", true); 
+            showMessage('warning',"Fail to add " + acc + " (or corresponding file), please try again manually later.", true);
         });
 }
 function import_raw(json){
@@ -175,13 +180,13 @@ function showLastLoginInformation(failedCount, lastLogin){
 //alles in backend klasse machen
 function dataReady(){
 
-    $("#fileincludeckbp").toggle(backend.fileEnabled); 
+    $("#fileincludeckbp").toggle(backend.fileEnabled);
     $("#changefieldsnav").toggle(backend.allowFieldChange);
-    
+
     showLastLoginInformation(backend.loginInformation["failedCount"], backend.loginInformation["lastLogin"]);
 
     setInterval(countdown, 1000);
-    setInterval(checksessionalive, 1000); 
+    setInterval(checksessionalive, 1000);
 
     initFields(backend.fields);
     callPlugins("fieldsReady", {"fields":backend.fields, "accounts":backend.accounts});
@@ -251,13 +256,13 @@ function showTable(accounts) {
             .append($('<a>')
                 .attr('title', "Edit")
                 .attr('class', 'cellOptionButton')
-                .on('click', {"index":accounts[index].index}, function(event){edit(event.data.index);}) 
+                .on('click', {"index":accounts[index].index}, function(event){edit(event.data.index);})
                 .append($('<span></span>')
                     .attr('class', 'glyphicon glyphicon-wrench')))
             .append($('<a>')
                 .attr('title', 'Details')
                 .attr('class', 'cellOptionButton')
-                .on('click', {"index":accounts[index]["index"]}, function(event){showdetail(event.data.index);}) 
+                .on('click', {"index":accounts[index]["index"]}, function(event){showdetail(event.data.index);})
                 .append($('<span class="glyphicon glyphicon-eye-open"></span>')))
         );
         cols.push($('<td>')
@@ -265,13 +270,13 @@ function showTable(accounts) {
                 .attr('passid', accounts[index].index)
                 .attr('id', accounts[index].index)
                 .append(pwdLink.clone()
-                            .on('click', {"index":accounts[index]["index"]}, function(event){clicktoshow(event.data.index);}) 
+                            .on('click', {"index":accounts[index]["index"]}, function(event){clicktoshow(event.data.index);})
                         )
             ));
         // fill in other
         let fields = backend.fields;
         for (var x in fields) {
-            if (fields[x]["count"]>0) { 
+            if (fields[x]["count"]>0) {
                 var value="";
                 if (x in accounts[index]["other"])
                     value = accounts[index]["other"][x];
@@ -296,7 +301,7 @@ function showTable(accounts) {
     $("#pwdtable").show();
 
 }
-function downloadf(id){ 
+function downloadf(id){
     $("#messagewait").modal("show");
     backend.downloadFile(id)
         .then(function(file){
@@ -345,7 +350,7 @@ $(document).ready(function(){
                 });
         }
         if (pin.length<4) {
-            showMessage('warning', 'For security reason, PIN should be at least of length 4.', true); 
+            showMessage('warning', 'For security reason, PIN should be at least of length 4.', true);
             return;
         }
         //todo for backend
@@ -364,16 +369,16 @@ $(document).ready(function(){
                 });
             }
             rand_device();
-        } 
+        }
         else {
-            process();  
+            process();
         }
     });
     $("#changefieldsbtn").click(function(){
         var fields = $('#fieldsz').val();
         backend.updateFields(fields)
             .then(function(){
-                showMessage('success','Successfully changed fields!'); 
+                showMessage('success','Successfully changed fields!');
                 $('#changefields').modal('hide');
                 reloadAccounts();
             })
@@ -389,9 +394,9 @@ $(document).ready(function(){
                 }
             });
     });
-    $("#newbtn").click(function(){ 
+    $("#newbtn").click(function(){
         if($("#newiteminput").val() == "") {
-            showMessage("warning", "Account entry can't be empty!", true); 
+            showMessage("warning", "Account entry can't be empty!", true);
             return;
         }
         $("#newbtn").attr("disabled",true);
@@ -401,10 +406,10 @@ $(document).ready(function(){
             $("#newiteminput"+x).attr("readonly",true);
         var newpwd;
         var name = $("#newiteminput").val();
-        if($("#newiteminputpw").val() != '') 
+        if($("#newiteminputpw").val() != '')
             newpwd = $("#newiteminputpw").val();
-        else 
-            newpwd = getpwd(default_letter_used, default_length); 
+        else
+            newpwd = getpwd(default_letter_used, default_length);
         var other = {};
         for (let x in backend.fields)
             other[x] = $("#newiteminput"+x).val().trim();
@@ -425,9 +430,9 @@ $(document).ready(function(){
                     $("#newiteminput"+x).attr("readonly",false);
             });
     });
-    $("#editbtn").click(function(){ 
+    $("#editbtn").click(function(){
         if($("#edititeminput").val() == "") {
-            showMessage('warning',"Account entry can't be empty!", true); 
+            showMessage('warning',"Account entry can't be empty!", true);
             return;
         }
         $("#editbtn").attr("disabled",true);
@@ -457,7 +462,7 @@ $(document).ready(function(){
                 for (let x in backend.fields)
                     $("#edititeminput" + x).attr("readonly",false);
             });
-    }); 
+    });
     $("#backuppwdbtn").click(function(){
         $("#backuppwdbtn").attr('disabled',true);
         $("#backuppwdpb").attr('aria-valuenow',0);
@@ -530,11 +535,11 @@ $(document).ready(function(){
         delepw($("#edit").data('id'));
     });
     //ToDo for encryptionWrapper
-    $("#changepw").click(function(){ 
+    $("#changepw").click(function(){
         if(confirm("Your request will be processed on your browser, so it takes some time (up to #of_your_accounts * 10seconds). Do not close your window or some error might happen.\nPlease note we won't have neither your old password nor your new password. \nClick OK to confirm password change request."))
         {
             if ($("#pwd").val()!=$("#pwd1").val() || $("#pwd").val().length<7){
-                showMessage('warning',"The second password you input doesn't match the first one. Or your password is too weak (length should be at least 7)", true); 
+                showMessage('warning',"The second password you input doesn't match the first one. Or your password is too weak (length should be at least 7)", true);
                 return;
             }
             $("#changepw").attr("disabled",true);
@@ -542,7 +547,7 @@ $(document).ready(function(){
             function process(){
                 var login_sig = String(pbkdf2_enc(reducedinfo($("#oldpassword").val(),default_letter_used), salt1, 500));
                 if(secretkey != String(CryptoJS.SHA512(login_sig+salt2))) {
-                    showMessage('warning',"Incorrect Old Password!", true); 
+                    showMessage('warning',"Incorrect Old Password!", true);
                     return;
                 }
                 var newpass=$("#pwd").val();
@@ -550,7 +555,7 @@ $(document).ready(function(){
                 var newsecretkey=String(CryptoJS.SHA512(login_sig+salt2));
                 var postnewpass=pbkdf2_enc(login_sig, salt1, 500);
                 //NOTE: login_sig here is the secret_key generated when login.
-                var newconfkey=pbkdf2_enc(String(CryptoJS.SHA512(newpass+login_sig)), salt1, 500); 
+                var newconfkey=pbkdf2_enc(String(CryptoJS.SHA512(newpass+login_sig)), salt1, 500);
                 var raw_pass, raw_fkey;
                 var accarray= [];
                 //ToDo auf Account Class, encryptionWrapper umstellen
@@ -559,7 +564,7 @@ $(document).ready(function(){
                     accarray[x] = {"name": encryptchar(accountarray[x]["name"], newsecretkey), "is_f":1, "fname": '', "other": encryptchar(JSON.stringify(tmpother), newsecretkey)};
                     if(accountarray[x]["fname"] == '') {
                         accarray[x]['is_f'] = 0;
-                    } 
+                    }
                     else {
                         accarray[x]["fname"] = encryptchar(accountarray[x]["fname"],newsecretkey);
                     }
@@ -577,20 +582,20 @@ $(document).ready(function(){
                     accarray[x]["newpwd"] = encryptchar(raw_pass, newsecretkey);
                     accarray[x]["fk"] = encryptchar(raw_fkey, newsecretkey);
                 }
-                $.post("rest/changeuserpw.php", {newpass:String(CryptoJS.SHA512(postnewpass+user)), accarray:JSON.stringify(accarray)},function(msg){ 
+                $.post("rest/changeuserpw.php", {newpass:String(CryptoJS.SHA512(postnewpass+user)), accarray:JSON.stringify(accarray)},function(msg){
                     if(msg["status"] == "success") {
                         alert("Change Password Successfully! Please login with your new password again.");
                         quitpwd("Password changed, please relogin");
-                    } 
+                    }
                     else {
-                        showMessage('warning', "Fail to change your password, please try again.", true); 
+                        showMessage('warning', "Fail to change your password, please try again.", true);
                     }
                 });
             }
             setTimeout(process, 50);
         }
     });
-    $("#importbtn").click(function(){ 
+    $("#importbtn").click(function(){
         $("#importbtn").attr("disabled", true);
         $("#importbtn").text("Processing...");
         $("#importc").attr("disabled", true);
@@ -610,15 +615,15 @@ $(document).ready(function(){
                         var txt = e.target.result;
                         try{
                             if(t==0) {
-                                import_raw(txt); 
+                                import_raw(txt);
                             }
                             else {
                                 import_csv(txt);
                             }
                         }
-                        catch (error) { 
-                            showMessage('warning','Some error occurs!', true); 
-                            bk(); 
+                        catch (error) {
+                            showMessage('warning','Some error occurs!', true);
+                            bk();
                             reloadAccounts();
                         }
                     }
@@ -630,13 +635,13 @@ $(document).ready(function(){
                     if(extension=='csv') {
                         t=1;
                     }
-                    reader.readAsText(a[0]);          
-                } 
+                    reader.readAsText(a[0]);
+                }
                 else {
-                    showMessage('warning','NO FILE SELECTED', true); 
+                    showMessage('warning','NO FILE SELECTED', true);
                     bk();
                 }
-            } 
+            }
             else {
                 showMessage('warning','FileReader are not supported in this browser.', true);
             }
@@ -645,7 +650,7 @@ $(document).ready(function(){
     });
 
 
-    $("#uploadfilebtn").click(function(){ 
+    $("#uploadfilebtn").click(function(){
         $("#uploadfilebtn").attr("disabled",true);
         $("#uploadfilebtn").text("Processing...");
         $("#uploadf").attr("disabled",true);
@@ -665,13 +670,13 @@ $(document).ready(function(){
                         var data = e.target.result;
                         backend.uploadFile(fileid, fname, data)
                             .then(function(msg){
-                                showMessage('success','File uploaded!', false); 
+                                showMessage('success','File uploaded!', false);
                             })
                             .catch(function(msg) {
-                                showMessage('danger','ERROR! Try again!', false); 
+                                showMessage('danger','ERROR! Try again!', false);
                             })
                             .then(function(){
-                                $('#uploadfiledlg').modal("hide"); 
+                                $('#uploadfiledlg').modal("hide");
                                 $("#showdetails").modal("hide");
                                 reloadAccounts();
                             });
@@ -682,17 +687,17 @@ $(document).ready(function(){
                     }
                     fname = a[0].name;
                     if(fname == ''){
-                        showMessage('warning','File selected doesn\'t have a name!', true); 
-                        bk(); 
+                        showMessage('warning','File selected doesn\'t have a name!', true);
+                        bk();
                         return;
                     }
-                    reader.readAsDataURL(a[0]);          
-                } 
+                    reader.readAsDataURL(a[0]);
+                }
                 else {
-                    showMessage('warning','NO FILE SELECTED', true); 
+                    showMessage('warning','NO FILE SELECTED', true);
                     bk();
                 }
-            } 
+            }
             else {
                 showMessage('warning','FileReader are not supported in this browser.', true);
             }
@@ -711,7 +716,7 @@ $(document).ready(function(){
         $("#edititeminputpw").val('');
         for (let x in backend.fields){
             $("#edititeminput"+x).val(backend.accounts[id].getOther(x));
-        } 
+        }
         callPlugins("editAccountDialog",{"account": backend.accounts[id]});
     });
     $('#edit').on('hide.bs.modal', function() {
@@ -720,7 +725,7 @@ $(document).ready(function(){
     $('#editPasswordInput').on('click', function() {
         $('#edititeminputpw').val(getpwd(default_letter_used, default_length));
         $('#editAccountShowPassword').removeClass('collapse');
-        $('#editAccountShowPassword').popover({ 
+        $('#editAccountShowPassword').popover({
             'placement':'bottom',
             'title':'',
             'container':'body',
@@ -732,7 +737,7 @@ $(document).ready(function(){
                 });
                 $('.popover-title').hide();
             })
-            .popover('show'); 
+            .popover('show');
     });
     $('#pinBtnDel').on('click',function(){
         delpinstore();
@@ -752,7 +757,7 @@ function edit(row){
     $("#edit").data("id", id);
     $("#edit").modal("show");
 }
-function clicktoshow(id){ 
+function clicktoshow(id){
     backend.resetTimeout();
     id = parseInt(id);
     backend.accounts[id].getPassword()
@@ -760,14 +765,14 @@ function clicktoshow(id){
             $("#"+id).empty()
                 .append($('<span class="pwdshowbox passwordText"></span>'))
                 .append($('<a title="Hide" class="cellOptionButton"></a>')
-                    .on('click',{"index":id},function(event){clicktohide(event.data.index);}) 
+                    .on('click',{"index":id},function(event){clicktohide(event.data.index);})
                     .append($('<span class="glyphicon glyphicon-eye-close"></span>')));
             $("#"+id+" > .pwdshowbox").text(pwd);
         })
         .catch(function(){
             $("#"+id).text("Oops, some error occurs!");
         });
-} 
+}
 function showuploadfiledlg(id){
     $("#uploadfiledlg").modal("hide");
     $("#uploadfitemlab1").text(backend.accounts[id].accountName);
@@ -781,11 +786,11 @@ function showuploadfiledlg(id){
 function clicktohide(id){
     backend.resetTimeout();
     $("#"+id).empty().append($('<a title="Click to see"></a>')
-                        .on('click',{"index":id},function(event){clicktoshow(event.data.index);}) 
+                        .on('click',{"index":id},function(event){clicktoshow(event.data.index);})
                         .append('<span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span>') );
 }
 function delepw(index)
-{   
+{
     var name = backend.accounts[parseInt(index)].accountName;
     if(confirm("Are you sure you want to delete password for " + name + "? (ATTENTION: this is irreversible)"))
     {
@@ -822,17 +827,17 @@ function showdetail(index){
         }
     }
     if(backend.fileEnabled){
-        if(account.file != null) 
+        if(account.file != null)
             table.append($('<tr>')
                 .append($('<td>').css("color","#66ccff").css("font-weight","normal").text('File'))
                 .append($('<td>').css("color","#0000ff").css("font-weight","bold")
                     .append($('<a>')
                         .attr('title',"Download File").text(account.file["name"])
-                        .on('click',{"index":account.index},function(event){downloadf(event.data.index);}) 
+                        .on('click',{"index":account.index},function(event){downloadf(event.data.index);})
                         )
                     .append('&nbsp;&nbsp;&nbsp;')
                     .append($('<a>').attr('title',"Upload file")
-                        .on('click',{"index":account.index},function(event){showuploadfiledlg(event.data.index);}) 
+                        .on('click',{"index":account.index},function(event){showuploadfiledlg(event.data.index);})
                         .append($('<span>').attr('class',"glyphicon glyphicon-arrow-up")))));
         else table.append($('<tr>')
                     .append($('<td>')
@@ -842,9 +847,9 @@ function showdetail(index){
                         .css("color","#0000ff").css("font-weight","bold")
                         .text('None').append('&nbsp;&nbsp;&nbsp;')
                         .append($('<a>').attr('title',"Upload file")
-                            .on('click',{"index":account.index},function(event){showuploadfiledlg(event.data.index);}) 
+                            .on('click',{"index":account.index},function(event){showuploadfiledlg(event.data.index);})
                             .append($('<span>')
-                                        .attr('class',"glyphicon glyphicon-arrow-up"))))); 
+                                        .attr('class',"glyphicon glyphicon-arrow-up")))));
     }
     s.append(table);
     if ("_system_passwordLastChangeTime" in account.availableOthers) {
