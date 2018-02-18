@@ -47,50 +47,42 @@ function import_add_acc(acc, pass, other, file) {
     }
     return backend.addAccount(acc, pass, other)
         .then(function(msg) {
-            if (file == null) {
-                return msg;
+            if (file) {
+                return backend.uploadFile(msg["nid"], file["name"], file["data"]);
             }
-            return backend.uploadFile(msg["nid"], file["name"], file["data"]);
+            return msg;
         })
         .catch(function(msg) {
             showMessage('warning',"Fail to add " + acc + " (or corresponding file), please try again manually later.", true);
         });
 }
+function importOnSuccess() {
+    showMessage('success', 'IMPORT FINISHED!');
+    $('#import').modal('hide');
+    $("#importbtn").attr("disabled", false);
+    $("#importbtn").text("Submit");
+    $("#importc").attr("disabled", false);
+    reloadAccounts();
+}
 function import_raw(json){
-    json=JSON.parse(sanitize_json(json));
+    json = JSON.parse(sanitize_json(json));
     if(json.status!="RAW_OK") {
         showMessage("warning", "INVALID RAW FILE", true);
         return;
     }
-    function bk(){
-        $("#importbtn").attr("disabled", false);
-        $("#importbtn").text("Submit");
-        $("#importc").attr("disabled", false);
-    }
-    function add_acc_file(acc, pass, other, fname, fdata){
-        return import_add_acc(acc, pass, other, {name:fname, data:fdata});
-    }
-    function onsucc(){
-        showMessage('success', 'IMPORT FINISHED!');
-        $('#import').modal('hide');
-        bk();
-        reloadAccounts();
-    }
-    function process(){
-        var promises = [];
-        for(let x in json.data){
-            if(typeof json.data[x].fname != 'undefined'){
-                promises.push(add_acc_file(json.data[x].account, json.data[x].password, json.data[x].other, json.data[x].fname, json.data[x].filedata));
-            }
-            else {
-                promises.push(add_acc(json.data[x].account, json.data[x].password, JSON.parse(sanitize_json(json.data[x].other))));
-            }
-        }
-        return promises;
-    }
     backend.extendedTimeout();
-    Promise.all(process())
-        .then(onsucc);
+    var promises = [];
+    for(let x in json.data){
+        var other = JSON.parse(sanitize_json(json.data[x].other));
+        if(typeof json.data[x].fname != 'undefined'){
+            promises.push(import_add_acc(json.data[x].account, json.data[x].password, other, {name: json.data[x].fname, data: json.data[x].filedata}));
+        }
+        else {
+            promises.push(import_add_acc(json.data[x].account, json.data[x].password, other));
+        }
+    }
+    Promise.all(promises)
+        .then(importOnSuccess);
 }
 function import_csv(csv){
 	var accarray = $.csv.toObjects(csv);
@@ -107,19 +99,8 @@ function import_csv(csv){
 	    }
         promises.push(import_add_acc(acc, pass, other));
 	}
-    function bk(){
-        $("#importbtn").attr("disabled", false);
-        $("#importbtn").text("Submit");
-        $("#importc").attr("disabled", false);
-    }
-	function onsucc(){
-	    showMessage('success', 'IMPORT FINISHED!');
-	    $('#import').modal('hide');
-	    bk();
-	    reloadAccounts();
-	}
     Promise.all(promises)
-        .then(onsucc);
+        .then(importOnSuccess);
 }
 // show last succesfull Login
 // changes the seenLoginInformation global variable
