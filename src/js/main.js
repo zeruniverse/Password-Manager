@@ -287,43 +287,20 @@ $(document).ready(function(){
     $("#pinloginform").on('submit',function(e){
         e.preventDefault();
         var pin = $("#pinxx").val();
-        backend.resetTimeout();
-        function process()
-        {
-            backend.setPin(pin)
-                .then( function() {
-                    showMessage('success', 'PIN set, use PIN to login next time');
-                    $('#pin').modal('hide');
-                })
-                .catch( function() {
-                    showMessage('warning', 'ERROR set PIN, try again later!', true);
-                    $('#pin').modal('hide');
-                });
-        }
         if (pin.length<4) {
             showMessage('warning', 'For security reason, PIN should be at least of length 4.', true);
             return;
         }
-        //todo for backend
-        if (device == "") {
-            function rand_device() {
-                var device = getpwd('abcdefghijklmnopqrstuvwxyz1234567890', 9);
-                setCookie('device', device);
-                $.post("rest/getpinpk.php", {user:getcookie('username'), device:device, sig:'1'}, function(msg){
-                    // check if we somehow managed to get an existing PIN
-                    if (msg["status"] == "success") {
-                        rand_device();
-                    }
-                    else {
-                        process();
-                    }
-                });
-            }
-            rand_device();
-        }
-        else {
-            process();
-        }
+        backend.resetTimeout();
+        backend.setPin(pin)
+            .then( function() {
+                showMessage('success', 'PIN set, use PIN to login next time');
+                $('#pin').modal('hide');
+            })
+            .catch( function() {
+                showMessage('warning', 'ERROR set PIN, try again later!', true);
+                $('#pin').modal('hide');
+            });
     });
     $("#changefieldsbtn").click(function(){
         var fields = $('#fieldsz').val();

@@ -284,10 +284,38 @@ class Backend extends mix(commonBackend).with(EventHandler, Timeout) {
             });
     }
 
+    getDevice() {
+        var self = this;
+        var device = getCookie('device');
+        if (device != "")
+            return Promise.resolve(device);
+        device =  self.encryptionWrapper.generatePassphrase(9);
+        // check if this key is already used
+        return this.doPost("getpinpk", { user:self.user, device: device, sig:'1'})
+            .then(function(msg) {
+                // success means a duplicate exists, so we do this all again
+                return self.getDevice();
+            })
+            .catch(function(msg) {
+                //failure means this is not a duplicate, so everything is ok
+                setCookie('device', device);
+                return device;
+            });
+    }
     unSetPin(device) {
         return this.doPost("deletepin", {user:this.user, device:device});
     }
     setPin(pin) {
+        var self = this;
+        var device;
+        self.getDevice()
+            .then(function(device) {
+                return self.doPost("setpin" , {user:this.user, device: device, sig:String(CryptoJS.SHA512(pin+salt))});
+            })
+            .then(function(msg) {
+                var salt = this.encryptionWrapper.generatePassphrase(500);
+                setPINstore(device, salt, EncryptionWrapper.encryptCharUsingKey(getpwdstore(PWsalt), pin+msg["pinpk"]), EncryptionWrapper.encryptCharUsingKey(encryptionWrapper.confkey, pin + msg["pinpk"]));
+            });
     }
 
     logout(reason) {
