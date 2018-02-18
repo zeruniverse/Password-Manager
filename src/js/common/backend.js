@@ -277,9 +277,10 @@ class Backend extends mix(commonBackend).with(EventHandler, Timeout) {
 
 
     getHistory() {
+        var self = this;
         return this.doPost("history", {})
             .then(function(msg){
-                this.user = msg["usr"];
+                self.user = msg["usr"];
                 return msg;
             });
     }
@@ -291,7 +292,7 @@ class Backend extends mix(commonBackend).with(EventHandler, Timeout) {
             return Promise.resolve(device);
         device =  self.encryptionWrapper.generatePassphrase(9);
         // check if this key is already used
-        return this.doPost("getpinpk", { user:self.user, device: device, sig:'1'})
+        return self.doPost("getpinpk", { user:self.user, device: device, sig:'1'})
             .then(function(msg) {
                 // success means a duplicate exists, so we do this all again
                 return self.getDevice();
@@ -310,10 +311,10 @@ class Backend extends mix(commonBackend).with(EventHandler, Timeout) {
         var device;
         self.getDevice()
             .then(function(device) {
-                return self.doPost("setpin" , {user:this.user, device: device, sig:String(CryptoJS.SHA512(pin+salt))});
+                return self.doPost("setpin" , {user:self.user, device: device, sig:String(CryptoJS.SHA512(pin+salt))});
             })
             .then(function(msg) {
-                var salt = this.encryptionWrapper.generatePassphrase(500);
+                var salt = self.encryptionWrapper.generatePassphrase(500);
                 setPINstore(device, salt, EncryptionWrapper.encryptCharUsingKey(getpwdstore(PWsalt), pin+msg["pinpk"]), EncryptionWrapper.encryptCharUsingKey(encryptionWrapper.confkey, pin + msg["pinpk"]));
             });
     }
@@ -323,7 +324,7 @@ class Backend extends mix(commonBackend).with(EventHandler, Timeout) {
         var self = this;
         //Todo raise event
         sessionStorage.clear();
-        return this.doPost("logout", {})
+        return self.doPost("logout", {})
             .then(function(){
                 self.callEvent("logout", {reason: reason});
                 return reason;
@@ -335,7 +336,7 @@ class Backend extends mix(commonBackend).with(EventHandler, Timeout) {
         localStorage.clear();
         var promises = [];
         if (getcookie('device') != "") {
-            promises.push(this.doPost("deletepin", {user:getcookie('username'), device:getcookie('device')}));
+            promises.push(self.doPost("deletepin", {user:getcookie('username'), device:getcookie('device')}));
         }
         return Promise.all(promises)
             .then(function(){
