@@ -1,5 +1,19 @@
+// helpers for javascript mixins-pattern
+let mix = (superclass) => new MixinBuilder(superclass);
+class MixinBuilder {  
+  constructor(superclass) {
+    this.superclass = superclass;
+  }
+
+  with(...mixins) { 
+    return mixins.reduce((c, mixin) => mixin(c), this.superclass);
+  }
+}
+
+//Base Class for Backends
 class commonBackend {
     doPost(endpoint, data) {
+        data = data || {};
         data["session_token"] = this.sessionToken;
         return $.post("rest/" + endpoint + ".php", data)
             .then(function(msg) {
@@ -15,15 +29,57 @@ class commonBackend {
         }
         return msg;
     }
-}
-class Backend extends commonBackend{
+};
+
+//mixin for events
+let EventHandler = (superclass) => class extends superclass {
+    initEvents() {
+        this.eventSubscribers = {};
+        for (let event of this.events){
+            this.eventSubscribers[event] = [];
+        }
+    }
+    registerEvent(entry, callback) {
+        this.eventSubscribers[entry].push(callback);
+    }
+    callEvent(entry, data) {
+        for (var callback of this.eventSubscribers[entry]) {
+            callback(data);
+        }
+    }
+};
+//mixin for timeout function
+let Timeout = (superclass) => class extends superclass {
+    doPost(endpoint, data) {
+        this.resetTimeout();
+        return super.doPost(endpoint, data);
+    }
+    //Timout
+    resetTimeout() {
+        this.timeout = this.default_timeout + Math.floor(Date.now() / 1000);
+    }
+    countdown() {
+        if (this.isTimeout) {
+            this.logout("Logged out due to inactivity");
+        }
+    }
+    initTimeout() {
+        setInterval(this.countdown.bind(this), 5000);
+    }
+    // extended timeout for actions that take a long time
+    extendedTimeout() {
+        this.timeout = 1000000 + Math.floor(Date.now() / 1000);
+    }
+    get isTimeout() {
+        return this.timeout < Math.floor(Date.now() / 1000);
+    }
+};
+class Backend extends mix(commonBackend).with(EventHandler, Timeout) {
     constructor() {
+        super();
         this.cleanUp();
         this.events = ["logout"];
-        this.eventSubscribers = {};
-        for (event in events){
-            eventSubscribers[events[event]] = [];
-        }
+        this.initEvents();
     }
     cleanUp(){
         this.accounts = [];
@@ -49,6 +105,10 @@ class Backend extends commonBackend{
             .then(function(){
                 self.prepareFields(self.receivedData["fields"]);
                 return self.prepareFiles(self.receivedData["fdata"]);
+            })
+            .catch(function(msg) {
+                self.logout(msg);
+                throw(msg);
             });
     }
     prepareData(data) {
@@ -213,25 +273,6 @@ class Backend extends commonBackend{
         return this.fields_allow_change;
     }
 
-    //Timout
-    resetTimeout() {
-        this.timeout = this.defaut_timeout + Math.floor(Date.now() / 1000);
-    }
-    countdown() {
-        if (backend.isTimeout) {
-            backend.logout("Logged out due to inactivity");
-        }
-    }
-    initTimeout() {
-        setInterval(this.countdown().bind(this), 5000);
-    }
-    // extended timeout for actions that take a long time
-    extendedTimeout() {
-        this.timeout = 1000000 + Math.floor(Date.now() / 1000);
-    }
-    get isTimeout() {
-        return this.timeout < Math.floor(Date.now() / 1000);
-    }
 
     getHistory() {
         return this.doPost("history", {})
@@ -271,12 +312,4 @@ class Backend extends commonBackend{
             });
     }
 
-    registerEvent(entry, callback) {
-        this.eventSubscribers[entry].push(callback);
-    }
-    callEvent(entry, data) {
-        for (var callback of this.eventsSubscribers[entry]) {
-            callback(data);
-        }
-    }
 }
