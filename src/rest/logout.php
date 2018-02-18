@@ -23,4 +23,6 @@ if (isset($_SESSION['random_login_stamp'])) {
 }
 session_regenerate_id(true); //as suggested by owasp, change sessionId when changing context
 session_destroy();
+//set the cookie so that other open pages get logged out too
+setcookie('ServerRenew', '-1', 0, '/');
 ajaxSuccess();
