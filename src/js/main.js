@@ -14,10 +14,7 @@ function eventLogout(data) {
 }
 function quitpwd_untrust() {
     callPlugins("quitpwd_untrust");
-    backend.untrustAndLogout()
-        .then(function(){
-            window.location.href="./logout.php";
-        });
+    backend.untrustAndLogout();
 }
 //ToDo is this necessary?
 function checksessionalive()
