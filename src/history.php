@@ -4,6 +4,7 @@ echoheader();
 ?>
 <link rel="stylesheet" type="text/css" href="css/dataTables.bootstrap.min.css">
 <link rel="stylesheet" type="text/css" href="css/responsive.dataTables.min.css">
+<script src="js/common/backend.js"></script>
 <div class="container theme-showcase">
     <p id="placeholder">PLEASE WAIT...</p>
     <div id="maindiv" class="collapse">
