@@ -56,7 +56,10 @@ let Timeout = (superclass) => class extends superclass {
     }
     //Timout
     resetTimeout() {
-        this.timeout = this.default_timeout + Math.floor(Date.now() / 1000);
+        let newTimeout = this.default_timeout + Math.floor(Date.now() / 1000);
+        if (this.timeout < newTimeout) {
+            this.timeout = newTimeout;
+        }
     }
     countdown() {
         if (this.isTimeout) {
@@ -74,6 +77,7 @@ let Timeout = (superclass) => class extends superclass {
         return this.timeout < Math.floor(Date.now() / 1000);
     }
 };
+//Backend class
 class Backend extends mix(commonBackend).with(EventHandler, Timeout) {
     constructor() {
         super();
@@ -171,6 +175,7 @@ class Backend extends mix(commonBackend).with(EventHandler, Timeout) {
         }
         return Promise.all(filesPromises);
     }
+
     addAccount(name, pwd, other) {
         var self = this;
         if (name == "") {
@@ -245,9 +250,6 @@ class Backend extends mix(commonBackend).with(EventHandler, Timeout) {
         ;
     }
 
-    setPin(pin) {
-    }
-
     updateFields(fields) {
         var self = this;
         var p = fields.replace(/\r\n/g,'');
@@ -281,8 +283,11 @@ class Backend extends mix(commonBackend).with(EventHandler, Timeout) {
                 return msg;
             });
     }
+
     unSetPin(device) {
         return this.doPost("deletepin", {user:this.user, device:device});
+    }
+    setPin(pin) {
     }
 
     logout(reason) {
