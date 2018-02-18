@@ -309,13 +309,14 @@ class Backend extends mix(commonBackend).with(EventHandler, Timeout) {
     setPin(pin) {
         var self = this;
         var device;
-        self.getDevice()
+        var salt;
+        return self.getDevice()
             .then(function(device) {
+                salt = self.encryptionWrapper.generatePassphrase(500);
                 return self.doPost("setpin" , {user:self.user, device: device, sig:String(CryptoJS.SHA512(pin+salt))});
             })
             .then(function(msg) {
-                var salt = self.encryptionWrapper.generatePassphrase(500);
-                setPINstore(device, salt, EncryptionWrapper.encryptCharUsingKey(getpwdstore(PWsalt), pin+msg["pinpk"]), EncryptionWrapper.encryptCharUsingKey(encryptionWrapper.confkey, pin + msg["pinpk"]));
+                setPINstore(device, salt, EncryptionWrapper.encryptCharUsingKey(getpwdstore(self.encryptionWrapper.pwSalt), pin + msg["pinpk"]), EncryptionWrapper.encryptCharUsingKey(self.encryptionWrapper.confkey, pin + msg["pinpk"]));
             });
     }
 
