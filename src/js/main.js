@@ -16,16 +16,6 @@ function quitpwd_untrust() {
     callPlugins("quitpwd_untrust");
     backend.untrustAndLogout();
 }
-//ToDo is this necessary?
-function checksessionalive()
-{
-    var ck=getCookie("ServerRenew");
-    if(ck=='1') // Reset timer
-        server_timeout = backend.default_server_timeout+Math.floor(Date.now() / 1000);
-    if(ck=="-1" || server_timeout < Math.floor(Date.now() / 1000)) // Timer has expired
-        backend.logout("Session timed out");
-    setCookie("ServerRenew", '0');// nothing happened
-}
 var datatablestatus=null;
 var fileid=-1;
 var preDrawCallback = function( api, settings ) {};
@@ -135,8 +125,6 @@ function dataReady(){
     $("#changefieldsnav").toggle(backend.allowFieldChange);
 
     showLastLoginInformation(backend.loginInformation["failedCount"], backend.loginInformation["lastLogin"]);
-
-    setInterval(checksessionalive, 1000);
 
     initFields(backend.fields);
     callPlugins("fieldsReady", {"fields":backend.fields, "accounts":backend.accounts});
