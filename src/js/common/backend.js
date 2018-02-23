@@ -14,7 +14,6 @@ class MixinBuilder {
 class commonBackend {
     doPost(endpoint, data) {
         data = data || {};
-        data["session_token"] = this.sessionToken;
         return $.post("rest/" + endpoint + ".php", data)
             .then(function(msg) {
                 return commonBackend.checkResult(msg);
@@ -51,6 +50,11 @@ let EventHandler = (superclass) => class extends superclass {
 
 //mixin for events
 let AuthenticatedSession = (superclass) => class extends superclass {
+    doPost(endpoint, data) {
+        data = data || {};
+        data["session_token"] = this.sessionToken;
+        return super.doPost(endpoint, data);
+    }
     logout(reason) {
         reason = reason || "";
         var self = this;
@@ -350,7 +354,7 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
     }
 }
 
-class HistoryBackend extends mix(commonBackend).with(EventHandler, AuthenticatedSession, Timeout, History, PinHandling) {
+class HistoryBackend extends mix(commonBackend).with(EventHandler, AuthenticatedSession, Timeout, PinHandling) {
     getHistory() {
         var self = this;
         return this.doPost("history", {})
