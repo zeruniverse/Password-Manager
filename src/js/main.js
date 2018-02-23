@@ -279,7 +279,7 @@ function reloadAccounts() {
 }
 $(document).ready(function(){
     datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true,autoWidth:false, "deferRender": true, drawCallback: function(settings) { preDrawCallback( this.api(), settings);}, "lengthMenu": [ [10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"] ] });
-    backend = new Backend();
+    backend = new AccountBackend();
     backend.registerEvent("logout", eventLogout);
     reloadAccounts();
 

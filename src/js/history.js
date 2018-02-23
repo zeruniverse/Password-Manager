@@ -1,7 +1,7 @@
 var usr = null;
 var backend;
 $(document).ready(function(){
-    backend = new Backend();
+    backend = new HistoryBackend();
     backend.getHistory()
         .then(dataReady)
         .catch(function(){
