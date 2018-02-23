@@ -26,7 +26,7 @@ class Account {
     // reads the account from a encrypted dict
     static fromEncrypted(encryptionWrapper, encryptedAccount) {
         let account = new Account(encryptedAccount["index"], encryptionWrapper.decryptChar(encryptedAccount["name"]), encryptedAccount["kss"]);
-        account.encryptionWrapper = encryptionWrapper;
+        account.setEncryptionWrapper(encryptionWrapper);
         if (encryptedAccount["additional"] != "") {
             //decrypt and extract json
             var data = $.parseJSON(encryptionWrapper.decryptChar(encryptedAccount["additional"]));
@@ -42,11 +42,11 @@ class Account {
             let pwd = self.password;
             self.mEncryptionWrapper = wrapper;
             self.password = pwd;
-            return Promise.resove(self);
+            return Promise.resolve(self);
         }
         else {
             self.mEncryptionWrapper = wrapper;
-            return Promise.resove(self);
+            return Promise.resolve(self);
         }
     }
     get encryptionWrapper() {
