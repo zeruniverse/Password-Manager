@@ -104,8 +104,8 @@ let Timeout = (superclass) => class extends superclass {
     sessionCountdown() {
         var ck = getCookie("ServerRenew");
         if(ck == '1') // Reset timer
-            server_timeout  = backend.default_server_timeout+Math.floor(Date.now() / 1000);
-        if(ck == "-1" || server_timeout < Math.floor(Date.now() / 1000)) // Timer has expired
+            this.server_timeout  = this.default_server_timeout+Math.floor(Date.now() / 1000);
+        if(ck == "-1" || this.server_timeout < Math.floor(Date.now() / 1000)) // Timer has expired
             this.logout("Session timed out");
         setCookie("ServerRenew", '0');// nothing happened
     }
@@ -130,7 +130,7 @@ let Accounts = (superclass) => class extends superclass {
             return Promise.reject("Account name can't be empty");
         }
         let account = new Account(null, name, "");
-        account.encryptionWrapper = self.encryptionWrapper;
+        account.setEncryptionWrapper(self.encryptionWrapper);
         account.password = pwd;
 
         if(!("_system_passwordLastChangeTime" in other))
@@ -335,6 +335,36 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
                 return file;
             })
         ;
+    }
+    
+    changePassword(newpass) {
+        var self = this;
+        var login_sig = String(pbkdf2_enc(reducedinfo(newpass, self.encryptionWrapper.alphabet), self.salt1, 500));
+        var postnewpass = pbkdf2_enc(login_sig, self.salt1, 500);
+        var newconfkey = pbkdf2_enc(String(CryptoJS.SHA512(newpass + login_sig)), self.salt1, 500);
+        var newEncryptionWrapper = EncryptionWrapper.fromPassword(newpass, self.encryptionWrapper.pwSalt, self.encryptionWrapper.alphabet);
+        newEncryptionWrapper._confkey = newconfkey;
+        var promises = [];
+        for (let account of this.accounts) {
+            promises.push(account.setEncryptionWrapper(newEncryptionWrapper)
+                .then(function(account){
+                    return account.encrypted;
+                }));
+        }
+        //ToDo: Files
+        return Promise.all(Promises)
+            .then(function(accounts) {
+                //jetzt weiterleiten
+                //Todo accarray sinnvoll besetzen
+                var accarray= [];
+                for (account of accounts) {
+                    accarray[account["index"]] = account;
+                }
+                return self.doPost("changeuserpw", {newpass:String(CryptoJS.SHA512(postnewpass + user)), accarray:JSON.stringify(accarray)});
+            })
+            .then(function(){
+                return self.logout("Password changed, please relogin");
+            });
     }
 
     updateFields(fields) {
