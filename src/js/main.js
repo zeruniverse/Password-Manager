@@ -459,7 +459,7 @@ $(document).ready(function(){
         if(confirm("Your request will be processed on your browser, so it takes some time (up to #of_your_accounts * 10seconds). Do not close your window or some error might happen.\nPlease note we won't have neither your old password nor your new password. \nClick OK to confirm password change request."))
         {
             if ($("#pwd").val()!=$("#pwd1").val() || $("#pwd").val().length<7){
-                showMessage('warning',"The second password you input doesn't match the first one. Or your password is too weak (length should be at least 7)", true);
+                showMessage('warning',"The second password of your input doesn't match the first one. Or your password is too weak (length should be at least 7)", true);
                 return;
             }
             $("#changepw").attr("disabled",true);
@@ -471,46 +471,14 @@ $(document).ready(function(){
                     return;
                 }
                 var newpass=$("#pwd").val();
-                login_sig=String(pbkdf2_enc(reducedinfo(newpass, default_letter_used), salt1, 500));
-                var newsecretkey=String(CryptoJS.SHA512(login_sig+salt2));
-                var postnewpass=pbkdf2_enc(login_sig, salt1, 500);
-                //NOTE: login_sig here is the secret_key generated when login.
-                var newconfkey=pbkdf2_enc(String(CryptoJS.SHA512(newpass+login_sig)), salt1, 500);
-                var raw_pass, raw_fkey;
-                var accarray= [];
-                //ToDo auf Account Class, encryptionWrapper umstellen
-                for (let x in accountarray) {
-                    var tmpother = accountarray[x]["other"];
-                    accarray[x] = {"name": encryptchar(accountarray[x]["name"], newsecretkey), "is_f":1, "fname": '', "other": encryptchar(JSON.stringify(tmpother), newsecretkey)};
-                    if(accountarray[x]["fname"] == '') {
-                        accarray[x]['is_f'] = 0;
-                    }
-                    else {
-                        accarray[x]["fname"] = encryptchar(accountarray[x]["fname"],newsecretkey);
-                    }
-                    raw_fkey = '1';
-                    raw_pass = decryptPassword(accountarray[x]["name"], accountarray[x]["enpassword"]);
-                    if(accountarray[x]["fname"] != '') {
-                        raw_fkey = decryptPassword(accountarray[x]['fname'], accountarray[x]['fkey']);
-                    }
-                    if (raw_pass == "" || raw_fkey == '') {
-                        showMessage('danger',"FATAL ERROR WHEN TRYING TO DECRYPT ALL PASSWORDS", true);
-                        return;
-                    }
-                    raw_pass = gen_temp_pwd(newconfkey, PWsalt, String(CryptoJS.SHA512(accountarray[x]["name"])), ALPHABET, raw_pass);
-                    raw_fkey = gen_temp_pwd(newconfkey, PWsalt, String(CryptoJS.SHA512(accountarray[x]["fname"])), ALPHABET, raw_fkey);
-                    accarray[x]["newpwd"] = encryptchar(raw_pass, newsecretkey);
-                    accarray[x]["fk"] = encryptchar(raw_fkey, newsecretkey);
-                }
-                $.post("rest/changeuserpw.php", {newpass:String(CryptoJS.SHA512(postnewpass+user)), accarray:JSON.stringify(accarray)},function(msg){
-                    if(msg["status"] == "success") {
+                backend.changePassword(newpass)
+                    .then(function(){
                         alert("Change Password Successfully! Please login with your new password again.");
                         backend.logout("Password changed, please relogin");
-                    }
-                    else {
+                    })
+                    .catch(function(message) {
                         showMessage('warning', "Fail to change your password, please try again.", true);
-                    }
-                });
+                    });
             }
             setTimeout(process, 50);
         }
