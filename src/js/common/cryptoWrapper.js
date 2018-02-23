@@ -12,6 +12,10 @@ class EncryptionWrapper {
         secretkey0 = String(CryptoJS.SHA512(secretkey0 + salt));
         return new EncryptionWrapper(secretkey0, salt, alphabet);
     }
+    static fromPassword(password, salt, alphabet) {
+        let secretkey0 = String(CryptoJS.SHA512(login_sig + salt2))
+        Promise.resolve(new EncryptionWrapper(secretkey0, salt, alphabet));
+    }
     decryptChar(crypt){
         return EncryptionWrapper.decryptCharUsingKey(crypt, this.secretkey);
     }
@@ -99,7 +103,7 @@ class EncryptionWrapper {
         return new_alphabet;
     }
     get confkey() {
-        return EncryptionWrapper.getConfKeyUsingSalt(this.pwSalt);
+        return this._confkey || EncryptionWrapper.getConfKeyUsingSalt(this.pwSalt);
     }
     static getConfKeyUsingSalt(salt) {
         if(!sessionStorage.confusion_key) {
