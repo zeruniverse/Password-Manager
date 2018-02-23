@@ -51,7 +51,32 @@ let EventHandler = (superclass) => class extends superclass {
 
 //mixin for events
 let AuthenticatedSession = (superclass) => class extends superclass {
-    
+    logout(reason) {
+        reason = reason || "";
+        var self = this;
+        //Todo raise event
+        sessionStorage.clear();
+        return self.doPost("logout", {})
+            .then(function(){
+                self.callEvent("logout", {reason: reason});
+                return reason;
+            });
+    }
+    untrustAndLogout() {
+        var self = this;
+        //Todo raise event
+        localStorage.clear();
+        var promises = [];
+        if (getcookie('device') != "") {
+            promises.push(self.doPost("deletepin", {user:getcookie('username'), device:getcookie('device')}));
+        }
+        return Promise.all(promises)
+            .then(function(){
+                deleteCookie('device');
+                deleteCookie('username');
+                return self.logout();
+            });
+    }
 }
 
 //mixin for timeout function
@@ -84,6 +109,54 @@ let Timeout = (superclass) => class extends superclass {
     }
 };
 
+//mixin for accounts
+let Accounts = (superclass) => class extends superclass {
+    addAccount(name, pwd, other) {
+        var self = this;
+        if (name == "") {
+            return Promise.reject("Account name can't be empty");
+        }
+        let account = new Account(null, name, "");
+        account.encryptionWrapper = self.encryptionWrapper;
+        account.password = pwd;
+
+        if(!("_system_passwordLastChangeTime" in other))
+            other["_system_passwordLastChangeTime"] = Math.floor(Date.now() / 1000);
+        for (let key in other) {
+            account.setOther(key, other[key]);
+        }
+        return account.getEncrypted()
+            .then(function(encAccount) {
+                return self.doPost("insert", encAccount);
+            });
+    }
+    updateAccount(id, name, newpwd, other) {
+        var self = this;
+        if (name == "") {
+            return Promise.reject("Account name can't be empty");
+        }
+        var account = this.accounts[id];
+        account.accountName = name;
+        account.clearVisibleOther();
+        for (let x in other) {
+            account.setOther(x, other[x]);
+        }
+        var promises = [];
+        if (newpwd != "")
+            promises.push(account.setPassword(newpwd))
+        return Promise.all(promises)
+            .then(function(){
+                return account.getEncrypted();
+            })
+            .then(function(encAccount){
+                return self.doPost("change", encAccount);
+            });
+    }
+    deleteAccount(id) {
+        var self = this;
+        return self.doPost("delete", {index: id});
+    }
+}
 
 //mixin for pin handling
 let PinHandling = (superclass) => class extends superclass {
@@ -125,7 +198,7 @@ let PinHandling = (superclass) => class extends superclass {
 }
 
 //Backend class
-class AccountBackend extends mix(commonBackend).with(EventHandler, Timeout, PinHandling) {
+class AccountBackend extends mix(commonBackend).with(EventHandler, AuthenticatedSession, Timeout, PinHandling, Accounts) {
     constructor() {
         super();
         this.cleanUp();
@@ -223,52 +296,6 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Timeout, PinH
         return Promise.all(filesPromises);
     }
 
-    addAccount(name, pwd, other) {
-        var self = this;
-        if (name == "") {
-            return Promise.reject("Account name can't be empty");
-        }
-        let account = new Account(null, name, "");
-        account.encryptionWrapper = self.encryptionWrapper;
-        account.password = pwd;
-
-        if(!("_system_passwordLastChangeTime" in other))
-            other["_system_passwordLastChangeTime"] = Math.floor(Date.now() / 1000);
-        for (let key in other) {
-            account.setOther(key, other[key]);
-        }
-        return account.getEncrypted()
-            .then(function(encAccount) {
-                return self.doPost("insert", encAccount);
-            });
-    }
-    updateAccount(id, name, newpwd, other) {
-        var self = this;
-        if (name == "") {
-            return Promise.reject("Account name can't be empty");
-        }
-        var account = this.accounts[id];
-        account.accountName = name;
-        account.clearVisibleOther();
-        for (let x in other) {
-            account.setOther(x, other[x]);
-        }
-        var promises = [];
-        if (newpwd != "")
-            promises.push(account.setPassword(newpwd))
-        return Promise.all(promises)
-            .then(function(){
-                return account.getEncrypted();
-            })
-            .then(function(encAccount){
-                return self.doPost("change", encAccount);
-            });
-    }
-    deleteAccount(id) {
-        var self = this;
-        return self.doPost("delete", {index: id});
-    }
-
     uploadFile(id, name, payload) {
         var self = this;
         var fkey = self.encryptionWrapper.generatePassphrase(Math.floor(Math.random() * 18) + 19);
@@ -321,38 +348,9 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Timeout, PinH
     get allowFieldChange() {
         return this.fields_allow_change;
     }
-
-
-    logout(reason) {
-        reason = reason || "";
-        var self = this;
-        //Todo raise event
-        sessionStorage.clear();
-        return self.doPost("logout", {})
-            .then(function(){
-                self.callEvent("logout", {reason: reason});
-                return reason;
-            });
-    }
-    untrustAndLogout() {
-        var self = this;
-        //Todo raise event
-        localStorage.clear();
-        var promises = [];
-        if (getcookie('device') != "") {
-            promises.push(self.doPost("deletepin", {user:getcookie('username'), device:getcookie('device')}));
-        }
-        return Promise.all(promises)
-            .then(function(){
-                deleteCookie('device');
-                deleteCookie('username');
-                return self.logout();
-            });
-    }
-
 }
 
-class HistoryBackend extends mix(commonBackend).with(EventHandler, Timeout, History, PinHandling) {
+class HistoryBackend extends mix(commonBackend).with(EventHandler, AuthenticatedSessoin, Timeout, History, PinHandling) {
     getHistory() {
         var self = this;
         return this.doPost("history", {})
@@ -361,4 +359,5 @@ class HistoryBackend extends mix(commonBackend).with(EventHandler, Timeout, Hist
                 return msg;
             });
     }
+    //ToDo Timeout
 }
