@@ -48,6 +48,12 @@ let EventHandler = (superclass) => class extends superclass {
         }
     }
 };
+
+//mixin for events
+let AuthenticatedSession = (superclass) => class extends superclass {
+    
+}
+
 //mixin for timeout function
 let Timeout = (superclass) => class extends superclass {
     doPost(endpoint, data) {
@@ -77,8 +83,49 @@ let Timeout = (superclass) => class extends superclass {
         return this.timeout < Math.floor(Date.now() / 1000);
     }
 };
+
+
+//mixin for pin handling
+let PinHandling = (superclass) => class extends superclass {
+    getDevice() {
+        var self = this;
+        var device = getCookie('device');
+        if (device != "")
+            return Promise.resolve(device);
+        device =  self.encryptionWrapper.generatePassphrase(9);
+        // check if this key is already used
+        return self.doPost("getpinpk", { user:self.user, device: device, sig:'1'})
+            .then(function(msg) {
+                // success means a duplicate exists, so we do this all again
+                return self.getDevice();
+            })
+            .catch(function(msg) {
+                //failure means this is not a duplicate, so everything is ok
+                setCookie('device', device);
+                return device;
+            });
+    }
+    unSetPin(device) {
+        return this.doPost("deletepin", {user:this.user, device:device});
+    }
+    setPin(pin) {
+        var self = this;
+        var device;
+        var salt;
+        return self.getDevice()
+            .then(function(device) {
+                salt = self.encryptionWrapper.generatePassphrase(500);
+                return self.doPost("setpin" , {user:self.user, device: device, sig:String(CryptoJS.SHA512(pin+salt))});
+            })
+            .then(function(msg) {
+                setPINstore(device, salt, EncryptionWrapper.encryptCharUsingKey(getpwdstore(self.encryptionWrapper.pwSalt), pin + msg["pinpk"]), EncryptionWrapper.encryptCharUsingKey(self.encryptionWrapper.confkey, pin + msg["pinpk"]));
+            });
+    }
+
+}
+
 //Backend class
-class Backend extends mix(commonBackend).with(EventHandler, Timeout) {
+class AccountBackend extends mix(commonBackend).with(EventHandler, Timeout, PinHandling) {
     constructor() {
         super();
         this.cleanUp();
@@ -276,50 +323,6 @@ class Backend extends mix(commonBackend).with(EventHandler, Timeout) {
     }
 
 
-    getHistory() {
-        var self = this;
-        return this.doPost("history", {})
-            .then(function(msg){
-                self.user = msg["usr"];
-                return msg;
-            });
-    }
-
-    getDevice() {
-        var self = this;
-        var device = getCookie('device');
-        if (device != "")
-            return Promise.resolve(device);
-        device =  self.encryptionWrapper.generatePassphrase(9);
-        // check if this key is already used
-        return self.doPost("getpinpk", { user:self.user, device: device, sig:'1'})
-            .then(function(msg) {
-                // success means a duplicate exists, so we do this all again
-                return self.getDevice();
-            })
-            .catch(function(msg) {
-                //failure means this is not a duplicate, so everything is ok
-                setCookie('device', device);
-                return device;
-            });
-    }
-    unSetPin(device) {
-        return this.doPost("deletepin", {user:this.user, device:device});
-    }
-    setPin(pin) {
-        var self = this;
-        var device;
-        var salt;
-        return self.getDevice()
-            .then(function(device) {
-                salt = self.encryptionWrapper.generatePassphrase(500);
-                return self.doPost("setpin" , {user:self.user, device: device, sig:String(CryptoJS.SHA512(pin+salt))});
-            })
-            .then(function(msg) {
-                setPINstore(device, salt, EncryptionWrapper.encryptCharUsingKey(getpwdstore(self.encryptionWrapper.pwSalt), pin + msg["pinpk"]), EncryptionWrapper.encryptCharUsingKey(self.encryptionWrapper.confkey, pin + msg["pinpk"]));
-            });
-    }
-
     logout(reason) {
         reason = reason || "";
         var self = this;
@@ -347,4 +350,15 @@ class Backend extends mix(commonBackend).with(EventHandler, Timeout) {
             });
     }
 
+}
+
+class HistoryBackend extends mix(commonBackend).with(EventHandler, Timeout, History, PinHandling) {
+    getHistory() {
+        var self = this;
+        return this.doPost("history", {})
+            .then(function(msg){
+                self.user = msg["usr"];
+                return msg;
+            });
+    }
 }
