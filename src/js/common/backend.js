@@ -350,7 +350,7 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
     }
 }
 
-class HistoryBackend extends mix(commonBackend).with(EventHandler, AuthenticatedSessoin, Timeout, History, PinHandling) {
+class HistoryBackend extends mix(commonBackend).with(EventHandler, AuthenticatedSession, Timeout, History, PinHandling) {
     getHistory() {
         var self = this;
         return this.doPost("history", {})
