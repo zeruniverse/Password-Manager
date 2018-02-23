@@ -36,14 +36,17 @@ class Account {
         return Promise.resolve(account);
     }
 
-    set encryptionWrapper(wrapper) {
-        if (this.encryptionWrapper != null) {
-            let pwd = this.password;
-            this.mEncryptionWrapper = wrapper;
-            this.password = pwd;
+    setEncryptionWrapper(wrapper) {
+        var self = this;
+        if (self.encryptionWrapper != null) {
+            let pwd = self.password;
+            self.mEncryptionWrapper = wrapper;
+            self.password = pwd;
+            return Promise.resove(self);
         }
         else {
-            this.mEncryptionWrapper = wrapper;
+            self.mEncryptionWrapper = wrapper;
+            return Promise.resove(self);
         }
     }
     get encryptionWrapper() {
