@@ -397,15 +397,19 @@ $(document).ready(function(){
         $("#backuppwdpb").css('width','0%');
         $("#fileincludeckb").attr('disabled',true);
         var fileinclude = "a";
-        if($("#fileincludeckb").is(':checked')) fileinclude="farray";
-        $.post("rest/backup.php",{a:fileinclude},function(msg){
+        if($("#fileincludeckb").is(':checked')) 
+            fileinclude="farray";
+        $.post("rest/backup.php", {a:fileinclude}, function(msg){
             var a,count,p;
             function progressbarchange(x) {
                 $("#backuppwdpb").attr('aria-valuenow',x);
                 $("#backuppwdpb").css('width',x+'%');
             }
             function cback() {
-                if(count<30) pbkdf2_enc_1(cback); else process();
+                if(count<30) 
+                    pbkdf2_enc_1(cback); 
+                else 
+                    process();
             }
             function pbkdf2_enc_1(callback) {
                 progressbarchange(6+count*3);
