@@ -12,9 +12,9 @@ class EncryptionWrapper {
         secretkey0 = String(CryptoJS.SHA512(secretkey0 + salt));
         return new EncryptionWrapper(secretkey0, salt, alphabet);
     }
-    static fromPassword(password, salt, alphabet) {
-        let secretkey0 = String(CryptoJS.SHA512(login_sig + salt2))
-        Promise.resolve(new EncryptionWrapper(secretkey0, salt, alphabet));
+    static fromPassword(password, salt, alphabet, login_sig) {
+        let secretkey0 = String(CryptoJS.SHA512(login_sig + salt))
+        return Promise.resolve(new EncryptionWrapper(secretkey0, salt, alphabet));
     }
     decryptChar(crypt){
         return EncryptionWrapper.decryptCharUsingKey(crypt, this.secretkey);
