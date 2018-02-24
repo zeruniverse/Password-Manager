@@ -325,7 +325,7 @@ $(document).ready(function(){
         if($("#newiteminputpw").val() != '')
             newpwd = $("#newiteminputpw").val();
         else
-            newpwd = getpwd(default_letter_used, default_length);
+            newpwd = backend.encryptionWrapper.generatePassphrase(backend.default_length);
         var other = {};
         for (let x in backend.fields)
             other[x] = $("#newiteminput"+x).val().trim();
@@ -465,8 +465,8 @@ $(document).ready(function(){
             $("#changepw").attr("disabled",true);
             $("#changepw").attr("value", "Processing...");
             function process(){
-                var login_sig = String(pbkdf2_enc(reducedinfo($("#oldpassword").val(),default_letter_used), salt1, 500));
-                if(secretkey != String(CryptoJS.SHA512(login_sig+salt2))) {
+                var login_sig = String(pbkdf2_enc(reducedinfo($("#oldpassword").val(), backend.encryptionWrapper.alphabet), backend.salt1, 500));
+                if(backend.encryptionWrapper.secretkey != String(CryptoJS.SHA512(login_sig+backend.encryptionWrapper.pwSalt))) {
                     showMessage('warning',"Incorrect Old Password!", true);
                     return;
                 }
