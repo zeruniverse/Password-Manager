@@ -342,25 +342,29 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
         var login_sig = String(pbkdf2_enc(reducedinfo(newpass, self.encryptionWrapper.alphabet), self.salt1, 500));
         var postnewpass = pbkdf2_enc(login_sig, self.salt1, 500);
         var newconfkey = pbkdf2_enc(String(CryptoJS.SHA512(newpass + login_sig)), self.salt1, 500);
-        var newEncryptionWrapper = EncryptionWrapper.fromPassword(newpass, self.encryptionWrapper.pwSalt, self.encryptionWrapper.alphabet);
-        newEncryptionWrapper._confkey = newconfkey;
-        var promises = [];
-        for (let account of this.accounts) {
-            promises.push(account.setEncryptionWrapper(newEncryptionWrapper)
-                .then(function(account){
-                    return account.encrypted;
-                }));
-        }
-        //ToDo: Files
-        return Promise.all(Promises)
+        return EncryptionWrapper.fromPassword(newpass, self.encryptionWrapper.pwSalt, self.encryptionWrapper.alphabet, login_sig)
+            .then(function(newEncryptionWrapper) {
+                newEncryptionWrapper._confkey = newconfkey;
+                var promises = [];
+                for (let account of self.accounts) {
+                    if (!account)
+                        continue;
+                    promises.push(account.setEncryptionWrapper(newEncryptionWrapper)
+                        .then(function(account){
+                            return account.encrypted;
+                        }));
+                }
+                return Promise.all(promises)
+                //ToDo: Files
+            })
             .then(function(accounts) {
                 //jetzt weiterleiten
                 //Todo accarray sinnvoll besetzen
                 var accarray= [];
-                for (account of accounts) {
+                for (let account of accounts) {
                     accarray[account["index"]] = account;
                 }
-                return self.doPost("changeuserpw", {newpass:String(CryptoJS.SHA512(postnewpass + user)), accarray:JSON.stringify(accarray)});
+                return self.doPost("changeuserpw", {newpass:String(CryptoJS.SHA512(postnewpass + self.user)), accarray:JSON.stringify(accarray)});
             })
             .then(function(){
                 return self.logout("Password changed, please relogin");
