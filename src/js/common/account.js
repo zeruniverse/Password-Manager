@@ -1,15 +1,3 @@
-function decryptPassword(name, kss){
-    var thekey=decryptchar(kss, secretkey);
-    if (thekey==""){
-        return "";
-    }
-    return get_orig_pwd(getconfkey(PWsalt), PWsalt, String(CryptoJS.SHA512(name)), ALPHABET, thekey);
-}
-function encryptPassword(name, pass){
-    pass=gen_temp_pwd(getconfkey(PWsalt), PWsalt, String(CryptoJS.SHA512(name)), ALPHABET, pass);
-    return encryptchar(pass, secretkey);
-}
-
 class Account {
     constructor(index, name, enpassword) {
         this.index = index;

@@ -154,9 +154,3 @@ class EncryptionWrapper {
         return pwd;
     }
 }
-function encryptchar(encryptch, key) {
-    return EncryptionWrapper.encryptCharUsingKey(encryptch, key);
-}
-function decryptchar(echar, key) {
-    return EncryptionWrapper.decryptCharUsingKey(echar, key);
-}
