@@ -31,4 +31,6 @@ while ($i = $res->fetch(PDO::FETCH_ASSOC)) {
     $ips[] = ['ip' => $ip, 'ua' => $ua, 'ctime' => $ctime, 'outcome' => $i['outcome'] == 0];
 }
 $result['ips'] = $ips;
+$result['default_timeout'] = $BROWSER_TIMEOUT;
+$result['server_timeout'] = $SERVER_TIMEOUT;
 ajaxSuccess($result);

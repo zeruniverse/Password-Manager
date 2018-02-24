@@ -403,8 +403,10 @@ class HistoryBackend extends mix(commonBackend).with(EventHandler, Authenticated
         return this.doPost("history", {})
             .then(function(msg){
                 self.user = msg["usr"];
+                self.default_timeout = msg["default_timeout"];
+                self.default_server_timeout = msg["server_timeout"];
+                self.initTimeout();
                 return msg;
             });
     }
-    //ToDo Timeout
 }
