@@ -379,6 +379,7 @@ $(document).ready(function(){
                     $("#edititeminput" + x).attr("readonly",false);
             });
     });
+    //ToDo use backend
     $("#backuppwdbtn").click(function(){
         $("#backuppwdbtn").attr('disabled',true);
         $("#backuppwdpb").attr('aria-valuenow',0);
@@ -454,7 +455,7 @@ $(document).ready(function(){
     $("#delbtn").click(function(){
         delepw($("#edit").data('id'));
     });
-    //ToDo for encryptionWrapper
+    // ToDo move more into encryptionWrapper
     $("#changepw").click(function(){
         if(confirm("Your request will be processed on your browser, so it takes some time (up to #of_your_accounts * 10seconds). Do not close your window or some error might happen.\nPlease note we won't have neither your old password nor your new password. \nClick OK to confirm password change request."))
         {
@@ -464,23 +465,22 @@ $(document).ready(function(){
             }
             $("#changepw").attr("disabled",true);
             $("#changepw").attr("value", "Processing...");
-            function process(){
-                var login_sig = String(pbkdf2_enc(reducedinfo($("#oldpassword").val(), backend.encryptionWrapper.alphabet), backend.salt1, 500));
-                if(backend.encryptionWrapper.secretkey != String(CryptoJS.SHA512(login_sig+backend.encryptionWrapper.pwSalt))) {
-                    showMessage('warning',"Incorrect Old Password!", true);
-                    return;
-                }
-                var newpass=$("#pwd").val();
-                backend.changePassword(newpass)
-                    .then(function(){
-                        alert("Change Password Successfully! Please login with your new password again.");
-                        backend.logout("Password changed, please relogin");
-                    })
-                    .catch(function(message) {
-                        showMessage('warning', "Fail to change your password, please try again.", true);
-                    });
+
+            //check old password
+            var login_sig = String(pbkdf2_enc(reducedinfo($("#oldpassword").val(), backend.encryptionWrapper.alphabet), backend.salt1, 500));
+            if(backend.encryptionWrapper.secretkey != String(CryptoJS.SHA512(login_sig+backend.encryptionWrapper.pwSalt))) {
+                showMessage('warning',"Incorrect Old Password!", true);
+                return;
             }
-            setTimeout(process, 50);
+            var newpass=$("#pwd").val();
+            backend.changePassword(newpass)
+                .then(function(){
+                    alert("Change Password Successfully! Please login with your new password again.");
+                    backend.logout("Password changed, please relogin");
+                })
+                .catch(function(message) {
+                    showMessage('warning', "Fail to change your password, please try again.", true);
+                });
         }
     });
     $("#importbtn").click(function(){
