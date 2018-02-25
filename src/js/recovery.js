@@ -224,7 +224,7 @@ function rec(txt){
         return;
     }
     var json=JSON.parse(sanitize_json(txt));
-    if(json.status!="OK") {
+    if(json.status!="OK" && json.status!="success") {
         alert("INVALID BACKUP FILE");
         return;
     }

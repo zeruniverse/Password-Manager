@@ -382,24 +382,24 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
         function multiGenerateKey(key, count) {
             if (count == 0)
                 return Promise.resolve(key);
-            return EncryptionWrapper.generateKey(key, encryptionWrapper.pwSalt, 500)
+            return EncryptionWrapper.generateKey(key, self.encryptionWrapper.pwSalt, 500)
                 .then(function(key){
                     return multiGenerateKey(key, count - 1);
                 });
         }
-        self.doPost("backup", { a: includeFiles}) 
+        return self.doPost("backup", { a: includeFiles}) 
             .then(function(msg){
                 data = msg;
-                return EncryptionWrapper.generateKey(self.encryptionWrapper.secretkey, encryptionWrapper.pwSalt, 500);
+                return EncryptionWrapper.generateKey(self.encryptionWrapper.secretkey, self.encryptionWrapper.pwSalt, 500);
             })
             .then(function(key) {
                 return multiGenerateKey(key, 30);
             })
             .then(function(key){
-                var backup = {};
-                backup.data = EncryptionWrapper.encryptCharUsingKey(JSON.stringify(p.data), key);
-                backup.fdata = EncryptionWrapper.encryptCharUsingKey(JSON.stringify(p.fdata), key);
-                return new Blob([JSON.stringify(p)], {type: "text/plain;charset=utf-8"});
+                var backup = data;
+                backup.data = EncryptionWrapper.encryptCharUsingKey(JSON.stringify(data.data), key);
+                backup.fdata = EncryptionWrapper.encryptCharUsingKey(JSON.stringify(data.fdata), key);
+                return new Blob([JSON.stringify(backup)], {type: "text/plain;charset=utf-8"});
             });
     }
 

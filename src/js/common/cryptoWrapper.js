@@ -136,11 +136,11 @@ class EncryptionWrapper {
         var p = CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(echar,key));
         return p;  
     }
-    static pbkdf2_enc(key, orig_salt, iter){
+    static generateKey(key, orig_salt, iter){
         var hash = CryptoJS.SHA512(key);
         var salt = CryptoJS.SHA512(orig_salt);
         var gen_key = CryptoJS.PBKDF2(hash, salt, { keySize: 512/32, iterations: iter });   
-        return String(gen_key);
+        return Promise.resolve(String(gen_key));
     }
 
     generatePassphrase(plength) {
