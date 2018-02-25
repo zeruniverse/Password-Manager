@@ -385,60 +385,24 @@ $(document).ready(function(){
         $("#backuppwdpb").attr('aria-valuenow',0);
         $("#backuppwdpb").css('width','0%');
         $("#fileincludeckb").attr('disabled',true);
-        var fileinclude = "a";
-        if($("#fileincludeckb").is(':checked')) 
-            fileinclude="farray";
-        $.post("rest/backup.php", {a:fileinclude}, function(msg){
-            var a,count,p;
+        //ToDo Progressbar
             function progressbarchange(x) {
                 $("#backuppwdpb").attr('aria-valuenow',x);
                 $("#backuppwdpb").css('width',x+'%');
             }
-            function cback() {
-                if(count<30) 
-                    pbkdf2_enc_1(cback); 
-                else 
-                    process();
-            }
-            function pbkdf2_enc_1(callback) {
-                progressbarchange(6+count*3);
-                a=pbkdf2_enc(a,PWsalt,500);
-                count=count+1;
-                setTimeout(callback,1);
-            }
-            function process() {
-                p.data=encryptchar(JSON.stringify(p.data),pbkdf2_enc(a,PWsalt,500));
-                p.fdata=encryptchar(JSON.stringify(p.fdata),pbkdf2_enc(a,PWsalt,500));
-                $("#backuppwdpb").attr('aria-valuenow',99);
-                $("#backuppwdpb").css('width','99%');
-                var blob = new Blob([JSON.stringify(p)], {type: "text/plain;charset=utf-8"});
-                saveAs(blob, "backup.txt");
-
+        backend.backup($("#fileincludeckb").is(':checked'))
+            .then(function(backup) {
+                saveAs(backup, "backup.txt");
                 $("#backuppwdbtn").attr('disabled',false);
                 $("#fileincludeckb").attr('disabled',false);
-                backend.resetTimeout();
-            }
-            function first(callback) {
-                this.extendedTimeout();
-                a = pbkdf2_enc(encryptionWrapper.secretkey,encryptionWrapper.pwSalt,500);
-                callback(cback);
-            }
-            count=0;
-            try {
-                p = msg;
-                if(p.status!="OK") {
-                    showMessage('warning',"FAIL TO GENERATE BACKUP FILE, TRY AGAIN", true);
-                    $("#backuppwdbtn").attr('disabled',false);
-                    return;
-                }
-            } catch (e) {
+            })
+            .catch(function(){
                 showMessage('warning',"FAIL TO GENERATE BACKUP FILE, TRY AGAIN", true);
+            })
+            .then(function(){
                 $("#backuppwdbtn").attr('disabled',false);
-                return;
-            }
-            first(pbkdf2_enc_1);
-
-        });
+                $("#fileincludeckb").attr('disabled',false);
+            });
     });
     $("#editAccountShowPassword").click(function(){
         $("#editAccountShowPassword").popover('hide');

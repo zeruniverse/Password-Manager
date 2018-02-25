@@ -371,6 +371,38 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
             });
     }
 
+    backup(includeFiles) {
+        var self = this;
+        self.extendedTimeout();
+        if (includeFiles)
+            includeFiles = "farray";
+        else
+            includeFiles = "a";
+        var data;
+        function multiGenerateKey(key, count) {
+            if (count == 0)
+                return Promise.resolve(key);
+            return EncryptionWrapper.generateKey(key, encryptionWrapper.pwSalt, 500)
+                .then(function(key){
+                    return multiGenerateKey(key, count - 1);
+                });
+        }
+        self.doPost("backup", { a: includeFiles}) 
+            .then(function(msg){
+                data = msg;
+                return EncryptionWrapper.generateKey(self.encryptionWrapper.secretkey, encryptionWrapper.pwSalt, 500);
+            })
+            .then(function(key) {
+                return multiGenerateKey(key, 30);
+            })
+            .then(function(key){
+                var backup = {};
+                backup.data = EncryptionWrapper.encryptCharUsingKey(JSON.stringify(p.data), key);
+                backup.fdata = EncryptionWrapper.encryptCharUsingKey(JSON.stringify(p.fdata), key);
+                return new Blob([JSON.stringify(p)], {type: "text/plain;charset=utf-8"});
+            });
+    }
+
     updateFields(fields) {
         var self = this;
         var p = fields.replace(/\r\n/g,'');
