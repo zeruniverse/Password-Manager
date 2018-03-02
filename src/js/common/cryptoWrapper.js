@@ -25,59 +25,65 @@ class EncryptionWrapper {
     decryptPassword(name, kss){
         var thekey = this.decryptChar(kss);
         if (thekey == ""){
-            return "";
+            return Promise.resolve("");
         }
         return EncryptionWrapper.getOrigPwd(this.confkey, this.pwSalt, String(CryptoJS.SHA512(name)), this.alphabet, thekey);
     }
     encryptPassword(name, pass){
-        pass = EncryptionWrapper.genTempPwd(this.confkey, this.pwSalt, String(CryptoJS.SHA512(name)), this.alphabet, pass);
-        return this.encryptChar(pass);
+        return EncryptionWrapper.genTempPwd(this.confkey, this.pwSalt, String(CryptoJS.SHA512(name)), this.alphabet, pass)
+            .then(function(pass) {
+                return this.encryptChar(pass);
+            });
     }
     static genTempPwd(key, salt, account_sig, orig_alphabet, pwd) {
-        var new_alphabet = EncryptionWrapper.genAlphabet(key, salt, account_sig, orig_alphabet);
-        var temp_pwd = "";
-        var i, j, pwd_len, alphabet_len;
-        var shift = String(CryptoJS.SHA512(account_sig + key));
-        var shift_len = shift.length;
-        pwd_len = pwd.length;
-        alphabet_len = new_alphabet.length;
-        for(i = 0; i < pwd_len; i++){
-            for(j=0; j < alphabet_len; j++){
-                if(pwd.charAt(i) === orig_alphabet.charAt(j)){
-                    temp_pwd = temp_pwd + new_alphabet.charAt((j+shift.charCodeAt(i % shift_len)) % alphabet_len);
-                    break;
+        return EncryptionWrapper.genAlphabet(key, salt, account_sig, orig_alphabet)
+            .then(function(new_alphabet) {
+                var temp_pwd = "";
+                var i, j, pwd_len, alphabet_len;
+                var shift = String(CryptoJS.SHA512(account_sig + key));
+                var shift_len = shift.length;
+                pwd_len = pwd.length;
+                alphabet_len = new_alphabet.length;
+                for(i = 0; i < pwd_len; i++){
+                    for(j=0; j < alphabet_len; j++){
+                        if(pwd.charAt(i) === orig_alphabet.charAt(j)){
+                            temp_pwd = temp_pwd + new_alphabet.charAt((j+shift.charCodeAt(i % shift_len)) % alphabet_len);
+                            break;
+                        }
+                    }
+
+                    //LETTER NOT IN ALPHABET, DIRECT MAPPING
+                    if(j === alphabet_len) {
+                        temp_pwd = temp_pwd + pwd.charAt(i);
+                    }
                 }
-            }
-            
-            //LETTER NOT IN ALPHABET, DIRECT MAPPING
-            if(j === alphabet_len) {
-                temp_pwd = temp_pwd + pwd.charAt(i);
-            }
-        }
-        
-        return temp_pwd;
+
+                return temp_pwd;
+            });
     }
     static getOrigPwd(key,salt,account_sig,orig_alphabet,temp_pwd) {
-        var new_alphabet = EncryptionWrapper.genAlphabet(key,salt,account_sig,orig_alphabet);
-        var pwd = "";
-        var i, j, pwd_len, alphabet_len;
-        var shift = String(CryptoJS.SHA512(account_sig+key));
-        var shift_len = shift.length;
-        pwd_len = temp_pwd.length;
-        alphabet_len = new_alphabet.length;
-        for(i = 0; i < pwd_len; i++){
-            for(j = 0; j < alphabet_len; j++){
-                if(temp_pwd.charAt(i) === new_alphabet.charAt(j)){
-                    pwd = pwd + orig_alphabet.charAt((j + alphabet_len - (shift.charCodeAt(i % shift_len) % alphabet_len)) % alphabet_len);
-                    break;
+        return EncryptionWrapper.genAlphabet(key, salt, account_sig, orig_alphabet)
+            .then(function(new_alphabet) {
+                var pwd = "";
+                var i, j, pwd_len, alphabet_len;
+                var shift = String(CryptoJS.SHA512(account_sig+key));
+                var shift_len = shift.length;
+                pwd_len = temp_pwd.length;
+                alphabet_len = new_alphabet.length;
+                for(i = 0; i < pwd_len; i++){
+                    for(j = 0; j < alphabet_len; j++){
+                        if(temp_pwd.charAt(i) === new_alphabet.charAt(j)){
+                            pwd = pwd + orig_alphabet.charAt((j + alphabet_len - (shift.charCodeAt(i % shift_len) % alphabet_len)) % alphabet_len);
+                            break;
+                        }
+                    }
+                    //LETTER NOT IN ALPHABET, DIRECT MAPPING
+                    if (j === alphabet_len) {
+                        pwd = pwd + temp_pwd.charAt(i);
+                    }
                 }
-            }
-            //LETTER NOT IN ALPHABET, DIRECT MAPPING
-            if (j === alphabet_len) {
-                pwd = pwd + temp_pwd.charAt(i);
-            }
-        }
-        return pwd;
+                return pwd;
+            });
     }
     static genAlphabet(key, salt, account_sig, orig_alphabet){
         var new_alphabet = "";
@@ -86,21 +92,23 @@ class EncryptionWrapper {
         var i, j, k;
         var tempchar;
         var orig_alphabet_len = orig_alphabet.length;
-        shift_str = EncryptionWrapper.pbkdf2_enc(key + account_sig, salt, 100);
-        shift_str_len = shift_str.length;
+        return EncryptionWrapper.generateKey(key + account_sig, salt, 100)
+            .then(function(shift_str) {
+                shift_str_len = shift_str.length;
 
-        for (i = 0;i < orig_alphabet_len;i++){
-            j = 0;
-            for(k = 0;k<6;k++){
-                j = j + shift_str.charCodeAt((i*6+k)%shift_str_len);
-            }
+                for (i = 0;i < orig_alphabet_len;i++){
+                    j = 0;
+                    for(k = 0;k<6;k++){
+                        j = j + shift_str.charCodeAt((i*6+k)%shift_str_len);
+                    }
 
-            tempchar = orig_alphabet.charAt(j % orig_alphabet.length);
-            new_alphabet = new_alphabet + tempchar;
-            orig_alphabet = orig_alphabet.replace(tempchar, '');
-        }
+                    tempchar = orig_alphabet.charAt(j % orig_alphabet.length);
+                    new_alphabet = new_alphabet + tempchar;
+                    orig_alphabet = orig_alphabet.replace(tempchar, '');
+                }
 
-        return new_alphabet;
+                return new_alphabet;
+            });
     }
     get confkey() {
         return this._confkey || EncryptionWrapper.getConfKeyUsingSalt(this.pwSalt);
@@ -122,19 +130,17 @@ class EncryptionWrapper {
     }
     static encryptCharUsingKey(encryptch, key){
         if(encryptch == "" || key == ""){  
-            alert("ERROR: empty key detected!");  
-            return;
+            return Promise.reject("ERROR: empty key detected!");
         }
         var p = CryptoJS.AES.encrypt(encryptch,key).toString();
-        return p;
+        return Promise.resolve(p);
     }
     static decryptCharUsingKey(echar, key){
         if(echar == "" || key == ""){  
-            alert("ERROR: empty key detected!");  
-            return;  
+            return Promise.reject("ERROR: empty key detected!");
         }
         var p = CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(echar,key));
-        return p;  
+        return Promise.resolve(p);
     }
     static generateKey(key, orig_salt, iter){
         var hash = CryptoJS.SHA512(key);

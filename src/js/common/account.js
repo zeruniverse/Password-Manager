@@ -13,15 +13,25 @@ class Account {
     }
     // reads the account from a encrypted dict
     static fromEncrypted(encryptionWrapper, encryptedAccount) {
-        let account = new Account(encryptedAccount["index"], encryptionWrapper.decryptChar(encryptedAccount["name"]), encryptedAccount["kss"]);
-        account.setEncryptionWrapper(encryptionWrapper);
-        if (encryptedAccount["additional"] != "") {
-            //decrypt and extract json
-            var data = $.parseJSON(encryptionWrapper.decryptChar(encryptedAccount["additional"]));
-            for (var x in data)
-                account.setOther(x, data[x]);
-        }
-        return Promise.resolve(account);
+        return encryptionWrapper.decryptChar(encryptedAccount["name"])
+            .then(function(accountName) {
+                var account = new Account(encryptedAccount["index"], accountName, encryptedAccount["kss"]);
+                account.setEncryptionWrapper(encryptionWrapper);
+                let resultPromise;
+                if (encryptedAccount["additional"] != "") {
+                    //decrypt and extract json
+                    resultPromise = encryptionWrapper.decryptChar(encryptedAccount["additional"])
+                        .then(function(additional) {
+                            let data = $.parseJSON(additional);
+                            for (var x in data)
+                                account.setOther(x, data[x]);
+                        });
+                }
+                else {
+                    resultPromise = Promise.resolve(account);
+                }
+                return resultPromise;
+            });
     }
 
     setEncryptionWrapper(wrapper) {
