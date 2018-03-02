@@ -393,7 +393,7 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
                 return EncryptionWrapper.generateKey(self.encryptionWrapper.secretkey, self.encryptionWrapper.pwSalt, 500);
             })
             .then(function(key) {
-                return multiGenerateKey(key, 30);
+                return multiGenerateKey(key, 31);
             })
             .then(function(key){
                 var backup = data;
