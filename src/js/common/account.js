@@ -15,8 +15,10 @@ class Account {
     static fromEncrypted(encryptionWrapper, encryptedAccount) {
         return encryptionWrapper.decryptChar(encryptedAccount["name"])
             .then(function(accountName) {
-                var account = new Account(encryptedAccount["index"], accountName, encryptedAccount["kss"]);
-                account.setEncryptionWrapper(encryptionWrapper);
+                let account = new Account(encryptedAccount["index"], accountName, encryptedAccount["kss"]);
+                return account.setEncryptionWrapper(encryptionWrapper);
+            })
+            .then(function(account){
                 let resultPromise;
                 if (encryptedAccount["additional"] != "") {
                     //decrypt and extract json
@@ -25,6 +27,7 @@ class Account {
                             let data = $.parseJSON(additional);
                             for (var x in data)
                                 account.setOther(x, data[x]);
+                            return account;
                         });
                 }
                 else {
@@ -37,10 +40,14 @@ class Account {
     setEncryptionWrapper(wrapper) {
         var self = this;
         if (self.encryptionWrapper != null) {
-            let pwd = self.password;
-            self.mEncryptionWrapper = wrapper;
-            self.password = pwd;
-            return Promise.resolve(self);
+            return self.getPassword()
+                .then(function(password) {
+                    self.mEncryptionWrapper = wrapper;
+                    return self.setPassword(password);
+                })
+                .then(function(){
+                    return self;
+                });
         }
         else {
             self.mEncryptionWrapper = wrapper;
@@ -51,43 +58,45 @@ class Account {
         return this.mEncryptionWrapper;
     }
 
-    // get as encrypted object
-    get encrypted() {
-        let encryptedResult = { "kss":this.enpassword };
-        if (this.index != null)
-            encryptedResult["index"] = this.index;
-        encryptedResult["name"] = this.encryptionWrapper.encryptChar(this.name);
-        let other = JSON.stringify(this.other);
-        encryptedResult["other"] = this.encryptionWrapper.encryptChar(other);
-        return encryptedResult;
-    }
     getEncrypted(){
-        return Promise.resolve(this.encrypted);
+        var self = this;
+        let encryptedResult = { "kss":self.enpassword };
+        if (self.index != null)
+            encryptedResult["index"] = self.index;
+        return self.encryptionWrapper.encryptChar(self.name)
+            .then(function(enName) {
+                encryptedResult["name"] = enName;
+                let other = JSON.stringify(self.other);
+                return self.encryptionWrapper.encryptChar(other);
+            })
+            .then(function(enOther) {
+                encryptedResult["other"] = enOther;
+                return encryptedResult;
+            });
     }
 
     get accountName() {
         return this.name;
     }
-    set accountName(name) {
+    setAccountName(name) {
+        var self = this;
         //reencrypt password
-        let password = this.password;
-        this.name = name;
-        this.password = password;
-    }
-    get password() {
-        //decrypt then output
-        return this.encryptionWrapper.decryptPassword(this.name, this.enpassword);
+        return self.getPassword()
+            .then(function(password){;
+                self.name = name;
+                return self.setPassword(password);
+            });
     }
     getPassword(){
-        return Promise.resolve(this.encryptionWrapper.decryptPassword(this.name, this.enpassword));
-    }
-    set password(password) {
-        //encrypt before storing
-        this.enpassword = this.encryptionWrapper.encryptPassword(this.name, password);
+        return this.encryptionWrapper.decryptPassword(this.name, this.enpassword);
     }
     setPassword(password){
-        this.enpassword = this.encryptionWrapper.encryptPassword(this.name, password);
-        return Promise.resolve();
+        var self = this;
+        return this.encryptionWrapper.encryptPassword(this.name, password)
+            .then(function(enPass){
+                self.enpassword = enPass;
+                return enPass;
+            });
     }
     clearOther() {
         this.other = {};

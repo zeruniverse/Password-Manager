@@ -130,15 +130,18 @@ let Accounts = (superclass) => class extends superclass {
             return Promise.reject("Account name can't be empty");
         }
         let account = new Account(null, name, "");
-        account.setEncryptionWrapper(self.encryptionWrapper);
-        account.password = pwd;
-
-        if(!("_system_passwordLastChangeTime" in other))
-            other["_system_passwordLastChangeTime"] = Math.floor(Date.now() / 1000);
-        for (let key in other) {
-            account.setOther(key, other[key]);
-        }
-        return account.getEncrypted()
+        return account.setEncryptionWrapper(self.encryptionWrapper)
+            .then(function(){
+                return account.setPassword(pwd);
+            })
+            .then(function(){
+                if(!("_system_passwordLastChangeTime" in other))
+                    other["_system_passwordLastChangeTime"] = Math.floor(Date.now() / 1000);
+                for (let key in other) {
+                    account.setOther(key, other[key]);
+                }
+                return account.getEncrypted()
+            })
             .then(function(encAccount) {
                 return self.doPost("insert", encAccount);
             });
@@ -261,8 +264,13 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
         this.loginInformation =  data["loginInformation"];
     }
     prepareCrypto(salt, default_letter) {
+        var self = this;
         try {
-            this.encryptionWrapper = EncryptionWrapper.fromLocalStorage(salt, default_letter);
+            return EncryptionWrapper.fromLocalStorage(salt, default_letter)
+                .then(function(encryptionWrapper) {
+                    self.encryptionWrapper = encryptionWrapper;
+                    return encryptionWrapper;
+                });
         }
         catch (err) {
             throw("Missing secretkey");

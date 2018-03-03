@@ -5,12 +5,14 @@ class EncryptionWrapper {
         this.alphabet = alphabet;
     }
     static fromLocalStorage(salt, alphabet) {
-        let secretkey0 = EncryptionWrapper.getPwdStoreUsingSalt(salt);
-        if (secretkey0 == "") {
-            throw "secretkey emtpy";
-        }
-        secretkey0 = String(CryptoJS.SHA512(secretkey0 + salt));
-        return new EncryptionWrapper(secretkey0, salt, alphabet);
+        return EncryptionWrapper.getPwdStoreUsingSalt(salt)
+            .then(function(secretkey0) {
+                if (secretkey0 == "") {
+                    throw "secretkey emtpy";
+                }
+                secretkey0 = String(CryptoJS.SHA512(secretkey0 + salt));
+                return new EncryptionWrapper(secretkey0, salt, alphabet);
+            });
     }
     static fromPassword(password, salt, alphabet, login_sig) {
         let secretkey0 = String(CryptoJS.SHA512(login_sig + salt))
@@ -23,16 +25,20 @@ class EncryptionWrapper {
         return EncryptionWrapper.encryptCharUsingKey(char, this.secretkey);
     }
     decryptPassword(name, kss){
-        var thekey = this.decryptChar(kss);
-        if (thekey == ""){
-            return Promise.resolve("");
-        }
-        return EncryptionWrapper.getOrigPwd(this.confkey, this.pwSalt, String(CryptoJS.SHA512(name)), this.alphabet, thekey);
+        var self = this;
+        return self.decryptChar(kss)
+            .then(function(thekey) {
+                if (thekey == ""){
+                    return Promise.resolve("");
+                }
+                return EncryptionWrapper.getOrigPwd(self.confkey, self.pwSalt, String(CryptoJS.SHA512(name)), self.alphabet, thekey);
+            });
     }
     encryptPassword(name, pass){
-        return EncryptionWrapper.genTempPwd(this.confkey, this.pwSalt, String(CryptoJS.SHA512(name)), this.alphabet, pass)
+        var self = this;
+        return EncryptionWrapper.genTempPwd(self.confkey, self.pwSalt, String(CryptoJS.SHA512(name)), self.alphabet, pass)
             .then(function(pass) {
-                return this.encryptChar(pass);
+                return self.encryptChar(pass);
             });
     }
     static genTempPwd(key, salt, account_sig, orig_alphabet, pwd) {
