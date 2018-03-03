@@ -575,7 +575,7 @@ $(document).ready(function(){
         $(".popover").popover('hide');
     });
     $('#editPasswordInput').on('click', function() {
-        $('#edititeminputpw').val(backend.encryptionWrapper.generatePassphrase(default_length));
+        $('#edititeminputpw').val(backend.encryptionWrapper.generatePassphrase(backend.default_length));
         $('#editAccountShowPassword').removeClass('collapse');
         $('#editAccountShowPassword').popover({
             'placement':'bottom',
