@@ -152,15 +152,17 @@ let Accounts = (superclass) => class extends superclass {
             return Promise.reject("Account name can't be empty");
         }
         var account = this.accounts[id];
-        account.accountName = name;
-        account.clearVisibleOther();
-        for (let x in other) {
-            account.setOther(x, other[x]);
-        }
-        var promises = [];
-        if (newpwd != "")
-            promises.push(account.setPassword(newpwd))
-        return Promise.all(promises)
+        return account.setAccountName(name)
+            .then(function(){;
+                account.clearVisibleOther();
+                for (let x in other) {
+                    account.setOther(x, other[x]);
+                }
+                var promises = [];
+                if (newpwd != "")
+                    promises.push(account.setPassword(newpwd))
+                return Promise.all(promises)
+            })
             .then(function(){
                 return account.getEncrypted();
             })
