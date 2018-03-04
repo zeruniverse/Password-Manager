@@ -214,7 +214,9 @@ let PinHandling = (superclass) => class extends superclass {
             });
     }
     delLocalPinStore() {
-        localStorage.clear();
+        localStorage.removeItem("en_login_conf");
+        localStorage.removeItem("en_login_sec");
+        localStorage.removeItem("pinsalt");
         if(getcookie('device') != "") {
             this.doPost("deletepin",{user:getcookie('username'), device:getcookie('device')});
         }
@@ -466,7 +468,7 @@ class HistoryBackend extends mix(commonBackend).with(EventHandler, Authenticated
 class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
     doPost(endpoint, data) {
         data = data || {};
-        data["session_token"] = this.sessionToken;
+        data["session_token"] = localStorage.session_token;
         return super.doPost(endpoint, data);
     }
     loadInfo() {
@@ -508,7 +510,7 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
             })
             .then(function(results) {
                 setpwdstore(results[0], results[1], self.encryptionWrapper.pwSalt);
-                var pwd = String(CryptoJS.SHA512(pbkdf2_enc(pwdsk, JSsalt, 500) + user));
+                var pwd = String(CryptoJS.SHA512(pbkdf2_enc(pwdsk, self.encryptionWrapper.jsSalt, 500) + user));
                 return self.doPost('check', {pwd: pwd, user:user});
             })
             .catch(function(msg) {
@@ -524,14 +526,14 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
         var self = this;
         var secretkey = '';
         var confkey = '';
-        return self.encryptionWrapper.generateSecretKey(pwd)
+        return self.encryptionWrapper.generateSecretKey(password)
             .then(function(login_sig){
                 secretkey = login_sig;
-                login_sig = pbkdf2_enc(login_sig, JSsalt, 500);
+                login_sig = pbkdf2_enc(login_sig, self.encryptionWrapper.jsSalt, 500);
                 return self.doPost('check', {pwd:String(CryptoJS.SHA512(login_sig + user)), user: user});
             })
             .then(function(msg){
-                confkey = pbkdf2_enc(String(CryptoJS.SHA512(pwd + secretkey)), self.encryptionWrapper.jsSalt, 500);
+                confkey = pbkdf2_enc(String(CryptoJS.SHA512(password + secretkey)), self.encryptionWrapper.jsSalt, 500);
                 setCookie("username", user);
                 setpwdstore(secretkey, confkey, self.encryptionWrapper.pwSalt);
             });
