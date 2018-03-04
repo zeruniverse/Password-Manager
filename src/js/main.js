@@ -379,7 +379,6 @@ $(document).ready(function(){
                     $("#edititeminput" + x).attr("readonly",false);
             });
     });
-    //ToDo use backend
     $("#backuppwdbtn").click(function(){
         $("#backuppwdbtn").attr('disabled',true);
         $("#backuppwdpb").attr('aria-valuenow',0);
@@ -431,13 +430,15 @@ $(document).ready(function(){
             $("#changepw").attr("value", "Processing...");
 
             //check old password
-            var login_sig = String(pbkdf2_enc(reducedinfo($("#oldpassword").val(), backend.encryptionWrapper.alphabet), backend.salt1, 500));
-            if(backend.encryptionWrapper.secretkey != String(CryptoJS.SHA512(login_sig+backend.encryptionWrapper.pwSalt))) {
-                showMessage('warning',"Incorrect Old Password!", true);
-                return;
-            }
-            var newpass=$("#pwd").val();
-            backend.changePassword(newpass)
+            backend.encryptionWrapper.createLoginKey($("#oldpassword").val())
+                .then(function(login_sig) {
+                    if(backend.encryptionWrapper.secretkey != String(CryptoJS.SHA512(login_sig + backend.encryptionWrapper.pwSalt))) {
+                        showMessage('warning',"Incorrect Old Password!", true);
+                        return;
+                    }
+                    var newpass = $("#pwd").val();
+                    return backend.changePassword(newpass);
+                })
                 .then(function(){
                     alert("Change Password Successfully! Please login with your new password again.");
                     backend.logout("Password changed, please relogin");
