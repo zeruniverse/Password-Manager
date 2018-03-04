@@ -37,7 +37,7 @@ $(function(){
         backend.doPinLogin($("#pin").val())
             .then(function(){
                     window.location.href="./password.php";
-                });
+                })
             .catch(function(msg){
                 if (msg == "No PIN available") {
                     $("#usepin").modal("hide");
@@ -94,7 +94,6 @@ $(function(){
     if($.urlParam("reason")) {
         showMessage("warning",$.urlParam("reason"));
     }
-    $.post("rest/info.php",{},function(msg){dataReady(msg);});
     backend = new LogonBackend();
     backend.loadInfo()
         .then(function(data) {

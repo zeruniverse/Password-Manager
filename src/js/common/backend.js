@@ -484,7 +484,7 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
 
                 localStorage.session_token = data["session_token"];
 
-                if (!checkHostdomain) {
+                if (!self.checkHostdomain) {
                     throw ('Hostdomain mismatch. Please check your config file.');
                 }
 
