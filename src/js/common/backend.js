@@ -1,6 +1,4 @@
 // helpers for javascript mixins-pattern
-let mix = (superclass) => new MixinBuilder(superclass);
-class MixinBuilder {  
   constructor(superclass) {
     this.superclass = superclass;
   }
@@ -219,6 +217,7 @@ let PinHandling = (superclass) => class extends superclass {
             this.doPost("deletepin",{user:getcookie('username'), device:getcookie('device')});
         }
         deleteCookie('device');
+        deleteCookie('username');
     }
 }
 
@@ -497,9 +496,8 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
     doPinLogin(pin) {
         var self = this;
         var user = getcookie('username');
-        var device = getcookie('device');
         var sig = String(CryptoJS.SHA512(String(CryptoJS.SHA512(pin + localStorage.pinsalt)) + randomLoginStamp));
-        return this.doPost('getpinpk', {user:user, device:device, sig:sig})
+        return self.doPost('getpinpk', {user:user, device:getcookie('device'), sig:sig})
             .then(function(msg) {
                 var promises = [];
                 promises.push(EncryptionWrapper.decryptCharUsingKey(localStorage.en_login_sec, pin + msg["pinpk"]));
@@ -508,8 +506,8 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
             })
             .then(function(results) {
                 setpwdstore(results[0], results[1], self.encryptionWrapper.pwSalt);
-                var pwd = String(CryptoJS.SHA512(pbkdf2_enc(pwdsk, JSsalt, 500) + getcookie('username')));
-                return self.doPost('check', {pwd: pwd, user:getcookie('username')});
+                var pwd = String(CryptoJS.SHA512(pbkdf2_enc(pwdsk, JSsalt, 500) + user));
+                return self.doPost('check', {pwd: pwd, user:user});
             })
             .catch(function(msg) {
                 //Todo clearpwdstore
@@ -521,6 +519,20 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
 
     }
     doLogin(user, password) {
+        var self = this;
+        var secretkey = '';
+        var confkey = '';
+        return self.encryptionWrapper.generateSecretKey(pwd)
+            .then(function(login_sig){
+                secretkey = login_sig;
+                login_sig = pbkdf2_enc(login_sig, JSsalt, 500);
+                return self.doPost('check', {pwd:String(CryptoJS.SHA512(login_sig + user)), user: user});
+            })
+            .then(function(msg){
+                confkey = pbkdf2_enc(String(CryptoJS.SHA512(pwd + secretkey)), self.encryptionWrapper.jsSalt, 500);
+                setCookie("username", user);
+                setpwdstore(secretkey, confkey, self.encryptionWrapper.pwSalt);
+            });
     }
     checkHostdomain() {
         var full = location.protocol + '//' + location.hostname;
