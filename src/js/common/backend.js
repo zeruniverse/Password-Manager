@@ -478,13 +478,55 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
                 self.hostdomain = data["hostdomain"];
                 self.version = data["version"];
                 self.banTime = data["banTime"];
+                self.randomLoginStamp = data["random_login_stamp"];
+                self.usePin = data["use_pin"];
+                self.loggedIn = data["loggedIn"];
 
                 localStorage.session_token = data["session_token"];
+
+                if (!checkHostdomain) {
+                    throw ('Hostdomain mismatch. Please check your config file.');
+                }
+
+                if (!self.pinActive) {
+                    self.delLocalPinStore();
+                }
                 return data;
             });
+    }
+    doPinLogin(pin) {
+        var self = this;
+        var user = getcookie('username');
+        var device = getcookie('device');
+        var sig = String(CryptoJS.SHA512(String(CryptoJS.SHA512(pin + localStorage.pinsalt)) + randomLoginStamp));
+        return this.doPost('getpinpk', {user:user, device:device, sig:sig})
+            .then(function(msg) {
+                var promises = [];
+                promises.push(EncryptionWrapper.decryptCharUsingKey(localStorage.en_login_sec, pin + msg["pinpk"]));
+                promises.push(EncryptionWrapper.decryptCharUsingKey(localStorage.en_login_conf, pin + msg["pinpk"]));
+                return Promise.all(promises);
+            })
+            .then(function(results) {
+                setpwdstore(results[0], results[1], self.encryptionWrapper.pwSalt);
+                var pwd = String(CryptoJS.SHA512(pbkdf2_enc(pwdsk, JSsalt, 500) + getcookie('username')));
+                return self.doPost('check', {pwd: pwd, user:getcookie('username')});
+            })
+            .catch(function(msg) {
+                //Todo clearpwdstore
+                if (msg == "No PIN available") {
+                    self.delLocalPinStore();
+                }
+                throw(msg);
+            });
+
+    }
+    doLogin(user, password) {
     }
     checkHostdomain() {
         var full = location.protocol + '//' + location.hostname;
         return this.hostdomain.toLowerCase().startsWith(full.toLowerCase());
+    }
+    get pinActive() {
+        return (getcookie('device') != "") && (this.usePin == 1);
     }
 }

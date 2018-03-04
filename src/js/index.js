@@ -1,9 +1,4 @@
-var JSsalt;
-var PWsalt;
-var session_token;
-var usepin;
-var randomLoginStamp;
-var default_letter_used;
+var backend;
 function isSupportFileApi() {
     if(window.File && window.FileList && window.FileReader && window.Blob) {
         return true;
@@ -26,95 +21,36 @@ function isAllHTML5Supports(){
 if(!isAllHTML5Supports()) {
     window.location.href="./sorry_for_old_browser_update_hint.html";
 }
-$("#usepin").on("hidden.bs.modal", function () {
-    $("#user").focus();
-});
-function checkHostdomain(hostdomain) {
-    var full = location.protocol+'//'+location.hostname;
-    return hostdomain.toLowerCase().startsWith(full.toLowerCase());
-}
-function dataReady(data){
-    if (data["status"] != "success"){
-        showMessage("warning", data["message"]);
-        return;
-    }
-    if (data["loggedIn"]){
-        window.location = "./password.php";
-        return;
-    }
-    JSsalt = data["global_salt_1"]; 
-    PWsalt = data["global_salt_2"];
-    session_token = data["session_token"];
-    randomLoginStamp = data["random_login_stamp"];
-    usepin = data["use_pin"];
-    default_letter_used = data["default_letter_used"];
-    if (!checkHostdomain(data["hostdomain"])) {
-        showMessage("warning", 'Hostdomain mismatch. Please check your config file.');
-    }
-    if (data["allowSignup"]) {
-        $("#signup").show();
-    }
-    $("#version").text(data["version"]);
-    $("#banTime").text(data["banTime"]);
-    localStorage.session_token = session_token;
-    $.ajaxPrefilter(function(options, originalOptions, jqXHR){
-        if (options.type.toLowerCase() === "post") {
-            options.data = options.data || "";
-            options.data += options.data?"&":"";
-            options.data += "session_token=" + session_token;
-        }
-    });
-    if(getcookie('device')!="") {
-        if(1==usepin) {
-            $("#usepin").modal("show");
-            $("#pin").focus();
-        }
-        else{
-            delpinstore();
-            $("#user").focus();
-        }
-    } else $("#user").focus();
+$(function(){
     $("#signup").on('click',function(e){window.location.href="signup.php";});
     $("#recover").on('click',function(e){window.location.href="recovery.php";});
     $("#delpin").on('click',function(e){delpinstore();deleteCookie('username');});
+    $("#usepin").on("hidden.bs.modal", function () {
+        $("#user").focus();
+    });
     $("#pinloginform").on('submit',function(e){
         var pin;
         e.preventDefault();
         $("#pinerrorhint").hide();
         $("#pinlogin").attr("disabled", true);
         $("#pinlogin").val("Wait");
-        pin=$("#pin").val();
-        $.post("rest/getpinpk.php", {user:getcookie('username'), device:getcookie('device'), sig:String(CryptoJS.SHA512(String(CryptoJS.SHA512(pin + localStorage.pinsalt)) + randomLoginStamp))}, function(msg){
-            if (msg["status"] != 'success') {
-                if (msg["message"] == "No PIN available") {
+        backend.doPinLogin($("#pin").val())
+            .then(function(){
+                    window.location.href="./password.php";
+                });
+            .catch(function(msg){
+                if (msg == "No PIN available") {
                     $("#usepin").modal("hide");
-                    delpinstore();
                     $("#user").focus();
-                    return;
                 }
-                else if (msg["message"] == "Wrong PIN") {
+                else {
                     $("#pin").val('');
                     $("#pinerrorhint").show();
                     $("#pinlogin").attr("disabled", false);
                     $("#pinlogin").val("Login");
                     return;
                 }
-                $("#pinerrorhint").show();
-                return;
-            }
-            pwdsk = decryptchar(localStorage.en_login_sec, pin + msg["pinpk"]);
-            confkey = decryptchar(localStorage.en_login_conf, pin + msg["pinpk"]);
-            $.post("rest/check.php", {pwd:String(CryptoJS.SHA512(pbkdf2_enc(pwdsk, JSsalt, 500) + getcookie('username'))), user: getcookie('username')}, function(msg){
-                if(msg["status"] != "success") {
-                    $("#usepin").modal("hide");
-                    delpinstore();
-                    $("#user").focus();
-                    return;
-                }
-                setpwdstore(pwdsk,confkey,PWsalt);
-                window.location.href="./password.php";
             });
-        });
     });
     $("#loginform").on('submit',function(e){ 
         e.preventDefault();
@@ -147,8 +83,7 @@ function dataReady(data){
         }
         setTimeout(process,50);
     }); 
-}
-$(function(){
+
     $.urlParam = function(name){
         var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
         if (results) {
@@ -160,4 +95,27 @@ $(function(){
         showMessage("warning",$.urlParam("reason"));
     }
     $.post("rest/info.php",{},function(msg){dataReady(msg);});
+    backend = new LogonBackend();
+    backend.loadInfo()
+        .then(function(data) {
+            if (backend.loggedIn){
+                window.location = "./password.php";
+                return;
+            }
+            if (backend.allowSignup) {
+                $("#signup").show();
+            }
+            $("#version").text(backend.version);
+            $("#banTime").text(backend.banTime);
+            if(backend.pinActive) {
+                $("#usepin").modal("show");
+                $("#pin").focus();
+            }
+            else{
+                $("#user").focus();
+            }
+        })
+        .catch(function(msg) {
+            showMessage("warning", msg);
+        });
 }); 
