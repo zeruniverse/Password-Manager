@@ -209,10 +209,17 @@ let PinHandling = (superclass) => class extends superclass {
                 return self.doPost("setpin" , {user:self.user, device: device, sig:String(CryptoJS.SHA512(pin+salt))});
             })
             .then(function(msg) {
+                //ToDo abhängigkeit entfernen
                 setPINstore(device, salt, EncryptionWrapper.encryptCharUsingKey(getpwdstore(self.encryptionWrapper.pwSalt), pin + msg["pinpk"]), EncryptionWrapper.encryptCharUsingKey(self.encryptionWrapper.confkey, pin + msg["pinpk"]));
             });
     }
-
+    delLocalPinStore() {
+        localStorage.clear();
+        if(getcookie('device') != "") {
+            this.doPost("deletepin",{user:getcookie('username'), device:getcookie('device')});
+        }
+        deleteCookie('device');
+    }
 }
 
 //Backend class
@@ -239,7 +246,7 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
                 self.prepareData(data);
                 self.resetTimeout();
                 self.initTimeout();
-                return self.prepareCrypto(data["global_salt_2"], data["default_letter_used"]);
+                return self.prepareCrypto(data["global_salt_2"], data["global_salt_2"], data["default_letter_used"]);
             })
             .then(function(){
                 return self.decryptAccounts(self.receivedData["accounts"]);
@@ -258,17 +265,15 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
         this.default_server_timeout = data["server_timeout"];
         this.file_enabled = data["file_enabled"];
         this.fields_allow_change = data["fields_allow_change"];
-        //Todo necessary? see checksessionalive
         this.server_timeout = this.default_server_timeout + Math.floor(Date.now() / 1000);
         this.default_length = data["default_length"];
-        this.salt1 = data["global_salt_1"]; //Only needed for changing the logon password
         this.user = data["user"];
         this.loginInformation =  data["loginInformation"];
     }
-    prepareCrypto(salt, default_letter) {
+    prepareCrypto(jsSalt, pwSalt, default_letter) {
         var self = this;
         try {
-            return EncryptionWrapper.fromLocalStorage(salt, default_letter)
+            return EncryptionWrapper.fromLocalStorage(jsSalt, pwSalt, default_letter)
                 .then(function(encryptionWrapper) {
                     self.encryptionWrapper = encryptionWrapper;
                     return encryptionWrapper;
@@ -349,10 +354,16 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
     
     changePassword(newpass) {
         var self = this;
-        var login_sig = String(pbkdf2_enc(reducedinfo(newpass, self.encryptionWrapper.alphabet), self.salt1, 500));
-        var postnewpass = pbkdf2_enc(login_sig, self.salt1, 500);
-        var newconfkey = pbkdf2_enc(String(CryptoJS.SHA512(newpass + login_sig)), self.salt1, 500);
-        return EncryptionWrapper.fromPassword(newpass, self.encryptionWrapper.pwSalt, self.encryptionWrapper.alphabet, login_sig)
+        var login_sig;
+        var postnewpass;
+        var newconfkey;
+        return this.encryptionWrapper.generateSecretKey(newpass)
+            .then(function(key){
+                login_sig = key;
+                postnewpass = pbkdf2_enc(login_sig, self.encryptionWrapper.jsSalt, 500);
+                newconfkey = pbkdf2_enc(String(CryptoJS.SHA512(newpass + login_sig)), self.encryptionWrapper.jsSalt, 500);
+                return EncryptionWrapper.fromPassword(newpass, self.encryptionWrapper.jsSalt, self.encryptionWrapper.pwSalt, self.encryptionWrapper.alphabet, login_sig)
+            })
             .then(function(newEncryptionWrapper) {
                 newEncryptionWrapper._confkey = newconfkey;
                 var promises = [];
@@ -369,7 +380,6 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
             })
             .then(function(accounts) {
                 //jetzt weiterleiten
-                //Todo accarray sinnvoll besetzen
                 var accarray= [];
                 for (let account of accounts) {
                     accarray[account["index"]] = account;
@@ -450,5 +460,31 @@ class HistoryBackend extends mix(commonBackend).with(EventHandler, Authenticated
                 self.initTimeout();
                 return msg;
             });
+    }
+}
+class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
+    doPost(endpoint, data) {
+        data = data || {};
+        data["session_token"] = this.sessionToken;
+        return super.doPost(endpoint, data);
+    }
+    loadInfo() {
+        var self = this;
+        return this.doPost("info", {})
+            .then(function(data){
+
+                self.encryptionWrapper = new EncryptionWrapper(null, data["global_salt_1"], data["global_salt_2"], data["default_letter_used"]);
+                self.allowSignup = data["allowSignup"];
+                self.hostdomain = data["hostdomain"];
+                self.version = data["version"];
+                self.banTime = data["banTime"];
+
+                localStorage.session_token = data["session_token"];
+                return data;
+            });
+    }
+    checkHostdomain() {
+        var full = location.protocol + '//' + location.hostname;
+        return this.hostdomain.toLowerCase().startsWith(full.toLowerCase());
     }
 }

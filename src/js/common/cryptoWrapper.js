@@ -1,22 +1,23 @@
 class EncryptionWrapper {
-    constructor(secretkey, pwSalt, alphabet) {
+    constructor(secretkey, jsSalt, pwSalt, alphabet) {
         this.secretkey = secretkey;
         this.pwSalt = pwSalt;
+        this.jsSalt = jsSalt;
         this.alphabet = alphabet;
     }
-    static fromLocalStorage(salt, alphabet) {
-        return EncryptionWrapper.getPwdStoreUsingSalt(salt)
+    static fromLocalStorage(jsSalt, pwSalt, alphabet) {
+        return EncryptionWrapper.getPwdStoreUsingSalt(pwSalt)
             .then(function(secretkey0) {
                 if (secretkey0 == "") {
                     throw "secretkey emtpy";
                 }
-                secretkey0 = String(CryptoJS.SHA512(secretkey0 + salt));
-                return new EncryptionWrapper(secretkey0, salt, alphabet);
+                secretkey0 = String(CryptoJS.SHA512(secretkey0 + pwSalt));
+                return new EncryptionWrapper(secretkey0, jsSalt, pwSalt, alphabet);
             });
     }
-    static fromPassword(password, salt, alphabet, login_sig) {
-        let secretkey0 = String(CryptoJS.SHA512(login_sig + salt))
-        return Promise.resolve(new EncryptionWrapper(secretkey0, salt, alphabet));
+    static fromPassword(password, jsSalt, pwSalt, alphabet, login_sig) {
+        let secretkey0 = String(CryptoJS.SHA512(login_sig + pwSalt))
+        return Promise.resolve(new EncryptionWrapper(secretkey0, jsSalt, pwSalt, alphabet));
     }
     decryptChar(crypt){
         return EncryptionWrapper.decryptCharUsingKey(crypt, this.secretkey);
@@ -40,6 +41,9 @@ class EncryptionWrapper {
             .then(function(pass) {
                 return self.encryptChar(pass);
             });
+    }
+    generateSecretKey(password) {
+        return Promise.resolve(String(pbkdf2_enc(reducedinfo(password, this.alphabet), this.jsSalt, 500)));
     }
     static genTempPwd(key, salt, account_sig, orig_alphabet, pwd) {
         return EncryptionWrapper.genAlphabet(key, salt, account_sig, orig_alphabet)
