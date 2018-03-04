@@ -1,4 +1,6 @@
 // helpers for javascript mixins-pattern
+let mix = (superclass) => new MixinBuilder(superclass);
+class MixinBuilder {  
   constructor(superclass) {
     this.superclass = superclass;
   }
