@@ -586,7 +586,7 @@ $(document).ready(function(){
                 other[x] = $("#edititeminput"+x).val().trim();
             }
             // get all _Fields from the original data 
-            for (x in accountarray[id]){
+            for (x in accountarray[id]["other"]){
                 if (x.substring(0,1) == "_"){
                     other[x] = accountarray[id]["other"][x];
                 }
