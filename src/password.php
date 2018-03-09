@@ -20,7 +20,7 @@ echoheader();
 <script src="js/plugin.js"></script>
 <script src="js/plugins/linkButton.js"></script>
 <script src="js/plugins/tags.js"></script>
-<script src="js/plugins/showPasswordAge.js"></script>
+<script src="js/plugins/passwordAge.js"></script>
 <script src="js/plugins/keyboardShortcuts.js"></script>
    <nav class="navbar navbar-default navbar-fixed-top">
       <div class="container">
