@@ -159,8 +159,10 @@ let Accounts = (superclass) => class extends superclass {
                     account.setOther(x, other[x]);
                 }
                 var promises = [];
-                if (newpwd != "")
+                if (newpwd != "") {
+                    account.setOther("_system_passwordLastChangeTime", Math.floor(Date.now() / 1000));
                     promises.push(account.setPassword(newpwd))
+                }
                 return Promise.all(promises)
             })
             .then(function(){
