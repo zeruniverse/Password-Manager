@@ -705,9 +705,6 @@ function showdetail(index){
                                         .attr('class',"glyphicon glyphicon-arrow-up")))));
     }
     s.append(table);
-    if ("_system_passwordLastChangeTime" in account.availableOthers) {
-        s.append('<br />').append($('<p>').addClass('textred').text('Password last changed at ' + timeConverter(account.getOther("_system_passwordLastChangeTime"))));
-    }
     callPlugins("showDetails",{"account":account, "out":s});
     $("#showdetails").modal("show");
 }

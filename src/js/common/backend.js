@@ -135,11 +135,10 @@ let Accounts = (superclass) => class extends superclass {
                 return account.setPassword(pwd);
             })
             .then(function(){
-                if(!("_system_passwordLastChangeTime" in other))
-                    other["_system_passwordLastChangeTime"] = Math.floor(Date.now() / 1000);
                 for (let key in other) {
                     account.setOther(key, other[key]);
                 }
+                callPlugins("addAccountPreSend", {"account":account, "name":name, "password":pwd, "other":other});
                 return account.getEncrypted()
             })
             .then(function(encAccount) {
@@ -160,12 +159,12 @@ let Accounts = (superclass) => class extends superclass {
                 }
                 var promises = [];
                 if (newpwd != "") {
-                    account.setOther("_system_passwordLastChangeTime", Math.floor(Date.now() / 1000));
                     promises.push(account.setPassword(newpwd))
                 }
                 return Promise.all(promises)
             })
             .then(function(){
+                callPlugins("updateAccountPreSend", {"account":account, "name":name, "newPassword":newpwd, "other":other});
                 return account.getEncrypted();
             })
             .then(function(encAccount){

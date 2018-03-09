@@ -1,6 +1,7 @@
 // This is for the plugin architecture
 var runPlugins = {};
-const hooks = ["quitpwd", "quitpwd_untrust", "dataReady", "layoutReady", "readField", "readAccount", "drawAccount", "accountsReady", "fieldsReady", "editAccountDialog", "showDetails"];
+const hooks = ["quitpwd", "quitpwd_untrust", "dataReady", "layoutReady", "readField", "readAccount", "drawAccount", "accountsReady", "fieldsReady", "editAccountDialog", "showDetails",
+"addAccountPreSend", "updateAccountPreSend"];
 function initPlugins() {
     for (hook in hooks){
         runPlugins[hooks[hook]] = [];

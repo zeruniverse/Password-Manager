@@ -8,6 +8,12 @@ registerPlugin("editAccountDialog",function(data){
     else
         $("#edititempasswordlastchanged").empty();
 });
+registerPlugin("showDetails", function(data){
+    let account = data["account"];
+    if ("_system_passwordLastChangeTime" in account.availableOthers) {
+        data["out"].append('<br />').append($('<p>').addClass('textred').text('Password last changed at ' + timeConverter(account.getOther("_system_passwordLastChangeTime"))));
+    }
+});
 registerPlugin("layoutReady",function(data){
     $("label[for='edititeminputpw']").after($("<span>")
             .attr("class","small")
@@ -15,4 +21,12 @@ registerPlugin("layoutReady",function(data){
             .append($("<span>")
                 .attr("id","edititempasswordlastchanged")
                 .attr("class","textred")));
+});
+registerPlugin("updateAccountPreSend", function(data){
+    if (data["newPassword"] != "") {
+        data["account"].setOther("_system_passwordLastChangeTime", Math.floor(Date.now() / 1000));
+    }
+});
+registerPlugin("addAccountPreSend", function(data){
+    data["account"].setOther("_system_passwordLastChangeTime", Math.floor(Date.now() / 1000));
 });
