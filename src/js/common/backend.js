@@ -476,7 +476,6 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
         var self = this;
         return this.doPost("info", {})
             .then(function(data){
-
                 self.encryptionWrapper = new EncryptionWrapper(null, data["global_salt_1"], data["global_salt_2"], data["default_letter_used"]);
                 self.allowSignup = data["allowSignup"];
                 self.hostdomain = data["hostdomain"];
@@ -485,6 +484,8 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
                 self.randomLoginStamp = data["random_login_stamp"];
                 self.usePin = data["use_pin"];
                 self.loggedIn = data["loggedIn"];
+                self.minPasswordLength = data["minPasswordLength"];
+                self.minNameLength = data["minNameLength"];
 
                 localStorage.session_token = data["session_token"];
 
@@ -528,9 +529,8 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
         var secretkey = '';
         var confkey = '';
         return self.encryptionWrapper.generateSecretKey(password)
-            .then(function(login_sig){
-                secretkey = login_sig;
-                login_sig = pbkdf2_enc(login_sig, self.encryptionWrapper.jsSalt, 500);
+            .then(function(secretkey){
+                var login_sig = pbkdf2_enc(secretkey, self.encryptionWrapper.jsSalt, 500);
                 return self.doPost('check', {pwd:String(CryptoJS.SHA512(login_sig + user)), user: user});
             })
             .then(function(msg){
@@ -538,6 +538,34 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
                 setCookie("username", user);
                 setpwdstore(secretkey, confkey, self.encryptionWrapper.pwSalt);
             });
+    }
+    doRegister(user, email, password1, password2) {
+        var self = this;
+        if (password1 != password2) {
+            return Promise.reject("PasswordMismatch");
+        }
+        if (password1.length < self.minPasswordLength) {
+            return Promise.reject("PasswordLength");
+        }
+        if (!self.validEmail(email)) {
+            return Promise.reject("EmailInvalid");
+        }
+        if (user.length < self.minNameLength) {
+            return Promise.reject("UserLength");
+        }
+        return self.encryptionWrapper.generateSecretKey(password1)
+            .then(function(secretkey){
+                var login_sig = pbkdf2_enc(secretkey, self.encryptionWrapper.jsSalt, 500);
+                return self.doPost('reg' , {email: email, pwd:String(CryptoJS.SHA512(login_sig + user)), user: user});
+            });
+    }
+    validEmail(aEmail) {
+        var bValidate = RegExp(/^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/).test(aEmail);
+        if (bValidate) {
+            return true;
+        }
+        else 
+            return false;
     }
     checkHostdomain() {
         var full = location.protocol + '//' + location.hostname;
