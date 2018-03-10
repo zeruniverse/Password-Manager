@@ -47,7 +47,6 @@ $(function(){
                     $("#pinerrorhint").show();
                     $("#pinlogin").attr("disabled", false);
                     $("#pinlogin").val("Login");
-                    return;
                 }
             });
     });
