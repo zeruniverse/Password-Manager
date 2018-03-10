@@ -59,4 +59,6 @@ $result['use_pin'] = usepin() ? 1 : 0;
 $result['version'] = $VERSION;
 $result['banTime'] = $ACCOUNT_BAN_TIME;
 $result['allowSignup'] = $ALLOW_SIGN_UP;
+$result['minPasswordLength'] = $MINIMAL_PASSWORD_LENGTH;
+$result['minNameLength'] = $MINIMAL_NAME_LENGTH;
 ajaxSuccess($result);
