@@ -13,7 +13,7 @@ function download(filename, text) {
     var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
     saveAs(blob, filename);
 }
-function export_raw(){
+function export_raw() {
     if(!confirm("Confirm: This function is used ONLY to TRANSFER your password to another password manager! DON'T BACK UP this version, it's DANGEROUS!")) return;
     if(!confirm("You agree you will delete the generated content IMMEDIATELY after you finish transferring your passwords")) return;
     var result = { };
@@ -29,23 +29,23 @@ function export_raw(){
             'password': pass_array[x],
             'other': other_array[x]
         };
-        if(has_file==1 && x in fname_array){
+        if(has_file==1 && x in fname_array) {
             result.data[x].fname=fname_array[x];
             result.data[x].filedata=fdata_array[x];
         }
     }
     download("raw_pass.raw",JSON.stringify(result));
 }
-function export_csv(){
+function export_csv() {
     if(!confirm('CSV file contains all your information in plain text format. It\'s dangerous to keep it as a backup. Only use it for transferring your data. Delete it immediately after you\'ve done. Please note the encoding for the csv file is UTF-8. You might need to specify this encoding in order to open this CSV properly in some software that uses ANSI as default encoding such as Microsoft Office.')) return;
     var obj= [];
     timeout=100000+Math.floor(Date.now() / 1000);
     var t,x,i;
-    for (x in acc_array){
+    for (x in acc_array) {
         tmp={};
         tmp['name']=acc_array[x];
         t=JSON.parse(other_array[x]);
-        for (i in t){
+        for (i in t) {
             tmp[i] = t[i];
         }
         tmp['password']=pass_array[x];
@@ -55,13 +55,7 @@ function export_csv(){
     var blob = new Blob([csv], {type: "text/plain;charset=utf-8"});
     saveAs(blob, "export.csv");
 }
-function sanitize_json(s){
-    var t=s;
-    t=t.replace(/\n/g,'');
-    return t.replace(/\r/g,'');
-}
-function gen_key()
-{
+function gen_key() {
     var i;
     var pass=$("#pwd").val();
 	secretkey=String(pbkdf2_enc(reducedinfo(pass,ALPHABET),JSsalt,500));
@@ -70,11 +64,10 @@ function gen_key()
     dkey=pbkdf2_enc(secretkey,PWsalt,500);
     for(i=0;i<=30;i++) dkey=pbkdf2_enc(dkey,PWsalt,500);
 }
-function gen_account_array(enc_account_array)
-{
+function gen_account_array(enc_account_array) {
     var tempchar,x;
     var account_array=new Array();
-    for (x in enc_account_array){
+    for (x in enc_account_array) {
         try {
             tempchar=decryptchar(enc_account_array[x],secretkey);
         } catch (e) {
@@ -86,11 +79,10 @@ function gen_account_array(enc_account_array)
     }
     return account_array;
 }
-function gen_fname_array(enc_fname_array)
-{
+function gen_fname_array(enc_fname_array) {
     var tempchar,x;
     var fname_array=new Array();
-    for (x in enc_fname_array){
+    for (x in enc_fname_array) {
         try {
             tempchar=decryptchar(enc_fname_array[x],secretkey);
         } catch (e) {
@@ -102,11 +94,10 @@ function gen_fname_array(enc_fname_array)
     }
     return fname_array;
 }
-function gen_fdata_array(fkey_array,enc_fdata_array)
-{
+function gen_fdata_array(fkey_array,enc_fdata_array) {
     var tempchar,x;
     var fdata_array=new Array();
-    for (x in enc_fdata_array){
+    for (x in enc_fdata_array) {
         try {
             tempchar=decryptchar(enc_fdata_array[x],fkey_array[x]);
         } catch (e) {
@@ -118,11 +109,10 @@ function gen_fdata_array(fkey_array,enc_fdata_array)
     }
     return fdata_array;
 }
-function gen_other_array(enc_other_array)
-{
+function gen_other_array(enc_other_array) {
     var tempchar,x;
     var other_array=new Array();
-    for (x in enc_other_array){
+    for (x in enc_other_array) {
         try {
             tempchar=decryptchar(enc_other_array[x],secretkey);
         } catch (e) {
@@ -133,11 +123,10 @@ function gen_other_array(enc_other_array)
     }
     return other_array;    
 }
-function gen_pass_array(account_array,enc_pass_array)
-{
+function gen_pass_array(account_array,enc_pass_array) {
     var tempchar,x,name;
     var pass_array=new Array();
-    for (x in enc_pass_array){
+    for (x in enc_pass_array) {
         try {
             tempchar=decryptchar(enc_pass_array[x],secretkey);
         } catch (e) {
@@ -153,11 +142,10 @@ function gen_pass_array(account_array,enc_pass_array)
     }
     return pass_array;
 }
-function gen_fkey_array(fname_array,enc_fkey_array)
-{
+function gen_fkey_array(fname_array,enc_fkey_array) {
     var tempchar,x,name;
     var pass_array=new Array();
-    for (x in enc_fkey_array){
+    for (x in enc_fkey_array) {
         try {
             tempchar=decryptchar(enc_fkey_array[x],secretkey);
         } catch (e) {
@@ -173,12 +161,12 @@ function gen_fkey_array(fname_array,enc_fkey_array)
     }
     return pass_array;
 }
-function readfile(){
+function readfile() {
     if (window.FileReader) {
         // FileReader are supported.
         var reader = new FileReader();
         var a=$("#backupc")[0].files;
-        if (a && a[0]){
+        if (a && a[0]) {
             reader.onload = function (e) {
                 var txt = e.target.result;
                 rec(txt);
@@ -192,34 +180,14 @@ function readfile(){
         alert('FileReader are not supported in this browser.');
     }
 }
-function downloada(x){
-    function base64toBlob(base64Data, contentType) {
-        contentType = contentType || '';
-        var sliceSize = 1024;
-        var byteCharacters = atob(base64Data);
-        var bytesLength = byteCharacters.length;
-        var slicesCount = Math.ceil(bytesLength / sliceSize);
-        var byteArrays = new Array(slicesCount);
-
-        for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
-            var begin = sliceIndex * sliceSize;
-            var end = Math.min(begin + sliceSize, bytesLength);
-
-            var bytes = new Array(end - begin);
-            for (var offset = begin, i = 0 ; offset < end; ++i, ++offset) {
-                bytes[i] = byteCharacters[offset].charCodeAt(0);
-            }
-            byteArrays[sliceIndex] = new Uint8Array(bytes);
-        }
-        return new Blob(byteArrays, { type: contentType });
-    }
+function downloada(x) {
     var data=fdata_array[x];
     var typedata = data.substring(5,data.search(";"));
     data = data.substring(data.search(",")+1);
     saveAs(base64toBlob(data,typedata),fname_array[x]);
 }
-function rec(txt){
-    if($("#pwd").val()==''){
+function rec(txt) {
+    if($("#pwd").val()=='') {
         alert("EMPTY PASSWORD IS NOT ALLOWED");
         return;
     }
@@ -236,13 +204,13 @@ function rec(txt){
     JSsalt = json.JSsalt;
     PWsalt = json.PWsalt;
     ALPHABET = json.ALPHABET;
-    function process(){       
+    function process() {       
     gen_key();
     try{
         json.data=JSON.parse(decryptchar(json.data,dkey));
-        if(typeof json.fdata != 'undefined'){
+        if(typeof json.fdata != 'undefined') {
             json.fdata=JSON.parse(decryptchar(json.fdata,dkey));
-            if(json.fdata.status=='OK'){
+            if(json.fdata.status=='OK') {
                 json.fdata=json.fdata.data;
                 has_file=1;
             }else
@@ -261,7 +229,7 @@ function rec(txt){
     var enc_acc=new Array();
     var enc_other=new Array();
     var x;
-    for(x in json.data){
+    for(x in json.data) {
         enc_acc[x]=json.data[x][0];
         enc_pass[x]=json.data[x][1];
         enc_other[x]=json.data[x][2];
@@ -274,7 +242,7 @@ function rec(txt){
         var enc_fname=new Array();
         var enc_fkey=new Array();
         var enc_fdata=new Array();
-        for(x in json.fdata){
+        for(x in json.fdata) {
             enc_fname[x]=json.fdata[x][0];
             enc_fkey[x]=json.fdata[x][1];
             enc_fdata[x]=json.fdata[x][2];
@@ -286,16 +254,16 @@ function rec(txt){
 
     var rows = [$('<tr><th>Account</th><th>Password</th><th>Other Info</th></tr>')];
     if(has_file==1) rows = [$('<tr><th>Account</th><th>Password</th><th>Other Info</th><th>Files</th></tr>')];
-    for(x in acc_array){
+    for(x in acc_array) {
         var row = $('<tr></tr>')
                     .append($('<td></td>').text(acc_array[x]))
                     .append($('<td></td>').text(pass_array[x]))
                     .append($('<td></td>').text(other_array[x]));
-        if(has_file==1){
+        if(has_file==1) {
 			if (x in fname_array)
 			{
 				row.append($('<td></td>')
-                        .append($('<a></a>').on('click',{x:x},function(e){downloada(e.data.x);}).text(fname_array[x])));
+                        .append($('<a></a>').on('click',{x:x},function(e) {downloada(e.data.x);}).text(fname_array[x])));
 			} else 
 			{
 				row.append($('<td></td>'));
@@ -313,8 +281,8 @@ function rec(txt){
     }
     setTimeout(process,50);
 }
-$(function(){
-    $("#chk").on('click',function(e){readfile();});
-	$("#raw_button").on('click',function(e){export_raw();});
-	$("#csv_button").on('click',function(e){export_csv();});
+$(function() {
+    $("#chk").on('click',function(e) {readfile();});
+	$("#raw_button").on('click',function(e) {export_raw();});
+	$("#csv_button").on('click',function(e) {export_csv();});
 });
