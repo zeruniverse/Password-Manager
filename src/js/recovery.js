@@ -37,12 +37,13 @@ function export_raw() {
     download("raw_pass.raw",JSON.stringify(result));
 }
 function export_csv() {
-    if(!confirm('CSV file contains all your information in plain text format. It\'s dangerous to keep it as a backup. Only use it for transferring your data. Delete it immediately after you\'ve done. Please note the encoding for the csv file is UTF-8. You might need to specify this encoding in order to open this CSV properly in some software that uses ANSI as default encoding such as Microsoft Office.')) return;
+    if(!confirm('CSV file contains all your information in plain text format. It\'s dangerous to keep it as a backup. Only use it for transferring your data. Delete it immediately after you\'ve done. Please note the encoding for the csv file is UTF-8. You might need to specify this encoding in order to open this CSV properly in some software that uses ANSI as default encoding such as Microsoft Office.')) 
+        return;
     var obj= [];
-    timeout=100000+Math.floor(Date.now() / 1000);
+    var timeout=100000+Math.floor(Date.now() / 1000);
     var t,x,i;
     for (x in acc_array) {
-        tmp={};
+        let tmp={};
         tmp['name']=acc_array[x];
         t=JSON.parse(other_array[x]);
         for (i in t) {

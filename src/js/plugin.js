@@ -3,7 +3,7 @@ var runPlugins = {};
 const hooks = ["quitpwd", "quitpwd_untrust", "dataReady", "layoutReady", "readField", "readAccount", "drawAccount", "accountsReady", "fieldsReady", "editAccountDialog", "showDetails",
 "addAccountPreSend", "updateAccountPreSend"];
 function initPlugins() {
-    for (hook in hooks){
+    for (let hook in hooks){
         runPlugins[hooks[hook]] = [];
     }
 }
