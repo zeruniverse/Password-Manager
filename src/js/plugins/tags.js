@@ -46,7 +46,8 @@ function filterTags(tag){//replace by cleaning up and showing only accounts that
     $("#resetFilter").show();
 }
 function enableGrouping(){
-    var preDrawCallback = function( api, settings ) {
+    // Global variable from main.js
+    preDrawCallback = function( api, settings ) {
         var rows = api.rows( {page:'current'} ).nodes();
         var last = null;
         $(rows.to$()).each(
@@ -63,7 +64,8 @@ function enableGrouping(){
                 }
             });
     };
-    var preShowPreparation=function(accounts) {
+    // Global variable from main.js
+    preShowPreparation=function(accounts) {
         ordering = function (a,b){
             if ((!("tags" in a["other"]))|| a["other"]["tags"]=='')
                 return 1;
