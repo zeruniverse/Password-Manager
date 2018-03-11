@@ -1,3 +1,4 @@
+// still used in cryptoWrapper
 function pbkdf2_enc(key, orig_salt, iter){
     var hash = CryptoJS.SHA512(key);
     var salt = CryptoJS.SHA512(orig_salt);
@@ -5,56 +6,7 @@ function pbkdf2_enc(key, orig_salt, iter){
     return String(gen_key);
 }
 
-function gen_alphabet(key, salt, account_sig, orig_alphabet){
-    var new_alphabet="";
-    var shift_str;
-    var shift_str_len=0;
-    var i,j,k;
-    var tempchar;
-    var orig_alphabet_len=orig_alphabet.length;
-    shift_str=pbkdf2_enc(key+account_sig,salt,100);
-    shift_str_len=shift_str.length;
-    
-    for (i=0;i<orig_alphabet_len;i++){
-        j=0;
-        for(k=0;k<6;k++){
-            j = j + shift_str.charCodeAt((i*6+k)%shift_str_len);
-        }
-        
-        tempchar=orig_alphabet.charAt(j % orig_alphabet.length);
-        new_alphabet = new_alphabet + tempchar;
-        orig_alphabet=orig_alphabet.replace(tempchar,'');
-    }
-    
-    return new_alphabet;
-}
-
-function gen_temp_pwd(key, salt, account_sig,orig_alphabet,pwd)
-{
-    var new_alphabet = gen_alphabet(key,salt,account_sig,orig_alphabet);
-    var temp_pwd = "";
-    var i,j,pwd_len,alphabet_len;
-    var shift = String(CryptoJS.SHA512(account_sig+key));
-    var shift_len=shift.length;
-    pwd_len=pwd.length;
-    alphabet_len=new_alphabet.length;
-    for(i=0;i<pwd_len;i++){
-        for(j=0;j<alphabet_len;j++){
-            if(pwd.charAt(i)===orig_alphabet.charAt(j)){
-                temp_pwd = temp_pwd + new_alphabet.charAt((j+shift.charCodeAt(i % shift_len)) % alphabet_len);
-                break;
-            }
-        }
-        
-        //LETTER NOT IN ALPHABET, DIRECT MAPPING
-        if(j===alphabet_len) {
-            temp_pwd = temp_pwd + pwd.charAt(i);
-        }
-    }
-    
-    return temp_pwd;
-}
-
+// still used in recovery
 function get_orig_pwd(key,salt,account_sig,orig_alphabet,temp_pwd)
 {
     var new_alphabet = gen_alphabet(key,salt,account_sig,orig_alphabet);
@@ -78,6 +30,7 @@ function get_orig_pwd(key,salt,account_sig,orig_alphabet,temp_pwd)
     return pwd;
 }
 
+// still used in recovery
 function encryptchar(encryptch,key){  
     if(encryptch==""||key==""){  
         alert("ERROR: empty key detected!");  
@@ -87,6 +40,7 @@ function encryptchar(encryptch,key){
    return p;
 }  
 
+// still used in recovery, setlocalstorage
 function decryptchar(echar,key){  
     if(echar==""||key==""){  
         alert("ERROR: empty key detected!");  
@@ -96,16 +50,7 @@ function decryptchar(echar,key){
     return p;  
 } 
 
-function getpwd(charlist,plength) {
-    var maxPos = charlist.length;
-    var pwd = '';
-    var i;
-    for (i = 0; i < parseInt(plength); i++) {
-        pwd += charlist.charAt(Math.floor(Math.random() * maxPos));
-    }
-    return pwd;
-}
-
+// still used in password.js : reducedinfo
 function getcharpos(x,charlist){
 	var maxpos,j;
 	maxpos = charlist.length;
@@ -114,6 +59,7 @@ function getcharpos(x,charlist){
 	}
 	return -1;	
 }
+// still used in cryptoWrapper
 function reducedinfo(key,charlist) {
 	var maxpos = charlist.length;
 	var newpw = '';
