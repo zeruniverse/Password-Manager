@@ -90,3 +90,8 @@ function getCookie(cname) {
 function setCookie(cname, cvalue) {
     document.cookie = cname + "=" + cvalue + ";path=/ ";
 }
+function sanitize_json(s){
+    var t=s;
+    t=t.replace(/\n/g, '')
+    return t.replace(/\r/g, '');
+}

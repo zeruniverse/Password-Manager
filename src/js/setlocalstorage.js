@@ -8,15 +8,6 @@ function getpwdstore(salt)
 	if(!sessionStorage.pwdsk) {return "";}
 	return decryptchar(sessionStorage.pwdsk,salt);
 }
-function getconfkey(salt)
-{
-    if(!sessionStorage.confusion_key) {return "";}
-	return decryptchar(sessionStorage.confusion_key,salt);
-}
-function delpwdstore()
-{
-  sessionStorage.clear();
-}
 
 //set a cookie never expires.
 function setCookie(name,value)
@@ -39,11 +30,6 @@ function getcookie(name){
 function deleteCookie(name)
 {
    document.cookie = name+"=;expires="+(new Date(0)).toGMTString();
-}
-
-function setlocalstore(name,value)
-{
-    localStorage.setItem(name, value);
 }
 
 function setPINstore(device,salt,encryptsec,encryptconf)
