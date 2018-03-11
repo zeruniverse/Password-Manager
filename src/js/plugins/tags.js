@@ -2,7 +2,7 @@
 function showAllTags(accounts) {
     function gatherDistinctTags(accounts) {
         var tags = [];
-        for (x in accounts) {
+        for (let x in accounts) {
             if (!("tags" in accounts[x]["other"]))
                 continue;
             if (accounts[x]["other"]["tags"].length>0)
@@ -46,13 +46,13 @@ function filterTags(tag){//replace by cleaning up and showing only accounts that
     $("#resetFilter").show();
 }
 function enableGrouping(){
-    preDrawCallback = function( api, settings ) {
+    var preDrawCallback = function( api, settings ) {
         var rows = api.rows( {page:'current'} ).nodes();
         var last = null;
         $(rows.to$()).each(
             function ( index, row ) {
-                dbentry = accountarray[$(row).data('id')];
-                firsttag = null;
+                var dbentry = accountarray[$(row).data('id')];
+                var firsttag = null;
                 if ((! ('tags' in dbentry["other"]))||dbentry["other"]['tags']=='')
                     firsttag = null;
                 else
@@ -63,14 +63,14 @@ function enableGrouping(){
                 }
             });
     };
-    preShowPreparation=function(accounts) {
+    var preShowPreparation=function(accounts) {
         ordering = function (a,b){
             if ((!("tags" in a["other"]))|| a["other"]["tags"]=='')
                 return 1;
             if ((!("tags" in b["other"]))|| b["other"]["tags"]=='')
                 return -1;
-            atags = a["other"]["tags"].toLowerCase();
-            btags = b["other"]["tags"].toLowerCase();
+            let atags = a["other"]["tags"].toLowerCase();
+            let btags = b["other"]["tags"].toLowerCase();
             if (atags < btags)
                 return -1;
             if (atags > btags)
@@ -78,7 +78,6 @@ function enableGrouping(){
             return 0;
         };
         return accounts.concat().sort(ordering);
-
     }
     emptyTable();
     showTable(visibleAccounts);
