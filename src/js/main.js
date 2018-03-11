@@ -20,11 +20,6 @@ var datatablestatus=null;
 var fileid=-1;
 var preDrawCallback = function( api, settings ) {};
 var preShowPreparation = function (accounts){ return accounts; };// if you change the array make a copy before sorting! So indexes stay the same in the original array
-function sanitize_json(s){
-    var t=s;
-    t=t.replace(/\n/g, '')
-    return t.replace(/\r/g, '');
-}
 function import_add_acc(acc, pass, other, file) {
     file = (typeof file !== 'undefined') ? file : null;
     if(acc==''||pass=='') {
@@ -593,6 +588,7 @@ $(document).ready(function(){
             .popover('show');
     });
     $('#pinBtnDel').on('click',function(){
+        //Todo remove pin in backend(in js and php)
         delpinstore();
         showMessage('info', 'PIN deleted, use username/password to login next time', true);
         $('#pin').modal('hide');
