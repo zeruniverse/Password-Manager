@@ -43,7 +43,14 @@ class EncryptionWrapper {
             });
     }
     generateSecretKey(password) {
-        return Promise.resolve(String(pbkdf2_enc(reducedinfo(password, this.alphabet), this.jsSalt, 500)));
+        return this.generateKey(reducedinfo(password, this.alphabet));
+    }
+    generateKey(input) {
+        var hash = CryptoJS.SHA512(input);
+        var salt = CryptoJS.SHA512(this.jsSalt);
+        var iter = 500;
+        var gen_key = CryptoJS.PBKDF2(hash, salt, { keySize: 512/32, iterations: iter });
+        return Promise.resolve(String(gen_key));
     }
     static genTempPwd(key, salt, account_sig, orig_alphabet, pwd) {
         return EncryptionWrapper.genAlphabet(key, salt, account_sig, orig_alphabet)
