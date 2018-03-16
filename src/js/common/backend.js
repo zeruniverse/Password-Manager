@@ -364,8 +364,13 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
         return this.encryptionWrapper.generateSecretKey(newpass)
             .then(function(key){
                 login_sig = key;
-                postnewpass = pbkdf2_enc(login_sig, self.encryptionWrapper.jsSalt, 500);
-                newconfkey = pbkdf2_enc(String(CryptoJS.SHA512(newpass + login_sig)), self.encryptionWrapper.jsSalt, 500);
+                return this.encryptionWrapper.generateKey(login_sig);
+            .then(function(_postnewpass) {
+                postnewpass = _postnewpass;
+                return this.encryptionWrapper.generateKey(newpass + login_sig);
+            }
+            .then(function(_newconfkey) {
+                newconfkey = _newconfkey;
                 return EncryptionWrapper.fromPassword(newpass, self.encryptionWrapper.jsSalt, self.encryptionWrapper.pwSalt, self.encryptionWrapper.alphabet, login_sig)
             })
             .then(function(newEncryptionWrapper) {
@@ -512,7 +517,9 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
             })
             .then(function(results) {
                 setpwdstore(results[0], results[1], self.encryptionWrapper.pwSalt);
-                var pwd = String(CryptoJS.SHA512(pbkdf2_enc(pwdsk, self.encryptionWrapper.jsSalt, 500) + user));
+                return this.encryptionWrapper.generateKey(results[0]);
+            .then(function(_pwd) {
+                var pwd = String(CryptoJS.SHA512(_pwd + user));
                 return self.doPost('check', {pwd: pwd, user:user});
             })
             .catch(function(msg) {
@@ -529,12 +536,16 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
         var secretkey = '';
         var confkey = '';
         return self.encryptionWrapper.generateSecretKey(password)
-            .then(function(secretkey){
-                var login_sig = pbkdf2_enc(secretkey, self.encryptionWrapper.jsSalt, 500);
+            .then(function(_secretkey){
+                secretkey = _secretkey;
+                return self.encryptionWrapper.generateKey(secretkey);
+            }
+            .then(function(login_sig) {
                 return self.doPost('check', {pwd:String(CryptoJS.SHA512(login_sig + user)), user: user});
             })
             .then(function(msg){
-                confkey = pbkdf2_enc(String(CryptoJS.SHA512(password + secretkey)), self.encryptionWrapper.jsSalt, 500);
+                return self.encryptionWrapper.generateKey(String(CryptoJS.SHA512(password + secretkey)));
+            .then(function(confkey) {
                 setCookie("username", user);
                 setpwdstore(secretkey, confkey, self.encryptionWrapper.pwSalt);
             });
@@ -555,7 +566,9 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
         }
         return self.encryptionWrapper.generateSecretKey(password1)
             .then(function(secretkey){
-                var login_sig = pbkdf2_enc(secretkey, self.encryptionWrapper.jsSalt, 500);
+                return self.encryptionWrapper.generateKey(secretkey);
+            })
+            .then(function(login_sig) {
                 return self.doPost('reg' , {email: email, pwd:String(CryptoJS.SHA512(login_sig + user)), user: user});
             });
     }
