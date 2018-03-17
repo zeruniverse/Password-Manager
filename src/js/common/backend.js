@@ -524,7 +524,7 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
             })
             .then(function(results) {
                 setpwdstore(results[0], results[1], self.encryptionWrapper.pwSalt);
-                return this.encryptionWrapper.generateKey(results[0]);
+                return self.encryptionWrapper.generateKey(results[0]);
             })
             .then(function(_pwd) {
                 var pwd = String(CryptoJS.SHA512(_pwd + user));
@@ -547,12 +547,13 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
             .then(function(_secretkey){
                 secretkey = _secretkey;
                 return self.encryptionWrapper.generateKey(secretkey);
-            }
+            })
             .then(function(login_sig) {
                 return self.doPost('check', {pwd:String(CryptoJS.SHA512(login_sig + user)), user: user});
             })
             .then(function(msg){
                 return self.encryptionWrapper.generateKey(String(CryptoJS.SHA512(password + secretkey)));
+            })
             .then(function(confkey) {
                 setCookie("username", user);
                 setpwdstore(secretkey, confkey, self.encryptionWrapper.pwSalt);
