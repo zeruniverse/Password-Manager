@@ -9,16 +9,14 @@ $_SESSION['session_token'] = $token;
 $sidvalue = session_id();
 function getUserIP()
 {
-    $remote = $_SERVER['REMOTE_ADDR'];
-
-    return $remote;
+    return $_SERVER['REMOTE_ADDR'];
 }
 function loghistory($link, $userid, $ip, $ua, $outcome)
 {
     $sql = 'SELECT max(`id`) AS `m` FROM `history`';
     $res = sqlquery($sql, $link);
     $r = $res->fetch(PDO::FETCH_ASSOC);
-    $i = ($r == false) ? 0 : ((int) $r['m']) + 1;
+    $i = (!$r) ? 0 : ((int) $r['m']) + 1;
     $sql = 'INSERT INTO `history` VALUES (?,?,?,?,?,CURRENT_TIMESTAMP)';
     $res = sqlexec($sql, [$i, $userid, $ip, $ua, $outcome], $link);
 }
@@ -49,14 +47,14 @@ $res = sqlexec($sql, [$LOG_EXPIRE_TIME], $link);
 $sql = 'SELECT * FROM `blockip` WHERE `ip` = ?';
 $res = sqlexec($sql, [getUserIP()], $link);
 $record = $res->fetch(PDO::FETCH_ASSOC);
-if ($record != false) {
+if ($record) {
     ajaxError('blockIP');
 }
 
 $sql = 'SELECT * FROM `pwdusrrecord` WHERE `username` = ?';
 $res = sqlexec($sql, [$usr], $link);
 $record = $res->fetch(PDO::FETCH_ASSOC);
-if ($record == false) {
+if (!$record) {
     ajaxError('loginFailed');
 }
 
