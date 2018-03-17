@@ -525,6 +525,7 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
             .then(function(results) {
                 setpwdstore(results[0], results[1], self.encryptionWrapper.pwSalt);
                 return this.encryptionWrapper.generateKey(results[0]);
+            })
             .then(function(_pwd) {
                 var pwd = String(CryptoJS.SHA512(_pwd + user));
                 return self.doPost('check', {pwd: pwd, user:user});
