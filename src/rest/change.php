@@ -3,7 +3,7 @@
 require_once dirname(__FILE__).'/../function/sqllink.php';
 require_once dirname(__FILE__).'/../function/ajax.php';
 $link = sqllink();
-if (checksession($link) == false) {
+if (!checksession($link)) {
     ajaxError('session');
 }
 $id = $_SESSION['userid'];
@@ -14,7 +14,7 @@ if (!$link->beginTransaction()) {
 $sql = 'SELECT * FROM `password` WHERE `userid` = ? AND `index` = ? ';
 $res = sqlexec($sql, [$id, (int) $index], $link);
 $record = $res->fetch(PDO::FETCH_ASSOC);
-if ($record == false) {
+if (!$record) {
     $link->commit();
     ajaxError('entryNotFound');
 }
