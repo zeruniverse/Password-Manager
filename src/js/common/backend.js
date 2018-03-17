@@ -361,7 +361,7 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
         var login_sig;
         var postnewpass;
         var newconfkey;
-        return this.encryptionWrapper.createLoginKey(oldpass)
+        return self.encryptionWrapper.generateSecretKey(oldpass)
             .then(function(old_login_sig) {
                 if(self.encryptionWrapper.secretkey != String(CryptoJS.SHA512(old_login_sig + self.encryptionWrapper.pwSalt))) {
                     throw("Incorrect Old Password!");
