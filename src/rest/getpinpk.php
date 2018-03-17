@@ -19,7 +19,7 @@ if ($user == '' || $device == '') {
 $sql = 'SELECT `id` FROM `pwdusrrecord` WHERE `username`= ?';
 $res = sqlexec($sql, [$user], $link);
 $record = $res->fetch(PDO::FETCH_ASSOC);
-if ($record == false) {
+if (!$record) {
     ajaxError('PINunavailable');
 }
 //Delete PIN in case of too many tries
@@ -31,7 +31,7 @@ $res = sqlexec($sql, [$PIN_EXPIRE_TIME], $link);
 $sql = 'SELECT `pinsig`,`pinpk` FROM `pin` WHERE `userid`= ? AND `device`=?';
 $res = sqlexec($sql, [$id, $device], $link);
 $record = $res->fetch(PDO::FETCH_ASSOC);
-if ($record == false) {
+if (!$record) {
     ajaxError('PINunavailable');
 }
 $sig = $record['pinsig'];

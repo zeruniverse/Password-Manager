@@ -34,7 +34,7 @@ if ($res == null) {
 $sql = 'SELECT * FROM `password` WHERE `userid`= ? AND `index`= ?';
 $res = sqlexec($sql, [$id, $index], $link);
 $record = $res->fetch(PDO::FETCH_ASSOC);
-if ($record == false) {
+if (!$record) {
     $link->rollBack();
     ajaxError('general');
 }
@@ -47,7 +47,7 @@ $stmt->bindParam(3, $fkey);
 $stmt->bindParam(4, $fname);
 $stmt->bindParam(5, $data, PDO::PARAM_LOB);
 $exeres = $stmt->execute();
-if ($exeres == false) {
+if (!$exeres) {
     $link->rollBack();
     ajaxError('general');
 }

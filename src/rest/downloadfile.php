@@ -15,7 +15,7 @@ $index = (int) $_POST['id'];
 $sql = 'SELECT `key`,`files` FROM `files` WHERE `userid`= ? and `index`=?';
 $res = sqlexec($sql, [$id, $index], $link);
 $record = $res->fetch(PDO::FETCH_ASSOC);
-if ($record == false) {
+if (!$record) {
     ajaxError('fileFailed');
 }
 $result = [];

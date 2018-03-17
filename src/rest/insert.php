@@ -19,7 +19,7 @@ if (!$link->beginTransaction()) {
 $sql = 'SELECT max(`index`) FROM `password` WHERE `userid` = ?';
 $res = sqlexec($sql, [$id], $link);
 $record = $res->fetch(PDO::FETCH_NUM);
-if ($record == false) {
+if (!$record) {
     $nid = 1;
 } else {
     $nid = (int) $record[0] + 1;
