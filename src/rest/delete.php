@@ -16,7 +16,7 @@ if (!$link->beginTransaction()) {
 $sql = 'SELECT * FROM `password` WHERE `userid` = ? AND `index` = ?';
 $res = sqlexec($sql, [$id, $index], $link);
 $record = $res->fetch(PDO::FETCH_ASSOC);
-if ($record == false) {
+if (!$record) {
     $link->commit();
     ajaxError('general');
 }
@@ -24,7 +24,7 @@ if ($record == false) {
 $sql = 'SELECT max(`index`) FROM `password` WHERE `userid` = ?';
 $res = sqlexec($sql, [$id], $link);
 $record = $res->fetch(PDO::FETCH_NUM);
-if ($record == false) {
+if (!$record) {
     $link->commit();
     ajaxError('general');
 }

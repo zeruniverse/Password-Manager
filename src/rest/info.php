@@ -27,7 +27,7 @@ function usepin()
     $sql = 'SELECT id FROM `pwdusrrecord` WHERE `username`= ?';
     $res = sqlexec($sql, [$user], $link);
     $record = $res->fetch(PDO::FETCH_ASSOC);
-    if ($record == false) {
+    if (!$record) {
         return false;
     }
     $id = $record['id'];
@@ -36,7 +36,7 @@ function usepin()
     $sql = 'SELECT * FROM `pin` WHERE `userid`= ? AND `device`= ?';
     $res = sqlexec($sql, [$id, $device], $link);
     $record = $res->fetch(PDO::FETCH_ASSOC);
-    if ($record == false) {
+    if (!$record) {
         return false;
     }
 

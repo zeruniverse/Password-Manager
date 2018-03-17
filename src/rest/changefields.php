@@ -10,7 +10,7 @@ $link = sqllink();
 if (!isset($_POST['fields'])) {
     ajaxError('parameter');
 }
-if (checksession($link) == false) {
+if (!checksession($link)) {
     ajaxError('session');
 }
 $id = $_SESSION['userid'];
