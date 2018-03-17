@@ -1,4 +1,4 @@
-// still used in cryptoWrapper
+// still used in recovery
 function pbkdf2_enc(key, orig_salt, iter){
     var hash = CryptoJS.SHA512(key);
     var salt = CryptoJS.SHA512(orig_salt);
