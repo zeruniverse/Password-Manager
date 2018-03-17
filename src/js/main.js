@@ -413,7 +413,7 @@ $(document).ready(function(){
     $("#delbtn").click(function(){
         delepw($("#edit").data('id'));
     });
-    // ToDo move more into encryptionWrapper
+    // ToDo move more into encryptionWrapper (password strength check)
     $("#changepw").click(function(){
         if(confirm("Your request will be processed on your browser, so it takes some time (up to #of_your_accounts * 10seconds). Do not close your window or some error might happen.\nPlease note we won't have neither your old password nor your new password. \nClick OK to confirm password change request."))
         {
@@ -425,15 +425,7 @@ $(document).ready(function(){
             $("#changepw").attr("value", "Processing...");
 
             //check old password
-            backend.encryptionWrapper.createLoginKey($("#oldpassword").val())
-                .then(function(login_sig) {
-                    if(backend.encryptionWrapper.secretkey != String(CryptoJS.SHA512(login_sig + backend.encryptionWrapper.pwSalt))) {
-                        showMessage('warning',"Incorrect Old Password!", true);
-                        return;
-                    }
-                    var newpass = $("#pwd").val();
-                    return backend.changePassword(newpass);
-                })
+            backend.changePassword($("#oldpassword").val(), $("#pwd").val())
                 .then(function(){
                     alert("Change Password Successfully! Please login with your new password again.");
                     backend.logout("Password changed, please relogin");

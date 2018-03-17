@@ -356,19 +356,26 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
         ;
     }
     
-    changePassword(newpass) {
+    changePassword(oldpass, newpass) {
         var self = this;
         var login_sig;
         var postnewpass;
         var newconfkey;
-        return this.encryptionWrapper.generateSecretKey(newpass)
+        return this.encryptionWrapper.createLoginKey(oldpass)
+            .then(function(old_login_sig) {
+                if(self.encryptionWrapper.secretkey != String(CryptoJS.SHA512(old_login_sig + self.encryptionWrapper.pwSalt))) {
+                    throw("Incorrect Old Password!");
+                }
+                return this.encryptionWrapper.generateSecretKey(newpass)
+            })
             .then(function(key){
                 login_sig = key;
                 return this.encryptionWrapper.generateKey(login_sig);
+            })
             .then(function(_postnewpass) {
                 postnewpass = _postnewpass;
                 return this.encryptionWrapper.generateKey(newpass + login_sig);
-            }
+            })
             .then(function(_newconfkey) {
                 newconfkey = _newconfkey;
                 return EncryptionWrapper.fromPassword(newpass, self.encryptionWrapper.jsSalt, self.encryptionWrapper.pwSalt, self.encryptionWrapper.alphabet, login_sig)
