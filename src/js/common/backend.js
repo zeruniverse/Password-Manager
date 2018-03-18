@@ -542,7 +542,6 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
     doLogin(user, password) {
         var self = this;
         var secretkey = '';
-        var confkey = '';
         return self.encryptionWrapper.generateSecretKey(password)
             .then(function(_secretkey){
                 secretkey = _secretkey;
