@@ -52,6 +52,15 @@ class EncryptionWrapper {
         var gen_key = CryptoJS.PBKDF2(hash, salt, { keySize: 512/32, iterations: iter });
         return Promise.resolve(String(gen_key));
     }
+    multiGenerateKey(key, count) {
+        var self = this;
+        if (count == 0)
+            return Promise.resolve(key);
+        return self.generateKey(key, self.pwSalt, 500)
+            .then(function(key){
+                return self.multiGenerateKey(key, count - 1);
+            });
+    }
     static genTempPwd(key, salt, account_sig, orig_alphabet, pwd) {
         return EncryptionWrapper.genAlphabet(key, salt, account_sig, orig_alphabet)
             .then(function(new_alphabet) {

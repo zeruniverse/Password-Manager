@@ -415,21 +415,10 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
         else
             includeFiles = "a";
         var data;
-        function multiGenerateKey(key, count) {
-            if (count == 0)
-                return Promise.resolve(key);
-            return EncryptionWrapper.generateKey(key, self.encryptionWrapper.pwSalt, 500)
-                .then(function(key){
-                    return multiGenerateKey(key, count - 1);
-                });
-        }
         return self.doPost("backup", { a: includeFiles}) 
             .then(function(msg){
                 data = msg;
-                return EncryptionWrapper.generateKey(self.encryptionWrapper.secretkey, self.encryptionWrapper.pwSalt, 500);
-            })
-            .then(function(key) {
-                return multiGenerateKey(key, 31);
+                return self.encryptionWrapper.multiGenerateKey(self.encryptionWrapper.secretkey, 32);
             })
             .then(function(key){
                 var backup = data;
