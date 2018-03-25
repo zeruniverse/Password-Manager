@@ -415,15 +415,24 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
         else
             includeFiles = "a";
         var data;
+        var backup;
+        var key;
         return self.doPost("backup", { a: includeFiles}) 
-            .then(function(msg){
+            .then(function(msg) {
                 data = msg;
+                backup = data;
                 return self.encryptionWrapper.multiGenerateKey(self.encryptionWrapper.secretkey, 32);
             })
-            .then(function(key){
-                var backup = data;
-                backup.data = EncryptionWrapper.encryptCharUsingKey(JSON.stringify(data.data), key);
-                backup.fdata = EncryptionWrapper.encryptCharUsingKey(JSON.stringify(data.fdata), key);
+            .then(function(_key) {
+                key = _key;
+                return EncryptionWrapper.encryptCharUsingKey(JSON.stringify(data.data), key);
+            })
+            .then(function(encData) {
+                backup.data = encData;
+                return EncryptionWrapper.encryptCharUsingKey(JSON.stringify(data.fdata), key);
+            })
+            .then(function(encfdata) {
+                backup.fdata = encfdata;
                 return new Blob([JSON.stringify(backup)], {type: "text/plain;charset=utf-8"});
             });
     }
