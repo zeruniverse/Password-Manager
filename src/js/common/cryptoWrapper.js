@@ -46,8 +46,11 @@ class EncryptionWrapper {
         return this.generateKey(reducedinfo(password, this.alphabet));
     }
     generateKey(input) {
+        return this.generateKeyWithSalt(input, this.jsSalt);
+    }
+    generateKeyWithSalt(input, salt) {
         var hash = CryptoJS.SHA512(input);
-        var salt = CryptoJS.SHA512(this.jsSalt);
+        var salt = CryptoJS.SHA512(salt);
         var iter = 500;
         var gen_key = CryptoJS.PBKDF2(hash, salt, { keySize: 512/32, iterations: iter });
         return Promise.resolve(String(gen_key));
@@ -56,7 +59,7 @@ class EncryptionWrapper {
         var self = this;
         if (count == 0)
             return Promise.resolve(key);
-        return self.generateKey(key, self.pwSalt, 500)
+        return self.generateKeyWithSalt(key, self.pwSalt)
             .then(function(key){
                 return self.multiGenerateKey(key, count - 1);
             });
