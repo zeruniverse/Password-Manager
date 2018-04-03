@@ -27,7 +27,7 @@ class RecoveryBackend {
             })
             .then(function(_confKey) {
                 self.confKey = _confKey;
-                return self.encryptionWrapper.multiGenerateKey(self.secretkey, 31);
+                return self.encryptionWrapper.multiGenerateKey(self.secretKey, 31);
             });
     }
 
