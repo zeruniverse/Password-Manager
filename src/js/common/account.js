@@ -121,6 +121,9 @@ class Account {
     getOther(name) {
         return this.other[name];
     }
+    getOtherJSON() {
+        return JSON.stringify(this.other);
+    }
     addFile(name, key) {
         this.file = { "name": name, "key": key };
     }
