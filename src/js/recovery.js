@@ -1,3 +1,4 @@
+var backend;
 var acc_array,pass_array,other_array;
 var JSsalt='';
 var PWsalt='';
@@ -56,30 +57,6 @@ function export_csv() {
     var blob = new Blob([csv], {type: "text/plain;charset=utf-8"});
     saveAs(blob, "export.csv");
 }
-function gen_key() {
-    var i;
-    var pass=$("#pwd").val();
-	secretkey=String(pbkdf2_enc(reducedinfo(pass,ALPHABET),JSsalt,500));
-    confkey=pbkdf2_enc(String(CryptoJS.SHA512(pass+secretkey)),JSsalt,500);
-    secretkey=String(CryptoJS.SHA512(secretkey+PWsalt));
-    dkey=pbkdf2_enc(secretkey,PWsalt,500);
-    for(i=0;i<=30;i++) dkey=pbkdf2_enc(dkey,PWsalt,500);
-}
-function gen_account_array(enc_account_array) {
-    var tempchar,x;
-    var account_array=new Array();
-    for (x in enc_account_array) {
-        try {
-            tempchar=decryptchar(enc_account_array[x],secretkey);
-        } catch (e) {
-            tempchar='';
-        }
-        
-        if (tempchar=="") tempchar="Oops, there's some errors!"
-        account_array[x]=tempchar;
-    }
-    return account_array;
-}
 function gen_fname_array(enc_fname_array) {
     var tempchar,x;
     var fname_array=new Array();
@@ -110,39 +87,6 @@ function gen_fdata_array(fkey_array,enc_fdata_array) {
     }
     return fdata_array;
 }
-function gen_other_array(enc_other_array) {
-    var tempchar,x;
-    var other_array=new Array();
-    for (x in enc_other_array) {
-        try {
-            tempchar=decryptchar(enc_other_array[x],secretkey);
-        } catch (e) {
-            tempchar='';
-        }
-        if (tempchar=="") tempchar="Oops, there's some errors!"
-        other_array[x]=tempchar;
-    }
-    return other_array;    
-}
-function gen_pass_array(account_array,enc_pass_array) {
-    var tempchar,x,name;
-    var pass_array=new Array();
-    for (x in enc_pass_array) {
-        try {
-            tempchar=decryptchar(enc_pass_array[x],secretkey);
-        } catch (e) {
-            tempchar='';
-        }
-        if (tempchar=="") {
-            tempchar="Oops, there's some errors!";
-        }else{
-            name=account_array[x];
-            tempchar=get_orig_pwd(confkey,PWsalt,String(CryptoJS.SHA512(name)),ALPHABET,tempchar);
-        }
-        pass_array[x]=tempchar;
-    }
-    return pass_array;
-}
 function gen_fkey_array(fname_array,enc_fkey_array) {
     var tempchar,x,name;
     var pass_array=new Array();
@@ -170,7 +114,7 @@ function readfile() {
         if (a && a[0]) {
             reader.onload = function (e) {
                 var txt = e.target.result;
-                rec(txt);
+                recover(txt);
             }
             reader.onerror = function (e) {
                 alert('Error reading file!');
@@ -187,14 +131,9 @@ function downloada(x) {
     data = data.substring(data.search(",")+1);
     saveAs(base64toBlob(data,typedata),fname_array[x]);
 }
-function rec(txt) {
+function recover(data) {
     if($("#pwd").val()=='') {
         alert("EMPTY PASSWORD IS NOT ALLOWED");
-        return;
-    }
-    var json=JSON.parse(sanitize_json(txt));
-    if(json.status!="OK" && json.status!="success") {
-        alert("INVALID BACKUP FILE");
         return;
     }
     $("#recover_result").hide();
@@ -202,83 +141,88 @@ function rec(txt) {
     $("#chk").attr("value", "Processing...");
     $("#raw_button").hide();
     $("#csv_button").hide();
-    JSsalt = json.JSsalt;
-    PWsalt = json.PWsalt;
-    ALPHABET = json.ALPHABET;
-    function process() {       
-    gen_key();
-    try{
-        json.data=JSON.parse(decryptchar(json.data,dkey));
-        if(typeof json.fdata != 'undefined') {
-            json.fdata=JSON.parse(decryptchar(json.fdata,dkey));
-            if(json.fdata.status=='OK') {
-                json.fdata=json.fdata.data;
-                has_file=1;
-            }else
-            {
-                has_file=0;
+    let password = $("#pwd").val();
+    backend = new RecoveryBackend();
+    backend.parseBackup(data, password)
+        .then(function(accounts){
+            var has_file = 0;
+            var rows = [$('<tr><th>Account</th><th>Password</th><th>Other Info</th></tr>')];
+            if(has_file==1) rows = [$('<tr><th>Account</th><th>Password</th><th>Other Info</th><th>Files</th></tr>')];
+            for(let account of accounts) {
+                var row = $('<tr></tr>')
+                    .append($('<td></td>').text(account.accountName))
+                    .append($('<td></td>').text(account.getPassword()))
+                    .append($('<td></td>').text(account.getOtherJSON()));
+                if(has_file==1) {
+                    if (x in fname_array)
+                    {
+                        row.append($('<td></td>')
+                            .append($('<a></a>').on('click',{x:x},function(e) {downloada(e.data.x);}).text(fname_array[x])));
+                    } else 
+                    {
+                        row.append($('<td></td>'));
+                    }
+                }
+                rows.push(row);
             }
-        } else has_file=0;
-        
-    }catch (e) {
+            $("#rtable").empty();
+            $("#rtable").append(rows);
+            $("#recover_result").show();
+            $("#raw_button").show();
+            $("#csv_button").show();
+        })
+        .catch(function(){
+
+        })
+        .then(function(){
+            $("#chk").removeAttr("disabled");
+            $("#chk").attr("value", "RECOVER IT!");
+        });
+}
+function rec(txt) {
+    function process() {
+        gen_key();
+        try{
+            json.data=JSON.parse(decryptchar(json.data,dkey));
+            if(typeof json.fdata != 'undefined') {
+                json.fdata=JSON.parse(decryptchar(json.fdata,dkey));
+                if(json.fdata.status=='OK') {
+                    json.fdata=json.fdata.data;
+                    has_file=1;
+                }else
+                {
+                    has_file=0;
+                }
+            } else has_file=0;
+
+        }catch (e) {
             alert("Wrong password, try again!");
             $("#chk").removeAttr("disabled");
             $("#chk").attr("value", "RECOVER IT!");
             return;
-    }
-    var enc_pass=new Array();
-    var enc_acc=new Array();
-    var enc_other=new Array();
-    var x;
-    for(x in json.data) {
-        enc_acc[x]=json.data[x][0];
-        enc_pass[x]=json.data[x][1];
-        enc_other[x]=json.data[x][2];
-    }
-    acc_array=gen_account_array(enc_acc);
-    other_array=gen_other_array(enc_other)
-    pass_array=gen_pass_array(acc_array,enc_pass);
-    
-    if(has_file==1) {
-        var enc_fname=new Array();
-        var enc_fkey=new Array();
-        var enc_fdata=new Array();
-        for(x in json.fdata) {
-            enc_fname[x]=json.fdata[x][0];
-            enc_fkey[x]=json.fdata[x][1];
-            enc_fdata[x]=json.fdata[x][2];
         }
-        fname_array=gen_fname_array(enc_fname);
-        fkey_array=gen_fkey_array(fname_array,enc_fkey);
-        fdata_array=gen_fdata_array(fkey_array,enc_fdata);
-    }
+        var enc_pass=new Array();
+        var enc_acc=new Array();
+        var enc_other=new Array();
+        var x;
+        acc_array=gen_account_array(enc_acc);
+        other_array=gen_other_array(enc_other)
+        pass_array=gen_pass_array(acc_array,enc_pass);
 
-    var rows = [$('<tr><th>Account</th><th>Password</th><th>Other Info</th></tr>')];
-    if(has_file==1) rows = [$('<tr><th>Account</th><th>Password</th><th>Other Info</th><th>Files</th></tr>')];
-    for(x in acc_array) {
-        var row = $('<tr></tr>')
-                    .append($('<td></td>').text(acc_array[x]))
-                    .append($('<td></td>').text(pass_array[x]))
-                    .append($('<td></td>').text(other_array[x]));
         if(has_file==1) {
-			if (x in fname_array)
-			{
-				row.append($('<td></td>')
-                        .append($('<a></a>').on('click',{x:x},function(e) {downloada(e.data.x);}).text(fname_array[x])));
-			} else 
-			{
-				row.append($('<td></td>'));
-			}
+            var enc_fname=new Array();
+            var enc_fkey=new Array();
+            var enc_fdata=new Array();
+            for(x in json.fdata) {
+                enc_fname[x]=json.fdata[x][0];
+                enc_fkey[x]=json.fdata[x][1];
+                enc_fdata[x]=json.fdata[x][2];
+            }
+            fname_array=gen_fname_array(enc_fname);
+            fkey_array=gen_fkey_array(fname_array,enc_fkey);
+            fdata_array=gen_fdata_array(fkey_array,enc_fdata);
         }
-        rows.push(row);
-    }
-    $("#rtable").empty();
-    $("#rtable").append(rows);
-    $("#recover_result").show();
-    $("#chk").removeAttr("disabled");
-    $("#chk").attr("value", "RECOVER IT!");
-    $("#raw_button").show();
-    $("#csv_button").show();
+
     }
     setTimeout(process,50);
 }
