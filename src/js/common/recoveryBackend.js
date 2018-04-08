@@ -13,10 +13,11 @@ class RecoveryBackend {
                 return EncryptionWrapper.decryptCharUsingKey(json.data, dkey);
             })
             .then(function(data) {
+                data = JSON.parse(data);
                 var i = 0;
                 let resultPromises = [];
-                for (acc in data) {
-                    resultPromises.push(Account.fromEncrypted(self.encryptionsWrapper,
+                for (let acc in data) {
+                    resultPromises.push(Account.fromEncrypted(self.encryptionWrapper,
                                 { index: i, 
                                     name:data[acc][0], 
                                     kss:data[acc][1], 
