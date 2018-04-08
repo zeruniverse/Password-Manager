@@ -43,8 +43,8 @@ class RecoveryBackend {
                 self.encryptionWrapper.secretkey = String(CryptoJS.SHA512(key + self.encryptionWrapper.pwSalt));
                 return self.encryptionWrapper.generateKey(password + preKey);
             })
-            .then(function(_confKey) {
-                self.confKey = _confKey;
+            .then(function(confkey) {
+                self.encryptionWrapper._confkey = confkey;
                 return self.encryptionWrapper.multiGenerateKey(self.encryptionWrapper.secretkey, 32);
             });
     }
