@@ -151,15 +151,18 @@ function recover(data) {
             for(let account of accounts) {
                 var row = $('<tr></tr>')
                     .append($('<td></td>').text(account.accountName))
-                    .append($('<td></td>').text(account.getPassword()))
+                    .append($('<td></td>').attr('id','account_'+ account.index))
                     .append($('<td></td>').text(account.getOtherJSON()));
+                account.getPassword()
+                    .then(function(password) {
+                        $("#account_" + account.index).text(password);
+                    });
                 if(has_file==1) {
-                    if (x in fname_array)
-                    {
+                    if (x in fname_array) {
                         row.append($('<td></td>')
                             .append($('<a></a>').on('click',{x:x},function(e) {downloada(e.data.x);}).text(fname_array[x])));
-                    } else 
-                    {
+                    } 
+                    else {
                         row.append($('<td></td>'));
                     }
                 }
