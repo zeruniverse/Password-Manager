@@ -11,6 +11,7 @@ echoheader();
 <script src="js/common/commonFunctions.js"></script>
 <script src="js/common/cryptoWrapper.js"></script>
 <script src="js/common/recoveryBackend.js"></script>
+<script src="js/common/account.js"></script>
 <script src="js/recovery.js"></script>
 <div class="container theme-showcase">
     <div class="page-header">
