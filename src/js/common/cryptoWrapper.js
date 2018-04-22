@@ -32,12 +32,18 @@ class EncryptionWrapper {
                 if (thekey == ""){
                     return Promise.resolve("");
                 }
-                return EncryptionWrapper.getOrigPwd(self.confkey, self.pwSalt, String(CryptoJS.SHA512(name)), self.alphabet, thekey);
+                return self.getConfkey();
+            })
+            .then(function(confkey){
+                return EncryptionWrapper.getOrigPwd(confkey, self.pwSalt, String(CryptoJS.SHA512(name)), self.alphabet, thekey);
             });
     }
     encryptPassword(name, pass){
         var self = this;
-        return EncryptionWrapper.genTempPwd(self.confkey, self.pwSalt, String(CryptoJS.SHA512(name)), self.alphabet, pass)
+        self.getConfkey();
+            .then(function(confkey){
+                return EncryptionWrapper.genTempPwd(confkey, self.pwSalt, String(CryptoJS.SHA512(name)), self.alphabet, pass)
+            })
             .then(function(pass) {
                 return self.encryptChar(pass);
             });
@@ -139,14 +145,21 @@ class EncryptionWrapper {
                 return new_alphabet;
             });
     }
-    get confkey() {
-        return this._confkey || EncryptionWrapper.getConfKeyUsingSalt(this.pwSalt);
+    getConfkey() {
+        if (this._confkey)
+            return Promise.resolve(this._confkey);
+        return EncryptionWrapper.getConfKeyUsingSalt(this.pwSalt);
     }
     static getConfKeyUsingSalt(salt) {
+        var self = this;
         if(!sessionStorage.confusion_key) {
-            return "";
+            return Promise.resolve("");
         }
-        return EncryptionWrapper.decryptCharUsingKey(sessionStorage.confusion_key, salt);
+        return EncryptionWrapper.decryptCharUsingKey(sessionStorage.confusion_key, salt)
+            .then(function(confkey) {
+                self._confkey = confkey;
+                return confkey;
+            });
     }
     get pwdStore() {
         return EncryptionWrapper.getPwdStoreUsingSalt(this.pwSalt);
