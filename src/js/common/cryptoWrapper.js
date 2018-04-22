@@ -27,11 +27,13 @@ class EncryptionWrapper {
     }
     decryptPassword(name, kss){
         var self = this;
+        var thekey = "";
         return self.decryptChar(kss)
-            .then(function(thekey) {
-                if (thekey == ""){
-                    return Promise.resolve("");
+            .then(function(key) {
+                if (key == ""){
+                    return Promise.reject("");
                 }
+                thekey = key;
                 return self.getConfkey();
             })
             .then(function(confkey){
@@ -40,7 +42,7 @@ class EncryptionWrapper {
     }
     encryptPassword(name, pass){
         var self = this;
-        self.getConfkey();
+        return self.getConfkey()
             .then(function(confkey){
                 return EncryptionWrapper.genTempPwd(confkey, self.pwSalt, String(CryptoJS.SHA512(name)), self.alphabet, pass)
             })
