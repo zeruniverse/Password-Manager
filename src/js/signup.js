@@ -3,10 +3,10 @@ $(function(){
     $("#chk").click(function(){ 
         $("#chk").attr("disabled", true);
         $("#chk").attr("value", "Wait");
-        backend.doRegister($("#user").val(), $("#email").val(), $("#pwd").val(), $("#pwd1").val)
+        backend.doRegister($("#user").val(), $("#email").val(), $("#pwd").val(), $("#pwd1").val())
             .then(function(){
                 alert("Successfully signup, now please sign in!");
-                window.location.href="index.php";
+                window.location.href="index.php?reason=Successfully+signed+up.";
             })
             .catch(function(msg){
                 if (msg == "PasswordMismatch") {
