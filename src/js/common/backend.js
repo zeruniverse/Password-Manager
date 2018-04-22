@@ -71,8 +71,8 @@ let AuthenticatedSession = (superclass) => class extends superclass {
         //Todo raise event
         localStorage.clear();
         var promises = [];
-        if (getcookie('device') != "") {
-            promises.push(self.doPost("deletepin", {user:getcookie('username'), device:getcookie('device')}));
+        if (getCookie('device') != "") {
+            promises.push(self.doPost("deletepin", {user:getCookie('username'), device:getCookie('device')}));
         }
         return Promise.all(promises)
             .then(function(){
@@ -218,8 +218,8 @@ let PinHandling = (superclass) => class extends superclass {
         localStorage.removeItem("en_login_conf");
         localStorage.removeItem("en_login_sec");
         localStorage.removeItem("pinsalt");
-        if(getcookie('device') != "") {
-            this.doPost("deletepin",{user:getcookie('username'), device:getcookie('device')});
+        if(getCookie('device') != "") {
+            this.doPost("deletepin",{user:getCookie('username'), device:getCookie('device')});
         }
         deleteCookie('device');
         deleteCookie('username');
@@ -511,9 +511,9 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
     }
     doPinLogin(pin) {
         var self = this;
-        var user = getcookie('username');
+        var user = getCookie('username');
         var sig = String(CryptoJS.SHA512(String(CryptoJS.SHA512(pin + localStorage.pinsalt)) + randomLoginStamp));
-        return self.doPost('getpinpk', {user:user, device:getcookie('device'), sig:sig})
+        return self.doPost('getpinpk', {user:user, device:getCookie('device'), sig:sig})
             .then(function(msg) {
                 var promises = [];
                 promises.push(EncryptionWrapper.decryptCharUsingKey(localStorage.en_login_sec, pin + msg["pinpk"]));
@@ -591,6 +591,6 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
         return this.hostdomain.toLowerCase().startsWith(full.toLowerCase());
     }
     get pinActive() {
-        return (getcookie('device') != "") && (this.usePin == 1);
+        return (getCookie('device') != "") && (this.usePin == 1);
     }
 }
