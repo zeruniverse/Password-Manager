@@ -45,13 +45,13 @@ class EncryptionWrapper {
     generateSecretKey(password) {
         return this.generateKey(reducedinfo(password, this.alphabet));
     }
-    generateKey(input) {
-        return this.generateKeyWithSalt(input, this.jsSalt);
+    generateKey(input, iterations) {
+        return this.generateKeyWithSalt(input, this.jsSalt, iterations);
     }
-    generateKeyWithSalt(input, salt) {
+    generateKeyWithSalt(input, salt, iterations) {
+        var iter = iterations || 500;
         var hash = CryptoJS.SHA512(input);
         var salt = CryptoJS.SHA512(salt);
-        var iter = 500;
         var gen_key = CryptoJS.PBKDF2(hash, salt, { keySize: 512/32, iterations: iter });
         return Promise.resolve(String(gen_key));
     }
