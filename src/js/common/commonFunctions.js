@@ -90,6 +90,10 @@ function getCookie(cname) {
 function setCookie(cname, cvalue) {
     document.cookie = cname + "=" + cvalue + ";path=/ ";
 }
+function deleteCookie(name) {
+   document.cookie = name + "=;expires=" + (new Date(0)).toGMTString();
+}
+
 function sanitize_json(s){
     var t=s;
     t=t.replace(/\n/g, '')
