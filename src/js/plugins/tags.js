@@ -34,7 +34,7 @@ function filterTags(tag){//replace by cleaning up and showing only accounts that
     if (tag == ""){
         $("#resetFilter").hide();
         $("#tags>a").removeClass('activeTag');
-        showTable(accountarray);
+        showTable(backend.accounts);
         return;
     }
     function filter(account){
