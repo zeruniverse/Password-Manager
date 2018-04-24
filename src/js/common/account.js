@@ -7,10 +7,6 @@ class Account {
         this.mFile = null;
         this.mEncryptionWrapper = null;
     }
-    // reads the account from a dict (password still encrypted)
-    static fromObject(obj) {
-        //ToDo
-    }
     // reads the account from a encrypted dict
     static fromEncrypted(encryptionWrapper, encryptedAccount) {
         return encryptionWrapper.decryptChar(encryptedAccount["name"])
