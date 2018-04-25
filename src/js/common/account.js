@@ -41,6 +41,7 @@ class Account {
                     self.mEncryptionWrapper = wrapper;
                     return self.setPassword(password);
                 })
+            //todo change filekey
                 .then(function(){
                     return self;
                 });
@@ -54,7 +55,8 @@ class Account {
         return this.mEncryptionWrapper;
     }
 
-    getEncrypted(){
+    getEncrypted(withFile){
+        withFile = withFile || false;
         var self = this;
         let encryptedResult = { "kss":self.enpassword };
         if (self.index != null)
@@ -67,6 +69,15 @@ class Account {
             })
             .then(function(enOther) {
                 encryptedResult["other"] = enOther;
+                if (withFile && self.hasFile()) {
+                    encryptedResult["fk"] = self.file.key;
+                    return self.encryptionWrapper.encryptChar(self.file.name)
+                        .then(function(fname) {
+                            encryptedResult["fname"] = fname;
+                        });
+                }
+            })
+            .then(function(){
                 return encryptedResult;
             });
     }
@@ -120,12 +131,16 @@ class Account {
     getOtherJSON() {
         return JSON.stringify(this.other);
     }
-    addFile(name, key) {
-        this.file = { "name": name, "key": key };
-    }
     addEncryptedFile(name, fkey) {
         var self = this;
-        self.file = { "name":self.encryptionWrapper.decryptChar(name), "key": fkey };
-        return Promise.resolve(self.file);
+        self.file = { "name":"", "key": fkey };
+        return self.encryptionWrapper.decryptChar(name)
+            .then(function(decryptedName) {
+                self.file.name = decryptedName;
+                return self.file;
+            });
+    }
+    hasFile() {
+        return 'file' in this;
     }
 }
