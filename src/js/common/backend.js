@@ -388,11 +388,10 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
                         continue;
                     promises.push(account.setEncryptionWrapper(newEncryptionWrapper)
                         .then(function(account){
-                            return account.encrypted;
+                            return account.getEncrypted(true);
                         }));
                 }
                 return Promise.all(promises)
-                //ToDo: Files, maybe by just changing everything in account on reencryption
             })
             .then(function(accounts) {
                 //jetzt weiterleiten
