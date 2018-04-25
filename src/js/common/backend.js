@@ -392,7 +392,7 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
                         }));
                 }
                 return Promise.all(promises)
-                //ToDo: Files
+                //ToDo: Files, maybe by just changing everything in account on reencryption
             })
             .then(function(accounts) {
                 //jetzt weiterleiten

@@ -36,12 +36,24 @@ class Account {
     setEncryptionWrapper(wrapper) {
         var self = this;
         if (self.encryptionWrapper != null) {
+            var decryptedPassword;
+            var decryptedFileKey;
             return self.getPassword()
                 .then(function(password) {
+                    decryptedPassword = password;
+                    return self.getFileKey();
+                })
+                .then(function(fileKey) {
+                    decryptedFileKey = fileKey;
+                    return;
+                })
+                .then(function(){
                     self.mEncryptionWrapper = wrapper;
                     return self.setPassword(password);
                 })
-            //todo change filekey
+                .then(function() {
+                    return self.setFileKey(decryptedFileKey);
+                })
                 .then(function(){
                     return self;
                 });
@@ -142,5 +154,16 @@ class Account {
     }
     hasFile() {
         return 'file' in this;
+    }
+    getFileKey(){
+        return this.encryptionWrapper.decryptPassword(this.file.name, this.file.key);
+    }
+    setFileKey(key){
+        var self = this;
+        return this.encryptionWrapper.encryptPassword(this.file.name, key)
+            .then(function(enKey){
+                self.file.key = enKey;
+                return enKey;
+            });
     }
 }
