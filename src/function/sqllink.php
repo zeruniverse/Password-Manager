@@ -53,13 +53,13 @@ function checksession($link)
     if (isset($_SERVER['HTTP_REFERER']) && ($_SERVER['HTTP_REFERER'] != '') && (strpos(strtolower($_SERVER['HTTP_REFERER']), strtolower($HOSTDOMAIN)) !== 0)) {
         //Users from other sites are banned
         logout();
-        
+
         return false;
     }
     if (($_SERVER['REQUEST_METHOD'] == 'POST') && ($_POST['session_token'] !== $_SESSION['session_token'])) {
         //Must check session_token to prevent cross-site attack
         logout();
-        
+
         return false;
     }
     if (!$link || !isset($_SESSION['create_time']) || $_SESSION['create_time'] + $SERVER_TIMEOUT < time()) {
