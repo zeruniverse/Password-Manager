@@ -47,20 +47,24 @@ function checksession($link)
     session_start();
     if (!isset($_SESSION['loginok']) || $_SESSION['loginok'] != 1) {
         logout();
+
         return false;
     }
     if (isset($_SERVER['HTTP_REFERER']) && ($_SERVER['HTTP_REFERER'] != '') && (strpos(strtolower($_SERVER['HTTP_REFERER']), strtolower($HOSTDOMAIN)) !== 0)) {
         //Users from other sites are banned
         logout();
+        
         return false;
     }
     if (($_SERVER['REQUEST_METHOD'] == 'POST') && ($_POST['session_token'] !== $_SESSION['session_token'])) {
         //Must check session_token to prevent cross-site attack
         logout();
+        
         return false;
     }
     if (!$link || !isset($_SESSION['create_time']) || $_SESSION['create_time'] + $SERVER_TIMEOUT < time()) {
         logout();
+
         return false;
     }
     $usr = $_SESSION['user'];
@@ -68,6 +72,7 @@ function checksession($link)
     $id = $_SESSION['userid'];
     if ($usr == '' || $pw == '' || $id == '') {
         logout();
+
         return false;
     }
     $sql = 'SELECT * FROM `pwdusrrecord` WHERE `username`= ? AND `password`= ? AND `id`= ?';
@@ -75,6 +80,7 @@ function checksession($link)
     $record = $res->fetch(PDO::FETCH_ASSOC);
     if (!$record) {
         logout();
+
         return false;
     }
     $_SESSION['create_time'] = time(); //Todo name this refresh time and create an absolute timeout
@@ -82,7 +88,7 @@ function checksession($link)
 
     return true;
 }
-function logout() 
+function logout()
 {
     foreach ($_SESSION as $key => $value) {
         unset($_SESSION[$key]);
