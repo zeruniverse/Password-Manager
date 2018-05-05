@@ -206,9 +206,6 @@ let PinHandling = (superclass) => class extends superclass {
         var self = this;
         var device;
         var salt;
-        var pwdstore;
-        var confkey;
-        var pinpk;
         return self.getDevice()
             .then(function(_device) {
                 device = _device;
