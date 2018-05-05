@@ -49,7 +49,7 @@ class Account {
                 })
                 .then(function(){
                     self.mEncryptionWrapper = wrapper;
-                    return self.setPassword(password);
+                    return self.setPassword(decryptedPassword);
                 })
                 .then(function() {
                     return self.setFileKey(decryptedFileKey);
