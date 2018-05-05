@@ -580,10 +580,16 @@ $(document).ready(function(){
             .popover('show');
     });
     $('#pinBtnDel').on('click',function(){
-        //Todo remove pin in backend(in js and php)
-        delpinstore();
-        showMessage('info', 'PIN deleted, use username/password to login next time', true);
-        $('#pin').modal('hide');
+        backend.delPin()
+            .then(function() {
+                showMessage('info', 'PIN deleted, use username/password to login next time', true);
+            })
+            .catch(function(msg) {
+                showMessage('warning', 'Failed to delete PIN: '+ msg);
+            })
+            .then(function() {
+                $('#pin').modal('hide');
+            });
     });
     $('#navBtnLogout').on('click',function(){ backend.logout(); });
     $('#navBtnUntrust').on('click',function(){ quitpwd_untrust(); });

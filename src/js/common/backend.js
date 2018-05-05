@@ -182,6 +182,8 @@ let PinHandling = (superclass) => class extends superclass {
     getDevice() {
         var self = this;
         var device = getCookie('device');
+        if (device <= 0)
+            device = "";
         if (device != "")
             return Promise.resolve(device);
         device =  self.encryptionWrapper.generatePassphrase(9);
@@ -204,25 +206,47 @@ let PinHandling = (superclass) => class extends superclass {
         var self = this;
         var device;
         var salt;
+        var pwdstore;
+        var confkey;
+        var pinpk;
         return self.getDevice()
-            .then(function(device) {
+            .then(function(_device) {
+                device = _device;
                 salt = self.encryptionWrapper.generatePassphrase(500);
-                return self.doPost("setpin" , {user:self.user, device: device, sig:String(CryptoJS.SHA512(pin+salt))});
+                return self.doPost("setpin" , {user: self.user, device: device, sig: String(CryptoJS.SHA512(pin + salt))});
             })
             .then(function(msg) {
-                //ToDo abhängigkeit entfernen
-                setPINstore(device, salt, EncryptionWrapper.encryptCharUsingKey(getpwdstore(self.encryptionWrapper.pwSalt), pin + msg["pinpk"]), EncryptionWrapper.encryptCharUsingKey(self.encryptionWrapper.confkey, pin + msg["pinpk"]));
+                return self.encryptionWrapper.storePIN(device, salt, pin + msg["pinpk"]);
             });
     }
     delLocalPinStore() {
-        localStorage.removeItem("en_login_conf");
-        localStorage.removeItem("en_login_sec");
-        localStorage.removeItem("pinsalt");
+        return this.encryptionWrapper.deletePIN();
+    }
+    delPin() {
+        var self = this;
         if(getCookie('device') != "") {
-            this.doPost("deletepin",{user:getCookie('username'), device:getCookie('device')});
+            return self.doPost("deletepin", {user:getCookie('username'), device:getCookie('device')})
+                .then(function(msg){
+                    self.delLocalPinStore();
+                });
         }
-        deleteCookie('device');
-        deleteCookie('username');
+    }
+}
+
+//mixin for localstorage
+//todo move to encryptionWrapper
+let LocalStorage = (superclass) => class extends superclass {
+    getLocalStorage() {
+        if(!sessionStorage.pwdsk) {
+            return "";
+        }
+        var salt = self.encryptionWrapper.pwSalt;
+        EncryptionWrapper.decryptCharUsingKey(sessionStorage.pwdsk, salt);
+    }
+    setLocalStorage(sk, confusion_key) {
+        var salt = self.encryptionWrapper.pwSalt;
+        sessionStorage.pwdsk = EncryptionWrapper.encryptCharUsingKey(sk, salt);
+        sessionStorage.confusion_key = EncryptionWrapper.encryptCharUsingKey(confusion_key, salt);
     }
 }
 
@@ -361,7 +385,7 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
         var login_sig;
         var postnewpass;
         var newconfkey;
-        return self.encryptionWrapper.generateSecretKey(oldpass)
+        return self.encryptionWrapper.generateSecretKey(oldpass, false)
             .then(function(old_login_sig) {
                 if(self.encryptionWrapper.secretkey != String(CryptoJS.SHA512(old_login_sig + self.encryptionWrapper.pwSalt))) {
                     throw("Incorrect Old Password!");
@@ -511,21 +535,13 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
     doPinLogin(pin) {
         var self = this;
         var user = getCookie('username');
-        var sig = String(CryptoJS.SHA512(String(CryptoJS.SHA512(pin + localStorage.pinsalt)) + randomLoginStamp));
+        var sig = String(CryptoJS.SHA512(String(CryptoJS.SHA512(pin + localStorage.pinsalt)) + self.randomLoginStamp));
         return self.doPost('getpinpk', {user:user, device:getCookie('device'), sig:sig})
             .then(function(msg) {
-                var promises = [];
-                promises.push(EncryptionWrapper.decryptCharUsingKey(localStorage.en_login_sec, pin + msg["pinpk"]));
-                promises.push(EncryptionWrapper.decryptCharUsingKey(localStorage.en_login_conf, pin + msg["pinpk"]));
-                return Promise.all(promises);
+                return self.encryptionWrapper.restoreFromPIN(user, pin + msg["pinpk"]);
             })
-            .then(function(results) {
-                setpwdstore(results[0], results[1], self.encryptionWrapper.pwSalt);
-                return self.encryptionWrapper.generateKey(results[0]);
-            })
-            .then(function(_pwd) {
-                var pwd = String(CryptoJS.SHA512(_pwd + user));
-                return self.doPost('check', {pwd: pwd, user:user});
+            .then(function(loginpwd) {
+                return self.doPost('check', {pwd: loginpwd, user:user});
             })
             .catch(function(msg) {
                 //Todo clearpwdstore
@@ -547,12 +563,8 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
             .then(function(login_sig) {
                 return self.doPost('check', {pwd:String(CryptoJS.SHA512(login_sig + user)), user: user});
             })
-            .then(function(msg){
-                return self.encryptionWrapper.generateKey(String(CryptoJS.SHA512(password + secretkey)));
-            })
             .then(function(confkey) {
-                setCookie("username", user);
-                setpwdstore(secretkey, confkey, self.encryptionWrapper.pwSalt);
+                return self.encryptionWrapper.persistCredentialsFromPassword(user, password);
             });
     }
     doRegister(user, email, password1, password2) {

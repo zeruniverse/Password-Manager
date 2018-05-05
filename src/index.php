@@ -6,7 +6,6 @@ echoheader();
 <script src="js/crypto/sha512.js"></script>
 <script src="js/crypto/pbkdf2.js"></script>
 <script src="js/crypto/password.js"></script>
-<script src="js/setlocalstorage.js"></script>
 <script src="js/common/backend.js"></script>
 <script src="js/common/cryptoWrapper.js"></script>
 <script src="js/index.js"></script>

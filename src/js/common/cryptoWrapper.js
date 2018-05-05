@@ -50,8 +50,17 @@ class EncryptionWrapper {
                 return self.encryptChar(pass);
             });
     }
-    generateSecretKey(password) {
-        return this.generateKey(reducedinfo(password, this.alphabet));
+    generateSecretKey(password, store) {
+        var self = this;
+        var store = (typeof store !== 'undefined') ? store : true;
+        return self.generateKey(reducedinfo(password, self.alphabet))
+            .then(function(sk) {
+                if (store) {
+                    self.secretkey = sk;
+                }
+                return sk;
+            });
+
     }
     generateKey(input, iterations) {
         return this.generateKeyWithSalt(input, this.jsSalt, iterations);
@@ -163,7 +172,7 @@ class EncryptionWrapper {
                 return confkey;
             });
     }
-    get pwdStore() {
+    getPwdStore() {
         return EncryptionWrapper.getPwdStoreUsingSalt(this.pwSalt);
     }
     static getPwdStoreUsingSalt(salt) {
@@ -171,6 +180,74 @@ class EncryptionWrapper {
             return "";
         }
         return EncryptionWrapper.decryptCharUsingKey(sessionStorage.pwdsk, salt);
+    }
+    // not happy with the name, actually stores everything that will be read by getPwdStore, should rename getPwdStore
+    persistCredentialsFromPassword(user, password) {
+        var self = this;
+        return self.generateKey(String(CryptoJS.SHA512(password + self.secretkey)))
+            .then(function(confkey) {
+                return EncryptionWrapper.persistCredentials(user, self.secretkey, confkey, self.pwSalt);
+            });
+    }
+    static persistCredentials(user, secretkey, confkey, salt) {
+        setCookie("username", user);
+        return EncryptionWrapper.encryptCharUsingKey(secretkey, salt)
+            .then(function(pwdsk) {
+                sessionStorage.pwdsk = pwdsk;
+                return EncryptionWrapper.encryptCharUsingKey(confkey, salt);
+            })
+            .then(function(_confkey) {
+                sessionStorage.confusion_key = _confkey;
+                return secretkey;
+            });
+    }
+    storePIN(device, pinSalt, pin) {
+        var self = this;
+        var encryptedPwdstore;
+        var encryptedConfkey;
+        return self.getPwdStore()
+            .then(function(_pwdstore) {
+                return EncryptionWrapper.encryptCharUsingKey(_pwdstore, pin);
+            })
+            .then(function(_pwdstore) {
+                encryptedPwdstore = _pwdstore;
+                return self.getConfkey();
+            })
+            .then(function(_confkey) {
+                return EncryptionWrapper.encryptCharUsingKey(_confkey, pin);
+            })
+            .then(function(_confkey) {
+                encryptedConfkey = _confkey;
+                localStorage.setItem('pinsalt', pinSalt);
+                localStorage.setItem('en_login_sec', encryptedPwdstore);
+                localStorage.setItem('en_login_conf', encryptedConfkey);
+                setCookie('device', device);
+            });
+    }
+    restoreFromPIN(user, pin) {
+        var self = this;
+        var promises = [];
+        promises.push(EncryptionWrapper.decryptCharUsingKey(localStorage.en_login_sec, pin));
+        promises.push(EncryptionWrapper.decryptCharUsingKey(localStorage.en_login_conf, pin));
+        return Promise.all(promises)
+            .then(function(results) {
+                var secretkey = results[0];
+                var confkey = results[1];
+                return EncryptionWrapper.persistCredentials(user, secretkey, confkey, self.pwSalt);
+            })
+            .then(function(secretkey) {
+                return self.generateKey(secretkey);
+            })
+            .then(function(loginpwd) {
+                return String(CryptoJS.SHA512(loginpwd + user));
+            });
+    }
+    deletePIN() {
+        localStorage.removeItem("en_login_conf");
+        localStorage.removeItem("en_login_sec");
+        localStorage.removeItem("pinsalt");
+        deleteCookie('device');
+        deleteCookie('username');
     }
     static encryptCharUsingKey(encryptch, key){
         if(encryptch == "" || key == ""){  
