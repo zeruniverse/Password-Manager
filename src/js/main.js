@@ -431,7 +431,7 @@ $(document).ready(function(){
                     backend.logout("Password changed, please relogin");
                 })
                 .catch(function(message) {
-                    showMessage('warning', "Fail to change your password, please try again.", true);
+                    showMessage('warning', "Fail to change your password: " + message + " Please try again.", true);
                 });
         }
     });

@@ -271,7 +271,7 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
                 self.prepareData(data);
                 self.resetTimeout();
                 self.initTimeout();
-                return self.prepareCrypto(data["global_salt_2"], data["global_salt_2"], data["default_letter_used"]);
+                return self.prepareCrypto(data["global_salt_1"], data["global_salt_2"], data["default_letter_used"]);
             })
             .then(function(){
                 return self.decryptAccounts(self.receivedData["accounts"]);
@@ -387,15 +387,15 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
                 if(self.encryptionWrapper.secretkey != String(CryptoJS.SHA512(old_login_sig + self.encryptionWrapper.pwSalt))) {
                     throw("Incorrect Old Password!");
                 }
-                return this.encryptionWrapper.generateSecretKey(newpass)
+                return self.encryptionWrapper.generateSecretKey(newpass, false)
             })
             .then(function(key){
                 login_sig = key;
-                return this.encryptionWrapper.generateKey(login_sig);
+                return self.encryptionWrapper.generateKey(login_sig);
             })
             .then(function(_postnewpass) {
                 postnewpass = _postnewpass;
-                return this.encryptionWrapper.generateKey(newpass + login_sig);
+                return self.encryptionWrapper.generateKey(newpass + login_sig);
             })
             .then(function(_newconfkey) {
                 newconfkey = _newconfkey;

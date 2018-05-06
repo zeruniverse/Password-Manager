@@ -53,7 +53,7 @@ class EncryptionWrapper {
     generateSecretKey(password, store) {
         var self = this;
         var store = (typeof store !== 'undefined') ? store : true;
-        return self.generateKey(reducedinfo(password, self.alphabet))
+        return self.generateKey(EncryptionWrapper.reduceInfo(password, self.alphabet))
             .then(function(sk) {
                 if (store) {
                     self.secretkey = sk;
@@ -279,5 +279,29 @@ class EncryptionWrapper {
             pwd += charlist.charAt(Math.floor(Math.random() * maxPos));
         }
         return pwd;
+    }
+    static reduceInfo(key, charlist) {
+        function getcharpos(x, charlist){
+            var maxpos, j;
+            maxpos = charlist.length;
+            for(j = 0; j < maxpos; j++) if(x == charlist.charAt(j)) {
+                return j;
+            }
+            return -1;	
+        }
+        var maxpos = charlist.length;
+        var newpw = '';
+        var i,a,b;
+        var keylen = key.length;
+        newpw = newpw + keylen.toString();
+        a = getcharpos(key.charAt(0), charlist);
+        a = (a == -1) ? key.charCodeAt(0) : a;
+        for(i = 1; i <= keylen - 1; i++){
+            b = getcharpos(key.charAt(i), charlist);
+            b = (b == -1) ? key.charCodeAt(i) : b;
+            newpw = newpw + charlist.charAt( (a + b) % maxpos);
+            a = b;
+        }
+        return newpw;
     }
 }
