@@ -41,7 +41,12 @@ class Account {
             return self.getPassword()
                 .then(function(password) {
                     decryptedPassword = password;
-                    return self.getFileKey();
+                    if (self.hasFile()) {
+                        return self.getFileKey();
+                    }
+                    else {
+                        return "";
+                    }
                 })
                 .then(function(fileKey) {
                     decryptedFileKey = fileKey;
@@ -52,7 +57,12 @@ class Account {
                     return self.setPassword(decryptedPassword);
                 })
                 .then(function() {
-                    return self.setFileKey(decryptedFileKey);
+                    if (decryptedFileKey != '') {
+                        return self.setFileKey(decryptedFileKey);
+                    }
+                    else {
+                        return;
+                    }
                 })
                 .then(function(){
                     return self;
