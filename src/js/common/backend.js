@@ -395,7 +395,7 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
             })
             .then(function(_postnewpass) {
                 postnewpass = _postnewpass;
-                return self.encryptionWrapper.generateKey(newpass + login_sig);
+                return self.encryptionWrapper.generateKey(String(CryptoJS.SHA512(newpass + login_sig)));
             })
             .then(function(_newconfkey) {
                 newconfkey = _newconfkey;
