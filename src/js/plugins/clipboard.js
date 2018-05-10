@@ -4,7 +4,7 @@ registerPlugin("drawAccount",function(data){
     var account = data["account"];
     var row = data["row"];
     row.find(".namecell .cellOptionButton:last").before($('<a>')
-        .attr('title',"Open")
+        .attr('title',"Copy password to clipboard")
         .attr('class','cellOptionButton')
         .append($('<span></span>')
             .attr('class','glyphicon glyphicon-copy'))
