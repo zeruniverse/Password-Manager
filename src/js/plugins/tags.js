@@ -52,13 +52,13 @@ function enableGrouping(){
         var last = null;
         $(rows.to$()).each(
             function ( index, row ) {
-                var dbentry = accountarray[$(row).data('id')];
+                var dbentry = backend.accounts[$(row).data('id')];
                 var firsttag = null;
-                if ((! ('tags' in dbentry["other"]))||dbentry["other"]['tags']=='')
+                if ((! ('tags' in dbentry["other"])) || dbentry["other"]['tags'] == '')
                     firsttag = null;
                 else
                     firsttag = dbentry["other"]["tags"].split(',')[0].trim();
-                if ( last !== firsttag) {
+                if (last !== firsttag) {
                     $(row).before( $('<tr>').attr('class',"group").append($('<td>').attr('colspan',"15").append($('<strong>').text(firsttag).prepend('&nbsp;&nbsp;'))));
                     last = firsttag;
                 }
