@@ -3,7 +3,7 @@
 registerPlugin("drawAccount",function(data){
     var account = data["account"];
     var row = data["row"];
-    row.find(".namecell .cellOptionButton:last").before($('<a>')
+    row.find(".passcell>span").after($('<a>')
         .attr('title',"Copy password to clipboard")
         .attr('class','cellOptionButton')
         .append($('<span></span>')

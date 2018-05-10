@@ -199,6 +199,7 @@ function showTable(accounts) {
                 .append($('<span class="glyphicon glyphicon-eye-open"></span>')))
         );
         cols.push($('<td>')
+            .attr('class', 'passcell')
             .append($('<span>')
                 .attr('passid', accounts[index].index)
                 .attr('id', accounts[index].index)
@@ -611,7 +612,7 @@ function clicktoshow(id){
         .then(function(pwd){
             $("#"+id).empty()
                 .append($('<span class="pwdshowbox passwordText"></span>'))
-                .append($('<a title="Hide" class="cellOptionButton"></a>')
+                .after($('<a title="Hide" class="cellOptionButton hidePassword"></a>')
                     .on('click',{"index":id},function(event){clicktohide(event.data.index);})
                     .append($('<span class="glyphicon glyphicon-eye-close"></span>')));
             $("#"+id+" > .pwdshowbox").text(pwd);
@@ -619,6 +620,13 @@ function clicktoshow(id){
         .catch(function(){
             $("#"+id).text("Oops, some error occurs!");
         });
+}
+function clicktohide(id){
+    backend.resetTimeout();
+    $("#" + id).empty().append($('<a title="Click to see"></a>')
+                        .on('click', {"index":id}, function(event){ clicktoshow(event.data.index); })
+                        .append('<span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span>') );
+    $("#" + id).parent().find(".hidePassword")[0].remove();
 }
 function showuploadfiledlg(id){
     $("#uploadfiledlg").modal("hide");
@@ -629,12 +637,6 @@ function showuploadfiledlg(id){
     $("#uploadf").attr("disabled", false);
     fileid = id;
     $("#uploadfiledlg").modal("show");
-}
-function clicktohide(id){
-    backend.resetTimeout();
-    $("#" + id).empty().append($('<a title="Click to see"></a>')
-                        .on('click', {"index":id}, function(event){ clicktoshow(event.data.index); })
-                        .append('<span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span>') );
 }
 function delepw(index)
 {
