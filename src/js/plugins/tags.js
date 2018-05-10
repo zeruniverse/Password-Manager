@@ -18,7 +18,7 @@ function showAllTags(accounts) {
     }
     var tags = gatherDistinctTags(accounts);
     $('#tags').empty();
-    for (x in tags){
+    for (let x in tags){
         $("#tags").append($("<a>").attr('href','#').on('click',{"tag":tags[x]},function(event){
             $(this).addClass('activeTag');
             filterTags(event.data.tag);
@@ -66,7 +66,7 @@ function enableGrouping(){
     };
     // Global variable from main.js
     preShowPreparation=function(accounts) {
-        ordering = function (a,b){
+        var ordering = function (a,b){
             if ((!("tags" in a["other"]))|| a["other"]["tags"]=='')
                 return 1;
             if ((!("tags" in b["other"]))|| b["other"]["tags"]=='')
