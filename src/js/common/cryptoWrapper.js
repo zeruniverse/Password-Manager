@@ -157,20 +157,20 @@ class EncryptionWrapper {
             });
     }
     getConfkey() {
-        if (this._confkey)
-            return Promise.resolve(this._confkey);
-        return EncryptionWrapper.getConfKeyUsingSalt(this.pwSalt);
-    }
-    static getConfKeyUsingSalt(salt) {
         var self = this;
-        if(!sessionStorage.confusion_key) {
-            return Promise.resolve("");
-        }
-        return EncryptionWrapper.decryptCharUsingKey(sessionStorage.confusion_key, salt)
+        if (self._confkey)
+            return Promise.resolve(self._confkey);
+        return EncryptionWrapper.getConfKeyUsingSalt(self.pwSalt)
             .then(function(confkey) {
                 self._confkey = confkey;
                 return confkey;
             });
+    }
+    static getConfKeyUsingSalt(salt) {
+        if(!sessionStorage.confusion_key) {
+            return Promise.resolve("");
+        }
+        return EncryptionWrapper.decryptCharUsingKey(sessionStorage.confusion_key, salt);
     }
     getPwdStore() {
         return EncryptionWrapper.getPwdStoreUsingSalt(this.pwSalt);
