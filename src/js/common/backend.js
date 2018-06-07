@@ -14,12 +14,16 @@ class MixinBuilder {
 class commonBackend {
     doPost(endpoint, data) {
         data = data || {};
-        return $.post("rest/" + endpoint + ".php", data)
+        var endpointDomain = this.domain || "";
+        return $.post(endpointDomain + "rest/" + endpoint + ".php", data)
             .then(function(msg) {
                 return commonBackend.checkResult(msg);
             });
     }
     get sessionToken() {
+        if (this._sessionToken) {
+            return this._sessionToken;
+        }
         return localStorage.session_token;
     }
     static checkResult(msg) {
@@ -251,6 +255,7 @@ let LocalStorage = (superclass) => class extends superclass {
 class AccountBackend extends mix(commonBackend).with(EventHandler, AuthenticatedSession, Timeout, PinHandling, Accounts) {
     constructor() {
         super();
+        this.encryptionWrapper = null;
         this.cleanUp();
         this.events = ["logout"];
         this.initEvents();
@@ -297,6 +302,9 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
     }
     prepareCrypto(jsSalt, pwSalt, default_letter) {
         var self = this;
+        if (self.encryptionWrapper) {
+            return Promise.resolve(self.encryptionWrapper);
+        }
         try {
             return EncryptionWrapper.fromLocalStorage(jsSalt, pwSalt, default_letter)
                 .then(function(encryptionWrapper) {
