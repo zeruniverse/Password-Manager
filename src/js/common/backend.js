@@ -266,6 +266,8 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
     }
     loadAccounts() {
         var self = this;
+        if (callPlugins("preDataReady", {}).some(result => result == "hold"))
+            return Promise.reject("Plugin failed");
         return self.doPost("password", {})
             .then(function(data){
                 callPlugins("dataReady", {"data":data});
