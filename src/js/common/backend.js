@@ -104,7 +104,7 @@ let Timeout = (superclass) => class extends superclass {
     countdown() {
         if (this.isTimeout) {
             this.logout("Logged out due to inactivity");
-            clearInterval(this.countdownInterval);
+            this.clearTimeout();
         }
     }
     sessionCountdown() {
@@ -113,13 +113,20 @@ let Timeout = (superclass) => class extends superclass {
             this.server_timeout  = this.default_server_timeout+Math.floor(Date.now() / 1000);
         if(ck == "-1" || this.server_timeout < Math.floor(Date.now() / 1000)) { // Timer has expired
             this.logout("Session timed out");
-            clearInterval(this.sessionCountdownInterval);
+            this.clearTimeout();
         }
         setCookie("ServerRenew", '0');// nothing happened
     }
     initTimeout() {
         this.countdownInterval = setInterval(this.countdown.bind(this), 5000);
         this.sessionCountdownInterval = setInterval(this.sessionCountdown.bind(this), 5000);
+    }
+    clearTimeout() {
+        clearInterval(this.sessionCountdownInterval);
+        this.sessionCountdownInterval = -1;
+        clearInterval(this.countdownInterval);
+        this.countdownInterval = -1;
+
     }
     // extended timeout for actions that take a long time
     extendedTimeout() {
