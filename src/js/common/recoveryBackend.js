@@ -41,7 +41,7 @@ class RecoveryBackend {
             .then(function(key) {
                 preKey = key;
                 self.encryptionWrapper.secretkey = String(CryptoJS.SHA512(key + self.encryptionWrapper.pwSalt));
-                return self.encryptionWrapper.generateKey(password + preKey);
+                return self.encryptionWrapper.generateKey(String(CryptoJS.SHA512(password + preKey)))
             })
             .then(function(confkey) {
                 self.encryptionWrapper._confkey = confkey;
