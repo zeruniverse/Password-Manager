@@ -49,13 +49,10 @@ class RecoveryBackend {
                 return self.encryptionWrapper.multiGenerateKey(self.encryptionWrapper.secretkey, 32);
             });
     }
-    exportCSV() {
-    }
-    exportRaw() {
+    getAccountsRaw() {
         var self = this;
         var promiseList = [];
-        for (let account of self.accounts)
-        {
+        for (let account of self.accounts) {
             var nextAccountPromise = account.getPassword()
                 .then(function(password) {
                     return { 
@@ -69,7 +66,31 @@ class RecoveryBackend {
                 });
             promiseList.push(nextAccountPromise);
         }
-        return Promise.all(promiseList)
+        return promiseList;
+    }
+    exportCSV() {
+        var self = this;
+        return Promise.all(self.getAccountsRaw())
+            .then(function(results) {
+                var result = [];
+                for (let account of results) {
+                    let tmp = {};
+                    account = account['data'];
+                    tmp['name'] = account['account'];
+                    tmp['password'] = account['password'];
+                    let other = JSON.parse(account['other']);
+                    for (let item in other) {
+                        tmp[item] = account['other'][item];
+                    }
+                    result.push(tmp);
+                }
+                var csv = $.csv.fromObjects(result);
+                return new Blob([csv], {type: "text/plain;charset=utf-8"});
+            });
+    }
+    exportRaw() {
+        var self = this;
+        return Promise.all(self.getAccountsRaw())
             .then(function(results) {
                 var result = { };
                 result.status = "RAW_OK";
