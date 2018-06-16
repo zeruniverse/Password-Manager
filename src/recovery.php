@@ -13,6 +13,7 @@ echoheader();
 <script src="js/common/account.js"></script>
 <script src="js/recovery.js"></script>
 <div class="container theme-showcase">
+    <div id="messageContainer"></div>
     <div class="page-header">
         <h1>Before You Start...</h1>
     </div>

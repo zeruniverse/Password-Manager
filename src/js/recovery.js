@@ -1,14 +1,5 @@
 var backend;
-var acc_array, pass_array, other_array;
-var PWsalt = '';
-var ALPHABET = '';
-var secretkey = '';
-var confkey = '';
-var dkey = '';
 var has_file = 0;
-var fname_array;
-var fkey_array;
-var fdata_array;
 function download(filename, text) {
     var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
     saveAs(blob, filename);
@@ -21,6 +12,9 @@ function export_raw() {
     return backend.exportRaw()
         .then(function(data) {
             download("raw_pass.raw", data);
+        })
+        .catch(function(msg){
+            showMessage("warning", msg);
         });
 }
 function export_csv() {
@@ -29,6 +23,9 @@ function export_csv() {
     return backend.exportCSV()
         .then(function(data) {
             saveAs(data, "export.csv");
+        })
+        .catch(function(msg){
+            showMessage("warning", msg);
         });
 }
 function readfile() {
@@ -99,9 +96,8 @@ function recover(data) {
             $("#raw_button").show();
             $("#csv_button").show();
         })
-        .catch(function(){
-            //todo show error
-
+        .catch(function(msg){
+            showMessage("warning", msg);
         })
         .then(function(){
             $("#chk").removeAttr("disabled");
