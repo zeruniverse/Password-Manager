@@ -397,8 +397,7 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
                 data = data.substring(data.search(",") + 1);
                 file["data"] = base64toBlob(data, typedata);
                 return file;
-            })
-        ;
+            });
     }
     
     changePassword(oldpass, newpass) {
