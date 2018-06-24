@@ -96,8 +96,14 @@ let Timeout = (superclass) => class extends superclass {
     }
     //Timout
     resetTimeout() {
+        if (!this.default_timeout) {
+            return;
+        }
         let newTimeout = this.default_timeout + Math.floor(Date.now() / 1000);
-        if (this.timeout < newTimeout) {
+        if (typeof this.timeout === 'undefined') {
+            this.timeout = newTimeout;
+        }
+        else if (this.timeout < newTimeout) {
             this.timeout = newTimeout;
         }
     }
