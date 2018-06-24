@@ -382,23 +382,35 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
     uploadFile(id, name, payload) {
         var self = this;
         var fkey = self.encryptionWrapper.generatePassphrase(Math.floor(Math.random() * 18) + 19);
-        var data = {
-            id:id, 
-            fkey:self.encryptionWrapper.encryptPassword(name, fkey),
-            data: EncryptionWrapper.encryptCharUsingKey(payload, fkey),
-            fname: self.encryptionWrapper.encryptChar(name)
-        };
-
-        return self.doPost('uploadfile', data);
+        let data = {"id": id};
+        return self.encryptionWrapper.encryptPassword(name, fkey)
+            .then(function(encryptedKey) {
+                data["fkey"] = encryptedKey;
+                return EncryptionWrapper.encryptCharUsingKey(payload, fkey);
+            })
+            .then(function(filedata) {
+                data["data"] = filedata;
+                return self.encryptionWrapper.encryptChar(name);
+            })
+            .then(function(fname) {
+                data["fname"] = fname;
+                return self.doPost('uploadfile', data);
+            });
     }
     downloadFile(id) {
         var self = this;
+        var filedata;
+        var file = {};
         return self.doPost('downloadfile', {id:id})
-            .then(function(filedata) {
-                var file = {};
+            .then(function(encfiledata) {
+                filedata = encfiledata;
                 file["name"] = self.accounts[id].file["name"];
-                var fkey = self.encryptionWrapper.decryptPassword(file["name"], filedata["key"]);
-                var data = EncryptionWrapper.decryptCharUsingKey(filedata["data"], fkey);
+                return self.encryptionWrapper.decryptPassword(file["name"], filedata["key"])
+            })
+            .then(function(fkey) {
+                return EncryptionWrapper.decryptCharUsingKey(filedata["data"], fkey);
+            })
+            .then(function(data) {
                 var typedata = data.substring(5, data.search(";"));
                 data = data.substring(data.search(",") + 1);
                 file["data"] = base64toBlob(data, typedata);
