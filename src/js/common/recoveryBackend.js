@@ -3,36 +3,85 @@ class RecoveryBackend {
         var self = this;
         self.accounts = [];
         var json = JSON.parse(sanitize_json(backupData));
-        var preKey;
-        if(json.status!="OK" && json.status!="success") {
+        if(json.status != "OK" && json.status != "success") {
             throw("INVALID BACKUP FILE");
         }
+        var backupKey;
         self.encryptionWrapper = new EncryptionWrapper(null, json.JSsalt, json.PWsalt, json.ALPHABET);
         return self.generateBackupKeys(password)
             .then(function(dkey){
+                backupKey = dkey;
                 return EncryptionWrapper.decryptCharUsingKey(json.data, dkey);
             })
             .then(function(data) {
-                data = JSON.parse(data);
-                var i = 0;
-                let resultPromises = [];
-                for (let acc in data) {
-                    data[acc][3] = i;
-                    resultPromises.push(Account.fromEncrypted(self.encryptionWrapper,
-                        { index: data[acc][3], 
-                            name:data[acc][0], 
-                            kss:data[acc][1], 
-                            additional:data[acc][2]}));
-                    i += 1;
-                }
-                return Promise.all(resultPromises);
-                //ToDo:Files
+                return self.importAccounts(data);
             })
             .then(function(accounts){
+                if (typeof json.fdata !== 'undefined')
+                    return EncryptionWrapper.decryptCharUsingKey(json.fdata, backupKey)
+                        .then(function(fdata) {
+                            return self.importFiles(fdata);
+                        });
+                else
+                    return;
+            })
+            .then(function() {
+                return self.accounts;
+            });
+    }
+    importAccounts(data) {
+        var self = this;
+        data = JSON.parse(data);
+        let resultPromises = [];
+        for (let acc in data) {
+            data[acc][3] = acc;
+            resultPromises.push(Account.fromEncrypted(self.encryptionWrapper,
+                { index: data[acc][3], 
+                    name: data[acc][0], 
+                    kss: data[acc][1], 
+                    additional:data[acc][2]}));
+        }
+        return Promise.all(resultPromises)
+            .then(function(accounts) {
                 for (let account of accounts) {
                     self.accounts.push(account);
                 }
                 return self.accounts;
+            });
+    }
+    importFiles(data) {
+        var self = this;
+        //ToDo
+        var filedata = JSON.parse(data);
+        if (filedata.status === 'NO') 
+            return;
+        if (filedata.status != 'OK')
+            throw('invalid status for encrypted files');
+        let filePromises = [];
+        for (let id in filedata["data"]) {
+            var file = {"id": id};
+            var thisFilePromise = self.encryptionWrapper.decryptChar(filedata["data"][id][0])
+                .then(function(fname) {
+                    file["name"] = fname;
+                    return self.encryptionWrapper.decryptPassword(fname, filedata["data"][id][1]);
+                })
+                .then(function(fkey) {
+                    file["key"] = fkey;
+                    return EncryptionWrapper.decryptCharUsingKey(filedata["data"][id][2], fkey)
+                })
+                .then(function(fdata) {
+                    file["data"] = fdata;
+                    return file;
+                });
+            filePromises.push(thisFilePromise);
+        }
+        return Promise.all(filePromises)
+            .then(function(files) {
+                self.files = [];
+                for (let file of files) {
+                    self.files[file['id']] = file;
+                }
+                return self.files;
             });
     }
     generateBackupKeys(password) {

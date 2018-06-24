@@ -47,11 +47,11 @@ function readfile() {
         alert('FileReader are not supported in this browser.');
     }
 }
-function downloada(x) {
-    var data = fdata_array[x];
+function downloada(id) {
+    var data = backend.files[id].data;
     var typedata = data.substring(5, data.search(";"));
     data = data.substring(data.search(",") + 1);
-    saveAs(base64toBlob(data, typedata), fname_array[x]);
+    saveAs(base64toBlob(data, typedata), backend.files[id].name);
 }
 function recover(data) {
     if($("#pwd").val() == '') {
@@ -69,7 +69,10 @@ function recover(data) {
         .then(function(accounts){
             var has_file = 0;
             var rows = [$('<tr><th>Account</th><th>Password</th><th>Other Info</th></tr>')];
-            if(has_file == 1) rows = [$('<tr><th>Account</th><th>Password</th><th>Other Info</th><th>Files</th></tr>')];
+            if(typeof backend.files !== 'undefined') {
+                has_file = 1;
+                rows = [$('<tr><th>Account</th><th>Password</th><th>Other Info</th><th>Files</th></tr>')];
+            }
             for(let account of accounts) {
                 var row = $('<tr></tr>')
                     .append($('<td></td>').text(account.accountName))
@@ -80,9 +83,10 @@ function recover(data) {
                         $("#account_" + account.index).text(password);
                     });
                 if(has_file == 1) {
-                    if (x in fname_array) {
+                    if (account.index in backend.files) {
+                        var file = backend.files[account.index];
                         row.append($('<td></td>')
-                            .append($('<a></a>').on('click', {x:x}, function(e) {downloada(e.data.x);}).text(fname_array[x])));
+                            .append($('<a></a>').on('click', {index:account.index}, function(e) {downloada(e.data.index);}).text(file.name)));
                     } 
                     else {
                         row.append($('<td></td>'));
