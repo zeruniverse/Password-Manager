@@ -1,35 +1,15 @@
 var usr = null;
-function timeConverter(utctime){
-  var a = new Date(utctime * 1000);
-  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; 
-  var year = String(a.getFullYear());
-  var month = months[a.getMonth()];
-  var date = String(a.getDate());
-  var hour = String(a.getHours());
-  var min = String(a.getMinutes());
-  var sec = String(a.getSeconds());
-  if(hour.length==1) hour = '0'+hour;
-  if(min.length==1) min = '0'+min;
-  if(sec.length==1) sec = '0'+sec;
-  var time = month + ' '+date + ', ' + year + ' ' + hour + ':' + min + ':' + sec ;
-  return time;
-}
-$.ajaxPrefilter(function(options, originalOptions, jqXHR){
-    if (options.type.toLowerCase() === "post") {
-        options.data = options.data || "";
-        options.data += options.data?"&":"";
-        options.data += "session_token=" + localStorage.session_token;
-    }
-});
+var backend;
 $(document).ready(function(){
-    $.post("rest/history.php", function(msg){dataReady(msg);});
+    backend = new HistoryBackend();
+    backend.getHistory()
+        .then(dataReady)
+        .catch(function(){
+            window.location = "./";
+        });
 });
 function dataReady(data){
-    if (data["status"] != "success"){
-        window.location = "./";
-    }
-    for (var kpin in data["pins"]){
-        pin = data["pins"][kpin];
+    for (var pin of data["pins"]){
         $("#pinTable")
             .append($("<tr></tr>")
                     .append($("<td></td>")
@@ -45,8 +25,7 @@ function dataReady(data){
                                 unsetpin(event.data.did);
                             }))));
     }
-    for (var kip in data["ips"]){
-        var ip = data["ips"][kip];
+    for (var ip of data["ips"]){
         var row = $('<tr></tr>');
         if (ip["outcome"])
             row.addClass("textred");
@@ -79,5 +58,11 @@ function dataReady(data){
     $("#maindiv").show();
 }
 function unsetpin(devicex){
-    $.post("rest/deletepin.php",{user:usr,device:devicex},function(msg){location.reload(true);});
+    backend.unSetPin(devicex)
+        .then(function(){
+            location.reload(true);
+        })
+        .catch(function(msg){
+            showMessage('warning', "Failed to remove Pin: " + msg);
+        });
 }

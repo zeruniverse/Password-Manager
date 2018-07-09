@@ -1,14 +1,13 @@
 <?php
 
-require_once dirname(__FILE__).'/../function/ajax.php';
 require_once dirname(__FILE__).'/../function/sqllink.php';
+require_once dirname(__FILE__).'/../function/ajax.php';
 $link = sqllink();
 if (!checksession($link)) {
-    error('AUTHENTICATION ERROR, PLEASE RELOGIN');
+    ajaxError('authentication');
 }
 $id = $_SESSION['userid'];
 $result = [];
-$result['status'] = 'success';
 $result['default_timeout'] = $BROWSER_TIMEOUT;
 $result['default_letter_used'] = $DEFAULT_LETTER_USED;
 $result['default_length'] = $DEFAULT_LENGTH;
@@ -51,4 +50,4 @@ $res = sqlexec($sql, [$id, $loginID], $link);
 $data = $res->fetch(PDO::FETCH_ASSOC);
 $result['loginInformation']['failedCount'] = (int) $data['failedLogins'];
 
-echo json_encode($result);
+ajaxSuccess($result);

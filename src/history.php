@@ -4,12 +4,14 @@ echoheader();
 ?>
 <link rel="stylesheet" type="text/css" href="css/dataTables.bootstrap.min.css">
 <link rel="stylesheet" type="text/css" href="css/responsive.dataTables.min.css">
+<script src="js/common/backend.js"></script>
 <div class="container theme-showcase">
     <p id="placeholder">PLEASE WAIT...</p>
     <div id="maindiv" class="collapse">
     <div class="page-header">
         <h1>Trusted Devices</h1>
     </div>
+    <div id="messageContainer"></div>
     <table class="table" id="pinTable">
     <tr><th>Device Type</th><th>Set Time</th><th>Untrust (Disable PIN)</th></tr>
     </table>

@@ -2,7 +2,7 @@
 function showAllTags(accounts) {
     function gatherDistinctTags(accounts) {
         var tags = [];
-        for (x in accounts) {
+        for (let x in accounts) {
             if (!("tags" in accounts[x]["other"]))
                 continue;
             if (accounts[x]["other"]["tags"].length>0)
@@ -18,7 +18,7 @@ function showAllTags(accounts) {
     }
     var tags = gatherDistinctTags(accounts);
     $('#tags').empty();
-    for (x in tags){
+    for (let x in tags){
         $("#tags").append($("<a>").attr('href','#').on('click',{"tag":tags[x]},function(event){
             $(this).addClass('activeTag');
             filterTags(event.data.tag);
@@ -34,7 +34,7 @@ function filterTags(tag){//replace by cleaning up and showing only accounts that
     if (tag == ""){
         $("#resetFilter").hide();
         $("#tags>a").removeClass('activeTag');
-        showTable(accountarray);
+        showTable(backend.accounts);
         return;
     }
     function filter(account){
@@ -46,31 +46,33 @@ function filterTags(tag){//replace by cleaning up and showing only accounts that
     $("#resetFilter").show();
 }
 function enableGrouping(){
+    // Global variable from main.js
     preDrawCallback = function( api, settings ) {
         var rows = api.rows( {page:'current'} ).nodes();
         var last = null;
         $(rows.to$()).each(
             function ( index, row ) {
-                dbentry = accountarray[$(row).data('id')];
-                firsttag = null;
-                if ((! ('tags' in dbentry["other"]))||dbentry["other"]['tags']=='')
+                var dbentry = backend.accounts[$(row).data('id')];
+                var firsttag = null;
+                if ((! ('tags' in dbentry["other"])) || dbentry["other"]['tags'] == '')
                     firsttag = null;
                 else
                     firsttag = dbentry["other"]["tags"].split(',')[0].trim();
-                if ( last !== firsttag) {
+                if (last !== firsttag) {
                     $(row).before( $('<tr>').attr('class',"group").append($('<td>').attr('colspan',"15").append($('<strong>').text(firsttag).prepend('&nbsp;&nbsp;'))));
                     last = firsttag;
                 }
             });
     };
+    // Global variable from main.js
     preShowPreparation=function(accounts) {
-        ordering = function (a,b){
+        var ordering = function (a,b){
             if ((!("tags" in a["other"]))|| a["other"]["tags"]=='')
                 return 1;
             if ((!("tags" in b["other"]))|| b["other"]["tags"]=='')
                 return -1;
-            atags = a["other"]["tags"].toLowerCase();
-            btags = b["other"]["tags"].toLowerCase();
+            let atags = a["other"]["tags"].toLowerCase();
+            let btags = b["other"]["tags"].toLowerCase();
             if (atags < btags)
                 return -1;
             if (atags > btags)
@@ -78,7 +80,6 @@ function enableGrouping(){
             return 0;
         };
         return accounts.concat().sort(ordering);
-
     }
     emptyTable();
     showTable(visibleAccounts);

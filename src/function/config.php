@@ -87,6 +87,11 @@ $GLOBAL_SALT_3 = '*&Kjnskjnaucibiqb9298hv9sHIUWNiukJNIusfbic897*(^)';
 //Number of iterations for the password hashing
 $PBKDF2_ITERATIONS = 64000;
 
+//Minimal length of user passwords
+$MINIMAL_PASSWORD_LENGTH = 7;
+//Minimal length of user name
+$MINIMAL_NAME_LENGTH = 5;
+
 //Generating Password (those variables will be written into JavaScript)
 //the default password length to be generated
 $DEFAULT_LENGTH = 13;

@@ -1,6 +1,6 @@
 <?php
 
-$VERSION = '9.15';
+$VERSION = '10.00';
 require_once dirname(__FILE__).'/config.php';
 function sqllink()
 {
@@ -46,24 +46,24 @@ function checksession($link)
     global $SERVER_TIMEOUT, $HOSTDOMAIN;
     session_start();
     if (!isset($_SESSION['loginok']) || $_SESSION['loginok'] != 1) {
-        session_destroy();
+        logout();
 
         return false;
     }
     if (isset($_SERVER['HTTP_REFERER']) && ($_SERVER['HTTP_REFERER'] != '') && (strpos(strtolower($_SERVER['HTTP_REFERER']), strtolower($HOSTDOMAIN)) !== 0)) {
         //Users from other sites are banned
-        session_destroy();
+        logout();
 
         return false;
     }
     if (($_SERVER['REQUEST_METHOD'] == 'POST') && ($_POST['session_token'] !== $_SESSION['session_token'])) {
         //Must check session_token to prevent cross-site attack
-        session_destroy();
+        logout();
 
         return false;
     }
     if (!$link || !isset($_SESSION['create_time']) || $_SESSION['create_time'] + $SERVER_TIMEOUT < time()) {
-        session_destroy();
+        logout();
 
         return false;
     }
@@ -71,7 +71,7 @@ function checksession($link)
     $pw = $_SESSION['pwd'];
     $id = $_SESSION['userid'];
     if ($usr == '' || $pw == '' || $id == '') {
-        session_destroy();
+        logout();
 
         return false;
     }
@@ -79,14 +79,23 @@ function checksession($link)
     $res = sqlexec($sql, [$usr, $pw, $id], $link);
     $record = $res->fetch(PDO::FETCH_ASSOC);
     if (!$record) {
-        session_destroy();
+        logout();
 
         return false;
     }
-    $_SESSION['create_time'] = time();
+    $_SESSION['create_time'] = time(); //Todo name this refresh time and create an absolute timeout
     setcookie('ServerRenew', '1', 0, '/');
 
     return true;
+}
+function logout()
+{
+    foreach ($_SESSION as $key => $value) {
+        unset($_SESSION[$key]);
+    }
+    session_regenerate_id(true); //as suggested by owasp, change sessionId when changing context
+    session_destroy();
+    setcookie('ServerRenew', '-1', 0, '/');
 }
 $currentCookieParams = session_get_cookie_params();
 session_set_cookie_params(0, $currentCookieParams['path'], $currentCookieParams['domain'], (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443, true);

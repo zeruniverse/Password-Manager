@@ -1,9 +1,10 @@
 <?php
 
 require_once dirname(__FILE__).'/../function/sqllink.php';
+require_once dirname(__FILE__).'/../function/ajax.php';
 $link = sqllink();
 if (!checksession($link)) {
-    die('0');
+    ajaxError('general');
 }
 $id = $_SESSION['userid'];
 
@@ -13,29 +14,29 @@ $fname = $_POST['fname'];
 $data = $_POST['data'];
 
 if ($fname == '' || $fkey == '' || $data == '' || $index < 1) {
-    die('0');
+    ajaxError('parameter');
 }
 if (strlen($fkey) > 100 || strlen($fname) > 100 || strlen($data) > 1024 * 1024 * 15) {
-    die('0');
+    ajaxError('parameter');
 }
 
 if (!$link->beginTransaction()) {
-    die('0');
+    ajaxError('general');
 }
 
 $sql = 'DELETE FROM `files` WHERE `userid`= ? and `index`=?';
 $res = sqlexec($sql, [$id, $index], $link);
 if ($res == null) {
     $link->rollBack();
-    die(0);
+    ajaxError('general');
 }
 
 $sql = 'SELECT * FROM `password` WHERE `userid`= ? AND `index`= ?';
 $res = sqlexec($sql, [$id, $index], $link);
 $record = $res->fetch(PDO::FETCH_ASSOC);
-if ($record == false) {
+if (!$record) {
     $link->rollBack();
-    die('0');
+    ajaxError('general');
 }
 
 $sql = 'INSERT INTO `files` VALUES (?, ?, ?, ?,?)';
@@ -46,9 +47,9 @@ $stmt->bindParam(3, $fkey);
 $stmt->bindParam(4, $fname);
 $stmt->bindParam(5, $data, PDO::PARAM_LOB);
 $exeres = $stmt->execute();
-if ($exeres == false) {
+if (!$exeres) {
     $link->rollBack();
-    die(0);
+    ajaxError('general');
 }
 $link->commit();
-echo '1';
+ajaxSuccess();

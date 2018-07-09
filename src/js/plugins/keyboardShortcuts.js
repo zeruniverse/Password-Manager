@@ -31,7 +31,7 @@ registerPlugin("layoutReady", function(data){
         e.stopPropagation();
     });
     var list = $('<ul class="list-group"></ul>');
-    for (key in keyboardShortcuts) {
+    for (let key in keyboardShortcuts) {
         list.append($('<li class="list-group-item"></li>')
             .text(keyboardShortcuts[key]["description"])
             .prepend($('<span class="badge"></span>')

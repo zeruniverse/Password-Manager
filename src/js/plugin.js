@@ -1,15 +1,18 @@
 // This is for the plugin architecture
 var runPlugins = {};
-const hooks = ["quitpwd", "quitpwd_untrust", "dataReady", "layoutReady", "readField", "readAccount", "drawAccount", "accountsReady", "fieldsReady", "editAccountDialog", "showDetails"];
+const hooks = ["quitpwd", "quitpwd_untrust", "preDataReady", "dataReady", "layoutReady", "readField", "readAccount", "drawAccount", "accountsReady", "fieldsReady", "editAccountDialog", "showDetails",
+"addAccountPreSend", "updateAccountPreSend", "logout", "preLogout"];
 function initPlugins() {
-    for (hook in hooks){
+    for (let hook in hooks){
         runPlugins[hooks[hook]] = [];
     }
 }
 function callPlugins(entry, data){
-    for (var call in runPlugins[entry]){
-        runPlugins[entry][call](data);
+    var resultset = [];
+    for (var callback of runPlugins[entry]){
+        resultset.push(callback(data));
     }
+    return Promise.all(resultset);
 }
 function registerPlugin(entry, call){
     runPlugins[entry].push(call);

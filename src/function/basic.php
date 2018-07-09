@@ -35,6 +35,7 @@ function echoheader()
     <link rel="shortcut icon" href="favicon.ico">
     <script src="js/lib/jquery.min.js"></script>
     <script src="js/lib/bootstrap.min.js"></script>
+    <script src="js/common/commonFunctions.js"></script>
 </head>
 <body>';
 }
