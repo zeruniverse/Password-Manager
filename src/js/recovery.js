@@ -68,10 +68,10 @@ function recover(data) {
     backend.parseBackup(data, password)
         .then(function(accounts){
             var has_file = 0;
-            var rows = [$('<tr><th>Account</th><th>Password</th><th>Other Info</th></tr>')];
+            var rows = [$('<thead><tr><th>Account</th><th>Password</th><th>Other Info</th></tr></thead>')];
             if(typeof backend.files !== 'undefined') {
                 has_file = 1;
-                rows = [$('<tr><th>Account</th><th>Password</th><th>Other Info</th><th>Files</th></tr>')];
+                rows = [$('<thead><tr><th>Account</th><th>Password</th><th>Other Info</th><th>Files</th></tr></thead>')];
             }
             for(let account of accounts) {
                 var row = $('<tr></tr>')
@@ -92,7 +92,7 @@ function recover(data) {
                         row.append($('<td></td>'));
                     }
                 }
-                rows.push(row);
+                rows.push($('<tbody></tbody>').append(row));
             }
             $("#rtable").empty();
             $("#rtable").append(rows);
