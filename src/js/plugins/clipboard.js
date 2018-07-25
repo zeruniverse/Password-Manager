@@ -1,6 +1,9 @@
 //Plugin for a copy to clipboard button
 // only works in chrome version >=66
 registerPlugin("drawAccount",function(data){
+    if(!navigator.clipboard) {
+        return;
+    }
     var account = data["account"];
     var row = data["row"];
     row.find(".passcell>span").after($('<a>')
