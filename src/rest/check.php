@@ -9,6 +9,9 @@ $_SESSION['session_token'] = $token;
 $sidvalue = session_id();
 function getUserIP()
 {
+    if ($_SERVER['HTTP_X_FORWARDED_FOR']) {
+        return $_SERVER['HTTP_X_FORWARDED_FOR'];
+    }
     return $_SERVER['REMOTE_ADDR'];
 }
 function loghistory($link, $userid, $ip, $ua, $outcome)
