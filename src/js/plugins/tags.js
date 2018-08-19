@@ -122,7 +122,7 @@ registerPlugin("layoutReady",function(data){
                     .append($('<span>')
                         .attr('class',"tagsShow hidden")
                         .text('hide'))
-                    .append('tags')))
+                    .append(' tags')))
             .append($('<span>')
                     .attr('class', "hidden-xs")
                     .attr('id',"tags"))
