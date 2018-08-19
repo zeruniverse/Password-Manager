@@ -249,6 +249,9 @@ let PinHandling = (superclass) => class extends superclass {
                 });
         }
     }
+    get pinActive() {
+        return (getCookie('device') != "") && (this.usePin == 1);
+    }
 }
 
 //mixin for localstorage
@@ -638,8 +641,5 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
     checkHostdomain() {
         var full = location.protocol + '//' + location.hostname;
         return this.hostdomain.toLowerCase().startsWith(full.toLowerCase());
-    }
-    get pinActive() {
-        return (getCookie('device') != "") && (this.usePin == 1);
     }
 }
