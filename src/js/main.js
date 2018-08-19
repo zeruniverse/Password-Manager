@@ -593,6 +593,7 @@ $(document).ready(function(){
             });
     });
     $('#navBtnLogout').on('click',function(){ backend.logout(); });
+    $('#navBtnUntrust').toggle(backend.pinActive);
     $('#navBtnUntrust').on('click',function(){ quitpwd_untrust(); });
     $('#navBtnExport').on('click',function(){ exportcsv(); });
     $('#navBtnActivity').on('click',function(){
