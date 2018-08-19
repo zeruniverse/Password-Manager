@@ -76,8 +76,9 @@ let AuthenticatedSession = (superclass) => class extends superclass {
         //Todo raise event
         localStorage.clear();
         var promises = [];
-        if (getCookie('device') != "") {
-            promises.push(self.doPost("deletepin", {user:getCookie('username'), device:getCookie('device')}));
+        var device = getCookie('device');
+        if ((device != null) && (device != "")) {
+            promises.push(self.doPost("deletepin", {'user': getCookie('username'), 'device': device}));
         }
         return Promise.all(promises)
             .then(function(){
@@ -203,10 +204,12 @@ let PinHandling = (superclass) => class extends superclass {
     getDevice() {
         var self = this;
         var device = getCookie('device');
-        if (device <= 0)
-            device = "";
-        if (device != "")
-            return Promise.resolve(device);
+        if (device != null) {
+            if (device <= 0)
+                device = "";
+            if (device != "")
+                return Promise.resolve(device);
+        }
         device =  self.encryptionWrapper.generatePassphrase(9);
         // check if this key is already used
         return self.doPost("getpinpk", { user:self.user, device: device, sig:'1'})
@@ -242,15 +245,17 @@ let PinHandling = (superclass) => class extends superclass {
     }
     delPin() {
         var self = this;
-        if(getCookie('device') != "") {
-            return self.doPost("deletepin", {user:getCookie('username'), device:getCookie('device')})
+        var device = getCookie('device');
+        if((device != null) && (device != "")) {
+            return self.doPost("deletepin", {'user': getCookie('username'), 'device': device})
                 .then(function(msg){
                     self.delLocalPinStore();
                 });
         }
     }
     get pinActive() {
-        return (getCookie('device') != "") && (this.usePin == 1);
+        var device = getCookie('device');
+        return ((device != null) && (device != "")) && (this.usePin != 0);
     }
 }
 
