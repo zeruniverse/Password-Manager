@@ -172,8 +172,24 @@ let Accounts = (superclass) => class extends superclass {
             return Promise.reject("Account name can't be empty");
         }
         var account = this.accounts[id];
-        return account.setAccountName(name)
-            .then(function(){;
+        var oldData = { "name": account.accountName,
+                        "other": account.other};
+        var prepareOldDataPromise;
+        if (newpwd != "") {
+            //ToDo: Promise
+            var prepareOldDataPromise = account.getPassword()
+                .then(function(pwd) {
+                    oldData["password"] = pwd;
+                });
+        }
+        else {
+            var prepareOldDataPromise = Promise.resolve();
+        }
+        return prepareOldDataPromise
+            .then(function() {
+                return account.setAccountName(name)
+            })
+            .then(function() {
                 account.clearVisibleOther();
                 for (let x in other) {
                     account.setOther(x, other[x]);
@@ -184,11 +200,13 @@ let Accounts = (superclass) => class extends superclass {
                 }
                 return Promise.all(promises)
             })
-            .then(function(){
-                callPlugins("updateAccountPreSend", {"account":account, "name":name, "newPassword":newpwd, "other":other});
+            .then(function() {
+                return callPlugins("updateAccountPreSend", {"account":account, "name":name, "newPassword":newpwd, "other":other, "oldData": oldData});
+            })
+            .then(function() {
                 return account.getEncrypted();
             })
-            .then(function(encAccount){
+            .then(function(encAccount) {
                 return self.doPost("change", encAccount);
             });
     }
