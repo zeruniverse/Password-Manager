@@ -22,7 +22,7 @@ $(function(){
                     alert("Length of username should be at least " + backend.minNameLength + " characters!"); 
                 }
                 else {
-                    alert(msg["message"]);
+                    alert(msg);
                 }
             })
             .then(function(){
