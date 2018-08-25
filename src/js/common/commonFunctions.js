@@ -85,13 +85,14 @@ function getCookie(cname) {
             return c.substring(name.length, c.length);
         }
     }
-    return "-1";
+    return null;
 }
 function setCookie(cname, cvalue) {
     document.cookie = cname + "=" + cvalue + ";path=/ ";
 }
 function deleteCookie(name) {
-   document.cookie = name + "=;expires=" + (new Date(0)).toGMTString();
+    setCookie(name, "");
+    document.cookie = name + "=;expires=" + (new Date(0)).toGMTString();
 }
 
 function sanitize_json(s){
