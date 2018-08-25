@@ -1,10 +1,25 @@
 //Plugin that stores the password history for this account
 
+function passwordHistoryDetailsClicked(data) {
+    $("#passwordHistoryDetails").text('');
+    var i = 0;
+    for (let item of data["history"]) {
+        i+=1;
+        let text = str(i) + ". ";
+        if ("setTime" in item) {
+            text += "Since " + item["setTime"] + ": ";
+        }
+        text += item["password"];
+
+        let text = document.createTextNode(item);
+        $("#passwordHistoryDetails").append(text);
+    }
+}
+
 registerPlugin("showDetails", function(data){
-    // just an example from password age
     let account = data["account"];
-    if ("_system_passwordLastChangeTime" in account.availableOthers) {
-        data["out"].append('<br />').append($('<p>').addClass('textred').text('Password last changed at ' + timeConverter(account.getOther("_system_passwordLastChangeTime"))));
+    if ("_passwordHistory" in account.availableOthers) {
+        data["out"].append('<br />').append($('<p>').attr('id','passwordHistoryDetails').text('show password history').on('click', passwordHistoryDetailsClicked, {"history": account.other["_passwordHistory"]}));
     }
 });
 registerPlugin("updateAccountPreSend", function(data){
