@@ -1,25 +1,23 @@
 //Plugin that stores the password history for this account
 
-function passwordHistoryDetailsClicked(data) {
-    $("#passwordHistoryDetails").text('');
-    var i = 0;
-    for (let item of data["history"]) {
-        i+=1;
-        let text = str(i) + ". ";
+function passwordHistoryDetailsClicked(event) {
+    $("#passwordHistoryDetails").empty();
+    var list = $("<ol></ol>");
+    for (let item of event.data.history) {
+        let text = "";
         if ("setTime" in item) {
-            text += "Since " + item["setTime"] + ": ";
+            text += "Since " + timeConverter(item["setTime"]) + ": ";
         }
         text += item["password"];
-
-        let text = document.createTextNode(item);
-        $("#passwordHistoryDetails").append(text);
+        list.append($('<li></li>').text(text));
     }
+    $("#passwordHistoryDetails").append(list);
 }
 
 registerPlugin("showDetails", function(data){
     let account = data["account"];
-    if ("_passwordHistory" in account.availableOthers) {
-        data["out"].append('<br />').append($('<p>').attr('id','passwordHistoryDetails').text('show password history').on('click', passwordHistoryDetailsClicked, {"history": account.other["_passwordHistory"]}));
+    if ("_passwordHistory" in account.other) {
+        data["out"].append('<br />').append($('<p>').attr('id','passwordHistoryDetails').append($('<a>').text('show password history').on('click', {"history": account.other["_passwordHistory"]}, passwordHistoryDetailsClicked)));
     }
 });
 registerPlugin("updateAccountPreSend", function(data){
