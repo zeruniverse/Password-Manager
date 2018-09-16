@@ -43,7 +43,7 @@ function sqlquery($sql, $link)
 }
 function checksession($link, $refreshTimeout = true)
 {
-    global $SERVER_TIMEOUT, $SERVER_SOFT_TIMEOUT, $SERVER_HARD_TIMEOUT, $HOSTDOMAIN;
+    global $SERVER_TIMEOUT, $SERVER_SOFT_TIMEOUT, $HOSTDOMAIN;
     session_start();
     if (!isset($_SESSION['loginok']) || $_SESSION['loginok'] != 1) {
         invalidateSession();
@@ -68,11 +68,6 @@ function checksession($link, $refreshTimeout = true)
         return false;
     }
     if ($_SESSION['refresh_time'] + $SERVER_SOFT_TIMEOUT < time() ) {
-        invalidateSession();
-
-        return false;
-    }
-    if ($_SESSION['create_time'] + $SERVER_HARD_TIMEOUT < time() ) {
         invalidateSession();
 
         return false;

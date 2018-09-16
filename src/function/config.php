@@ -77,9 +77,6 @@ $SERVER_TIMEOUT = 1200; //seconds
 $SERVER_SOFT_TIMEOUT = 360; //seconds
 //Logout after x seconds of no interaction with server
 
-$SERVER_HARD_TIMEOUT = 1200; //seconds
-//Logout when x seconds after login have passed no matter what happened
-
 //SALT For Encryption
 //Don't change this section after you start using password-manager. Or you can't decrypt your password!
 //DON'T USE '\', IT CAN CAUSE PROBLEMS FOR BACKUP
