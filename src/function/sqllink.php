@@ -41,29 +41,39 @@ function sqlquery($sql, $link)
 {
     return $link->query($sql);
 }
-function checksession($link)
+function checksession($link, $refreshTimeout = true)
 {
     global $SERVER_TIMEOUT, $HOSTDOMAIN;
     session_start();
     if (!isset($_SESSION['loginok']) || $_SESSION['loginok'] != 1) {
-        logout();
+        invalidateSession();
 
         return false;
     }
     if (isset($_SERVER['HTTP_REFERER']) && ($_SERVER['HTTP_REFERER'] != '') && (strpos(strtolower($_SERVER['HTTP_REFERER']), strtolower($HOSTDOMAIN)) !== 0)) {
         //Users from other sites are banned
-        logout();
+        invalidateSession();
 
         return false;
     }
     if (($_SERVER['REQUEST_METHOD'] == 'POST') && ($_POST['session_token'] !== $_SESSION['session_token'])) {
         //Must check session_token to prevent cross-site attack
-        logout();
+        invalidateSession();
 
         return false;
     }
     if (!$link || !isset($_SESSION['create_time']) || $_SESSION['create_time'] + $SERVER_TIMEOUT < time()) {
-        logout();
+        invalidateSession();
+
+        return false;
+    }
+    if ($_SESSION['refresh_time'] + $SERVER_SOFT_TIMEOUT < time() ) {
+        invalidateSession();
+
+        return false;
+    }
+    if ($_SESSION['create_time'] + $SERVER_HARD_TIMEOUT < time() ) {
+        invalidateSession();
 
         return false;
     }
@@ -71,7 +81,7 @@ function checksession($link)
     $pw = $_SESSION['pwd'];
     $id = $_SESSION['userid'];
     if ($usr == '' || $pw == '' || $id == '') {
-        logout();
+        invalidateSession();
 
         return false;
     }
@@ -79,23 +89,23 @@ function checksession($link)
     $res = sqlexec($sql, [$usr, $pw, $id], $link);
     $record = $res->fetch(PDO::FETCH_ASSOC);
     if (!$record) {
-        logout();
+        invalidateSession();
 
         return false;
     }
-    $_SESSION['create_time'] = time(); //Todo name this refresh time and create an absolute timeout
-    setcookie('ServerRenew', '1', 0, '/');
+    if ($refreshTimeout) {
+        $_SESSION['refresh_time'] = time();
+    }
 
     return true;
 }
-function logout()
+function invalidateSession()
 {
     foreach ($_SESSION as $key => $value) {
         unset($_SESSION[$key]);
     }
     session_regenerate_id(true); //as suggested by owasp, change sessionId when changing context
     session_destroy();
-    setcookie('ServerRenew', '-1', 0, '/');
 }
 $currentCookieParams = session_get_cookie_params();
 session_set_cookie_params(0, $currentCookieParams['path'], $currentCookieParams['domain'], (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443, true);
