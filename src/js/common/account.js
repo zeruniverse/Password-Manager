@@ -20,7 +20,7 @@ class Account {
                     //decrypt and extract json
                     resultPromise = encryptionWrapper.decryptChar(encryptedAccount["additional"])
                         .then(function(additional) {
-                            let data = $.parseJSON(additional);
+                            let data = JSON.parse(additional);
                             for (var x in data)
                                 account.setOther(x, data[x]);
                             return account;
