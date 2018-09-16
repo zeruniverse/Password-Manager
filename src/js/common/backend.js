@@ -114,7 +114,7 @@ let Timeout = (superclass) => class extends superclass {
             this.clearTimeout();
         }
     }
-    sessionCountdown() {
+    checkSession() {
         var self = this;
         this.doPost('sessionAlive')
             .catch(function() {
@@ -124,7 +124,7 @@ let Timeout = (superclass) => class extends superclass {
     }
     initTimeout() {
         this.countdownInterval = setInterval(this.clientCountdown.bind(this), 5000);
-        this.sessionCountdownInterval = setInterval(this.sessionCountdown.bind(this), 5000);
+        this.sessionCountdownInterval = setInterval(this.checkSession.bind(this), 5000);
     }
     clearTimeout() {
         clearInterval(this.sessionCountdownInterval);
