@@ -2,7 +2,7 @@
 
 require_once 'function/sqllink.php';
 session_start();
-logout();
+invalidateSession();
 $reason = '';
 if (isset($_GET['reason'])) {
     $reason .= '?reason='.urlencode($_GET['reason']);
