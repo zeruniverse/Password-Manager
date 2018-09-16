@@ -4,7 +4,7 @@ $VERSION = '10.00';
 require_once dirname(__FILE__).'/config.php';
 function sqllink()
 {
-    global $DB_HOST,$DB_NAME,$DB_USER,$DB_PASSWORD;
+    global $DB_HOST, $DB_NAME, $DB_USER, $DB_PASSWORD;
     $dbhost = $DB_HOST;
     $dbname = $DB_NAME;
     $dbusr = $DB_USER;
@@ -43,7 +43,7 @@ function sqlquery($sql, $link)
 }
 function checksession($link, $refreshTimeout = true)
 {
-    global $SERVER_TIMEOUT, $HOSTDOMAIN;
+    global $SERVER_TIMEOUT, $SERVER_SOFT_TIMEOUT, $SERVER_HARD_TIMEOUT, $HOSTDOMAIN;
     session_start();
     if (!isset($_SESSION['loginok']) || $_SESSION['loginok'] != 1) {
         invalidateSession();
