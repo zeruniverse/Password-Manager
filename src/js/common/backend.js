@@ -15,9 +15,23 @@ class commonBackend {
     doPost(endpoint, data) {
         data = data || {};
         var endpointDomain = this.domain || "";
-        return $.post(endpointDomain + "rest/" + endpoint + ".php", data)
-            .then(function(msg) {
-                return commonBackend.checkResult(msg);
+        var body = new FormData();
+        for (let key in data) {
+            body.append(key, data[key]);
+        }
+        var request = new Request(endpointDomain + "rest/" + endpoint + ".php", {
+            method: 'post',
+            cache: 'no-cache',
+            credentials: 'same-origin',
+            body: body
+        });
+        return fetch(request)
+            .then(function(response) {
+                if (!response.ok || response.headers.get("Content-Type") != "application/json") {
+                    return Promise.reject(response);
+                }
+                return response.json()
+                    .then(commonBackend.checkApplicationResult);
             });
     }
     get sessionToken() {
@@ -26,7 +40,7 @@ class commonBackend {
         }
         return localStorage.session_token;
     }
-    static checkResult(msg) {
+    static checkApplicationResult(msg) {
         if(msg["status"] != "success") {
             throw(msg["message"]);
         }
@@ -381,7 +395,7 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
             });
     }
     prepareFields(fields) {
-        this.fields = $.parseJSON(fields);
+        this.fields = JSON.parse(fields);
         for (let x in this.fields) {
             this.fields[x]["count"] = 0;
         }
