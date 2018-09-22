@@ -67,7 +67,7 @@ function checksession($link, $refreshTimeout = true)
 
         return false;
     }
-    if ($_SESSION['refresh_time'] + $SERVER_SOFT_TIMEOUT < time() ) {
+    if ($_SESSION['refresh_time'] + $SERVER_SOFT_TIMEOUT < time()) {
         invalidateSession();
 
         return false;
