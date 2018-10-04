@@ -28,6 +28,16 @@ $(function(){
     $("#usepin").on("hidden.bs.modal", function () {
         $("#user").focus();
     });
+    $('#loginPasswordToggle').on('click', function(e){
+        if ($('#pwd').attr('type') == 'text') {
+            $('#pwd').attr('type', 'password');
+        }
+        else {
+            $('#pwd').attr('type', 'text');
+        }
+        $('#loginPasswordToggleIcon').toggleClass('glyphicon-eye-open');
+        $('#loginPasswordToggleIcon').toggleClass('glyphicon-eye-close');
+    });
     $("#pinloginform").on('submit',function(e){
         e.preventDefault();
         $("#pinerrorhint").hide();

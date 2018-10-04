@@ -52,7 +52,7 @@ a { cursor:pointer; }
     font-size: 16px; 
     height: auto;
 }
-#loginform #pwd {
+#loginform .login-password {
     margin-bottom: 10px; 
     border-top-left-radius: 0; 
     border-top-right-radius: 0;
