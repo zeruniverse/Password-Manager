@@ -401,15 +401,29 @@ $(document).ready(function(){
     });
     $("#editAccountShowPassword").click(function(){
         $("#editAccountShowPassword").popover('hide');
-        var id = parseInt($("#edit").data('id'));
-        backend.accounts[id].getPassword()
-            .then(function(pwd){
-                $("#edititeminputpw").val(pwd);
-                $("#editAccountShowPassword").addClass("collapse");
-            })
-            .catch(function(){
-                $("#edititeminputpw").val("Oops, some error occurs!");
-            });
+        if ($("#edititeminputpw").val() == "") {
+            var id = parseInt($("#edit").data('id'));
+            backend.accounts[id].getPassword()
+                .then(function(pwd){
+                    $("#edititeminputpw").attr("type", "text");
+                    $("#edititeminputpw").val(pwd);
+                    $("#editAccountShowPassword > i").removeClass("glyphicon-eye-open");
+                    $("#editAccountShowPassword > i").addClass("glyphicon-eye-close");
+                })
+                .catch(function(){
+                    $("#edititeminputpw").val("Oops, some error occurs!");
+                });
+        }
+        else {
+            if ($("#edititeminputpw").attr("type") == "password") {
+                $("#edititeminputpw").attr("type", "text");
+            }
+            else {
+                $("#edititeminputpw").attr("type", "password");
+            }
+            $("#editAccountShowPassword > i").toggleClass("glyphicon-eye-open");
+            $("#editAccountShowPassword > i").toggleClass("glyphicon-eye-close");
+        }
     });
     $("#delbtn").click(function(){
         delepw($("#edit").data('id'));
@@ -551,10 +565,13 @@ $(document).ready(function(){
     });
     $('#edit').on('shown.bs.modal', function () {
         var id = $("#edit").data('id');
-        $("#editAccountShowPassword").removeClass("collapse");
         $("#edititeminput").val(backend.accounts[id].accountName);
         $("#edititeminputpw").attr('placeholder',"Hidden");
         $("#edititeminputpw").val('');
+        $("#edititeminputpw").attr('type', "password");
+        $("#editAccountShowPassword > i").removeClass("glyphicon-eye-close");
+        $("#editAccountShowPassword > i").addClass("glyphicon-eye-open");
+        $("#editAccountShowPassword").removeClass("collapse");
         for (let x in backend.fields){
             $("#edititeminput"+x).val(backend.accounts[id].getOther(x));
         }
