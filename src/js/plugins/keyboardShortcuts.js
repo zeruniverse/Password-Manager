@@ -44,7 +44,7 @@ registerPlugin("layoutReady", function(data){
                             .append($('<div class="modal-header"><h4>Keyboard Shortcuts</h4></div>'))
                             .append($('<div class="modal-body"></div>')
                                 .append(list))
-                            .append($('<div class="modal-footer"> <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button> <button type="button" class="btn btn-primary" id="newbtn">Add</button> </div>'))
+                            .append($('<div class="modal-footer"> <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> </div>'))
                         )
                     );
     $( "body" ).append(modal);
