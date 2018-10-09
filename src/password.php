@@ -38,7 +38,7 @@ echoheader();
         </div>
         <div id="navbar" class="collapse navbar-collapse navbar-left">
           <ul class="nav navbar-nav" id="nav_links">
-            <li id="nav-add"><a href="" data-toggle="modal" data-target="#add">Add Entry</a></li>
+            <li id="nav-add"><a href="" data-toggle="modal" data-target="#edit">Add Entry</a></li>
             <li id="nav-pin"><a href="" data-toggle="modal" data-target="#pin">Set PIN</a></li>
             <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Settings<span class="caret"></span></a>
@@ -78,32 +78,6 @@ echoheader();
     <tbody></tbody>
     </table> 
     <hr />
-    </div>
-</div>
-<div class="modal" tabindex="-1" role="dialog" id="add">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4>Add a new account</h4>
-            </div>
-            <div class="modal-body">
-            <form method="post">
-                <div class="form-group">
-                    <label for="newiteminput" class="control-label">Account (Item)</label>
-                    <input class="form-control" id="newiteminput" type="text" />
-                </div>
-                <div class="form-group">
-                    <label for="newiteminputpw" class="control-label">Password</label>
-                    <input class="form-control passwordText" id="newiteminputpw" type="password" autocomplete="off" placeholder="Leave blank to generate one"/>
-                </div>
-            </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
-                <button type="button" class="btn btn-primary" id="newbtn">Add</button>
-            </div>
-        </div>
     </div>
 </div>
 <div class="modal" tabindex="-1" role="dialog" id="backuppw">
@@ -168,12 +142,13 @@ echoheader();
         </div>
     </div>
 </div>
-<div class="modal" tabindex="-1" role="dialog" id="edit" data-id="">
+<div class="modal" tabindex="-1" role="dialog" id="edit" data-id="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4>Edit account information</h4>
+                <h4 class="editOnly">Edit account information</h4>
+                <h4 class="addOnly">Add a new account</h4>
             </div>
             <div class="modal-body">
             <form method="post">
@@ -194,7 +169,7 @@ echoheader();
             </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" id="delbtn">Delete</button>
+                <button type="button" class="btn btn-danger editOnly" id="delbtn">Delete</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
                 <button type="button" class="btn btn-primary" id="editbtn">Save</button>
             </div>
