@@ -134,33 +134,30 @@ function initFields(fields) {
                         .attr('class', x + 'cell' + fields[x]["cls"] + ' field')
                         .text(fields[x]["colname"]);
         var forms = {};
-        for (var val of ['new', 'edit']){
-            var input;
-            var inputtype = "text";
-            if ("type" in fields[x])
-                inputtype = fields[x]["type"];
-            if (inputtype == "textarea")
-                input = $('<textarea>');
-            else
-                input = $('<input>').attr('type', inputtype);
-            input.attr('class', 'form-control')
-                .attr('id', val + 'iteminput' + x)
-                .attr('placeholder', fields[x]["hint"]);
-            var form = $('<div>').attr('class', 'form-group field')
-                .append($('<label>')
-                    .attr('for', val + 'iteminput' + x)
-                    .attr('class', 'control-label').text(fields[x]["colname"]))
-                .append(input);
-            forms[val] = form;
-        }
+        var val = "edit";
+        var input;
+        var inputtype = "text";
+        if ("type" in fields[x])
+            inputtype = fields[x]["type"];
+        if (inputtype == "textarea")
+            input = $('<textarea>');
+        else
+            input = $('<input>').attr('type', inputtype);
+        input.attr('class', 'form-control')
+            .attr('id', val + 'iteminput' + x)
+            .attr('placeholder', fields[x]["hint"]);
+        var form = $('<div>').attr('class', 'form-group field')
+            .append($('<label>')
+                .attr('for', val + 'iteminput' + x)
+                .attr('class', 'control-label').text(fields[x]["colname"]))
+            .append(input);
+        forms[val] = form;
         if (("position" in fields[x]) && (fields[x]["position"] != 0)) {
             $('#pwdlist > thead > tr:first > th:nth-child(' + fields[x]["position"] + ')').after(header)
-            $("#add").find('form > .form-group:nth-child(' + fields[x]["position"] + ')').after(forms["new"]);
             $("#edit").find('form > .form-group:nth-child(' + fields[x]["position"] + ')').after(forms["edit"]);
         }
         else {
             $("#pwdlist > thead > tr:first").append(header);
-            $("#add").find("form").append(forms["new"]);
             $("#edit").find("form").append(forms["edit"]);
         }
         callPlugins("readField", {"field":fields[x]});
@@ -306,66 +303,45 @@ $(document).ready(function(){
                 }
             });
     });
-    $("#newbtn").click(function(){
-        if($("#newiteminput").val() == "") {
-            showMessage("warning", "Account entry can't be empty!", true);
-            return;
-        }
-        $("#newbtn").attr("disabled",true);
-        $("#newiteminput").attr("readonly",true);
-        $("#newiteminputpw").attr("readonly",true);
-        for (let x in backend.fields)
-            $("#newiteminput"+x).attr("readonly",true);
-        var newpwd;
-        var name = $("#newiteminput").val();
-        if($("#newiteminputpw").val() != '')
-            newpwd = $("#newiteminputpw").val();
-        else
-            newpwd = backend.encryptionWrapper.generatePassphrase(backend.default_length);
-        var other = {};
-        for (let x in backend.fields)
-            other[x] = $("#newiteminput"+x).val().trim();
-        backend.addAccount(name, newpwd, other) //do check for empty name again
-            .then(function() {
-                showMessage('success', "Add " + name + " successfully!");
-                $('#add').modal('hide');
-                reloadAccounts();
-            })
-            .catch(function(){
-                showMessage('warning',"Fail to add " + name + ", please try again.", true);
-            })
-            .then(function(){
-                $("#newiteminput").attr("readonly",false);
-                $("#newbtn").attr("disabled",false);
-                $("#newiteminputpw").attr("readonly",false);
-                for (let x in backend.fields)
-                    $("#newiteminput"+x).attr("readonly",false);
-            });
-    });
     $("#editbtn").click(function(){
+        // validate input
         if($("#edititeminput").val() == "") {
             showMessage('warning',"Account entry can't be empty!", true);
             return;
         }
+
+        // lock form
         $("#editbtn").attr("disabled",true);
         $("#edititeminput").attr("readonly",true);
         $("#edititeminputpw").attr("readonly",true);
         for (let x in backend.fields)
             $("#edititeminput"+x).attr("readonly",true);
-        var id = $("#edit").data('id');
+
+        // gather data
+        var id = parseInt($("#edit").data('id'));
         var name = $("#edititeminput").val();
         var newpwd = $("#edititeminputpw").val();
         var other = {};
         for (let x in backend.fields)
             other[x] = $("#edititeminput"+x).val().trim();
-        backend.updateAccount(id, name, newpwd, other)
-            .then(function(){
-                    showMessage('success',"Data for " + name + " updated!");
-                    $('#edit').modal('hide');
-                    reloadAccounts();
+
+        // send to backend
+        var result;
+        if (id == -1) {
+            result = backend.addAccount(name, newpwd, other);
+        }
+        else {
+            result = backend.updateAccount(id, name, newpwd, other);
+        }
+        result.then(function(){
+                showMessage('success',"Account " + name + " saved!");
+                $('#edit').data('id','-1');
+                $('#edit').modal('hide');
+                $("#edititeminputpw").val('');
+                reloadAccounts();
             })
             .catch(function(){
-                    showMessage('warning',"Fail to update data for " + name + ", please try again.", true);
+                showMessage('warning',"Fail to store data for " + name + ", please try again.", true);
             })
             .then(function(){
                 $("#edititeminput").attr("readonly",false);
@@ -402,17 +378,19 @@ $(document).ready(function(){
     $("#editAccountShowPassword").click(function(){
         $("#editAccountShowPassword").popover('hide');
         if ($("#edititeminputpw").val() == "") {
+            $("#edititeminputpw").attr("type", "text");
             var id = parseInt($("#edit").data('id'));
-            backend.accounts[id].getPassword()
-                .then(function(pwd){
-                    $("#edititeminputpw").attr("type", "text");
-                    $("#edititeminputpw").val(pwd);
-                    $("#editAccountShowPassword > i").removeClass("glyphicon-eye-open");
-                    $("#editAccountShowPassword > i").addClass("glyphicon-eye-close");
-                })
-                .catch(function(){
-                    $("#edititeminputpw").val("Oops, some error occurs!");
-                });
+            $("#editAccountShowPassword > i").removeClass("glyphicon-eye-open");
+            $("#editAccountShowPassword > i").addClass("glyphicon-eye-close");
+            if (id > -1) {
+                backend.accounts[id].getPassword()
+                    .then(function(pwd) {
+                        $("#edititeminputpw").val(pwd);
+                    })
+                    .catch(function() {
+                        $("#edititeminputpw").val("Oops, some error occurs!");
+                    });
+            }
         }
         else {
             if ($("#edititeminputpw").attr("type") == "password") {
@@ -560,22 +538,29 @@ $(document).ready(function(){
         setTimeout(process,10);
     });
 
-    $('#add').on('show.bs.modal', function () {
-        $(this).find('form')[0].reset();
-    });
     $('#edit').on('shown.bs.modal', function () {
-        var id = $("#edit").data('id');
-        $("#edititeminput").val(backend.accounts[id].accountName);
-        $("#edititeminputpw").attr('placeholder',"Hidden");
+        var id = parseInt($("#edit").data('id'));
+        $('#edit').toggleClass('editOnly', id > -1);
+        $('#edit').toggleClass('addOnly', id == -1);
+        if (id == -1) {
+            $("#edititeminputpw").attr('placeholder',"Leave blank to generate one");
+        }
+        else {
+            $("#edititeminputpw").attr('placeholder',"Hidden");
+        }
         $("#edititeminputpw").val('');
         $("#edititeminputpw").attr('type', "password");
         $("#editAccountShowPassword > i").removeClass("glyphicon-eye-close");
         $("#editAccountShowPassword > i").addClass("glyphicon-eye-open");
-        $("#editAccountShowPassword").removeClass("collapse");
-        for (let x in backend.fields){
-            $("#edititeminput"+x).val(backend.accounts[id].getOther(x));
+        //$("#editAccountShowPassword").removeClass("collapse");
+        // handle existing accounts
+        if (id > -1) {
+            $("#edititeminput").val(backend.accounts[id].accountName);
+            for (let x in backend.fields){
+                $("#edititeminput"+x).val(backend.accounts[id].getOther(x));
+            }
+            callPlugins("editAccountDialog",{"account": backend.accounts[id]});
         }
-        callPlugins("editAccountDialog",{"account": backend.accounts[id]});
     });
     $('#edit').on('hide.bs.modal', function() {
         $(".popover").popover('hide');
