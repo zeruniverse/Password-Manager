@@ -337,7 +337,7 @@ $(document).ready(function(){
                 showMessage('success',"Account " + name + " saved!");
                 $('#edit').data('id','-1');
                 $('#edit').modal('hide');
-                $("#edititeminputpw").val('');
+                $('#edit').find('form')[0].reset();
                 reloadAccounts();
             })
             .catch(function(){
@@ -539,20 +539,20 @@ $(document).ready(function(){
     });
 
     $('#edit').on('shown.bs.modal', function () {
-        var id = parseInt($("#edit").data('id'));
-        $('#edit').toggleClass('editOnly', id > -1);
-        $('#edit').toggleClass('addOnly', id == -1);
-        if (id == -1) {
-            $("#edititeminputpw").attr('placeholder',"Leave blank to generate one");
+        $(this).find('form')[0].reset();
+        var id = parseInt($(this).data('id'));
+        $(this).toggleClass('editOnly', id > -1);
+        $(this).toggleClass('addOnly', id == -1);
+        if (id > -1) {
+            $("#edititeminputpw").attr('placeholder',"Hidden");
         }
         else {
-            $("#edititeminputpw").attr('placeholder',"Hidden");
+            $("#edititeminputpw").attr('placeholder',"Leave blank to generate one");
         }
         $("#edititeminputpw").val('');
         $("#edititeminputpw").attr('type', "password");
         $("#editAccountShowPassword > i").removeClass("glyphicon-eye-close");
         $("#editAccountShowPassword > i").addClass("glyphicon-eye-open");
-        //$("#editAccountShowPassword").removeClass("collapse");
         // handle existing accounts
         if (id > -1) {
             $("#edititeminput").val(backend.accounts[id].accountName);
@@ -564,6 +564,7 @@ $(document).ready(function(){
     });
     $('#edit').on('hide.bs.modal', function() {
         $(".popover").popover('hide');
+        $(this).data('id', -1);
     });
     $('#editPasswordInput').on('click', function() {
         $('#edititeminputpw').val(backend.encryptionWrapper.generatePassphrase(backend.default_length));
