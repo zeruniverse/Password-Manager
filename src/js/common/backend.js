@@ -168,7 +168,7 @@ let Accounts = (superclass) => class extends superclass {
             return Promise.reject("Account name can't be empty");
         }
         if (pwd == "") {
-            newpwd = this.encryptionWrapper.generatePassphrase(this.default_length);
+            pwd = this.encryptionWrapper.generatePassphrase(this.default_length);
         }
         let account = new Account(null, name, "");
         return account.setEncryptionWrapper(self.encryptionWrapper)
