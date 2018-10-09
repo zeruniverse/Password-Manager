@@ -107,3 +107,5 @@ a { cursor:pointer; }
 .passwordText {
     font-family: "passwordshow"
 }
+#edit.addOnly .editOnly { display:None; }
+#edit.editOnly .addOnly { display:None; }
