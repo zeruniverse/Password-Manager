@@ -170,7 +170,7 @@ echoheader();
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger editOnly" id="delbtn">Delete</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
+                <button type="button" class="btn btn-default" id="editDismiss" data-dismiss="modal">Dismiss</button>
                 <button type="button" class="btn btn-primary" id="editbtn">Save</button>
             </div>
         </div>

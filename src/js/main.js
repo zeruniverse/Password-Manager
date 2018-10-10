@@ -376,7 +376,7 @@ $(document).ready(function(){
             });
     });
     $("#editAccountShowPassword").click(function(){
-        $("#editAccountShowPassword").popover('hide');
+        $("#editDismiss").popover('hide');
         if ($("#edititeminputpw").val() == "") {
             $("#edititeminputpw").attr("type", "text");
             var id = parseInt($("#edit").data('id'));
@@ -569,7 +569,7 @@ $(document).ready(function(){
     $('#editPasswordInput').on('click', function() {
         $('#edititeminputpw').val(backend.encryptionWrapper.generatePassphrase(backend.default_length));
         $('#editAccountShowPassword').removeClass('collapse');
-        $('#editAccountShowPassword').popover({
+        $('#editDismiss').popover({
             'placement':'bottom',
             'title':'',
             'container':'body',
@@ -577,7 +577,7 @@ $(document).ready(function(){
             'trigger':'manual' })
             .on('shown.bs.popover', function(){
                 $('.popover').on('click',function(){
-                    $("#editAccountShowPassword").popover("hide");
+                    $("#editDismiss").popover("hide");
                 });
                 $('.popover-title').hide();
             })
