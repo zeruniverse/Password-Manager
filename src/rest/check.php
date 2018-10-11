@@ -86,6 +86,6 @@ $_SESSION['userid'] = $record['id'];
 $_SESSION['pwd'] = $record['password'];
 $_SESSION['fields'] = $record['fields'];
 $_SESSION['create_time'] = time();
-setcookie('ServerRenew', '1', 0, '/');
+$_SESSION['refresh_time'] = time();
 loghistory($link, (int) $record['id'], getUserIP(), $_SERVER['HTTP_USER_AGENT'], 1);
 ajaxSuccess();

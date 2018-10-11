@@ -74,6 +74,9 @@ $BROWSER_TIMEOUT = 360; //seconds
 $SERVER_TIMEOUT = 1200; //seconds
 //Automatically logout (at server side) after 1200s since login
 
+$SERVER_SOFT_TIMEOUT = 360; //seconds
+//Logout after x seconds of no interaction with server
+
 //SALT For Encryption
 //Don't change this section after you start using password-manager. Or you can't decrypt your password!
 //DON'T USE '\', IT CAN CAUSE PROBLEMS FOR BACKUP

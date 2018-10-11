@@ -122,25 +122,23 @@ let Timeout = (superclass) => class extends superclass {
             this.timeout = newTimeout;
         }
     }
-    countdown() {
+    clientCountdown() {
         if (this.isTimeout) {
             this.logout("Logged out due to inactivity");
             this.clearTimeout();
         }
     }
-    sessionCountdown() {
-        var ck = getCookie("ServerRenew");
-        if(ck == '1') // Reset timer
-            this.server_timeout  = this.default_server_timeout+Math.floor(Date.now() / 1000);
-        if(ck == "-1" || this.server_timeout < Math.floor(Date.now() / 1000)) { // Timer has expired
-            this.logout("Session timed out");
-            this.clearTimeout();
-        }
-        setCookie("ServerRenew", '0');// nothing happened
+    checkSession() {
+        var self = this;
+        this.doPost('sessionAlive')
+            .catch(function() {
+                self.logout("Session timed out");
+                self.clearTimeout();
+            });
     }
     initTimeout() {
-        this.countdownInterval = setInterval(this.countdown.bind(this), 5000);
-        this.sessionCountdownInterval = setInterval(this.sessionCountdown.bind(this), 5000);
+        this.countdownInterval = setInterval(this.clientCountdown.bind(this), 5000);
+        this.sessionCountdownInterval = setInterval(this.checkSession.bind(this), 5000);
     }
     clearTimeout() {
         clearInterval(this.sessionCountdownInterval);
