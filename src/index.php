@@ -18,8 +18,13 @@ echoheader();
             <div class="form-group">
                 <label for="user" class="control-label sr-only">User Name: </label>
                 <input type="text" class="form-control" placeholder="User Name" name="user" id="user" />
-                <label for="pwd" class="control-label sr-only">Password: </label>
-                <input type="password" autocomplete="off" class="form-control" placeholder="Password" name="pwd" id="pwd" />
+                <div class="input-group">
+                    <input class="form-control login-password" type="password" autocomplete="off" class="form-control" placeholder="Password" name="pwd" id="pwd" />
+                    <label for="pwd" class="control-label sr-only">Password: </label>
+                    <span class="input-group-btn">
+                        <button class="btn btn-default login-password" type="button" id="loginPasswordToggle" title="make password visible"><i class="glyphicon glyphicon-eye-open" id="loginPasswordToggleIcon"></i></button>
+                    </span>
+                </div>
             </div>
             <div class="form-group">
                 <input type="submit" class="btn btn-lg btn-success btn-block" id="chk"  value="Login" />
