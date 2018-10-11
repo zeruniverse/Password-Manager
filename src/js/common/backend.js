@@ -190,13 +190,13 @@ let Accounts = (superclass) => class extends superclass {
         var prepareOldDataPromise;
         if (newpwd != "") {
             //ToDo: Promise
-            var prepareOldDataPromise = account.getPassword()
+            prepareOldDataPromise = account.getPassword()
                 .then(function(pwd) {
                     oldData["password"] = pwd;
                 });
         }
         else {
-            var prepareOldDataPromise = Promise.resolve();
+            prepareOldDataPromise = Promise.resolve();
         }
         return prepareOldDataPromise
             .then(function() {
