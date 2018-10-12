@@ -161,7 +161,7 @@ echoheader();
                     <div class="input-group">
                         <input class="form-control passwordText" id="edititeminputpw" type="password" autocomplete="off" placeholder="Leave blank to generate a random password"/>
                         <span class="input-group-btn">
-                            <button id="editPasswordInput" class="btn btn-warning" type="button" title="Generate new password"><i class="glyphicon glyphicon-refresh"></i></button>
+                            <button id="editPasswordInput" class="btn btn-warning" type="button" title="Generate random password"><i class="glyphicon glyphicon-refresh"></i></button>
                             <button class="btn btn-default" type="button" id="editAccountShowPassword" title="Show current password"><i class="glyphicon glyphicon-eye-open"></i></button>
                         </span>
                     </div>
