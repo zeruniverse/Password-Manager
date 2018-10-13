@@ -9,7 +9,7 @@ $_SESSION['session_token'] = $token;
 $sidvalue = session_id();
 function getUserIP()
 {
-    if ($_SERVER['HTTP_X_FORWARDED_FOR']) {
+    if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
         return $_SERVER['HTTP_X_FORWARDED_FOR'];
     }
 
