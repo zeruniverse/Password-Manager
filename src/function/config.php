@@ -25,6 +25,17 @@ $HOSTDOMAIN = 'https://password-manager.example.com/';
 //Default timezone
 date_default_timezone_set('America/Los_Angeles');
 
+//SALT For Encryption
+//Don't change this section after you start using password-manager. Or you can't decrypt your password!
+//DON'T USE '\', IT CAN CAUSE PROBLEMS FOR BACKUP
+//DO NOT MAKE THEM SAME
+//salt 1 used to create sha512 of password (password signiture)
+$GLOBAL_SALT_1 = 'iunin19dnu9ismcj9IUNuia,cne9e389]{}{}[]*@key';
+//Only use salt 2 in client side
+$GLOBAL_SALT_2 = 'ncew8d7*(e8fyh2inc osd2)wefcsBIUsdfq2as;dqw[;[]]';
+//Only use salt 3 in server side
+$GLOBAL_SALT_3 = '*&Kjnskjnaucibiqb9298hv9sHIUWNiukJNIusfbic897*(^)';
+
 //********************************************************************
 //ADVANCED SETTINGS, STOP EDITING IF YOU DON'T KNOW WHAT YOU ARE DOING
 //********************************************************************
@@ -77,16 +88,6 @@ $SERVER_TIMEOUT = 1200; //seconds
 $SERVER_SOFT_TIMEOUT = 360; //seconds
 //Logout after x seconds of no interaction with server
 
-//SALT For Encryption
-//Don't change this section after you start using password-manager. Or you can't decrypt your password!
-//DON'T USE '\', IT CAN CAUSE PROBLEMS FOR BACKUP
-//DO NOT MAKE THEM SAME
-//salt 1 used to create sha512 of password (password signiture)
-$GLOBAL_SALT_1 = 'iunin19dnu9ismcj9IUNuia,cne9e389]{}{}[]*@key';
-//Only use salt 2 in client side
-$GLOBAL_SALT_2 = 'ncew8d7*(e8fyh2inc osd2)wefcsBIUsdfq2as;dqw[;[]]';
-//Only use salt 3 in server side
-$GLOBAL_SALT_3 = '*&Kjnskjnaucibiqb9298hv9sHIUWNiukJNIusfbic897*(^)';
 //Number of iterations for the password hashing
 $PBKDF2_ITERATIONS = 64000;
 
