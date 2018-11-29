@@ -16,7 +16,7 @@ registerPlugin("showDetails", function(data){
 });
 registerPlugin("layoutReady",function(data){
     $("label[for='edititeminputpw']").after($("<span>")
-            .attr("class","small")
+            .attr("class","small editOnly")
             .text(" last changed on ")
             .append($("<span>")
                 .attr("id","edititempasswordlastchanged")

@@ -158,10 +158,15 @@ let Timeout = (superclass) => class extends superclass {
 
 //mixin for accounts
 let Accounts = (superclass) => class extends superclass {
+    // create account with name, pwd and other
+    // if pwd is empty a random password is generated
     addAccount(name, pwd, other) {
         var self = this;
         if (name == "") {
             return Promise.reject("Account name can't be empty");
+        }
+        if (pwd == "") {
+            pwd = this.encryptionWrapper.generatePassphrase(this.default_length);
         }
         let account = new Account(null, name, "");
         return account.setEncryptionWrapper(self.encryptionWrapper)

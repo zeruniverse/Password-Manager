@@ -38,7 +38,7 @@ echoheader();
         </div>
         <div id="navbar" class="collapse navbar-collapse navbar-left">
           <ul class="nav navbar-nav" id="nav_links">
-            <li id="nav-add"><a href="" data-toggle="modal" data-target="#add">Add Entry</a></li>
+            <li id="nav-add"><a href="" data-toggle="modal" data-target="#edit">Add Entry</a></li>
             <li id="nav-pin"><a href="" data-toggle="modal" data-target="#pin">Set PIN</a></li>
             <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Settings<span class="caret"></span></a>
@@ -78,32 +78,6 @@ echoheader();
     <tbody></tbody>
     </table> 
     <hr />
-    </div>
-</div>
-<div class="modal" tabindex="-1" role="dialog" id="add">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4>Add a new account</h4>
-            </div>
-            <div class="modal-body">
-            <form method="post">
-                <div class="form-group">
-                    <label for="newiteminput" class="control-label">Account (Item):</label>
-                    <input class="form-control" id="newiteminput" type="text" />
-                </div>
-                <div class="form-group">
-                    <label for="newiteminputpw" class="control-label">Password:</label>
-                    <input class="form-control passwordText" id="newiteminputpw" type="text" autocomplete="off" placeholder="Leave blank to generate one"/>
-                </div>
-            </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
-                <button type="button" class="btn btn-primary" id="newbtn">Add</button>
-            </div>
-        </div>
     </div>
 </div>
 <div class="modal" tabindex="-1" role="dialog" id="backuppw">
@@ -168,34 +142,35 @@ echoheader();
         </div>
     </div>
 </div>
-<div class="modal" tabindex="-1" role="dialog" id="edit" data-id="">
+<div class="modal" tabindex="-1" role="dialog" id="edit" data-id="-1">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4>Edit account information</h4>
+                <h4 class="editOnly">Edit account information</h4>
+                <h4 class="addOnly">Add a new account</h4>
             </div>
             <div class="modal-body">
             <form method="post">
                 <div class="form-group">
-                    <label for="edititeminput" class="control-label">Account (Item):</label>
+                    <label for="edititeminput" class="control-label">Account (Item)</label>
                     <input class="form-control" id="edititeminput" type="text" />
                 </div>
                 <div class="form-group">
-                    <label for="edititeminputpw" class="control-label">Password:</label>
+                    <label for="edititeminputpw" class="control-label">Password</label>
                     <div class="input-group">
-                        <input class="form-control passwordText" id="edititeminputpw" type="text" autocomplete="off" placeholder="Leave blank to generate one"/>
+                        <input class="form-control passwordText" id="edititeminputpw" type="password" autocomplete="off" placeholder="Leave blank to generate a random password"/>
                         <span class="input-group-btn">
-                            <button id="editPasswordInput" class="btn btn-warning" type="button" title="generate new password"><i class="glyphicon glyphicon-refresh"></i></button>
-                            <button class="btn btn-default" type="button" id="editAccountShowPassword" title="show current password"><i class="glyphicon glyphicon-eye-open"></i></button>
+                            <button id="editPasswordInput" class="btn btn-warning" type="button" title="Generate random password"><i class="glyphicon glyphicon-refresh"></i></button>
+                            <button class="btn btn-default" type="button" id="editAccountShowPassword" title="Show current password"><i class="glyphicon glyphicon-eye-open"></i></button>
                         </span>
                     </div>
                 </div>
             </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" id="delbtn">Delete</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Dismiss</button>
+                <button type="button" class="btn btn-danger editOnly" id="delbtn">Delete</button>
+                <button type="button" class="btn btn-default" id="editDismiss" data-dismiss="modal">Dismiss</button>
                 <button type="button" class="btn btn-primary" id="editbtn">Save</button>
             </div>
         </div>
@@ -211,7 +186,7 @@ echoheader();
             <form id="pinloginform" method="post">
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="pinxx" class="control-label">PIN:</label>
+                        <label for="pinxx" class="control-label">PIN</label>
                         <input id="pinxx" autocomplete="off" class="form-control" type="password" />
                         <label class="small textred blocklabel">Only set PIN in your trusted devices!</label>
                         <label class="small blocklabel">PIN can be set on your trusted devices to give you convenience while login. If you set PIN, you can use PIN instead of username and password to login next time. PIN is safe, you only have 3 chances to input a PIN before it's disabled automatically.</label>
@@ -284,15 +259,15 @@ echoheader();
             <div class="modal-body">
                 <form method="post">
                     <div class="form-group">
-                        <label for="oldpassword" class="control-label">Old Password:</label>
+                        <label for="oldpassword" class="control-label">Old Password</label>
                         <input id="oldpassword" autocomplete="off" class="form-control" type="password" />
                     </div>
                     <div class="form-group">
-                        <label for="pwd" class="control-label">New Password:</label>
+                        <label for="pwd" class="control-label">New Password</label>
                         <input id="pwd" autocomplete="off" class="form-control" type="password" />
                     </div>
                     <div class="form-group">
-                        <label for="pwd1" class="control-label">New Password Again:</label>
+                        <label for="pwd1" class="control-label">New Password Again</label>
                         <input id="pwd1" autocomplete="off" class="form-control" type="password" />
                     </div>
                 </form>
