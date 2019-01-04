@@ -13,6 +13,7 @@ registerPlugin("drawAccount",function(data){
         row.find(".namecell .cellOptionButton:last").before($('<a>')
             .attr('title',"Open")
             .attr('class','cellOptionButton')
+            .attr('rel','noopener noreferrer')
             .attr('href',addHttps(account["other"]["url"])) 
             .append($('<span></span>')
                 .attr('class','glyphicon glyphicon-globe')));
