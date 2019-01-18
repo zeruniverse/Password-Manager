@@ -45,26 +45,26 @@ $GLOBAL_SALT_3 = '*&Kjnskjnaucibiqb9298hv9sHIUWNiukJNIusfbic897*(^)';
 $DEFAULT_FIELDS = json_encode([
     'url' => [
         'colname' => 'URL',
-        'hint' => '',
-        'cls' => ' hidden'
+        'hint'    => '',
+        'cls'     => ' hidden',
     ],
     'user' => [
-        'colname' => 'Username',
-        'hint' => '',
-        'cls' => ' hidden-xs',
-        'position' => '1'
+        'colname'  => 'Username',
+        'hint'     => '',
+        'cls'      => ' hidden-xs',
+        'position' => '1',
     ],
     'comment' => [
         'colname' => 'Comment',
-        'hint' => '',
-        'cls' => ' hidden',
-        'type' => ' textarea'
+        'hint'    => '',
+        'cls'     => ' hidden',
+        'type'    => ' textarea',
     ],
     'tags' => [
         'colname' => 'Tags',
-        'hint' => 'Comma separated values',
-        'cls' => ' hidden-xs'
-    ]
+        'hint'    => 'Comma separated values',
+        'cls'     => ' hidden-xs',
+    ],
 ]);
 
 //File upload feature

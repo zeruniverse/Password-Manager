@@ -37,7 +37,7 @@ while ($i = $res->fetch(PDO::FETCH_ASSOC)) {
             $accarray[(int) $i['index']]->kss,
             $accarray[(int) $i['index']]->other,
             $id,
-            (int) $i['index']
+            (int) $i['index'],
         ],
         $link
     );
@@ -56,7 +56,7 @@ while ($i = $res->fetch(PDO::FETCH_ASSOC)) {
         [
             $accarray[(int) $i['index']]->fk,
             $accarray[(int) $i['index']]->fname,
-            $id, (int) $i['index']
+            $id, (int) $i['index'],
         ],
         $link
     );
