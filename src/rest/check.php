@@ -71,7 +71,7 @@ if ((int) $count['m'] >= $BLOCK_ACCOUNT_TRY) {
 }
 
 $password = $record['password'];
-$hash_pbkdf2 = hash_pbkdf2('sha256', $pw, (string) $record['salt'], $PBKDF2_ITERATIONS)''
+$hash_pbkdf2 = hash_pbkdf2('sha256', $pw, (string) $record['salt'], $PBKDF2_ITERATIONS);
 if (strcmp((string) $password, (string) $hash_pbkdf2) != 0) {
     loghistory($link, (int) $record['id'], getUserIP(), $_SERVER['HTTP_USER_AGENT'], 0);
     $sql = 'SELECT count(*) as `m` FROM `history`
