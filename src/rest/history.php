@@ -21,7 +21,8 @@ while ($i = $res->fetch(PDO::FETCH_ASSOC)) {
 }
 $result['pins'] = $pins;
 
-$sql = 'SELECT `ip`,`ua`,`outcome`,UNIX_TIMESTAMP(`time`) AS `time` FROM `history` WHERE `userid`= ? ORDER BY `id` DESC LIMIT 60';
+$sql = 'SELECT `ip`,`ua`,`outcome`,UNIX_TIMESTAMP(`time`) AS `time` FROM `history` WHERE `userid`= ?
+    ORDER BY `id` DESC LIMIT 60';
 $res = sqlexec($sql, [$id], $link);
 $ips = [];
 while ($i = $res->fetch(PDO::FETCH_ASSOC)) {

@@ -62,16 +62,20 @@ if (!$record) {
     ajaxError('loginFailed');
 }
 
-$sql = 'SELECT count(*) as `m` FROM `history` WHERE `userid` = ? AND outcome = 0 AND UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`time`) < ?';
+$sql = 'SELECT count(*) as `m` FROM `history`
+    WHERE `userid` = ? AND outcome = 0 AND UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`time`) < ?';
 $res = sqlexec($sql, [(int) $record['id'], $ACCOUNT_BAN_TIME], $link);
 $count = $res->fetch(PDO::FETCH_ASSOC);
 if ((int) $count['m'] >= $BLOCK_ACCOUNT_TRY) {
     ajaxError('blockAccount');
 }
 
-if (strcmp((string) $record['password'], (string) hash_pbkdf2('sha256', $pw, (string) $record['salt'], $PBKDF2_ITERATIONS)) != 0) {
+$password = $record['password'];
+$hash_pbkdf2 = hash_pbkdf2('sha256', $pw, (string) $record['salt'], $PBKDF2_ITERATIONS)''
+if (strcmp((string) $password, (string) $hash_pbkdf2) != 0) {
     loghistory($link, (int) $record['id'], getUserIP(), $_SERVER['HTTP_USER_AGENT'], 0);
-    $sql = 'SELECT count(*) as `m` FROM `history` WHERE `ip` = ? AND outcome = 0 AND UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`time`) < ?';
+    $sql = 'SELECT count(*) as `m` FROM `history`
+        WHERE `ip` = ? AND outcome = 0 AND UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`time`) < ?';
     $res = sqlexec($sql, [getUserIP(), $BLOCK_IP_TIME], $link);
     $count = $res->fetch(PDO::FETCH_ASSOC);
     if ((int) $count['m'] >= $BLOCK_IP_TRY) {

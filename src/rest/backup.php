@@ -35,5 +35,12 @@ if ($_POST['a'] == 'farray') {
     }
     $farray = ['status' => 'OK', 'data' => $tmparr];
 }
-$ret = ['VERSION' => $VERSION, 'JSsalt' => $GLOBAL_SALT_1, 'PWsalt' => $GLOBAL_SALT_2, 'ALPHABET' => $DEFAULT_LETTER_USED, 'data' => $arr, 'fdata' => $farray];
+$ret = [
+    'VERSION' => $VERSION,
+    'JSsalt' => $GLOBAL_SALT_1,
+    'PWsalt' => $GLOBAL_SALT_2,
+    'ALPHABET' => $DEFAULT_LETTER_USED,
+    'data' => $arr,
+    'fdata' => $farray
+];
 ajaxSuccess($ret);
