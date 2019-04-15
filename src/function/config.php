@@ -19,7 +19,8 @@ $DB_PASSWORD = '';
 
 //Host Domain - Only Allow Visits to This Domain (i.e., the address inputed in users' browser).
 //Note: It must start with https://
-//This is to prevent cross-site attacks. If $HOSTDOMAIN is not the prefix of HTTP_REFERER string, an exception will be raised.
+//This is to prevent cross-site attacks. If $HOSTDOMAIN is not the prefix of HTTP_REFERER string,
+//an exception will be raised.
 $HOSTDOMAIN = 'https://password-manager.example.com/';
 
 //Default timezone
@@ -41,7 +42,30 @@ $GLOBAL_SALT_3 = '*&Kjnskjnaucibiqb9298hv9sHIUWNiukJNIusfbic897*(^)';
 //********************************************************************
 //DEFAULT fields
 //Don't include [passwordlastchangtime_01_system] field.
-$DEFAULT_FIELDS = '{"url":{"colname":"URL","hint":"","cls":" hidden"},"user":{"colname":"Username","hint":"","cls":" hidden-xs","position":1},"comment":{"colname":"Comment","hint":"","cls":" hidden","type":"textarea"},"tags":{"colname":"Tags","hint":"Comma separated values","cls":" hidden-xs"}}';
+$DEFAULT_FIELDS = json_encode([
+    'url' => [
+        'colname' => 'URL',
+        'hint'    => '',
+        'cls'     => ' hidden',
+    ],
+    'user' => [
+        'colname'  => 'Username',
+        'hint'     => '',
+        'cls'      => ' hidden-xs',
+        'position' => '1',
+    ],
+    'comment' => [
+        'colname' => 'Comment',
+        'hint'    => '',
+        'cls'     => ' hidden',
+        'type'    => ' textarea',
+    ],
+    'tags' => [
+        'colname' => 'Tags',
+        'hint'    => 'Comma separated values',
+        'cls'     => ' hidden-xs',
+    ],
+]);
 
 //File upload feature
 $FILE_ENABLED = true;

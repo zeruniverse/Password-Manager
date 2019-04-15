@@ -30,7 +30,17 @@ $sql = 'SELECT `index` FROM `password` WHERE `userid` = ?';
 $res = sqlexec($sql, [$id], $link);
 while ($i = $res->fetch(PDO::FETCH_ASSOC)) {
     $sql = 'UPDATE `password` SET `name` = ?, `pwd` = ?, `other` = ? WHERE `userid` = ? AND `index` = ?';
-    $resss = sqlexec($sql, [$accarray[(int) $i['index']]->name, $accarray[(int) $i['index']]->kss, $accarray[(int) $i['index']]->other, $id, (int) $i['index']], $link);
+    $resss = sqlexec(
+        $sql,
+        [
+            $accarray[(int) $i['index']]->name,
+            $accarray[(int) $i['index']]->kss,
+            $accarray[(int) $i['index']]->other,
+            $id,
+            (int) $i['index'],
+        ],
+        $link
+    );
     if ($resss == null) {
         $link->rollBack();
         ajaxError('general');
@@ -41,7 +51,15 @@ $sql = 'SELECT `index` FROM `files` WHERE `userid` = ?';
 $res = sqlexec($sql, [$id], $link);
 while ($i = $res->fetch(PDO::FETCH_ASSOC)) {
     $sql = 'UPDATE `files` SET `key` = ?, `fname` = ? WHERE `userid` = ? AND `index` = ?';
-    $resss = sqlexec($sql, [$accarray[(int) $i['index']]->fk, $accarray[(int) $i['index']]->fname, $id, (int) $i['index']], $link);
+    $resss = sqlexec(
+        $sql,
+        [
+            $accarray[(int) $i['index']]->fk,
+            $accarray[(int) $i['index']]->fname,
+            $id, (int) $i['index'],
+        ],
+        $link
+    );
     if ($resss == null) {
         $link->rollBack();
         ajaxError('general');

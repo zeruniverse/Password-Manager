@@ -20,11 +20,11 @@ echoheader();
     </div>
     <p>Red entries indicate password error (i.e. error try)</p>
     <table class="table" id="loginhistorytable">
-	<thead>
+    <thead>
     <tr><th>Device Type</th><th>Login IP</th><th>Login Time</th></tr>
-	</thead>
-	<tbody>
-	</tbody>
+    </thead>
+    <tbody>
+    </tbody>
     </table>
     </div>
 </div>

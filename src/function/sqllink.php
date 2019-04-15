@@ -50,7 +50,8 @@ function checksession($link, $refreshTimeout = true)
 
         return false;
     }
-    if (isset($_SERVER['HTTP_REFERER']) && ($_SERVER['HTTP_REFERER'] != '') && (strpos(strtolower($_SERVER['HTTP_REFERER']), strtolower($HOSTDOMAIN)) !== 0)) {
+    if (isset($_SERVER['HTTP_REFERER']) && ($_SERVER['HTTP_REFERER'] != '')
+        && (strpos(strtolower($_SERVER['HTTP_REFERER']), strtolower($HOSTDOMAIN)) !== 0)) {
         //Users from other sites are banned
         invalidateSession();
 
@@ -99,8 +100,15 @@ function invalidateSession()
     foreach ($_SESSION as $key => $value) {
         unset($_SESSION[$key]);
     }
-    session_regenerate_id(true); //as suggested by owasp, change sessionId when changing context
+    //As suggested by owasp, change sessionId when changing context
+    session_regenerate_id(true);
     session_destroy();
 }
 $currentCookieParams = session_get_cookie_params();
-session_set_cookie_params(0, $currentCookieParams['path'], $currentCookieParams['domain'], (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443, true);
+session_set_cookie_params(
+    0,
+    $currentCookieParams['path'],
+    $currentCookieParams['domain'],
+    (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443,
+    true
+);
