@@ -70,7 +70,7 @@ function import_raw(json){
         .then(importOnSuccess);
 }
 function import_csv(csv){
-	var accarray = $.csv.toObjects(csv, {separator: ";"});
+	var accarray = $.csv.toObjects(csv);
     backend.extendedTimeout();
     var promises = [];
 	for (var x in accarray) {
