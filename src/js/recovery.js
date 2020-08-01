@@ -4,7 +4,6 @@ function download(filename, text) {
     var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
     saveAs(blob, filename);
 }
-//ToDo: files
 function export_raw() {
     if(!confirm("Confirm: This function is used ONLY to TRANSFER your password to another password manager! DON'T BACK UP this version, it's DANGEROUS!")) return;
     if(!confirm("You agree you will delete the generated content IMMEDIATELY after you finish transferring your passwords")) return;
@@ -18,7 +17,7 @@ function export_raw() {
         });
 }
 function export_csv() {
-    if(!confirm('CSV file contains all your information in plain text format. It\'s dangerous to keep it as a backup. Only use it for transferring your data. Delete it immediately after you\'ve done. Please note the encoding for the csv file is UTF-8. You might need to specify this encoding in order to open this CSV properly in some software that uses ANSI as default encoding such as Microsoft Office.')) 
+    if(!confirm('CSV file contains all your information in plain text format. It\'s dangerous to keep it as a backup. Only use it for transferring your data. Delete it immediately after you\'ve done. Please note the encoding for the csv file is UTF-8. You might need to specify this encoding in order to open this CSV properly in some software that uses ANSI as default encoding such as Microsoft Office.'))
         return;
     return backend.exportCSV()
         .then(function(data) {
@@ -41,7 +40,7 @@ function readfile() {
             reader.onerror = function (e) {
                 alert('Error reading file!');
             }
-            reader.readAsText(a[0]);          
+            reader.readAsText(a[0]);
         } else {alert('NO FILE SELECTED');}
     } else {
         alert('FileReader are not supported in this browser.');
@@ -87,7 +86,7 @@ function recover(data) {
                         var file = backend.files[account.index];
                         row.append($('<td></td>')
                             .append($('<a></a>').on('click', {index:account.index}, function(e) {downloada(e.data.index);}).text(file.name)));
-                    } 
+                    }
                     else {
                         row.append($('<td></td>'));
                     }

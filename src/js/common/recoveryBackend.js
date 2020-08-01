@@ -36,9 +36,9 @@ class RecoveryBackend {
         for (let acc in data) {
             data[acc][3] = acc;
             resultPromises.push(Account.fromEncrypted(self.encryptionWrapper,
-                { index: data[acc][3], 
-                    name: data[acc][0], 
-                    kss: data[acc][1], 
+                { index: data[acc][3],
+                    name: data[acc][0],
+                    kss: data[acc][1],
                     additional:data[acc][2]}));
         }
         return Promise.all(resultPromises)
@@ -51,9 +51,8 @@ class RecoveryBackend {
     }
     importFiles(data) {
         var self = this;
-        //ToDo
         var filedata = JSON.parse(data);
-        if (filedata.status === 'NO') 
+        if (filedata.status === 'NO')
             return;
         if (filedata.status != 'OK')
             throw('invalid status for encrypted files');
@@ -98,13 +97,14 @@ class RecoveryBackend {
                 return self.encryptionWrapper.multiGenerateKey(self.encryptionWrapper.secretkey, 32);
             });
     }
-    getAccountsRaw() {
+    getAccountsRaw(include_files = false) {
         var self = this;
         var promiseList = [];
+        if(typeof self.files === 'undefined') include_files = false;
         for (let account of self.accounts) {
             var nextAccountPromise = account.getPassword()
                 .then(function(password) {
-                    return { 
+                    var base_info = {
                         'index': account.index,
                         'data': {
                             'account': account.accountName,
@@ -112,6 +112,11 @@ class RecoveryBackend {
                             'other': account.getOtherJSON()
                         }
                     };
+                    if(include_files && account.index in self.files){
+                        base_info['data']['fname'] = self.files[account.index].name;
+                        base_info['data']['filedata'] = self.files[account.index].data;
+                    }
+                    return base_info;
                 });
             promiseList.push(nextAccountPromise);
         }
@@ -119,7 +124,7 @@ class RecoveryBackend {
     }
     exportCSV() {
         var self = this;
-        return Promise.all(self.getAccountsRaw())
+        return Promise.all(self.getAccountsRaw(false))
             .then(function(results) {
                 var result = [];
                 for (let account of results) {
@@ -139,7 +144,7 @@ class RecoveryBackend {
     }
     exportRaw() {
         var self = this;
-        return Promise.all(self.getAccountsRaw())
+        return Promise.all(self.getAccountsRaw(true))
             .then(function(results) {
                 var result = { };
                 result.status = "RAW_OK";
@@ -149,10 +154,5 @@ class RecoveryBackend {
                 }
                 return JSON.stringify(result);
             });
-        //Todo files
-        //if(has_file == 1 && x in fname_array) {
-        //    result.data[x].fname = fname_array[x];
-        //    result.data[x].filedata = fdata_array[x];
-        //}
     }
 }
