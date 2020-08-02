@@ -42,7 +42,7 @@ function sqlquery($sql, $link)
 }
 function start_session()
 {
-    if (isset($_SESSION)) return;
+    if (session_status() === PHP_SESSION_ACTIVE) return;
     // set a unique session name to get rid of php default session name
     session_name("password_manager_session_uid");
     // for compatibility with PHP < 7.3.0
