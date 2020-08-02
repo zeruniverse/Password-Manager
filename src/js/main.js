@@ -70,20 +70,20 @@ function import_raw(json){
         .then(importOnSuccess);
 }
 function import_csv(csv){
-	var accarray = $.csv.toObjects(csv);
+    var accarray = $.csv.toObjects(csv);
     backend.extendedTimeout();
     var promises = [];
-	for (var x in accarray) {
-	    var acc = accarray[x]["name"];
-	    var pass = accarray[x]["password"];
-	    var other = {};
-	    for (var key in accarray[x]){
-	        if (key in backend.fields){
-	            other[key] = accarray[x][key];
-	        }
-	    }
+    for (var x in accarray) {
+        var acc = accarray[x]["name"];
+        var pass = accarray[x]["password"];
+        var other = {};
+        for (var key in accarray[x]){
+            if (key in backend.fields){
+                other[key] = accarray[x][key];
+            }
+        }
         promises.push(import_add_acc(acc, pass, other));
-	}
+    }
     Promise.all(promises)
         .then(importOnSuccess);
 }

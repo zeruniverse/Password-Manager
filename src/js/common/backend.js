@@ -1,11 +1,11 @@
 // helpers for javascript mixins-pattern
 let mix = (superclass) => new MixinBuilder(superclass);
-class MixinBuilder {  
+class MixinBuilder {
   constructor(superclass) {
     this.superclass = superclass;
   }
 
-  with(...mixins) { 
+  with(...mixins) {
     return mixins.reduce((c, mixin) => mixin(c), this.superclass);
   }
 }
@@ -460,7 +460,7 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
                 return file;
             });
     }
-    
+
     changePassword(oldpass, newpass) {
         var self = this;
         var login_sig;
@@ -521,7 +521,7 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
         var data;
         var backup;
         var key;
-        return self.doPost("backup", { a: includeFiles}) 
+        return self.doPost("backup", { a: includeFiles})
             .then(function(msg) {
                 data = msg;
                 backup = data;
@@ -675,7 +675,7 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
         if (bValidate) {
             return true;
         }
-        else 
+        else
             return false;
     }
     checkHostdomain() {

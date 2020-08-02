@@ -14,7 +14,7 @@ registerPlugin("drawAccount",function(data){
             .attr('title',"Open")
             .attr('class','cellOptionButton')
             .attr('rel','noopener noreferrer')
-            .attr('href',addHttps(account["other"]["url"])) 
+            .attr('href',addHttps(account["other"]["url"]))
             .append($('<span></span>')
                 .attr('class','glyphicon glyphicon-globe')));
     }

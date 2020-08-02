@@ -250,14 +250,14 @@ class EncryptionWrapper {
         deleteCookie('username');
     }
     static encryptCharUsingKey(encryptch, key){
-        if(encryptch == "" || key == ""){  
+        if(encryptch == "" || key == ""){
             return Promise.reject("ERROR: empty key detected!");
         }
         var p = CryptoJS.AES.encrypt(encryptch,key).toString();
         return Promise.resolve(p);
     }
     static decryptCharUsingKey(echar, key){
-        if(echar == "" || key == ""){  
+        if(echar == "" || key == ""){
             return Promise.reject("ERROR: empty key detected!");
         }
         var p = CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(echar,key));
@@ -266,7 +266,7 @@ class EncryptionWrapper {
     static generateKey(key, orig_salt, iter){
         var hash = CryptoJS.SHA512(key);
         var salt = CryptoJS.SHA512(orig_salt);
-        var gen_key = CryptoJS.PBKDF2(hash, salt, { keySize: 512/32, iterations: iter });   
+        var gen_key = CryptoJS.PBKDF2(hash, salt, { keySize: 512/32, iterations: iter });
         return Promise.resolve(String(gen_key));
     }
 
@@ -287,7 +287,7 @@ class EncryptionWrapper {
             for(j = 0; j < maxpos; j++) if(x == charlist.charAt(j)) {
                 return j;
             }
-            return -1;	
+            return -1;
         }
         var maxpos = charlist.length;
         var newpw = '';

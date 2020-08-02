@@ -74,7 +74,7 @@ $(function(){
                 $("#chk").attr("value", "Login");
                 $("#chk").attr("disabled", false);
             });
-    }); 
+    });
 
     $.urlParam = function(name){
         var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
@@ -109,4 +109,4 @@ $(function(){
         .catch(function(msg) {
             showMessage("warning", msg);
         });
-}); 
+});

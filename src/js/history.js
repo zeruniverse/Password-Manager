@@ -39,7 +39,7 @@ function dataReady(data){
                     .attr("atttimestamp",ip["ctime"]));
         $("#loginhistorytable > tbody")
             .append(row);
-    } 
+    }
     usr = data["usr"];
     var parser = new UAParser();
     var uastring;
@@ -54,7 +54,7 @@ function dataReady(data){
        $(this).text(nowtime);
     });
     $("#placeholder").hide();
-	$("#loginhistorytable").DataTable({ordering:false, searching:false});
+    $("#loginhistorytable").DataTable({ordering:false, searching:false});
     $("#maindiv").show();
 }
 function unsetpin(devicex){

@@ -109,6 +109,6 @@ function recover(data) {
 }
 $(function() {
     $("#chk").on('click', function(e) {readfile();});
-	$("#raw_button").on('click', function(e) {export_raw();});
-	$("#csv_button").on('click', function(e) {export_csv();});
+    $("#raw_button").on('click', function(e) {export_raw();});
+    $("#csv_button").on('click', function(e) {export_csv();});
 });
