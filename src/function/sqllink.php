@@ -43,6 +43,8 @@ function sqlquery($sql, $link)
 function start_session()
 {
     if (isset($_SESSION)) return;
+    // set a unique session name to get rid of php default session name
+    session_name("password_manager_session_uid");
     // for compatibility with PHP < 7.3.0
     session_set_cookie_params(0, '/; samesite=strict', NULL, true, true);
     session_start();
