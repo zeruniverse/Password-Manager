@@ -1,4 +1,5 @@
 <?php
+
 $VERSION = '10.00';
 require_once dirname(__FILE__).'/config.php';
 function sqllink()
@@ -42,11 +43,13 @@ function sqlquery($sql, $link)
 }
 function start_session()
 {
-    if (session_id() !== '') return;
+    if (session_id() !== '') {
+        return;
+    }
     // set a unique session name to get rid of php default session name
-    session_name("password_manager_session_uid");
+    session_name('password_manager_session_uid');
     // for compatibility with PHP < 7.3.0
-    session_set_cookie_params(0, '/; samesite=strict', NULL, true, true);
+    session_set_cookie_params(0, '/; samesite=strict', null, true, true);
     session_start();
 }
 function checksession($link, $refreshTimeout = true)

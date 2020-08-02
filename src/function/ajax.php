@@ -27,17 +27,17 @@ const ERROR_MESSAGE = [
 function ajaxError($err)
 {
     echo json_encode(['status' => 'error', 'message' => ERROR_MESSAGE[$err]]);
-    die();
+    exit();
 }
 function error($msg)
 {
     echo json_encode(['status' => 'error', 'message' => $msg]);
-    die();
+    exit();
 }
 function ajaxSuccess($data = [])
 {
     echo json_encode(array_merge(['status' => 'success'], $data));
-    die();
+    exit();
 }
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     ajaxError('method');
