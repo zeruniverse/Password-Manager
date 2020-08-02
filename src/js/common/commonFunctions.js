@@ -88,7 +88,11 @@ function getCookie(cname) {
     return null;
 }
 function setCookie(cname, cvalue) {
-    document.cookie = cname + "=" + cvalue + ";path=/ ";
+    var exp = new Date();
+    // make cookie permanent. User will use untrust to delete cookies
+    exp.setTime(exp.getTime() + 10 * 365 * 24 * 60 * 60 * 1000);
+    // escape characters like `;`, ` ` etc.
+    document.cookie = cname + "="+ encodeURIComponent(cvalue) + ";expires=" + exp.toGMTString() + ";path=/";
 }
 function deleteCookie(name) {
     setCookie(name, "");
