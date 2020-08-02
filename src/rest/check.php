@@ -2,8 +2,8 @@
 
 require_once dirname(__FILE__).'/../function/sqllink.php';
 require_once dirname(__FILE__).'/../function/ajax.php';
-session_start();
-$token = $_SESSION['session_token'];
+start_session();
+$token = (isset($_SESSION['session_token']) ? $_SESSION['session_token'] : NULL);
 session_regenerate_id(true);
 $_SESSION['session_token'] = $token;
 $sidvalue = session_id();

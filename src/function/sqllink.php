@@ -1,5 +1,4 @@
 <?php
-
 $VERSION = '10.00';
 require_once dirname(__FILE__).'/config.php';
 function sqllink()
@@ -41,10 +40,17 @@ function sqlquery($sql, $link)
 {
     return $link->query($sql);
 }
+function start_session()
+{
+    if (isset($_SESSION)) return;
+    // for compatibility with PHP < 7.3.0
+    session_set_cookie_params(0, '/; samesite=strict', NULL, true, true);
+    session_start();
+}
 function checksession($link, $refreshTimeout = true)
 {
     global $SERVER_TIMEOUT, $SERVER_SOFT_TIMEOUT, $HOSTDOMAIN;
-    session_start();
+    start_session();
     if (!isset($_SESSION['loginok']) || $_SESSION['loginok'] != 1) {
         invalidateSession();
 
@@ -104,11 +110,3 @@ function invalidateSession()
     session_regenerate_id(true);
     session_destroy();
 }
-$currentCookieParams = session_get_cookie_params();
-session_set_cookie_params(
-    0,
-    $currentCookieParams['path'],
-    $currentCookieParams['domain'],
-    (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443,
-    true
-);

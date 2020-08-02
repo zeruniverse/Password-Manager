@@ -2,7 +2,7 @@
 
 require_once dirname(__FILE__).'/../function/sqllink.php';
 require_once dirname(__FILE__).'/../function/ajax.php';
-session_start();
+start_session();
 if (!isset($_SESSION['random_login_stamp'])) {
     $_SESSION['random_login_stamp'] = date('Ymdhis').bin2hex(openssl_random_pseudo_bytes(32));
 }

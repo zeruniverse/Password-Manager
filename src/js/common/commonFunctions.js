@@ -1,22 +1,22 @@
-function timeConverter(utctime){		
-    if(utctime==0) 		
-        return 'unknown time';		
-    var a = new Date(utctime * 1000);		
-    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; 		
-    var year = String(a.getFullYear());		
-    var month = months[a.getMonth()];		
-    var date = String(a.getDate());		
-    var hour = String(a.getHours());		
-    var min = String(a.getMinutes());		
-    var sec = String(a.getSeconds());		
-    if(hour.length==1) 		
-        hour = '0'+hour;		
-    if(min.length==1) 		
-        min = '0'+min;		
-    if(sec.length==1) 		
-        sec = '0'+sec;		
-    var time = month + ' '+date + ', ' + year + ' ' + hour + ':' + min + ':' + sec ;		
-    return time;		
+function timeConverter(utctime){
+    if(utctime==0)
+        return 'unknown time';
+    var a = new Date(utctime * 1000);
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var year = String(a.getFullYear());
+    var month = months[a.getMonth()];
+    var date = String(a.getDate());
+    var hour = String(a.getHours());
+    var min = String(a.getMinutes());
+    var sec = String(a.getSeconds());
+    if(hour.length==1)
+        hour = '0'+hour;
+    if(min.length==1)
+        min = '0'+min;
+    if(sec.length==1)
+        sec = '0'+sec;
+    var time = month + ' '+date + ', ' + year + ' ' + hour + ':' + min + ':' + sec ;
+    return time;
 }
 /*
  * Shows a message in the header of the page
@@ -33,7 +33,7 @@ function showMessage(type, message, modal){
                     .addClass("collapse")
                     .append($('<a href="#" class="close" aria-label="close">&times;</a>')
                             .click(function(e){
-                                messageDialog.alert('close'); 
+                                messageDialog.alert('close');
                                 e.stopImmediatePropagation()
                             }))
                     .append($('<span>').text(message));
@@ -55,23 +55,23 @@ function showMessage(type, message, modal){
 }
 function base64toBlob(base64Data, contentType) {
     contentType = contentType || '';
-    var sliceSize = 1024;		
-    var byteCharacters = atob(base64Data);		
-    var bytesLength = byteCharacters.length;		
-    var slicesCount = Math.ceil(bytesLength / sliceSize);		
-    var byteArrays = new Array(slicesCount);		
+    var sliceSize = 1024;
+    var byteCharacters = atob(base64Data);
+    var bytesLength = byteCharacters.length;
+    var slicesCount = Math.ceil(bytesLength / sliceSize);
+    var byteArrays = new Array(slicesCount);
 
-    for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {		
-        var begin = sliceIndex * sliceSize;		
-        var end = Math.min(begin + sliceSize, bytesLength);		
+    for (var sliceIndex = 0; sliceIndex < slicesCount; ++sliceIndex) {
+        var begin = sliceIndex * sliceSize;
+        var end = Math.min(begin + sliceSize, bytesLength);
 
-        var bytes = new Array(end - begin);		
-        for (var offset = begin, i = 0 ; offset < end; ++i, ++offset) {		
-            bytes[i] = byteCharacters[offset].charCodeAt(0);		
-        }		
-        byteArrays[sliceIndex] = new Uint8Array(bytes);		
-    }		
-    return new Blob(byteArrays, { type: contentType });		
+        var bytes = new Array(end - begin);
+        for (var offset = begin, i = 0 ; offset < end; ++i, ++offset) {
+            bytes[i] = byteCharacters[offset].charCodeAt(0);
+        }
+        byteArrays[sliceIndex] = new Uint8Array(bytes);
+    }
+    return new Blob(byteArrays, { type: contentType });
 }
 function getCookie(cname) {
     var name = cname + "=";
@@ -92,7 +92,9 @@ function setCookie(cname, cvalue) {
     // make cookie permanent. User will use untrust to delete cookies
     exp.setTime(exp.getTime() + 10 * 365 * 24 * 60 * 60 * 1000);
     // escape characters like `;`, ` ` etc.
-    document.cookie = cname + "="+ encodeURIComponent(cvalue) + ";expires=" + exp.toGMTString() + ";path=/";
+    cookie = cname + "="+ encodeURIComponent(cvalue) + ";expires=" + exp.toGMTString() + ";path=/";
+    // Security mod.
+    document.cookie = cookie + ";samesite=strict; secure";
 }
 function deleteCookie(name) {
     setCookie(name, "");
