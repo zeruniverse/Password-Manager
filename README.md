@@ -4,16 +4,17 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/zeruniverse/Password-Manager/blob/master/LICENSE)
 ![Environment](https://img.shields.io/badge/PHP-7.1+-blue.svg)
 ![Environment](https://img.shields.io/badge/MySQL-required-ff69b4.svg)
+![Environment](https://img.shields.io/badge/HTTPS-required-66ccff.svg)
 
-**'master' branch is a dev-branch, please download stable version from [Release](https://github.com/zeruniverse/Password-Manager/releases) to use it.**
+**'master' branch is a dev-branch, please download stable version from [Release](https://github.com/zeruniverse/Password-Manager/releases) if you just want to use it.**
 
 ## Version
 
 v11.00
 
-Supports are available [here](https://github.com/zeruniverse/Password-Manager/issues) for versions greater than v9.13
+Since v11.00, this password manager is mature and stable. That said, there will be no more major changes (e.g. database structure change) in the future. But just bug fixes and crypto algorithm updates. I know in the past, upgrading is painful due to the client-side encryption nature. But going forward, it will not be an issue anymore.
 
-Please note, Password-Manager only supports **HTTPS**
+Supports are available [here](https://github.com/zeruniverse/Password-Manager/issues) for versions greater than v9.13
 
 ## DEMO
 [phppasswordmanager.sourceforge.io](https://phppasswordmanager.sourceforge.io)
