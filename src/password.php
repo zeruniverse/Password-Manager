@@ -8,9 +8,7 @@ echoheader();
 <script src="js/lib/dataTables.bootstrap.min.js"></script>
 <script src="js/lib/dataTables.responsive.min.js"></script>
 <script src="js/lib/FileSaver.min.js"></script>
-<script src="js/crypto/aes.js"></script>
-<script src="js/crypto/sha512.js"></script>
-<script src="js/crypto/pbkdf2.js"></script>
+<script src="js/lib/crypto-js.min.js"></script>
 <script src="js/lib/jquery.csv.js"></script>
 <script src="js/common/account.js"></script>
 <script src="js/common/backend.js"></script>
