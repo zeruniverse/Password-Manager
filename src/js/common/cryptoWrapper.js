@@ -5,28 +5,43 @@ class EncryptionWrapper {
         this.jsSalt = jsSalt;
         this.alphabet = alphabet;
     }
-    static generateKeyWithSalt(input, salt, iterations) {
+
+    static generateKeyWithSalt(input, salt, iterations, hasher) {
         var iter = iterations || 500;
-        var hash = CryptoJS.SHA512(input);
-        var salt = CryptoJS.SHA512(salt);
+        var hasher = hasher || CryptoJS.algo.SHA512;
+        var hash = CryptoJS.SHA3(input, { outputLength: 512 });
+        var salt = CryptoJS.SHA3(salt, { outputLength: 512 });
+
         var gen_key = CryptoJS.PBKDF2(hash, salt, { keySize: 512/32, iterations: iter,
-                                                    hasher:CryptoJS.algo.SHA512});
-        return Promise.resolve(String(gen_key));
+                                                    hasher:hasher});
+        return Promise.resolve(gen_key.toString());
     }
+
+    static WgenerateKeyWithSalt(input, salt) {
+        // a weak key.
+        return generateKeyWithSalt(input, salt, 100, CryptoJS.algo.SHA3);
+    }
+
+    static SgenerateKeyWithSalt(input, salt) {
+        // Didn't use SHA3 here because it's slow.
+        return generateKeyWithSalt(input, salt, 5000, CryptoJS.algo.SHA512);
+    }
+
     static fromLocalStorage(jsSalt, pwSalt, alphabet) {
         return EncryptionWrapper.getPwdStoreUsingSalt(pwSalt)
             .then(function(secretkey0) {
                 if (secretkey0 == "") {
                     throw "secretkey emtpy";
                 }
-                secretkey0 = String(CryptoJS.SHA512(secretkey0 + pwSalt));
                 return new EncryptionWrapper(secretkey0, jsSalt, pwSalt, alphabet);
             });
     }
+
     static fromPassword(password, jsSalt, pwSalt, alphabet, login_sig) {
         let secretkey0 = String(CryptoJS.SHA512(login_sig + pwSalt))
         return Promise.resolve(new EncryptionWrapper(secretkey0, jsSalt, pwSalt, alphabet));
     }
+
     decryptChar(crypt){
         return EncryptionWrapper.decryptCharUsingKey(crypt, this.secretkey);
     }
@@ -48,6 +63,7 @@ class EncryptionWrapper {
                 return EncryptionWrapper.getOrigPwd(confkey, self.pwSalt, String(CryptoJS.SHA512(name)), self.alphabet, thekey);
             });
     }
+
     encryptPassword(name, pass){
         var self = this;
         return self.getConfkey()
@@ -58,21 +74,27 @@ class EncryptionWrapper {
                 return self.encryptChar(pass);
             });
     }
+
     generateSecretKey(password, store) {
         var self = this;
         var store = (typeof store !== 'undefined') ? store : true;
-        return self.generateKey(EncryptionWrapper.reduceInfo(password, self.alphabet), 5000)
+        return self.SgenerateKey(EncryptionWrapper.reduceInfo(password, self.alphabet))
             .then(function(sk) {
                 if (store) {
                     self.secretkey = sk;
                 }
                 return sk;
             });
+    }
 
+    SgenerateKey(input) {
+        return EncryptionWrapper.SgenerateKeyWithSalt(input, this.jsSalt);
     }
-    generateKey(input, iterations) {
-        return this.generateKeyWithSalt(input, this.jsSalt, iterations);
+
+    WgenerateKey(input){
+        return EncryptionWrapper.WgenerateKeyWithSalt(input, this.jsSalt);
     }
+
     multiGenerateKey(key, count) {
         var self = this;
         if (count == 0)
@@ -185,7 +207,8 @@ class EncryptionWrapper {
     // not happy with the name, actually stores everything that will be read by getPwdStore, should rename getPwdStore
     persistCredentialsFromPassword(user, password) {
         var self = this;
-        return self.generateKeyWithSalt(password, self.secretkey, 5000)
+        // No need to use strong Hash because this is going to session storage.
+        return EncryptionWrapper.WgenerateKeyWithSalt(password, self.secretkey)
             .then(function(confkey) {
                 return EncryptionWrapper.persistCredentials(user, self.secretkey, confkey, self.pwSalt);
             });
@@ -237,7 +260,7 @@ class EncryptionWrapper {
                 return EncryptionWrapper.persistCredentials(user, secretkey, confkey, self.pwSalt);
             })
             .then(function(secretkey) {
-                return self.generateKeyWithSalt(secretkey, user, 5000);
+                return EncryptionWrapper.SgenerateKeyWithSalt(secretkey, user);
             });
     }
     deletePIN() {

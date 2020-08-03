@@ -271,20 +271,17 @@ let PinHandling = (superclass) => class extends superclass {
             .then(function(_device) {
                 device = _device;
                 salt = self.encryptionWrapper.generatePassphrase(500);
-                // SHA2-512 is faster
-                raw_signature = CryptoJS.PBKDF2(pin, salt,
-                                                {keySize: 512 / 32,
-                                                 iterations:5000,
-                                                 hasher:CryptoJS.algo.SHA512}).toString();
 
+                return EncryptionWrapper.SgenerateKeyWithSalt(pin, salt);
+            })
+            .then(function(raw_signature){
                 return self.doPost("setpin" , {user: self.user, device: device, sig: raw_signature});
             })
             .then(function(msg) {
-                var new_pin = CryptoJS.PBKDF2(pin + msg["pinpk"],
-                                              CryptoJS.SHA3(salt, { outputLength: 512 }).toString(),
-                                              {keySize: 512 / 32,
-                                               iterations:5000,
-                                               hasher:CryptoJS.algo.SHA512}).toString();
+                // no need for strong encryption since this key can not be verified.
+                return EncryptionWrapper.WgenerateKeyWithSalt(pin + msg["pinpk"], salt);
+            })
+            .then(function(new_pin){
                 return self.encryptionWrapper.storePIN(device, salt, new_pin);
             });
     }
@@ -475,27 +472,39 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
 
     changePassword(oldpass, newpass) {
         var self = this;
-        var login_sig;
+        var newseckey;
         var postnewpass;
         var newconfkey;
         return self.encryptionWrapper.generateSecretKey(oldpass, false)
-            .then(function(old_login_sig) {
-                if(self.encryptionWrapper.secretkey != String(CryptoJS.SHA512(old_login_sig + self.encryptionWrapper.pwSalt))) {
+            .then(function(old_sec_key) {
+                if(self.encryptionWrapper.secretkey != old_sec_key) {
                     throw("Incorrect Old Password!");
                 }
                 return self.encryptionWrapper.generateSecretKey(newpass, false)
             })
-            .then(function(key){
-                login_sig = key;
-                return self.encryptionWrapper.generateKey(login_sig);
+            .then(function(new_sec_key){
+                newseckey = new_sec_key;
+                var promises = [];
+                promises.push(EncryptionWrapper.SgenerateKeyWithSalt(newseckey, self.user)) // login_sig
+
+                // process encryption
+                promises.push(
+                    EncryptionWrapper.WgenerateKeyWithSalt(newpass, newseckey)
+                        .then(function(_newconfkey){
+                            newconfkey = _newconfkey;
+                            return EncryptionWrapper.fromPassword(newpass, self.encryptionWrapper.jsSalt, self.encryptionWrapper.pwSalt, self.encryptionWrapper.alphabet, login_sig)
+                        })
+                )
+
+                return ;
             })
             .then(function(_postnewpass) {
                 postnewpass = _postnewpass;
-                return self.encryptionWrapper.generateKey(String(CryptoJS.SHA512(newpass + login_sig)));
+                return EncryptionWrapper.WgenerateKeyWithSalt(newpass, newseckey);
             })
             .then(function(_newconfkey) {
                 newconfkey = _newconfkey;
-                return EncryptionWrapper.fromPassword(newpass, self.encryptionWrapper.jsSalt, self.encryptionWrapper.pwSalt, self.encryptionWrapper.alphabet, login_sig)
+
             })
             .then(function(newEncryptionWrapper) {
                 newEncryptionWrapper._confkey = newconfkey;
@@ -618,11 +627,11 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
 
                 localStorage.session_token = data["session_token"];
 
-                if (!self.checkHostdomain) {
+                if (!self.checkHostdomain()) {
                     throw ('Hostdomain mismatch. Please check your config file.');
                 }
 
-                if (!self.pinActive) {
+                if (!self.pinActive()) {
                     self.delLocalPinStore();
                 }
                 return data;
@@ -632,23 +641,18 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
         var self = this;
         var user = getCookie('username');
         // SHA2-512 is faster
-        var raw_signature = CryptoJS.PBKDF2(pin, localStorage.pinsalt,
-                                            {keySize: 512 / 32,
-                                             iterations:5000,
-                                             hasher:CryptoJS.algo.SHA512}).toString();
-
-        var post_signature = CryptoJS.PBKDF2(raw_signature, self.randomLoginStamp,
-                                            {keySize: 512 / 32,
-                                             iterations:100,
-                                             hasher:CryptoJS.algo.SHA3}).toString();
-
-        return self.doPost('getpinpk', {user:user, device:getCookie('device'), sig:post_signature})
+        return EncryptionWrapper.SgenerateKeyWithSalt(pin, localStorage.pinsalt)
+            .then(function(raw_signature){
+                return EncryptionWrapper.WgenerateKeyWithSalt(raw_signature, self.randomLoginStamp);
+            })
+            .then(function(post_signature){
+                return self.doPost('getpinpk', {user:user, device:getCookie('device'), sig:post_signature});
+            })
             .then(function(msg) {
-                var new_pin = CryptoJS.PBKDF2(pin + msg["pinpk"],
-                                              CryptoJS.SHA3(salt, { outputLength: 512 }).toString(),
-                                              {keySize: 512 / 32,
-                                               iterations:5000,
-                                               hasher:CryptoJS.algo.SHA512}).toString();
+                // weak hash here is OK since the correctness of this one cannot be verified.
+                return EncryptionWrapper.WgenerateKeyWithSalt(pin + msg["pinpk"], localStorage.pinsalt);
+            })
+            .then(function(new_pin){
                 return self.encryptionWrapper.restoreFromPIN(user, new_pin);
             })
             .then(function(loginpwd) {
@@ -660,15 +664,12 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
                 }
                 throw(msg);
             });
-
     }
     doLogin(user, password, emailcode) {
         var self = this;
-        var secretkey = '';
         return self.encryptionWrapper.generateSecretKey(password)
             .then(function(_secretkey){
-                secretkey = _secretkey;
-                return self.encryptionWrapper.generateKeyWithSalt(secretkey, user, 5000);
+                return EncryptionWrapper.SgenerateKeyWithSalt(_secretkey, user);
             })
             .then(function(login_sig) {
                 return self.doPost('check', {pwd:login_sig,
