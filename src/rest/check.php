@@ -29,6 +29,7 @@ if (!isset($_SESSION['random_login_stamp']) || $_SESSION['random_login_stamp'] =
 }
 $usr = $_POST['user'];
 $pw = $_POST['pwd'];
+$emailcode = $_POST['emailcode'];
 // check length of password hash for pbkdf2
 if (strlen($pw) > 130) {
     ajaxError('general');
@@ -55,6 +56,7 @@ if ($record) {
     ajaxError('blockIP');
 }
 
+//check username
 $sql = 'SELECT * FROM `pwdusrrecord` WHERE `username` = ?';
 $res = sqlexec($sql, [$usr], $link);
 $record = $res->fetch(PDO::FETCH_ASSOC);
@@ -62,6 +64,7 @@ if (!$record) {
     ajaxError('loginFailed');
 }
 
+// check if account is blocked
 $sql = 'SELECT count(*) as `m` FROM `history`
     WHERE `userid` = ? AND outcome = 0 AND UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`time`) < ?';
 $res = sqlexec($sql, [(int) $record['id'], $ACCOUNT_BAN_TIME], $link);
@@ -70,8 +73,9 @@ if ((int) $count['m'] >= $BLOCK_ACCOUNT_TRY) {
     ajaxError('blockAccount');
 }
 
+// check if password is correct
 $password = $record['password'];
-$hash_pbkdf2 = hash_pbkdf2('sha256', $pw, (string) $record['salt'], $PBKDF2_ITERATIONS);
+$hash_pbkdf2 = hash_pbkdf2('sha-512', $pw, (string) $record['salt'], $PBKDF2_ITERATIONS);
 if (strcmp((string) $password, (string) $hash_pbkdf2) != 0) {
     loghistory($link, (int) $record['id'], getUserIP(), $_SERVER['HTTP_USER_AGENT'], 0);
     $sql = 'SELECT count(*) as `m` FROM `history`
@@ -84,6 +88,40 @@ if (strcmp((string) $password, (string) $hash_pbkdf2) != 0) {
     }
     ajaxError('loginFailed');
 }
+if($EMAIL_VERIFICATION_ENABLED)
+{
+    $pwdrecord_check = hash_pbkdf2('sha-512', (string) $hash_pbkdf2, $GLOBAL_SALT_3, $PBKDF2_ITERATIONS);
+
+    // To avoid spam, only do email verification if password is correct
+
+    // Use urlencode as backend has no restriction for username.
+    $encoded_usr = urlencode($usr);
+    if ((!isset($_COOKIE["pwdrecord_".$encoded_usr]) ||
+         $_COOKIE["pwdrecord_".$encoded_usr]!=$pwdrecord_check) &&
+        (!isset($_SESSION["emailcode"]) || $_SESSION["emailcode"]!=$emailcode))
+    {
+        // We need to generate a random email verification number
+
+        require_once dirname(__FILE__).'/../function/send_email.php';
+        // 8 digits verification code
+        $k = sprintf("%08d", mt_rand(0, 99999999));
+        $_SESSION["emailcode"] = $k;
+        if(send_email($record["email"], $k))
+        {
+            ajaxError('EmailVerify');
+        } else {
+            // Fail to send out emails
+            ajaxError('general');
+        }
+
+    }
+
+    // on successful login, update user pwdrecord cookie. The cookie will expire in 60 days. i.e.
+    //    if you haven't logoned for 30 days, you will have to verify emails again!
+    setcookie("pwdrecord_".$encoded_usr, $pwdrecord_check, time()+86400*60,
+              '/; samesite=strict', null, true, true);
+}
+
 $_SESSION['loginok'] = 1;
 $_SESSION['user'] = $usr;
 $_SESSION['userid'] = $record['id'];

@@ -65,11 +65,12 @@ $(function(){
         $("#chk").attr("disabled", true);
         $("#chk").attr("value", "Wait");
         $(".errorhint").hide();
-        backend.doLogin($("#user").val(), $("#pwd").val())
+        backend.doLogin($("#user").val(), $("#pwd").val(), $("#emailcode").val())
             .then(function(){
                 window.location.href="./password.php";
             })
             .catch(function(msg){
+                if(msg.indexOf('sent an email to you') != -1) $('#email-div').show();
                 showMessage("warning", msg);
                 $("#chk").attr("value", "Login");
                 $("#chk").attr("disabled", false);

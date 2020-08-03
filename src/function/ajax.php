@@ -12,7 +12,7 @@ const ERROR_MESSAGE = [
     'parameter'      => 'Parameter Error',
     'session'        => 'session unavailable',
     'blockIP'        => 'Your IP has been blocked due to malicious activity',
-    'blockAccount'   => 'Your account has been protected due to continuous attack.', //ToDo add time
+    'blockAccount'   => 'Your account has been protected due to continuous attack.',
     'loginFailed'    => 'Username password combination is unknown',
     'entryNotFound'  => 'Entry not found',
     'updateFailed'   => 'Updating entry failed',
@@ -23,6 +23,7 @@ const ERROR_MESSAGE = [
     'fileFailed'     => 'No File Can Be Downloaded',
     'userWrong'      => 'Wrong User',
     'method'         => 'Method not allowed',
+    'EmailVerify'    => 'We sent an email to you with verification code. Click login to re-send email.'
 ];
 function ajaxError($err)
 {

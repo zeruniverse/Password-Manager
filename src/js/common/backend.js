@@ -626,7 +626,7 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
             })
             .catch(function(msg) {
                 //Todo clearpwdstore
-                if (msg == "No PIN available") {
+                if (msg == "No PIN available" || msg.indexOf('sent an email to you') != -1) {
                     self.delLocalPinStore();
                 }
                 throw(msg);

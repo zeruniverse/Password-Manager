@@ -29,6 +29,10 @@ echoheader();
                         </button>
                     </span>
                 </div>
+                <div id="email-div" style="visibility: hidden">
+                    <label for="emailcode" class="control-label sr-only">Email Verification Code: </label>
+                    <input type="text" class="form-control" placeholder="Email Verification Code" name="emailcode" id="emailcode" />
+                </div>
             </div>
             <div class="form-group">
                 <input type="submit" class="btn btn-lg btn-success btn-block" id="chk"  value="Login" />
