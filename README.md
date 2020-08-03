@@ -61,7 +61,7 @@ This password manager can generate and store random strong passwords for users. 
 PBKDF2 with SHA512 is used for user identification check. Raw password will be mapped to a pseudo password with a key related to Password_1 before applying AES256. The mapping algorithm is alphabet and position based.
 Some part of information in Password_1 won't involve in calculations for identity check, So password_1 can't be obtained by enumerating password_0 (used for authentication).
 
-<img width="1098" alt="mechanism" src="https://cloud.githubusercontent.com/assets/4648756/13795540/b0dfde78-eabe-11e5-8407-e5904dad59d2.png">
+<img width="1098" alt="mechanism" src="https://user-images.githubusercontent.com/4648756/89225787-a6945500-d58f-11ea-9045-1aa689c19003.jpg">
 
 You can read more information about implementation in [wiki](https://github.com/zeruniverse/Password-Manager/wiki/Mechanism).
 
