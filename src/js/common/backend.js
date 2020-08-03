@@ -76,7 +76,6 @@ let AuthenticatedSession = (superclass) => class extends superclass {
     logout(reason) {
         reason = reason || "";
         var self = this;
-        //Todo raise event
         sessionStorage.clear();
         callPlugins("preLogout", {});
         return self.doPost("logout", {})
@@ -87,7 +86,6 @@ let AuthenticatedSession = (superclass) => class extends superclass {
     }
     untrustAndLogout() {
         var self = this;
-        //Todo raise event
         localStorage.clear();
         var promises = [];
         var device = getCookie('device');
@@ -194,7 +192,6 @@ let Accounts = (superclass) => class extends superclass {
                         "other": account.other};
         var prepareOldDataPromise;
         if (newpwd != "") {
-            //ToDo: Promise
             prepareOldDataPromise = account.getPassword()
                 .then(function(pwd) {
                     oldData["password"] = pwd;
@@ -259,6 +256,7 @@ let PinHandling = (superclass) => class extends superclass {
             });
     }
     unSetPin(device) {
+        self.encryptionWrapper.deletePIN();
         return this.doPost("deletepin", {user:this.user, device:device});
     }
     setPin(pin) {
@@ -295,7 +293,6 @@ let PinHandling = (superclass) => class extends superclass {
 }
 
 //mixin for localstorage
-//todo move to encryptionWrapper
 let LocalStorage = (superclass) => class extends superclass {
     getLocalStorage() {
         if(!sessionStorage.pwdsk) {
@@ -511,7 +508,7 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
             });
     }
 
-    backup(includeFiles) {
+    backup(includeFiles, progress_callback) {
         var self = this;
         self.extendedTimeout();
         if (includeFiles)
@@ -529,14 +526,17 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
             })
             .then(function(_key) {
                 key = _key;
+                progress_callback(30);
                 return EncryptionWrapper.encryptCharUsingKey(JSON.stringify(data.data), key);
             })
             .then(function(encData) {
                 backup.data = encData;
+                progress_callback(60);
                 return EncryptionWrapper.encryptCharUsingKey(JSON.stringify(data.fdata), key);
             })
             .then(function(encfdata) {
                 backup.fdata = encfdata;
+                progress_callback(90);
                 return new Blob([JSON.stringify(backup)], {type: "text/plain;charset=utf-8"});
             });
     }
@@ -625,7 +625,6 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
                 return self.doPost('check', {pwd: loginpwd, user:user});
             })
             .catch(function(msg) {
-                //Todo clearpwdstore
                 if (msg == "No PIN available" || msg.indexOf('sent an email to you') != -1) {
                     self.delLocalPinStore();
                 }

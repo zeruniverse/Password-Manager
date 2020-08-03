@@ -7,7 +7,6 @@ var keyboardShortcuts = {
     '63': {"action":"modal", "element":"#shortcuts", "description": "Show keyboard shortcut help"},
     '108': {"action":"click", "element":"#pwdlist_next > a", "description": "Got to next page"},
     '104': {"action":"click", "element":"#pwdlist_previous > a", "description": "Got to previous page"},
-    // todo n, p for navigating table
 }
 
 var actions = {

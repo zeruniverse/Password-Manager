@@ -7,14 +7,9 @@ var visibleAccounts;
 function eventLogout(data) {
     var reason = data["reason"];
     reason = reason || "";
-    callPlugins("quitpwd", {"reason":reason});
     if (reason != "")
         reason = "?reason=" + encodeURIComponent(reason);
     window.location.href = "./logout.php" + reason;
-}
-function quitpwd_untrust() {
-    callPlugins("quitpwd_untrust");
-    backend.untrustAndLogout();
 }
 var datatablestatus=null;
 var fileid=-1;
@@ -357,12 +352,13 @@ $(document).ready(function(){
         $("#backuppwdpb").css('width','0%');
         $("#fileincludeckb").attr('disabled',true);
         //ToDo Progressbar
-            function progressbarchange(x) {
-                $("#backuppwdpb").attr('aria-valuenow',x);
-                $("#backuppwdpb").css('width',x+'%');
-            }
-        backend.backup($("#fileincludeckb").is(':checked'))
+        function progressbarchange(x) {
+            $("#backuppwdpb").attr('aria-valuenow',x);
+            $("#backuppwdpb").css('width',x+'%');
+        }
+        backend.backup($("#fileincludeckb").is(':checked'), progressbarchange)
             .then(function(backup) {
+                progressbarchange(100);
                 saveAs(backup, "backup.txt");
                 $("#backuppwdbtn").attr('disabled',false);
                 $("#fileincludeckb").attr('disabled',false);
@@ -406,7 +402,6 @@ $(document).ready(function(){
     $("#delbtn").click(function(){
         delepw($("#edit").data('id'));
     });
-    // ToDo move more into encryptionWrapper (password strength check)
     $("#changepw").click(function(){
         if(confirm("Your request will be processed on your browser, so it takes some time (up to #of_your_accounts * 10seconds). Do not close your window or some error might happen.\nPlease note we won't have neither your old password nor your new password. \nClick OK to confirm password change request."))
         {
@@ -597,7 +592,7 @@ $(document).ready(function(){
     });
     $('#navBtnLogout').on('click',function(){ backend.logout(); });
     $('#navBtnUntrust').toggle(backend.pinActive);
-    $('#navBtnUntrust').on('click',function(){ quitpwd_untrust(); });
+    $('#navBtnUntrust').on('click',function(){ backend.untrustAndLogout(); });
     $('#navBtnExport').on('click',function(){ exportcsv(); });
     $('#navBtnActivity').on('click',function(){
         window.location.href="./history.php";
