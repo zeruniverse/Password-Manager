@@ -680,7 +680,7 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
             return false;
     }
     validUserName(username) {
-        var bValidate = RegExp(/^[A-Za-z0-9]+$/).test(username);
+        var bValidate = RegExp(/^[A-Za-z0-9\-_\.]+$/).test(username);
         if (bValidate) {
             return true;
         }

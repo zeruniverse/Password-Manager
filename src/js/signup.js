@@ -20,7 +20,8 @@ $(function(){
                 }
                 else if (msg == "UserNameError") {
                     alert("Username should be at least " + backend.minNameLength +
-                          " characters of English letters (a-z, A-Z) or numbers (0-9)!");
+                          " characters of English letters (a-z, A-Z) or numbers (0-9) or" +
+                          " dot (.), dash(-), underscore (_)!");
                 }
                 else {
                     alert(msg);
