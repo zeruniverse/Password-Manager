@@ -619,7 +619,6 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
                 self.hostdomain = data["hostdomain"];
                 self.version = data["version"];
                 self.banTime = data["banTime"];
-                self.randomLoginStamp = data["random_login_stamp"];
                 self.usePin = data["use_pin"];
                 self.loggedIn = data["loggedIn"];
                 self.minPasswordLength = data["minPasswordLength"];

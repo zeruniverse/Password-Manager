@@ -28,23 +28,23 @@ $sql = 'DELETE FROM `pin` WHERE `errortimes` >= 3 OR UNIX_TIMESTAMP( NOW( ) ) - 
 $res = sqlexec($sql, [$PIN_EXPIRE_TIME], $link);
 
 //Find matching PIN record
-$sql = 'SELECT `pinsig`,`pinpk` FROM `pin` WHERE `userid`= ? AND `device`=?';
+$sql = 'SELECT `pinsig`, `pinpk` FROM `pin` WHERE `userid`= ? AND `device`=?';
 $res = sqlexec($sql, [$id, $device], $link);
 $record = $res->fetch(PDO::FETCH_ASSOC);
 if (!$record) {
     ajaxError('PINunavailable');
 }
 $sig = $record['pinsig'];
+$pinpk = $record['pinpk'];
 
-// Correct PIN. Use 100 here as currently JS web client SHA3-512 is very slow.
-$correct_sig = hash_pbkdf2('sha3-512', (string) $sig, (string) $_SESSION['random_login_stamp'], 100);
+$post_sig = hash_pbkdf2('sha3-512', (string) $_POST['sig'], $pinpk, $PBKDF2_ITERATIONS);
 
-if (strcmp($correct_sig, (string) $_POST['sig']) == 0)
+if (strcmp($sig, $post_sig) == 0)
 {
     $sql = 'UPDATE `pin` SET `errortimes`=0 WHERE `userid`= ? AND `device`=?';
     $res = sqlexec($sql, [$id, $device], $link);
 
-    ajaxSuccess(['pinpk' => $record['pinpk']]);
+    ajaxSuccess(['pinpk' => bin2hex($record['pinpk'])]);
 }
 //Wrong PIN
 $sql = 'UPDATE `pin` SET `errortimes`=`errortimes`+1 WHERE `userid`= ? AND `device`=?';

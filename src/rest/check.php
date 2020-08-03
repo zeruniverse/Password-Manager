@@ -24,9 +24,6 @@ function loghistory($link, $userid, $ip, $ua, $outcome)
     $sql = 'INSERT INTO `history` VALUES (?,?,?,?,?,CURRENT_TIMESTAMP)';
     $res = sqlexec($sql, [$i, $userid, $ip, $ua, $outcome], $link);
 }
-if (!isset($_SESSION['random_login_stamp']) || $_SESSION['random_login_stamp'] == '') {
-    ajaxError('general');
-}
 $usr = $_POST['user'];
 $pw = $_POST['pwd'];
 $emailcode = $_POST['emailcode'];
@@ -104,7 +101,7 @@ if($EMAIL_VERIFICATION_ENABLED)
 
         require_once dirname(__FILE__).'/../function/send_email.php';
         // 8 digits verification code
-        $k = sprintf("%08d", mt_rand(0, 99999999));
+        $k = sprintf("%08d", random_int(0, 99999999));
         $_SESSION["emailcode"] = $k;
         if(send_email($record["email"], $k))
         {
@@ -116,9 +113,9 @@ if($EMAIL_VERIFICATION_ENABLED)
 
     }
 
-    // on successful login, update user pwdrecord cookie. The cookie will expire in 60 days. i.e.
-    //    if you haven't logoned for 30 days, you will have to verify emails again!
-    setcookie("pwdrecord_".$encoded_usr, $pwdrecord_check, time()+86400*60,
+    // on successful login, update user pwdrecord cookie. The cookie will expire in $PIN_EXPIRE_TIME seconds.
+    //   i.e. if you haven't logoned for 30 days, you will have to verify emails again!
+    setcookie("pwdrecord_".$encoded_usr, $pwdrecord_check, time()+$PIN_EXPIRE_TIME+3600,
               '/; samesite=strict', null, true, true);
 }
 

@@ -13,7 +13,7 @@ if (strlen($newpass) > 130) {
     ajaxError('general');
 }
 $accarray = json_decode($_POST['accarray']);
-$salt = openssl_random_pseudo_bytes(32);
+$salt = random_bytes(64);
 
 if (!$link->beginTransaction()) {
     ajaxError('general');

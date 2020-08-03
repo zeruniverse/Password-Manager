@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `pin` (
   `userid` int(11) NOT NULL,
   `device` varchar(10) NOT NULL,
   `pinsig` text,
-  `pinpk` varchar(30) NOT NULL,
+  `pinpk` binary(64) NOT NULL,
   `ua` varchar(500) DEFAULT '',
   `createtime` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `errortimes` int(11) NOT NULL DEFAULT 0,
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `pwdusrrecord` (
   `id` int(11) NOT NULL,
   `username` varchar(50) NOT NULL,
   `password` varchar(510) NOT NULL,
-  `salt` binary(32) NOT NULL,
+  `salt` binary(64) NOT NULL,
   `fields` text NOT NULL,
   `email` varchar(50) NOT NULL,
   PRIMARY KEY (`id`)

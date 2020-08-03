@@ -3,11 +3,8 @@
 require_once dirname(__FILE__).'/../function/sqllink.php';
 require_once dirname(__FILE__).'/../function/ajax.php';
 start_session();
-if (!isset($_SESSION['random_login_stamp'])) {
-    $_SESSION['random_login_stamp'] = date('Ymdhis').bin2hex(openssl_random_pseudo_bytes(32));
-}
 if (!isset($_SESSION['session_token'])) {
-    $_SESSION['session_token'] = bin2hex(openssl_random_pseudo_bytes(32));
+    $_SESSION['session_token'] = bin2hex(random_bytes(64));
 }
 function usepin()
 {
@@ -54,7 +51,6 @@ $result['default_length'] = $DEFAULT_LENGTH;
 $result['global_salt_1'] = $GLOBAL_SALT_1;
 $result['global_salt_2'] = $GLOBAL_SALT_2;
 $result['session_token'] = $_SESSION['session_token'];
-$result['random_login_stamp'] = $_SESSION['random_login_stamp'];
 $result['use_pin'] = usepin() ? 1 : 0;
 $result['version'] = $VERSION;
 $result['banTime'] = $ACCOUNT_BAN_TIME;
