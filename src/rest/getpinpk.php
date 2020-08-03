@@ -36,7 +36,8 @@ if (!$record) {
 }
 $sig = $record['pinsig'];
 //Correct PIN
-if (strcmp(hash('sha512', (string) $sig.(string) $_SESSION['random_login_stamp']), (string) $_POST['sig']) == 0) {
+if (strcmp(hash('sha3-512', (string) $sig.(string) $_SESSION['random_login_stamp']), (string) $_POST['sig']) == 0)
+{
     $sql = 'UPDATE `pin` SET `errortimes`=0 WHERE `userid`= ? AND `device`=?';
     $res = sqlexec($sql, [$id, $device], $link);
 

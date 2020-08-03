@@ -19,7 +19,7 @@ if (!$link->beginTransaction()) {
     ajaxError('general');
 }
 $sql = 'UPDATE `pwdusrrecord` SET `password` = ?, `salt` = ? WHERE `id` = ? ';
-$newpass = hash_pbkdf2('sha256', $newpass, $salt, $PBKDF2_ITERATIONS);
+$newpass = hash_pbkdf2('sha3-512', $newpass, $salt, $PBKDF2_ITERATIONS);
 $res = sqlexec($sql, [$newpass, $salt, $id], $link);
 if ($res == null) {
     $link->rollBack();

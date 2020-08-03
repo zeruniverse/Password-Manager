@@ -41,7 +41,7 @@ if ($num[0] != 0) {
     ajaxError('occupiedEmail');
 }
 $salt = openssl_random_pseudo_bytes(32);
-$pw = hash_pbkdf2('sha256', $pw, $salt, $PBKDF2_ITERATIONS);
+$pw = hash_pbkdf2('sha3-512', $pw, $salt, $PBKDF2_ITERATIONS);
 $res = sqlquery('SELECT max(`id`) FROM `pwdusrrecord`', $link);
 $result = $res->fetch(PDO::FETCH_NUM);
 $maxnum = !$result ? 0 : (int) ($result[0]);

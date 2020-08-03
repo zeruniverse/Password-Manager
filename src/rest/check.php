@@ -75,7 +75,7 @@ if ((int) $count['m'] >= $BLOCK_ACCOUNT_TRY) {
 
 // check if password is correct
 $password = $record['password'];
-$hash_pbkdf2 = hash_pbkdf2('sha-512', $pw, (string) $record['salt'], $PBKDF2_ITERATIONS);
+$hash_pbkdf2 = hash_pbkdf2('sha3-512', $pw, (string) $record['salt'], $PBKDF2_ITERATIONS);
 if (strcmp((string) $password, (string) $hash_pbkdf2) != 0) {
     loghistory($link, (int) $record['id'], getUserIP(), $_SERVER['HTTP_USER_AGENT'], 0);
     $sql = 'SELECT count(*) as `m` FROM `history`
@@ -90,7 +90,7 @@ if (strcmp((string) $password, (string) $hash_pbkdf2) != 0) {
 }
 if($EMAIL_VERIFICATION_ENABLED)
 {
-    $pwdrecord_check = hash_pbkdf2('sha-512', (string) $hash_pbkdf2, $GLOBAL_SALT_3, $PBKDF2_ITERATIONS);
+    $pwdrecord_check = hash_pbkdf2('sha3-512', (string) $hash_pbkdf2, $GLOBAL_SALT_3, $PBKDF2_ITERATIONS);
 
     // To avoid spam, only do email verification if password is correct
 
