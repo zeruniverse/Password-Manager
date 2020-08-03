@@ -5,7 +5,7 @@
 //****************************************
 
 $DB_HOST = '';
-//Make sure MySQL is running at default port 3306. Or you have to edit sqllink.php
+//Make sure MySQL is running at default port 3306. Or you have to edit common.php
 //If you use localhost, make sure you have localhost defined in /etc/hosts
 
 //The database name for password_manager

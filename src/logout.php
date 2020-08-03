@@ -1,6 +1,6 @@
 <?php
 
-require_once 'function/sqllink.php';
+require_once 'function/common.php';
 start_session();
 invalidateSession();
 $reason = '';

@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname(__FILE__).'/../function/sqllink.php';
+require_once dirname(__FILE__).'/../function/common.php';
 require_once dirname(__FILE__).'/../function/ajax.php';
 start_session();
 $token = (isset($_SESSION['session_token']) ? $_SESSION['session_token'] : null);

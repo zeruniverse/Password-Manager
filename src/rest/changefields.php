@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname(__FILE__).'/../function/sqllink.php';
+require_once dirname(__FILE__).'/../function/common.php';
 require_once dirname(__FILE__).'/../function/ajax.php';
 if (!$CUSTOMIZE_FIELDS) {
     http_response_code(405);
