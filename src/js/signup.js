@@ -18,8 +18,9 @@ $(function(){
                 else if (msg == "EmailInvalid") {
                     alert("This is not a valid Email");
                 }
-                else if (msg == "UserLength") {
-                    alert("Length of username should be at least " + backend.minNameLength + " characters!");
+                else if (msg == "UserNameError") {
+                    alert("Username should be at least " + backend.minNameLength +
+                          " characters of English letters (a-z, A-Z) or numbers (0-9)!");
                 }
                 else {
                     alert(msg);

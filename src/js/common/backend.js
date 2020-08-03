@@ -633,7 +633,7 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
             });
 
     }
-    doLogin(user, password) {
+    doLogin(user, password, emailcode) {
         var self = this;
         var secretkey = '';
         return self.encryptionWrapper.generateSecretKey(password)
@@ -642,7 +642,8 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
                 return self.encryptionWrapper.generateKey(secretkey);
             })
             .then(function(login_sig) {
-                return self.doPost('check', {pwd:String(CryptoJS.SHA512(login_sig + user)), user: user});
+                return self.doPost('check', {pwd:String(CryptoJS.SHA512(login_sig + user)),
+                                             user: user, emailcode:emailcode});
             })
             .then(function(confkey) {
                 return self.encryptionWrapper.persistCredentialsFromPassword(user, password);
@@ -659,8 +660,8 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
         if (!self.validEmail(email)) {
             return Promise.reject("EmailInvalid");
         }
-        if (user.length < self.minNameLength) {
-            return Promise.reject("UserLength");
+        if (user.length < self.minNameLength || !validUserName(user)) {
+            return Promise.reject("UserNameError");
         }
         return self.encryptionWrapper.generateSecretKey(password1)
             .then(function(secretkey){
@@ -672,6 +673,14 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
     }
     validEmail(aEmail) {
         var bValidate = RegExp(/^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/).test(aEmail);
+        if (bValidate) {
+            return true;
+        }
+        else
+            return false;
+    }
+    validUserName(username) {
+        var bValidate = RegExp(/^[A-Za-z0-9]+$/).test(username);
         if (bValidate) {
             return true;
         }
