@@ -246,13 +246,17 @@ let PinHandling = (superclass) => class extends superclass {
         // check if this key is already used
         return self.doPost("getpinpk", { user:self.user, device: device, sig:'1'})
             .then(function(msg) {
-                // success means a duplicate exists, so we do this all again
+                // unlikely since sig is random.
                 return self.getDevice();
             })
             .catch(function(msg) {
-                //failure means this is not a duplicate, so everything is ok
-                setCookie('device', device);
-                return device;
+                if (msg == 'No PIN available'){
+                    //failure means this is not a duplicate, so everything is ok
+                    setCookie('device', device);
+                    return device;
+                } else {
+                    self.getDevice();
+                }
             });
     }
     unSetPin(device) {
@@ -267,10 +271,21 @@ let PinHandling = (superclass) => class extends superclass {
             .then(function(_device) {
                 device = _device;
                 salt = self.encryptionWrapper.generatePassphrase(500);
-                return self.doPost("setpin" , {user: self.user, device: device, sig: String(CryptoJS.SHA512(pin + salt))});
+                // SHA2-512 is faster
+                raw_signature = CryptoJS.PBKDF2(pin, salt,
+                                                {keySize: 512 / 32,
+                                                 iterations:5000,
+                                                 hasher:CryptoJS.algo.SHA512}).toString();
+
+                return self.doPost("setpin" , {user: self.user, device: device, sig: raw_signature});
             })
             .then(function(msg) {
-                return self.encryptionWrapper.storePIN(device, salt, pin + msg["pinpk"]);
+                var new_pin = CryptoJS.PBKDF2(pin + msg["pinpk"],
+                                              CryptoJS.SHA3(salt, { outputLength: 512 }).toString(),
+                                              {keySize: 512 / 32,
+                                               iterations:5000,
+                                               hasher:CryptoJS.algo.SHA512}).toString();
+                return self.encryptionWrapper.storePIN(device, salt, new_pin);
             });
     }
     delLocalPinStore() {
@@ -616,10 +631,25 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
     doPinLogin(pin) {
         var self = this;
         var user = getCookie('username');
-        var sig = String(CryptoJS.SHA512(String(CryptoJS.SHA512(pin + localStorage.pinsalt)) + self.randomLoginStamp));
-        return self.doPost('getpinpk', {user:user, device:getCookie('device'), sig:sig})
+        // SHA2-512 is faster
+        var raw_signature = CryptoJS.PBKDF2(pin, localStorage.pinsalt,
+                                            {keySize: 512 / 32,
+                                             iterations:5000,
+                                             hasher:CryptoJS.algo.SHA512}).toString();
+
+        var post_signature = CryptoJS.PBKDF2(raw_signature, self.randomLoginStamp,
+                                            {keySize: 512 / 32,
+                                             iterations:100,
+                                             hasher:CryptoJS.algo.SHA3}).toString();
+
+        return self.doPost('getpinpk', {user:user, device:getCookie('device'), sig:post_signature})
             .then(function(msg) {
-                return self.encryptionWrapper.restoreFromPIN(user, pin + msg["pinpk"]);
+                var new_pin = CryptoJS.PBKDF2(pin + msg["pinpk"],
+                                              CryptoJS.SHA3(salt, { outputLength: 512 }).toString(),
+                                              {keySize: 512 / 32,
+                                               iterations:5000,
+                                               hasher:CryptoJS.algo.SHA512}).toString();
+                return self.encryptionWrapper.restoreFromPIN(user, new_pin);
             })
             .then(function(loginpwd) {
                 return self.doPost('check', {pwd: loginpwd, user:user});
@@ -638,10 +668,10 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
         return self.encryptionWrapper.generateSecretKey(password)
             .then(function(_secretkey){
                 secretkey = _secretkey;
-                return self.encryptionWrapper.generateKey(secretkey);
+                return self.encryptionWrapper.generateKeyWithSalt(secretkey, user, 5000);
             })
             .then(function(login_sig) {
-                return self.doPost('check', {pwd:String(CryptoJS.SHA512(login_sig + user)),
+                return self.doPost('check', {pwd:login_sig,
                                              user: user, emailcode:emailcode});
             })
             .then(function(confkey) {

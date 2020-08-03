@@ -5,6 +5,14 @@ class EncryptionWrapper {
         this.jsSalt = jsSalt;
         this.alphabet = alphabet;
     }
+    static generateKeyWithSalt(input, salt, iterations) {
+        var iter = iterations || 500;
+        var hash = CryptoJS.SHA512(input);
+        var salt = CryptoJS.SHA512(salt);
+        var gen_key = CryptoJS.PBKDF2(hash, salt, { keySize: 512/32, iterations: iter,
+                                                    hasher:CryptoJS.algo.SHA512});
+        return Promise.resolve(String(gen_key));
+    }
     static fromLocalStorage(jsSalt, pwSalt, alphabet) {
         return EncryptionWrapper.getPwdStoreUsingSalt(pwSalt)
             .then(function(secretkey0) {
@@ -53,7 +61,7 @@ class EncryptionWrapper {
     generateSecretKey(password, store) {
         var self = this;
         var store = (typeof store !== 'undefined') ? store : true;
-        return self.generateKey(EncryptionWrapper.reduceInfo(password, self.alphabet))
+        return self.generateKey(EncryptionWrapper.reduceInfo(password, self.alphabet), 5000)
             .then(function(sk) {
                 if (store) {
                     self.secretkey = sk;
@@ -64,13 +72,6 @@ class EncryptionWrapper {
     }
     generateKey(input, iterations) {
         return this.generateKeyWithSalt(input, this.jsSalt, iterations);
-    }
-    generateKeyWithSalt(input, salt, iterations) {
-        var iter = iterations || 500;
-        var hash = CryptoJS.SHA512(input);
-        var salt = CryptoJS.SHA512(salt);
-        var gen_key = CryptoJS.PBKDF2(hash, salt, { keySize: 512/32, iterations: iter });
-        return Promise.resolve(String(gen_key));
     }
     multiGenerateKey(key, count) {
         var self = this;
@@ -184,7 +185,7 @@ class EncryptionWrapper {
     // not happy with the name, actually stores everything that will be read by getPwdStore, should rename getPwdStore
     persistCredentialsFromPassword(user, password) {
         var self = this;
-        return self.generateKey(String(CryptoJS.SHA512(password + self.secretkey)))
+        return self.generateKeyWithSalt(password, self.secretkey, 5000)
             .then(function(confkey) {
                 return EncryptionWrapper.persistCredentials(user, self.secretkey, confkey, self.pwSalt);
             });
@@ -236,10 +237,7 @@ class EncryptionWrapper {
                 return EncryptionWrapper.persistCredentials(user, secretkey, confkey, self.pwSalt);
             })
             .then(function(secretkey) {
-                return self.generateKey(secretkey);
-            })
-            .then(function(loginpwd) {
-                return String(CryptoJS.SHA512(loginpwd + user));
+                return self.generateKeyWithSalt(secretkey, user, 5000);
             });
     }
     deletePIN() {
@@ -253,14 +251,14 @@ class EncryptionWrapper {
         if(encryptch == "" || key == ""){
             return Promise.reject("ERROR: empty key detected!");
         }
-        var p = CryptoJS.AES.encrypt(encryptch,key).toString();
+        var p = CryptoJS.AES.encrypt(encryptch, key).toString();
         return Promise.resolve(p);
     }
     static decryptCharUsingKey(echar, key){
         if(echar == "" || key == ""){
             return Promise.reject("ERROR: empty key detected!");
         }
-        var p = CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(echar,key));
+        var p = CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(echar, key));
         return Promise.resolve(p);
     }
     static generateKey(key, orig_salt, iter){

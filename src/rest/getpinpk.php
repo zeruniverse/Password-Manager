@@ -35,8 +35,11 @@ if (!$record) {
     ajaxError('PINunavailable');
 }
 $sig = $record['pinsig'];
-//Correct PIN
-if (strcmp(hash('sha3-512', (string) $sig.(string) $_SESSION['random_login_stamp']), (string) $_POST['sig']) == 0)
+
+// Correct PIN. Use 100 here as currently JS web client SHA3-512 is very slow.
+$correct_sig = hash_pbkdf2('sha3-512', (string) $sig, (string) $_SESSION['random_login_stamp'], 100);
+
+if (strcmp($correct_sig, (string) $_POST['sig']) == 0)
 {
     $sql = 'UPDATE `pin` SET `errortimes`=0 WHERE `userid`= ? AND `device`=?';
     $res = sqlexec($sql, [$id, $device], $link);

@@ -26,6 +26,7 @@ $res = sqlexec($sql, [$id, $device], $link);
 $pinpk = random_str(30);
 
 $sql = 'INSERT INTO `pin` (`userid`,`device`,`pinsig`,`pinpk`,`ua`) VALUES (?,?,?,?,?)';
+
 $res = sqlexec($sql, [$id, $device, $sig, $pinpk, $_SERVER['HTTP_USER_AGENT']], $link);
 
 ajaxSuccess(['pinpk' => $pinpk]);
