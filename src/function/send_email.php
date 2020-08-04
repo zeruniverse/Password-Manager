@@ -17,7 +17,9 @@ require_once dirname(__FILE__).'/config.php';
 function send_email($address, $verification_code)
 {
     // Verification disabled. This function should not be called.
-    if(!$EMAIL_VERIFICATION_ENABLED) return false;
+    if (!$EMAIL_VERIFICATION_ENABLED) {
+        return false;
+    }
 
     // add verification code to body
     $body = 'Your Password-Manager email verification code is :'.strval($verification_code).'<br /><br />';
@@ -35,24 +37,23 @@ function send_email($address, $verification_code)
     $user = $SENDGRID_USER_NAME;
     $pass = $SENDGRID_PASSWORD;
 
-    $params = array(
+    $params = [
         'api_user'  => $user,
         'api_key'   => $pass,
         'to'        => $address,
         'subject'   => 'Password-Manager Verification: '.strval($verification_code),
         'html'      => $body,
         'from'      => $SENDGRID_FROM_ADDRESS,
-      );
+    ];
 
-
-    $request =  $url.'api/mail.send.json';
+    $request = $url.'api/mail.send.json';
 
     // Generate curl request
     $session = curl_init($request);
     // Tell curl to use HTTP POST
-    curl_setopt ($session, CURLOPT_POST, true);
+    curl_setopt($session, CURLOPT_POST, true);
     // Tell curl that this is the body of the POST
-    curl_setopt ($session, CURLOPT_POSTFIELDS, $params);
+    curl_setopt($session, CURLOPT_POSTFIELDS, $params);
     // Tell curl not to return headers, but do return the response
     curl_setopt($session, CURLOPT_HEADER, false);
     // Tell PHP not to use SSLv3 (instead opting for TLS)
@@ -62,10 +63,11 @@ function send_email($address, $verification_code)
     // obtain response
     $response = curl_exec($session);
     curl_close($session);
-    if((json_decode($response)->{'message'})=='success'){
+    if ((json_decode($response)->{'message'}) == 'success') {
         return true;
     } else {
-        error_log("Failed to send email! ".$response, 0);
+        error_log('Failed to send email! '.$response, 0);
+
         return false;
     }
 }

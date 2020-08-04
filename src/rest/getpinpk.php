@@ -39,8 +39,7 @@ $pinpk = $record['pinpk'];
 
 $post_sig = hash_pbkdf2('sha3-512', (string) $_POST['sig'], $pinpk, $PBKDF2_ITERATIONS);
 
-if (strcmp($sig, $post_sig) == 0)
-{
+if (strcmp($sig, $post_sig) == 0) {
     $sql = 'UPDATE `pin` SET `errortimes`=0 WHERE `userid`= ? AND `device`=?';
     $res = sqlexec($sql, [$id, $device], $link);
 
