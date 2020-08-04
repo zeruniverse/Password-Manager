@@ -85,43 +85,50 @@ if (strcmp((string) $password, (string) $hash_pbkdf2) != 0) {
     }
     ajaxError('loginFailed');
 }
-if($EMAIL_VERIFICATION_ENABLED)
-{
+if ($EMAIL_VERIFICATION_ENABLED) {
     // Let's be honest, this does not need to be a strong key as the source key is:
     //      if from password, already hashed a lot of times
     //      if from $hash_pbkdf2, it is 512 bits long
 
-    $pwdrecord_check = hash_pbkdf2('sha3-512', (string) $hash_pbkdf2, $GLOBAL_SALT_3,
-                                   max(intdiv($PBKDF2_ITERATIONS, 100), 10));
+    $pwdrecord_check = hash_pbkdf2(
+        'sha3-512',
+        (string) $hash_pbkdf2,
+        $GLOBAL_SALT_3,
+        max(intdiv($PBKDF2_ITERATIONS, 100), 10)
+    );
 
     // To avoid spam, only do email verification if password is correct
 
     // Use urlencode as backend has no restriction for username.
     $encoded_usr = urlencode($usr);
-    if ((!isset($_COOKIE["pwdrecord_".$encoded_usr]) ||
-         $_COOKIE["pwdrecord_".$encoded_usr]!=$pwdrecord_check) &&
-        (!isset($_SESSION["emailcode"]) || $_SESSION["emailcode"]!=$emailcode))
-    {
+    if ((!isset($_COOKIE['pwdrecord_'.$encoded_usr]) ||
+         $_COOKIE['pwdrecord_'.$encoded_usr] != $pwdrecord_check) &&
+        (!isset($_SESSION['emailcode']) || $_SESSION['emailcode'] != $emailcode)) {
         // We need to generate a random email verification number
 
         require_once dirname(__FILE__).'/../function/send_email.php';
         // 8 digits verification code
-        $k = sprintf("%08d", random_int(0, 99999999));
-        $_SESSION["emailcode"] = $k;
-        if(send_email($record["email"], $k))
-        {
+        $k = sprintf('%08d', random_int(0, 99999999));
+        $_SESSION['emailcode'] = $k;
+        if (send_email($record['email'], $k)) {
             ajaxError('EmailVerify');
         } else {
             // Fail to send out emails
             ajaxError('general');
         }
-
     }
 
     // on successful login, update user pwdrecord cookie. The cookie will expire in $PIN_EXPIRE_TIME seconds.
     //   i.e. if you haven't logoned for 30 days, you will have to verify emails again!
-    setcookie("pwdrecord_".$encoded_usr, $pwdrecord_check, time()+$PIN_EXPIRE_TIME+3600,
-              '/; samesite=strict', null, true, true);
+    setcookie(
+        'pwdrecord_'.$encoded_usr,
+        $pwdrecord_check,
+        time() + $PIN_EXPIRE_TIME + 3600,
+        '/; samesite=strict',
+        null,
+        true,
+        true
+    );
 }
 
 $_SESSION['loginok'] = 1;
