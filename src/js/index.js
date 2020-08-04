@@ -17,7 +17,19 @@ function isAllHTML5Supports(){
     }
     return isSupportFileApi();
 }
-if(!isAllHTML5Supports()) {
+function isCrypto(){
+    try{
+        if((await PBKDF2_SHA512('123', '456', 3)).substring(0, 5)!="e2d69") {
+            return false;
+        }
+        var enc = await AESGCM256Encrypt('123', '456');
+        if((await AESGCM256Decrypt(enc, '456')) != '123') return false;
+    } catch(e) {
+        return false;
+    }
+    return true;
+}
+if(!isAllHTML5Supports() || !isCrypto()) {
     window.location.href="./sorry_for_old_browser_update_hint.html";
 }
 $(function(){
