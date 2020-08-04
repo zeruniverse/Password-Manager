@@ -149,7 +149,7 @@ $DEFAULT_LENGTH = 13;
 //Use those letters to generate random password
 //DO NOT USE LETTERS LIKE &,>,< HERE (letters have special meaning in HTML)
 //MAKE SURE EACH LETTER ONLY APPEAR ONCE!!!
-$DEFAULT_LETTER_USED = 'RSTUVWXYZabcdefgABCDEFGHIJKLMNOPQhijklmnopqrstuvwxyz0123456789*=+~-';
+$DEFAULT_LETTER_USED = '*+-0123456789=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~';
 
 //YOU ARE DONE.
 //DON'T FORGET TO UPLOAD THE INITIAL TABLES!
