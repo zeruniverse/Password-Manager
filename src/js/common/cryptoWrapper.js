@@ -13,8 +13,10 @@ class EncryptionWrapper {
 
     static SgenerateKeyWithSalt(input, salt) {
         // Didn't use SHA3 here because it's slow.
-        salt = SHA512(salt)
-        return PBKDF2_SHA512(input, salt, 300000);
+        return SHA512(salt)
+            .then(function(new_salt){
+                return PBKDF2_SHA512(input, new_salt, 300000);
+            });
     }
 
     static fromLocalStorage(jsSalt, pwSalt, alphabet) {
@@ -82,11 +84,15 @@ class EncryptionWrapper {
     }
 
     static genTempPwd(key, account_sig, orig_alphabet, pwd) {
-        return EncryptionWrapper.genAlphabet(key, account_sig, orig_alphabet)
-            .then(function(new_alphabet) {
+        var promises = [];
+        promises.push(EncryptionWrapper.genAlphabet(key, account_sig, orig_alphabet));
+        promises.push(EncryptionWrapper.WgenerateKeyWithSalt(account_sig, key));
+        return Promise.all(promises)
+            .then(function(results) {
+                var new_alphabet = results[0];
+                var shift = results[1];
                 var temp_pwd = "";
                 var i, j, pwd_len, alphabet_len;
-                var shift = await EncryptionWrapper.WgenerateKeyWithSalt(account_sig, key);
                 var shift_len = shift.length;
                 pwd_len = pwd.length;
                 alphabet_len = new_alphabet.length;
@@ -110,11 +116,15 @@ class EncryptionWrapper {
     }
 
     static getOrigPwd(key, account_sig, orig_alphabet, temp_pwd) {
-        return EncryptionWrapper.genAlphabet(key, account_sig, orig_alphabet)
-            .then(function(new_alphabet) {
+        var promises = [];
+        promises.push(EncryptionWrapper.genAlphabet(key, account_sig, orig_alphabet));
+        promises.push(EncryptionWrapper.WgenerateKeyWithSalt(account_sig, key));
+        return Promise.all(promises)
+            .then(function(results) {
+                var new_alphabet = results[0];
                 var pwd = "";
                 var i, j, pwd_len, alphabet_len;
-                var shift = EncryptionWrapper.WgenerateKeyWithSalt(account_sig, key);
+                var shift = results[1];
                 var shift_len = shift.length;
                 pwd_len = temp_pwd.length;
                 alphabet_len = new_alphabet.length;

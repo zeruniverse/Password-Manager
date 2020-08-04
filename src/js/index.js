@@ -17,7 +17,7 @@ function isAllHTML5Supports(){
     }
     return isSupportFileApi();
 }
-function isCrypto(){
+async function isCrypto(){
     try{
         if((await PBKDF2_SHA512('123', '456', 3)).substring(0, 5)!="e2d69") {
             return false;
@@ -29,9 +29,13 @@ function isCrypto(){
     }
     return true;
 }
-if(!isAllHTML5Supports() || !isCrypto()) {
-    window.location.href="./sorry_for_old_browser_update_hint.html";
-}
+
+isCrypto().then(function(is_crypto){
+        if(!isAllHTML5Supports() || !is_crypto) {
+            window.location.href="./sorry_for_old_browser_update_hint.html";
+        }
+    });
+
 $(function(){
     $("#signup").on('click',function(e){window.location.href="signup.php";});
     $("#recover").on('click',function(e){window.location.href="recovery.php";});

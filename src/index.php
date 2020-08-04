@@ -73,7 +73,7 @@ echoheader();
                     </div>
                     <div class="modal-footer">
                         <p class="collapse" id="pinerrorhint">PIN ERROR, try again.</p>
-                        <button type="button" class="btn btn-danger" data-dismiss="modal">Delete PIN</button>
+                        <button type="button" class="btn btn-danger" id="delpin" data-dismiss="modal">Delete PIN</button>
                         <input type="submit" class="btn btn-primary" id="pinlogin" value="Login" />
                     </div>
                 </form>
