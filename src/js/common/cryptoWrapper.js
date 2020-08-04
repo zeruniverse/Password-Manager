@@ -15,7 +15,7 @@ class EncryptionWrapper {
         // Didn't use SHA3 here because it's slow.
         return SHA512(salt)
             .then(function(new_salt){
-                return PBKDF2_SHA512(input, new_salt, 300000);
+                return PBKDF2_SHA512(input, new_salt, 1000000);
             });
     }
 
