@@ -91,7 +91,7 @@ let AuthenticatedSession = (superclass) => class extends superclass {
         var username = getCookie('username');
         var device = getCookie('device');
         if ((device != null) && (device != "")) {
-            promises.push(self.doPost("deletepin", {'user': getCookie('username'), 'device': device}));
+            promises.push(self.doPost("deletepin", {'user': username, 'device': device}));
         }
         return Promise.all(promises)
             .then(function(){
