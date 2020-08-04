@@ -24,7 +24,7 @@ class EncryptionWrapper {
 
     static SgenerateKeyWithSalt(input, salt) {
         // Didn't use SHA3 here because it's slow.
-        return generateKeyWithSalt(input, salt, 5000, CryptoJS.algo.SHA512);
+        return generateKeyWithSalt(input, salt, 10000, CryptoJS.algo.SHA512);
     }
 
     static fromLocalStorage(jsSalt, pwSalt, alphabet) {
@@ -37,17 +37,13 @@ class EncryptionWrapper {
             });
     }
 
-    static fromPassword(password, jsSalt, pwSalt, alphabet, login_sig) {
-        let secretkey0 = String(CryptoJS.SHA512(login_sig + pwSalt))
-        return Promise.resolve(new EncryptionWrapper(secretkey0, jsSalt, pwSalt, alphabet));
-    }
-
     decryptChar(crypt){
         return EncryptionWrapper.decryptCharUsingKey(crypt, this.secretkey);
     }
     encryptChar(char){
         return EncryptionWrapper.encryptCharUsingKey(char, this.secretkey);
     }
+
     decryptPassword(name, kss){
         var self = this;
         var thekey = "";
@@ -60,7 +56,7 @@ class EncryptionWrapper {
                 return self.getConfkey();
             })
             .then(function(confkey){
-                return EncryptionWrapper.getOrigPwd(confkey, self.pwSalt, String(CryptoJS.SHA512(name)), self.alphabet, thekey);
+                return EncryptionWrapper.getOrigPwd(confkey, name, self.alphabet, thekey);
             });
     }
 
@@ -68,7 +64,7 @@ class EncryptionWrapper {
         var self = this;
         return self.getConfkey()
             .then(function(confkey){
-                return EncryptionWrapper.genTempPwd(confkey, self.pwSalt, String(CryptoJS.SHA512(name)), self.alphabet, pass)
+                return EncryptionWrapper.genTempPwd(confkey, name, self.alphabet, pass)
             })
             .then(function(pass) {
                 return self.encryptChar(pass);
@@ -95,28 +91,20 @@ class EncryptionWrapper {
         return EncryptionWrapper.WgenerateKeyWithSalt(input, this.jsSalt);
     }
 
-    multiGenerateKey(key, count) {
-        var self = this;
-        if (count == 0)
-            return Promise.resolve(key);
-        return self.generateKeyWithSalt(key, self.pwSalt)
-            .then(function(key){
-                return self.multiGenerateKey(key, count - 1);
-            });
-    }
-    static genTempPwd(key, salt, account_sig, orig_alphabet, pwd) {
-        return EncryptionWrapper.genAlphabet(key, salt, account_sig, orig_alphabet)
+    static genTempPwd(key, account_sig, orig_alphabet, pwd) {
+        return EncryptionWrapper.genAlphabet(key, account_sig, orig_alphabet)
             .then(function(new_alphabet) {
                 var temp_pwd = "";
                 var i, j, pwd_len, alphabet_len;
-                var shift = String(CryptoJS.SHA512(account_sig + key));
+                var shift = CryptoJS.SHA3(account_sig + key, { outputLength: 512 }).toString();
                 var shift_len = shift.length;
                 pwd_len = pwd.length;
                 alphabet_len = new_alphabet.length;
                 for(i = 0; i < pwd_len; i++){
                     for(j=0; j < alphabet_len; j++){
                         if(pwd.charAt(i) === orig_alphabet.charAt(j)){
-                            temp_pwd = temp_pwd + new_alphabet.charAt((j+shift.charCodeAt(i % shift_len)) % alphabet_len);
+                            temp_pwd = temp_pwd + new_alphabet.charAt(
+                                (j+shift.charCodeAt(i % shift_len)) % alphabet_len);
                             break;
                         }
                     }
@@ -130,19 +118,23 @@ class EncryptionWrapper {
                 return temp_pwd;
             });
     }
-    static getOrigPwd(key,salt,account_sig,orig_alphabet,temp_pwd) {
-        return EncryptionWrapper.genAlphabet(key, salt, account_sig, orig_alphabet)
+
+    static getOrigPwd(key, account_sig, orig_alphabet, temp_pwd) {
+        return EncryptionWrapper.genAlphabet(key, account_sig, orig_alphabet)
             .then(function(new_alphabet) {
                 var pwd = "";
                 var i, j, pwd_len, alphabet_len;
-                var shift = String(CryptoJS.SHA512(account_sig+key));
+                var shift = CryptoJS.SHA3(account_sig + key, { outputLength: 512 }).toString();
                 var shift_len = shift.length;
                 pwd_len = temp_pwd.length;
                 alphabet_len = new_alphabet.length;
                 for(i = 0; i < pwd_len; i++){
                     for(j = 0; j < alphabet_len; j++){
                         if(temp_pwd.charAt(i) === new_alphabet.charAt(j)){
-                            pwd = pwd + orig_alphabet.charAt((j + alphabet_len - (shift.charCodeAt(i % shift_len) % alphabet_len)) % alphabet_len);
+                            pwd = pwd + orig_alphabet.charAt(
+                                (j + alphabet_len -
+                                    (shift.charCodeAt(i % shift_len) % alphabet_len)) % alphabet_len
+                            );
                             break;
                         }
                     }
@@ -154,14 +146,15 @@ class EncryptionWrapper {
                 return pwd;
             });
     }
-    static genAlphabet(key, salt, account_sig, orig_alphabet){
+    static genAlphabet(key, account_sig, orig_alphabet){
         var new_alphabet = "";
         var shift_str;
         var shift_str_len = 0;
         var i, j, k;
         var tempchar;
         var orig_alphabet_len = orig_alphabet.length;
-        return EncryptionWrapper.generateKey(key + account_sig, salt, 100)
+
+        return EncryptionWrapper.WgenerateKeyWithSalt(key, account_sig)
             .then(function(shift_str) {
                 shift_str_len = shift_str.length;
 
@@ -179,6 +172,7 @@ class EncryptionWrapper {
                 return new_alphabet;
             });
     }
+
     getConfkey() {
         var self = this;
         if (self._confkey)
@@ -260,7 +254,7 @@ class EncryptionWrapper {
                 return EncryptionWrapper.persistCredentials(user, secretkey, confkey, self.pwSalt);
             })
             .then(function(secretkey) {
-                return EncryptionWrapper.SgenerateKeyWithSalt(secretkey, user);
+                return EncryptionWrapper.WgenerateKeyWithSalt(secretkey, user);
             });
     }
     deletePIN() {
@@ -283,12 +277,6 @@ class EncryptionWrapper {
         }
         var p = CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(echar, key));
         return Promise.resolve(p);
-    }
-    static generateKey(key, orig_salt, iter){
-        var hash = CryptoJS.SHA512(key);
-        var salt = CryptoJS.SHA512(orig_salt);
-        var gen_key = CryptoJS.PBKDF2(hash, salt, { keySize: 512/32, iterations: iter });
-        return Promise.resolve(String(gen_key));
     }
 
     generatePassphrase(plength) {

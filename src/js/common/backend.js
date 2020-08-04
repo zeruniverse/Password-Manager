@@ -242,7 +242,8 @@ let PinHandling = (superclass) => class extends superclass {
             if (device != "")
                 return Promise.resolve(device);
         }
-        device =  self.encryptionWrapper.generatePassphrase(9);
+        // Random string of length 9
+        device =  Math.random().toString(36).substring(2, 11);
         // check if this key is already used
         return self.doPost("getpinpk", { user:self.user, device: device, sig:'1'})
             .then(function(msg) {
@@ -255,6 +256,7 @@ let PinHandling = (superclass) => class extends superclass {
                     setCookie('device', device);
                     return device;
                 } else {
+                    // Oops, we already have this device
                     self.getDevice();
                 }
             });
@@ -270,7 +272,7 @@ let PinHandling = (superclass) => class extends superclass {
         return self.getDevice()
             .then(function(_device) {
                 device = _device;
-                salt = self.encryptionWrapper.generatePassphrase(500);
+                salt = self.encryptionWrapper.generatePassphrase(100);
 
                 return EncryptionWrapper.SgenerateKeyWithSalt(pin, salt);
             })
@@ -475,36 +477,30 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
         var newseckey;
         var postnewpass;
         var newconfkey;
-        return self.encryptionWrapper.generateSecretKey(oldpass, false)
-            .then(function(old_sec_key) {
-                if(self.encryptionWrapper.secretkey != old_sec_key) {
-                    throw("Incorrect Old Password!");
-                }
-                return self.encryptionWrapper.generateSecretKey(newpass, false)
-            })
-            .then(function(new_sec_key){
-                newseckey = new_sec_key;
-                var promises = [];
-                promises.push(EncryptionWrapper.SgenerateKeyWithSalt(newseckey, self.user)) // login_sig
-
-                // process encryption
-                promises.push(
-                    EncryptionWrapper.WgenerateKeyWithSalt(newpass, newseckey)
-                        .then(function(_newconfkey){
-                            newconfkey = _newconfkey;
-                            return EncryptionWrapper.fromPassword(newpass, self.encryptionWrapper.jsSalt, self.encryptionWrapper.pwSalt, self.encryptionWrapper.alphabet, login_sig)
-                        })
-                )
-
-                return ;
-            })
-            .then(function(_postnewpass) {
-                postnewpass = _postnewpass;
-                return EncryptionWrapper.WgenerateKeyWithSalt(newpass, newseckey);
-            })
-            .then(function(_newconfkey) {
-                newconfkey = _newconfkey;
-
+        var promises = [];
+        promises.push(self.encryptionWrapper.generateSecretKey(oldpass, false)
+                        .then(function(_old_sec_key){
+                            if(self.encryptionWrapper.secretkey != _old_sec_key) {
+                                throw("Incorrect Old Password!");
+                            }
+                            return Promise.resolve(true);
+                        }));
+        promises.push(self.encryptionWrapper.generateSecretKey(newpass, false)
+                        .then(function(_new_sec_key){
+                            newseckey = _new_sec_key;
+                            var new_acc_promises = [];
+                            new_acc_promises.push(EncryptionWrapper.WgenerateKeyWithSalt(newseckey, self.user));
+                            new_acc_promises.push(EncryptionWrapper.WgenerateKeyWithSalt(newpass, newseckey));
+                            return Promise.all(new_acc_promises);
+                        }));
+        return Promise.all(promises)
+            .then(function(all_results){
+                postnewpass = all_results[1][0];
+                newconfkey = all_results[1][1];
+                return Promise.resolve(new EncryptionWrapper(newseckey,
+                                                             self.encryptionWrapper.jsSalt,
+                                                             self.encryptionWrapper.pwSalt,
+                                                             self.encryptionWrapper.alphabet));
             })
             .then(function(newEncryptionWrapper) {
                 newEncryptionWrapper._confkey = newconfkey;
@@ -525,7 +521,7 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
                 for (let account of accounts) {
                     accarray[account["index"]] = account;
                 }
-                return self.doPost("changeuserpw", {newpass:String(CryptoJS.SHA512(postnewpass + self.user)), accarray:JSON.stringify(accarray)});
+                return self.doPost("changeuserpw", {newpass:postnewpass, accarray:JSON.stringify(accarray)});
             })
             .then(function(){
                 return self.logout("Password changed, please relogin");
@@ -546,8 +542,16 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
             .then(function(msg) {
                 data = msg;
                 backup = data;
-                return self.encryptionWrapper.multiGenerateKey(self.encryptionWrapper.secretkey, 32);
+                return self.encryptionWrapper.SgenerateKey(self.encryptionWrapper.secretkey);
             })
+            .then(function(key1)){
+                progress_callback(10);
+                return self.encryptionWrapper.SgenerateKey(key1);
+            }
+            .then(function(key2)){
+                progress_callback(20);
+                return self.encryptionWrapper.SgenerateKey(key2);
+            }
             .then(function(_key) {
                 key = _key;
                 progress_callback(30);
@@ -641,9 +645,6 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
         var user = getCookie('username');
         // SHA2-512 is faster
         return EncryptionWrapper.SgenerateKeyWithSalt(pin, localStorage.pinsalt)
-            .then(function(raw_signature){
-                return EncryptionWrapper.WgenerateKeyWithSalt(raw_signature, self.randomLoginStamp);
-            })
             .then(function(post_signature){
                 return self.doPost('getpinpk', {user:user, device:getCookie('device'), sig:post_signature});
             })
@@ -668,7 +669,7 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
         var self = this;
         return self.encryptionWrapper.generateSecretKey(password)
             .then(function(_secretkey){
-                return EncryptionWrapper.SgenerateKeyWithSalt(_secretkey, user);
+                return EncryptionWrapper.WgenerateKeyWithSalt(_secretkey, user);
             })
             .then(function(login_sig) {
                 return self.doPost('check', {pwd:login_sig,
@@ -694,10 +695,10 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
         }
         return self.encryptionWrapper.generateSecretKey(password1)
             .then(function(secretkey){
-                return self.encryptionWrapper.generateKey(secretkey);
+                return EncryptionWrapper.WgenerateKeyWithSalt(_secretkey, user);
             })
             .then(function(login_sig) {
-                return self.doPost('reg' , {email: email, pwd:String(CryptoJS.SHA512(login_sig + user)), user: user});
+                return self.doPost('reg' , {email: email, pwd:login_sig, user: user});
             });
     }
     validEmail(aEmail) {

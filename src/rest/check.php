@@ -87,7 +87,12 @@ if (strcmp((string) $password, (string) $hash_pbkdf2) != 0) {
 }
 if($EMAIL_VERIFICATION_ENABLED)
 {
-    $pwdrecord_check = hash_pbkdf2('sha3-512', (string) $hash_pbkdf2, $GLOBAL_SALT_3, $PBKDF2_ITERATIONS);
+    // Let's be honest, this does not need to be a strong key as the source key is:
+    //      if from password, already hashed a lot of times
+    //      if from $hash_pbkdf2, it is 512 bits long
+
+    $pwdrecord_check = hash_pbkdf2('sha3-512', (string) $hash_pbkdf2, $GLOBAL_SALT_3,
+                                   max(intdiv($PBKDF2_ITERATIONS, 100), 10));
 
     // To avoid spam, only do email verification if password is correct
 

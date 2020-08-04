@@ -85,16 +85,20 @@ class RecoveryBackend {
     }
     generateBackupKeys(password) {
         var self = this;
-        var preKey;
         return self.encryptionWrapper.generateSecretKey(password)
-            .then(function(key) {
-                preKey = key;
-                self.encryptionWrapper.secretkey = String(CryptoJS.SHA512(key + self.encryptionWrapper.pwSalt));
-                return self.encryptionWrapper.generateKey(String(CryptoJS.SHA512(password + preKey)))
+            .then(function(_sec_key) {
+                self.encryptionWrapper.secretkey = _sec_key;
+                return EncryptionWrapper.WgenerateKeyWithSalt(password, _sec_key);
             })
-            .then(function(confkey) {
-                self.encryptionWrapper._confkey = confkey;
-                return self.encryptionWrapper.multiGenerateKey(self.encryptionWrapper.secretkey, 32);
+            .then(function(_conf_key) {
+                self.encryptionWrapper._confkey =_conf_key;
+                return self.encryptionWrapper.SgenerateKey(self.encryptionWrapper.secretkey);
+            })
+            .then(function(key2) {
+                return self.encryptionWrapper.SgenerateKey(key2);
+            })
+            .then(function(key3){
+                return self.encryptionWrapper.SgenerateKey(key3);
             });
     }
     getAccountsRaw(include_files = false) {
