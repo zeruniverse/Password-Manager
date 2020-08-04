@@ -17,7 +17,7 @@ $result['user'] = $_SESSION['user'];
 $result['fields'] = $_SESSION['fields'];
 $result['fields_allow_change'] = $CUSTOMIZE_FIELDS;
 $result['server_timeout'] = $SERVER_TIMEOUT;
-$result['file_enabled'] = $FILE_ENABLED ? 1 : 0;
+$result['file_enabled'] = $FILE_ENABLED;
 
 // Select Accounts
 $sql = 'SELECT * FROM `password` WHERE `userid` = ?';
