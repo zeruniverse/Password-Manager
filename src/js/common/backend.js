@@ -544,14 +544,14 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
                 backup = data;
                 return self.encryptionWrapper.SgenerateKey(self.encryptionWrapper.secretkey);
             })
-            .then(function(key1)){
+            .then(function(key1){
                 progress_callback(10);
                 return self.encryptionWrapper.SgenerateKey(key1);
-            }
-            .then(function(key2)){
+            })
+            .then(function(key2){
                 progress_callback(20);
                 return self.encryptionWrapper.SgenerateKey(key2);
-            }
+            })
             .then(function(_key) {
                 key = _key;
                 progress_callback(30);
@@ -634,7 +634,7 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
                     throw ('Hostdomain mismatch. Please check your config file.');
                 }
 
-                if (!self.pinActive()) {
+                if (!self.pinActive) {
                     self.delLocalPinStore();
                 }
                 return data;
@@ -690,12 +690,12 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
         if (!self.validEmail(email)) {
             return Promise.reject("EmailInvalid");
         }
-        if (user.length < self.minNameLength || !validUserName(user)) {
+        if (user.length < self.minNameLength || !self.validUserName(user)) {
             return Promise.reject("UserNameError");
         }
         return self.encryptionWrapper.generateSecretKey(password1)
             .then(function(secretkey){
-                return EncryptionWrapper.WgenerateKeyWithSalt(_secretkey, user);
+                return EncryptionWrapper.WgenerateKeyWithSalt(secretkey, user);
             })
             .then(function(login_sig) {
                 return self.doPost('reg' , {email: email, pwd:login_sig, user: user});

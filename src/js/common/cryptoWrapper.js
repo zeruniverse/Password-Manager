@@ -19,12 +19,12 @@ class EncryptionWrapper {
 
     static WgenerateKeyWithSalt(input, salt) {
         // a weak key.
-        return generateKeyWithSalt(input, salt, 100, CryptoJS.algo.SHA3);
+        return EncryptionWrapper.generateKeyWithSalt(input, salt, 100, CryptoJS.algo.SHA3);
     }
 
     static SgenerateKeyWithSalt(input, salt) {
         // Didn't use SHA3 here because it's slow.
-        return generateKeyWithSalt(input, salt, 10000, CryptoJS.algo.SHA512);
+        return EncryptionWrapper.generateKeyWithSalt(input, salt, 10000, CryptoJS.algo.SHA512);
     }
 
     static fromLocalStorage(jsSalt, pwSalt, alphabet) {

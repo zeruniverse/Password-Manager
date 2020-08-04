@@ -60,6 +60,9 @@ a { cursor:pointer; }
     font-size: 16px;
     height: auto;
 }
+#email-div {
+    display: none;
+}
 .footer {
     color: #777;
     text-align: center;

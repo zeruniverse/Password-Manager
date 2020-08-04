@@ -27,7 +27,7 @@ echoheader();
                         </button>
                     </span>
                 </div>
-                <div id="email-div" style="visibility: hidden">
+                <div id="email-div">
                     <label for="emailcode" class="control-label sr-only">Email Verification Code: </label>
                     <input type="text" class="form-control" placeholder="Email Verification Code" name="emailcode" id="emailcode" />
                 </div>

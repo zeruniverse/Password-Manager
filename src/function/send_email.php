@@ -1,7 +1,6 @@
 <?php
 
 require_once dirname(__FILE__).'/config.php';
-
 /*  You can implement your own send_email API here with the method you want to send out verification email.
     You can also edit the code here to include your customized email body.
 
@@ -16,13 +15,15 @@ require_once dirname(__FILE__).'/config.php';
 
 function send_email($address, $verification_code)
 {
+    global $EMAIL_VERIFICATION_ENABLED, $SENDGRID_USER_NAME, $SENDGRID_PASSWORD, $SENDGRID_FROM_ADDRESS;
     // Verification disabled. This function should not be called.
+
     if (!$EMAIL_VERIFICATION_ENABLED) {
         return false;
     }
 
     // add verification code to body
-    $body = 'Your Password-Manager email verification code is :'.strval($verification_code).'<br /><br />';
+    $body = 'Your Password-Manager email verification code is: '.strval($verification_code).'<br /><br />';
     // tell user his password is already known by third-party.
     $body = $body.'<strong><span style="color:Red">You receive this email every time you login '.
             'from a new device. If you did not try to login, please change your login password '.
@@ -41,7 +42,7 @@ function send_email($address, $verification_code)
         'api_user'  => $user,
         'api_key'   => $pass,
         'to'        => $address,
-        'subject'   => 'Password-Manager Verification: '.strval($verification_code),
+        'subject'   => strval($verification_code).' is your Password-Manager verification code',
         'html'      => $body,
         'from'      => $SENDGRID_FROM_ADDRESS,
     ];
