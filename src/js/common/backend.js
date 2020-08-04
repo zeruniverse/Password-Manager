@@ -543,29 +543,29 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
             .then(function(msg) {
                 data = msg;
                 backup = data;
+                // Do it at least once even if BACKUP_KEY_ITERATIONS is 0
                 return self.encryptionWrapper.SgenerateKey(self.encryptionWrapper.secretkey);
             })
-            .then(function(key1){
-                progress_callback(10);
-                return self.encryptionWrapper.SgenerateKey(key1);
-            })
-            .then(function(key2){
-                progress_callback(20);
-                return self.encryptionWrapper.SgenerateKey(key2);
+            .then(async function(key){
+                for(var i = 0; i < data.KEYiter; i++){
+                    progress_callback(Math.round(i * 90.0 / data.KEYiter));
+                    key = await EncryptionWrapper.SgenerateKeyWithSalt(key, data.KEYsalt);
+                }
+                return key;
             })
             .then(function(_key) {
                 key = _key;
-                progress_callback(30);
+                progress_callback(90);
                 return EncryptionWrapper.encryptCharUsingKey(JSON.stringify(data.data), key);
             })
             .then(function(encData) {
                 backup.data = encData;
-                progress_callback(60);
+                progress_callback(95);
                 return EncryptionWrapper.encryptCharUsingKey(JSON.stringify(data.fdata), key);
             })
             .then(function(encfdata) {
                 backup.fdata = encfdata;
-                progress_callback(90);
+                progress_callback(99);
                 return new Blob([JSON.stringify(backup)], {type: "text/plain;charset=utf-8"});
             });
     }

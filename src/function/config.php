@@ -134,6 +134,10 @@ $SERVER_SOFT_TIMEOUT = 360; //seconds
 //Number of iterations for the password hashing
 $PBKDF2_ITERATIONS = 64000;
 
+//JS number of iterations for backup key hash. Each iteration is
+//a call to login PBKDF2 module.
+$BACKUP_KEY_ITERATIONS = 10;
+
 //Minimal length of user passwords
 $MINIMAL_PASSWORD_LENGTH = 7;
 //Minimal length of user name

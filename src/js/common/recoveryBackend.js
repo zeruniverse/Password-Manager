@@ -7,6 +7,9 @@ class RecoveryBackend {
             throw("INVALID BACKUP FILE");
         }
         var backupKey;
+        self.keysalt = json.KEYsalt;
+        self.keyiter = json.KEYiter;
+
         self.encryptionWrapper = new EncryptionWrapper(null, json.JSsalt, json.PWsalt, json.ALPHABET);
         return self.generateBackupKeys(password)
             .then(function(dkey){
@@ -94,11 +97,11 @@ class RecoveryBackend {
                 self.encryptionWrapper._confkey =_conf_key;
                 return self.encryptionWrapper.SgenerateKey(self.encryptionWrapper.secretkey);
             })
-            .then(function(key2) {
-                return self.encryptionWrapper.SgenerateKey(key2);
-            })
-            .then(function(key3){
-                return self.encryptionWrapper.SgenerateKey(key3);
+            .then(async function(key){
+                for(var i = 0; i < self.keyiter; i++){
+                    key = await EncryptionWrapper.SgenerateKeyWithSalt(key, self.keysalt);
+                }
+                return key;
             });
     }
     getAccountsRaw(include_files = false) {

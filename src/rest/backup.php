@@ -21,7 +21,7 @@ while ($i = $res->fetch(PDO::FETCH_ASSOC)) {
     $kss = $i['pwd'];
     $arr[(int) $index] = [$name, $kss, $other];
 }
-$farray = ['status' => 'NO', 'random' => mt_rand(10000, 50000)];
+$farray = ['status' => 'NO', 'random' => random_int(10000, 50000)];
 if ($_POST['a'] == 'farray') {
     $tmparr = [];
     $sql = 'select * from `files` WHERE `userid` = ?';
@@ -39,6 +39,8 @@ $ret = [
     'VERSION'  => $VERSION,
     'JSsalt'   => $GLOBAL_SALT_1,
     'PWsalt'   => $GLOBAL_SALT_2,
+    'KEYsalt'  => bin2hex(random_bytes(64)),
+    'KEYiter'  => $BACKUP_KEY_ITERATIONS,
     'ALPHABET' => $DEFAULT_LETTER_USED,
     'data'     => $arr,
     'fdata'    => $farray,
