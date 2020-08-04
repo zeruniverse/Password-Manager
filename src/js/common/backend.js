@@ -259,7 +259,7 @@ let PinHandling = (superclass) => class extends superclass {
                     return device;
                 } else {
                     // Oops, we already have this device
-                    self.getDevice();
+                    return self.getDevice();
                 }
             });
     }
