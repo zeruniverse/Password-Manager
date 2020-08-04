@@ -6,25 +6,15 @@ class EncryptionWrapper {
         this.alphabet = alphabet;
     }
 
-    static generateKeyWithSalt(input, salt, iterations, hasher) {
-        var iter = iterations || 500;
-        var hasher = hasher || CryptoJS.algo.SHA512;
-        var hash = CryptoJS.SHA3(input, { outputLength: 512 });
-        var salt = CryptoJS.SHA3(salt, { outputLength: 512 });
-
-        var gen_key = CryptoJS.PBKDF2(hash, salt, { keySize: 512/32, iterations: iter,
-                                                    hasher:hasher});
-        return Promise.resolve(gen_key.toString());
-    }
-
     static WgenerateKeyWithSalt(input, salt) {
         // a weak key.
-        return EncryptionWrapper.generateKeyWithSalt(input, salt, 100, CryptoJS.algo.SHA3);
+        return PBKDF2_SHA512(input, salt, 10000);
     }
 
     static SgenerateKeyWithSalt(input, salt) {
         // Didn't use SHA3 here because it's slow.
-        return EncryptionWrapper.generateKeyWithSalt(input, salt, 10000, CryptoJS.algo.SHA512);
+        salt = SHA512(salt)
+        return PBKDF2_SHA512(input, salt, 300000);
     }
 
     static fromLocalStorage(jsSalt, pwSalt, alphabet) {
@@ -96,7 +86,7 @@ class EncryptionWrapper {
             .then(function(new_alphabet) {
                 var temp_pwd = "";
                 var i, j, pwd_len, alphabet_len;
-                var shift = CryptoJS.SHA3(account_sig + key, { outputLength: 512 }).toString();
+                var shift = await EncryptionWrapper.WgenerateKeyWithSalt(account_sig, key);
                 var shift_len = shift.length;
                 pwd_len = pwd.length;
                 alphabet_len = new_alphabet.length;
@@ -124,7 +114,7 @@ class EncryptionWrapper {
             .then(function(new_alphabet) {
                 var pwd = "";
                 var i, j, pwd_len, alphabet_len;
-                var shift = CryptoJS.SHA3(account_sig + key, { outputLength: 512 }).toString();
+                var shift = EncryptionWrapper.WgenerateKeyWithSalt(account_sig, key);
                 var shift_len = shift.length;
                 pwd_len = temp_pwd.length;
                 alphabet_len = new_alphabet.length;
@@ -268,15 +258,13 @@ class EncryptionWrapper {
         if(encryptch == "" || key == ""){
             return Promise.reject("ERROR: empty key detected!");
         }
-        var p = CryptoJS.AES.encrypt(encryptch, key).toString();
-        return Promise.resolve(p);
+        return AESGCM256Encrypt(encryptch, key);
     }
     static decryptCharUsingKey(echar, key){
         if(echar == "" || key == ""){
             return Promise.reject("ERROR: empty key detected!");
         }
-        var p = CryptoJS.enc.Utf8.stringify(CryptoJS.AES.decrypt(echar, key));
-        return Promise.resolve(p);
+        return AESGCM256Decrypt(echar, key);
     }
 
     generatePassphrase(plength) {

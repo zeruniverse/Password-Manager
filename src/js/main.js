@@ -351,7 +351,6 @@ $(document).ready(function(){
         $("#backuppwdpb").attr('aria-valuenow',0);
         $("#backuppwdpb").css('width','0%');
         $("#fileincludeckb").attr('disabled',true);
-        //ToDo Progressbar
         function progressbarchange(x) {
             $("#backuppwdpb").attr('aria-valuenow',x);
             $("#backuppwdpb").css('width',x+'%');

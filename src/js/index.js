@@ -16,7 +16,6 @@ function isAllHTML5Supports(){
         return false;
     }
     return isSupportFileApi();
-
 }
 if(!isAllHTML5Supports()) {
     window.location.href="./sorry_for_old_browser_update_hint.html";

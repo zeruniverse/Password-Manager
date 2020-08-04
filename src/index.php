@@ -2,7 +2,7 @@
 require_once 'function/basic.php';
 echoheader();
 ?>
-<script src="js/lib/crypto-js.min.js"></script>
+<script src="js/common/crypto.js"></script>
 <script src="js/common/backend.js"></script>
 <script src="js/common/cryptoWrapper.js"></script>
 <script src="js/index.js"></script>
