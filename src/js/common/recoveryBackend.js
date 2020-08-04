@@ -93,7 +93,7 @@ class RecoveryBackend {
             })
             .then(function(_conf_key) {
                 self.encryptionWrapper._confkey =_conf_key;
-                return EncryptionWrapper.WgenerateKeyWithSalt(self.encryptionWrapper.secretkey,
+                return EncryptionWrapper.SgenerateKeyWithSalt(self.encryptionWrapper.secretkey,
                     salt);
             })
             .then(async function(key){
