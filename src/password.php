@@ -60,7 +60,7 @@ echoheader();
               <li id="changefieldsnav">
                   <a href="" data-toggle="modal" data-target="#changefields">Customize Fields</a>
               </li>
-              <li><a href="./history.php" target="_blank">Account Activity</a></li>
+              <li><a id="navBtnActivity">Account Activity</a></li>
             </ul>
             </li>
           </ul>

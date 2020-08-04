@@ -594,6 +594,9 @@ $(document).ready(function(){
     $('#navBtnUntrust').toggle(backend.pinActive);
     $('#navBtnUntrust').on('click',function(){ backend.untrustAndLogout(); });
     $('#navBtnExport').on('click',function(){ exportcsv(); });
+    $('#navBtnActivity').on('click',function(){
+        window.location.href="./history.php";
+    });
     callPlugins("layoutReady");
 });
 function edit(row){

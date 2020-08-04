@@ -5,6 +5,13 @@ echoheader();
 <link rel="stylesheet" type="text/css" href="css/dataTables.bootstrap.min.css">
 <link rel="stylesheet" type="text/css" href="css/responsive.dataTables.min.css">
 <script src="js/common/backend.js"></script>
+   <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header pull-left">
+          <a class="navbar-brand" href="password.php">&lt; Go Back</a>
+        </div>
+      </div>
+    </nav>
 <div class="container theme-showcase">
     <p id="placeholder">PLEASE WAIT...</p>
     <div id="maindiv" class="collapse">
