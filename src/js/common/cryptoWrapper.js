@@ -29,6 +29,20 @@ class EncryptionWrapper {
             });
     }
 
+    generateSecretKey(password, salt, store) {
+        var self = this;
+        var store = (typeof store !== 'undefined') ? store : true;
+        return EncryptionWrapper.SgenerateKeyWithSalt(
+            EncryptionWrapper.reduceInfo(password, self.alphabet),
+            EncryptionWrapper.WgenerateKeyWithSalt(salt, self.jsSalt))
+            .then(function(sk) {
+                if (store) {
+                    self.secretkey = sk;
+                }
+                return sk;
+            });
+    }
+
     decryptChar(crypt){
         return EncryptionWrapper.decryptCharUsingKey(crypt, this.secretkey);
     }
@@ -61,26 +75,6 @@ class EncryptionWrapper {
             .then(function(pass) {
                 return self.encryptChar(pass);
             });
-    }
-
-    generateSecretKey(password, store) {
-        var self = this;
-        var store = (typeof store !== 'undefined') ? store : true;
-        return self.SgenerateKey(EncryptionWrapper.reduceInfo(password, self.alphabet))
-            .then(function(sk) {
-                if (store) {
-                    self.secretkey = sk;
-                }
-                return sk;
-            });
-    }
-
-    SgenerateKey(input) {
-        return EncryptionWrapper.SgenerateKeyWithSalt(input, this.jsSalt);
-    }
-
-    WgenerateKey(input){
-        return EncryptionWrapper.WgenerateKeyWithSalt(input, this.jsSalt);
     }
 
     static genTempPwd(key, account_sig, orig_alphabet, pwd) {

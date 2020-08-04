@@ -479,14 +479,14 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
         var postnewpass;
         var newconfkey;
         var promises = [];
-        promises.push(self.encryptionWrapper.generateSecretKey(oldpass, false)
+        promises.push(self.encryptionWrapper.generateSecretKey(oldpass, self.user, false)
                         .then(function(_old_sec_key){
                             if(self.encryptionWrapper.secretkey != _old_sec_key) {
                                 throw("Incorrect Old Password!");
                             }
                             return Promise.resolve(true);
                         }));
-        promises.push(self.encryptionWrapper.generateSecretKey(newpass, false)
+        promises.push(self.encryptionWrapper.generateSecretKey(newpass, self.user, false)
                         .then(function(_new_sec_key){
                             newseckey = _new_sec_key;
                             var new_acc_promises = [];
@@ -544,7 +544,8 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
                 data = msg;
                 backup = data;
                 // Do it at least once even if BACKUP_KEY_ITERATIONS is 0
-                return self.encryptionWrapper.SgenerateKey(self.encryptionWrapper.secretkey);
+                return EncryptionWrapper.SgenerateKeyWithSalt(self.encryptionWrapper.secretkey,
+                    data.KEYsalt);
             })
             .then(async function(key){
                 for(var i = 0; i < data.KEYiter; i++){
@@ -668,7 +669,7 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
     }
     doLogin(user, password, emailcode) {
         var self = this;
-        return self.encryptionWrapper.generateSecretKey(password)
+        return self.encryptionWrapper.generateSecretKey(password, user)
             .then(function(_secretkey){
                 return EncryptionWrapper.WgenerateKeyWithSalt(_secretkey, user);
             })
@@ -694,7 +695,7 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
         if (user.length < self.minNameLength || !self.validUserName(user)) {
             return Promise.reject("UserNameError");
         }
-        return self.encryptionWrapper.generateSecretKey(password1)
+        return self.encryptionWrapper.generateSecretKey(password1, user)
             .then(function(secretkey){
                 return EncryptionWrapper.WgenerateKeyWithSalt(secretkey, user);
             })

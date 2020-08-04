@@ -7,11 +7,9 @@ class RecoveryBackend {
             throw("INVALID BACKUP FILE");
         }
         var backupKey;
-        self.keysalt = json.KEYsalt;
-        self.keyiter = json.KEYiter;
 
         self.encryptionWrapper = new EncryptionWrapper(null, json.JSsalt, json.PWsalt, json.ALPHABET);
-        return self.generateBackupKeys(password)
+        return self.generateBackupKeys(json.user, password, json.KEYsalt, json.KEYiter)
             .then(function(dkey){
                 backupKey = dkey;
                 return EncryptionWrapper.decryptCharUsingKey(json.data, dkey);
@@ -86,20 +84,21 @@ class RecoveryBackend {
                 return self.files;
             });
     }
-    generateBackupKeys(password) {
+    generateBackupKeys(user, password, salt, iter) {
         var self = this;
-        return self.encryptionWrapper.generateSecretKey(password)
+        return self.encryptionWrapper.generateSecretKey(password, user)
             .then(function(_sec_key) {
                 self.encryptionWrapper.secretkey = _sec_key;
                 return EncryptionWrapper.WgenerateKeyWithSalt(password, _sec_key);
             })
             .then(function(_conf_key) {
                 self.encryptionWrapper._confkey =_conf_key;
-                return self.encryptionWrapper.SgenerateKey(self.encryptionWrapper.secretkey);
+                return EncryptionWrapper.WgenerateKeyWithSalt(self.encryptionWrapper.secretkey,
+                    salt);
             })
             .then(async function(key){
-                for(var i = 0; i < self.keyiter; i++){
-                    key = await EncryptionWrapper.SgenerateKeyWithSalt(key, self.keysalt);
+                for(var i = 0; i < iter; i++){
+                    key = await EncryptionWrapper.SgenerateKeyWithSalt(key, salt);
                 }
                 return key;
             });

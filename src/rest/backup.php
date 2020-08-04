@@ -44,5 +44,6 @@ $ret = [
     'ALPHABET' => $DEFAULT_LETTER_USED,
     'data'     => $arr,
     'fdata'    => $farray,
+    'user'     => $_SESSION['user'],
 ];
 ajaxSuccess($ret);
