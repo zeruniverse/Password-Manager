@@ -590,7 +590,6 @@ $(document).ready(function(){
             });
     });
     $('#navBtnLogout').on('click',function(){ backend.logout(); });
-    $('#navBtnUntrust').toggle(backend.pinActive);
     $('#navBtnUntrust').on('click',function(){ backend.untrustAndLogout(); });
     $('#navBtnExport').on('click',function(){ exportcsv(); });
     $('#navBtnActivity').on('click',function(){

@@ -120,6 +120,7 @@ if ($EMAIL_VERIFICATION_ENABLED) {
 
     // on successful login, update user pwdrecord cookie. The cookie will expire in $PIN_EXPIRE_TIME seconds.
     //   i.e. if you haven't logoned for 30 days, you will have to verify emails again!
+    // HTTP_ONLY false so client can remove this.
     setcookie(
         'pwdrecord_'.$encoded_usr,
         $pwdrecord_check,
@@ -127,7 +128,7 @@ if ($EMAIL_VERIFICATION_ENABLED) {
         '/; samesite=strict',
         null,
         true,
-        true
+        false
     );
 }
 

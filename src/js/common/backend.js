@@ -88,6 +88,7 @@ let AuthenticatedSession = (superclass) => class extends superclass {
         var self = this;
         localStorage.clear();
         var promises = [];
+        var username = getCookie('username');
         var device = getCookie('device');
         if ((device != null) && (device != "")) {
             promises.push(self.doPost("deletepin", {'user': getCookie('username'), 'device': device}));
@@ -96,6 +97,7 @@ let AuthenticatedSession = (superclass) => class extends superclass {
             .then(function(){
                 deleteCookie('device');
                 deleteCookie('username');
+                deleteCookie('pwdrecord_'+encodeURIComponent(username));
                 return self.logout();
             });
     }
@@ -262,7 +264,6 @@ let PinHandling = (superclass) => class extends superclass {
             });
     }
     unSetPin(device) {
-        self.encryptionWrapper.deletePIN();
         return this.doPost("deletepin", {user:this.user, device:device});
     }
     setPin(pin) {
