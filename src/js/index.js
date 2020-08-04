@@ -30,7 +30,8 @@ async function isCrypto(){
     return true;
 }
 
-isCrypto().then(function(is_crypto){
+isCrypto()
+    .then(function(is_crypto){
         if(!isAllHTML5Supports() || !is_crypto) {
             window.location.href="./sorry_for_old_browser_update_hint.html";
         }
@@ -39,7 +40,7 @@ isCrypto().then(function(is_crypto){
 $(function(){
     $("#signup").on('click',function(e){window.location.href="signup.php";});
     $("#recover").on('click',function(e){window.location.href="recovery.php";});
-    $("#delpin").on('click',function(e){backend.delLocalPinStore();});
+    $("#delpin").on('click',function(e){backend.delPin();});
     $("#usepin").on("hidden.bs.modal", function () {
         $("#user").focus();
     });
@@ -85,6 +86,7 @@ $(function(){
                 window.location.href="./password.php";
             })
             .catch(function(msg){
+                // Show Email verification box if error message is EmailVerify
                 if(msg.indexOf('sent an email to you') != -1) $('#email-div').show();
                 showMessage("warning", msg);
                 $("#chk").attr("value", "Login");
