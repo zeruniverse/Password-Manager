@@ -150,7 +150,7 @@ echoheader();
                 red parts are for you to customize. Entries should be seperated with comma, and the final fields
                 string should look like <span class="textbold">{entry1, entry2, entry3}</span>.
                 <span class="textbold">{}</span> fields string means you don't want any additional fields.
-                <span class="textbold">position</span> and <span class="textbold">type</span> are optional and other fields are required. Note, <span class="textbold">position</span> is an integer and should NOT be inside &quot;&quot;.
+                <span class="textbold">position</span> and <span class="textbold">type</span> are optional and other fields are required. Note, <span class="textred">position_int</span> is an integer and should NOT be inside &quot;&quot;.
             </p>
             <p>
                 <span class="textred">label</span> is a system label for this entry, which should be UNIQUE and won't
