@@ -12,9 +12,9 @@
 
 v11.00
 
-Since v11.00, this password manager is mature and stable. That said, there will be no more major changes (e.g. database structure change) in the future. But just bug fixes and crypto algorithm updates. I know in the past, upgrading is painful due to the client-side encryption nature. But going forward, it will not be an issue anymore.
+Since v11.00, this password manager is mature and stable. That said, there will be no more major changes (e.g. database structure change) in the future. But just bug fixes and crypto algorithm updates. I know in the past, upgrading is painful due to the client-side encryption nature. But going forward, it will not be an issue anymore. All users should upgrade to at least v11.00!
 
-Supports are available [here](https://github.com/zeruniverse/Password-Manager/issues) for versions greater than v9.13
+Supports are available [here](https://github.com/zeruniverse/Password-Manager/issues) for versions v11.00 or later
 
 ## DEMO
 [phppasswordmanager.sourceforge.io](https://phppasswordmanager.sourceforge.io)
@@ -25,7 +25,7 @@ You can access the database for this demo [here](https://mysql-p.sourceforge.net
 
 ## Features
 
-1. Client side encryption. Server only keeps the encrypted strings. **Strong encryption**: Server side uses PBKDF2+SHA3-512, client side uses AES256 / PBKDF2+[SHA512|SHA3-512]  (SHA512 is used in client side as Javascript SHA3 is too slow)  [See more about security analysis](https://github.com/zeruniverse/Password-Manager/wiki/Mechanism#safety)
+1. Client side encryption. Server only keeps the encrypted strings. **Strong encryption**: Server side uses PBKDF2+SHA3-512, client side uses AES256 / PBKDF2+[SHA512|SHA3-512]  (SHA512 is used at client side as Javascript SHA3 is too slow)  [See more about security analysis](https://github.com/zeruniverse/Password-Manager/wiki/Mechanism#safety). Due to client-side encryption nature, if you forget your login password, there's **NO WAY** to recover your data.
 
 2. Customized fields support. You can add and delete fields for the password manager. You might want a URL field to keep login URL for all your accounts.
 
@@ -41,7 +41,11 @@ You can access the database for this demo [here](https://mysql-p.sourceforge.net
 
 8. Authentication control. Account/IP will be blocked for too many failed attempts. After a short time of no action, you'll sign out automatically.
 
-9. Friendly UI.
+9. Email based two-step verification support on new device login (You need a free account from [SendGrid](https://sendgrid.com/) or implement your own send_email logic in src/function/send_email.php)
+
+10. Up to 15 password histories per account.
+
+11. Friendly UI.
 
 ## Installation
 See [wiki](https://github.com/zeruniverse/Password-Manager/wiki/Installation)
@@ -49,7 +53,7 @@ See [wiki](https://github.com/zeruniverse/Password-Manager/wiki/Installation)
 ## How to use
 See [wiki](https://github.com/zeruniverse/Password-Manager/wiki)
 
-## Web Browser Plugin
+## Web Browser Plugin (Does NOT work with v11.00 yet)
 
 Chrome: [Chrome Web Store](https://chrome.google.com/webstore/detail/password-manager/mbfjokpccbakbnnpklkcginkalkijkan)
 
@@ -59,12 +63,9 @@ GitHub Project: [PwChromeExtension](https://github.com/BenjaminHae/PwChromeExten
 
 ## Mechanism
 
-<img width="1098" alt="mechanism" src="https://cloud.githubusercontent.com/assets/4648756/13795540/b0dfde78-eabe-11e5-8407-e5904dad59d2.png">
+<img width="1098" alt="mechanism" src="https://user-images.githubusercontent.com/4648756/89339157-8c6f7b00-d652-11ea-8407-2457c442d32b.jpg">
 
 You can read more information about implementation in [wiki](https://github.com/zeruniverse/Password-Manager/wiki/Mechanism).
-
-## Extentions
-You can easily add E-mail verification, Google authentication... in your version of password manager. Put your implementation inside `src/rest/check.php`, which is used for login authentication.
 
 ## Contribution
 
