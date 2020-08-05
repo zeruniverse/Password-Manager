@@ -17,7 +17,10 @@ function passwordHistoryDetailsClicked(event) {
 registerPlugin("showDetails", function(data){
     let account = data["account"];
     if ("_passwordHistory" in account.other) {
-        data["out"].append('<br />').append($('<p>').attr('id','passwordHistoryDetails').append($('<a>').text('show password history').on('click', {"history": account.other["_passwordHistory"]}, passwordHistoryDetailsClicked)));
+        data["out"].append('<br />')
+            .append($('<p>').attr('id','passwordHistoryDetails')
+            .append($('<a>').text('show most recent 15 password history')
+            .on('click', {"history": account.other["_passwordHistory"]}, passwordHistoryDetailsClicked)));
     }
 });
 registerPlugin("updateAccountPreSend", function(data){
@@ -33,8 +36,8 @@ registerPlugin("updateAccountPreSend", function(data){
         }
         account.other["_passwordHistory"].push(newHistoryEntry);
 
-        // Only keep last 10 history
-        if(account.other["_passwordHistory"].length > 10)
-            account.setOther("_passwordHistory", account.other["_passwordHistory"].slice(-10));
+        // Only keep last 15 history
+        if(account.other["_passwordHistory"].length > 15)
+            account.setOther("_passwordHistory", account.other["_passwordHistory"].slice(-15));
     }
 });
