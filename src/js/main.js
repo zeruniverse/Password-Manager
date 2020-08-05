@@ -237,6 +237,25 @@ function downloadf(id){
             $("#messagewait").modal("hide");
         });
 }
+
+function deletef(index){
+    var name = backend.accounts[parseInt(index)].accountName;
+    if(confirm("Are you sure you want to delete file for " + name + "? (ATTENTION: this is irreversible)"))
+    {
+        backend.deleteFile(index)
+            .then(function(){
+                showMessage('success',"delete file for " + name + " successfully");
+                $("#showdetails").modal("hide");
+                reloadAccounts();
+            })
+            .catch(function(){
+                showMessage('warning',"Fail to delete file for " + name + ", please try again.", true);
+                $("#showdetails").modal("hide");
+                reloadAccounts();
+            });
+     }
+}
+
 function emptyTable() {
     datatablestatus.clear();
 }
@@ -683,7 +702,14 @@ function showdetail(index){
                     .append('&nbsp;&nbsp;&nbsp;')
                     .append($('<a>').attr('title',"Upload file")
                         .on('click',{"index":account.index},function(event){showuploadfiledlg(event.data.index);})
-                        .append($('<span>').attr('class',"glyphicon glyphicon-arrow-up")))));
+                        .append($('<span>').attr('class',"glyphicon glyphicon-arrow-up"))
+                        )
+                    .append('&nbsp;&nbsp;&nbsp;')
+                    .append($('<a>').attr('title',"Delete file")
+                        .on('click',{"index":account.index},function(event){deletef(event.data.index);})
+                        .append($('<span>').attr('class',"glyphicon glyphicon-remove"))
+                        )
+                    ));
         else table.append($('<tr>')
                     .append($('<td>')
                         .css("color","#66ccff").css("font-weight","normal")

@@ -231,6 +231,9 @@ let Accounts = (superclass) => class extends superclass {
         var self = this;
         return self.doPost("delete", {index: id});
     }
+    deleteFile(id) {
+        return this.doPost("deletefile", {index: id});
+    }
 }
 
 //mixin for pin handling
