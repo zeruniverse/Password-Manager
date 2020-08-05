@@ -672,7 +672,7 @@ function showdetail(index){
             table.append($('<tr>')
                 .attr("id","detailsTableOther" + x)
                 .append($('<td>').css("color","#afafaf").css("font-weight","normal").text(backend.fields[x]['colname']))
-                .append($('<td>').css("color","#6d6d6d").css("font-weight","bold").text(account.getOther(x))));
+                .append($('<td>').css("color","#6d6d6d").css("font-weight","bold").css("white-space", "pre").text(account.getOther(x))));
         }
     }
     if(backend.fileEnabled){
