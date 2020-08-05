@@ -143,7 +143,7 @@ class RecoveryBackend {
                     tmp['password'] = account['password'];
                     let other = JSON.parse(account['other']);
                     for (let item in other) {
-                        tmp[item] = other[item];
+                        if (item.charAt(0) != '_') tmp[item] = other[item];
                     }
                     result.push(tmp);
                 }
