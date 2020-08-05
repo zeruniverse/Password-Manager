@@ -37,7 +37,8 @@ echoheader();
     <p> </p>
     <p class="textred">
         Recovering takes long time. (No less than backup time) If your web browser asks you whether to kill the page
-        due to no response, choose [wait]!
+        due to no response, choose [wait]! You will see a table showing up with your data if recovery is successful. Otherwise,
+        nothing will show up and you can change password and try again.
     </p>
     </form>
     <input type="button" class="btn btn-md btn-success" id="chk" value="RECOVER IT!" />
