@@ -663,7 +663,7 @@ function showdetail(index){
      .append($('<br/>')).append($('<br/>'));
     var table = $('<table>').css('width',"100%").css('color',"#ff0000")
             .append($('<colgroup><col width="90"><col width="auto"></colgroup>'));
-    for (let x in backend.fields_key){
+    for (let x of backend.fields_key){
         if(x in account.other && String(account.getOther(x)).length > 0){
             table.append($('<tr>')
                 .attr("id","detailsTableOther" + x)
