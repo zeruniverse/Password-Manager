@@ -413,17 +413,6 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
     }
     prepareFields(fields) {
         this.fields = JSON.parse(fields);
-        for (let x in this.fields) {
-            this.fields[x]["count"] = 0;
-        }
-        for (var index in this.accounts) {
-            let others = this.accounts[index].availableOthers;
-            for (let x of others) {
-                if ( (this.accounts[index].getOther[x] != "") && (x in this.fields) ) {
-                    this.fields[x]["count"] += 1;
-                }
-            }
-        }
     }
     prepareFiles(files) {
         var self = this;

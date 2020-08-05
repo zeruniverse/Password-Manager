@@ -65,24 +65,24 @@ $DEFAULT_FIELDS = json_encode([
     'url' => [
         'colname' => 'URL',
         'hint'    => '',
-        'cls'     => ' hidden',
+        'cls'     => 'hidden',
     ],
     'user' => [
         'colname'  => 'Username',
         'hint'     => '',
-        'cls'      => ' hidden-xs',
-        'position' => '1',
+        'cls'      => 'hidden-xs',
+        'position' => 1,
     ],
     'comment' => [
         'colname' => 'Comment',
         'hint'    => '',
-        'cls'     => ' hidden',
-        'type'    => ' textarea',
+        'cls'     => 'hidden',
+        'type'    => 'textarea',
     ],
     'tags' => [
         'colname' => 'Tags',
         'hint'    => 'Comma separated values',
-        'cls'     => ' hidden-xs',
+        'cls'     => 'hidden-xs',
     ],
 ]);
 

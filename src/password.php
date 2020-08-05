@@ -144,10 +144,13 @@ echoheader();
                 <span class="textbold">&quot;<span class="textred">label</span>&quot;:{&quot;colname&quot;:
                 &quot;<span class="textred">screen name</span>&quot;,&quot;hint&quot;:
                 &quot;<span class="textred">input hint</span>&quot;,&quot;cls&quot;:
-                &quot;<span class="textred">style</span>&quot;}</span>,
+                &quot;<span class="textred">style</span>&quot;,&quot;position&quot;:
+                <span class="textred">position_int</span>,&quot;type&quot;:
+                &quot;<span class="textred">input_type</span>&quot;}</span>,
                 red parts are for you to customize. Entries should be seperated with comma, and the final fields
                 string should look like <span class="textbold">{entry1, entry2, entry3}</span>.
-                <span class="textbold">{}</span> fields string means you don't want any additional fields
+                <span class="textbold">{}</span> fields string means you don't want any additional fields.
+                <span class="textbold">position</span> and <span class="textbold">type</span> are optional and other fields are required. Note, <span class="textbold">position</span> is an integer and should NOT be inside &quot;&quot;.
             </p>
             <p>
                 <span class="textred">label</span> is a system label for this entry, which should be UNIQUE and won't
@@ -159,8 +162,7 @@ echoheader();
                 table. You can only access it by clicking [view details].
                 If <span class="textred">style = hidden-xs</span>, this field will not show up in main table on small
                 screens such as smart phone screens, but will show up on computer screens. NO OTHER VALUES ALLOWED for
-                <span class="textred">style</span>. There should always be a space before
-                <span class="textred">style</span> string, don't delete it.
+                <span class="textred">style</span>. <span class="textred">position_int</span> is an integer for where this field should set. Lower position_int will be displayed first (and fields without position_int at last). <span class="textred">input_type</span> is the input box type when create new entry or edit. Can be one of `text`, `textarea` or `password`. Default is `text.
             </p>
             <textarea class="form-control" id="fieldsz"></textarea>
             </form>

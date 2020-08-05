@@ -109,24 +109,33 @@ function showLastLoginInformation(failedCount, lastLogin){
     }
 }
 //alles in backend klasse machen
-function dataReady(){
+async function dataReady(){
 
     $("#fileincludeckbp").toggle(backend.fileEnabled);
     $("#changefieldsnav").toggle(backend.allowFieldChange);
 
     showLastLoginInformation(backend.loginInformation["failedCount"], backend.loginInformation["lastLogin"]);
 
-    initFields(backend.fields);
+    await initFields(backend.fields);
+
+    datatablestatus = await $("#pwdlist").DataTable(
+        {ordering:false, info:true,autoWidth:false, "deferRender": true,
+         drawCallback: function(settings) { preDrawCallback( this.api(), settings);},
+         "lengthMenu": [ [10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"] ] });
+
     callPlugins("fieldsReady", {"fields":backend.fields, "accounts":backend.accounts});
     showTable(backend.accounts);
 }
 function initFields(fields) {
     $("textarea#fieldsz").val(JSON.stringify(fields));
     for (var x in fields) {
-        var header = "";
-        if (fields[x]["count"] > 0)
-            header = $('<th>')
-                        .attr('class', x + 'cell' + fields[x]["cls"] + ' field')
+        if(!("position" in fields[x])) fields[x]["position"] = 99999;
+    }
+    fields_key = Object.keys(fields).sort(function(a,b){
+        return fields[a]['position']-fields[b]['position']})
+    for (var x of fields_key) {
+        var header = $('<th>')
+                        .attr('class', x + 'cell ' + fields[x]["cls"] + ' field')
                         .text(fields[x]["colname"]);
         var forms = {};
         var val = "edit";
@@ -147,14 +156,8 @@ function initFields(fields) {
                 .attr('class', 'control-label').text(fields[x]["colname"]))
             .append(input);
         forms[val] = form;
-        if (("position" in fields[x]) && (fields[x]["position"] != 0)) {
-            $('#pwdlist > thead > tr:first > th:nth-child(' + fields[x]["position"] + ')').after(header)
-            $("#edit").find('form > .form-group:nth-child(' + fields[x]["position"] + ')').after(forms["edit"]);
-        }
-        else {
-            $("#pwdlist > thead > tr:first").append(header);
-            $("#edit").find("form").append(forms["edit"]);
-        }
+        $("#pwdlist > thead > tr:first").append(header);
+        $("#edit").find("form").append(forms["edit"]);
         callPlugins("readField", {"field":fields[x]});
     }
 }
@@ -202,18 +205,16 @@ function showTable(accounts) {
         // fill in other
         let fields = backend.fields;
         for (var x in fields) {
-            if (fields[x]["count"]>0) {
-                var value="";
-                if (x in accounts[index]["other"])
-                    value = accounts[index]["other"][x];
-                var cell = $('<td>').attr('class',  x+'cell'+fields[x]["cls"])
-                    .append($('<span>').attr('class', 'account'+x).text(value));
-                if (("position" in fields[x]) && (fields[x]["position"] != 0)) {
-                    cols.splice(fields[x]["position"], 0, cell);
-                }
-                else
-                    cols.push(cell);
+            var value="";
+            if (x in accounts[index]["other"])
+                value = accounts[index]["other"][x];
+            var cell = $('<td>').attr('class',  x+'cell '+fields[x]["cls"])
+                .append($('<span>').attr('class', 'account'+x).text(value));
+            if (("position" in fields[x]) && (fields[x]["position"] != 0)) {
+                cols.splice(fields[x]["position"], 0, cell);
             }
+            else
+                cols.push(cell);
         }
         // create row for datatable
         var row = $("<tr>").attr('class', 'datarow').data('id', accounts[index].index).append(cols);
@@ -249,12 +250,14 @@ function cleanUp() {
     $(".field").remove();
 }
 function reloadAccounts() {
-    cleanUp();
+    if(datatablestatus!==null) {
+        cleanUp();
+        datatablestatus.destroy();
+    }
     backend.loadAccounts()
         .then(dataReady);
 }
 $(document).ready(function(){
-    datatablestatus=$("#pwdlist").DataTable({ordering:false, info:true,autoWidth:false, "deferRender": true, drawCallback: function(settings) { preDrawCallback( this.api(), settings);}, "lengthMenu": [ [10, 25, 50, 100, 200, -1], [10, 25, 50, 100, 200, "All"] ] });
     backend = new AccountBackend();
     backend.registerEvent("logout", eventLogout);
     reloadAccounts();
