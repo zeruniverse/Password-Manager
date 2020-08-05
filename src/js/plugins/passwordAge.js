@@ -10,7 +10,7 @@ registerPlugin("editAccountDialog",function(data){
 });
 registerPlugin("showDetails", function(data){
     let account = data["account"];
-    if ("_system_passwordLastChangeTime" in account.availableOthers) {
+    if ("_system_passwordLastChangeTime" in account.other) {
         data["out"].append('<br />').append($('<p>').addClass('textred').text('Password last changed at ' + timeConverter(account.getOther("_system_passwordLastChangeTime"))));
     }
 });

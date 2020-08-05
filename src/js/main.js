@@ -116,7 +116,7 @@ async function dataReady(){
 
     showLastLoginInformation(backend.loginInformation["failedCount"], backend.loginInformation["lastLogin"]);
 
-    await initFields(backend.fields);
+    await initFields(backend.fields, backend.fields_key);
 
     datatablestatus = await $("#pwdlist").DataTable(
         {ordering:false, info:true,autoWidth:false, "deferRender": true,
@@ -126,14 +126,9 @@ async function dataReady(){
     callPlugins("fieldsReady", {"fields":backend.fields, "accounts":backend.accounts});
     showTable(backend.accounts);
 }
-function initFields(fields) {
+function initFields(fields, fields_order) {
     $("textarea#fieldsz").val(JSON.stringify(fields));
-    for (var x in fields) {
-        if(!("position" in fields[x])) fields[x]["position"] = 99999;
-    }
-    fields_key = Object.keys(fields).sort(function(a,b){
-        return fields[a]['position']-fields[b]['position']})
-    for (var x of fields_key) {
+    for (var x of fields_order) {
         var header = $('<th>')
                         .attr('class', x + 'cell ' + fields[x]["cls"] + ' field')
                         .text(fields[x]["colname"]);
@@ -204,7 +199,8 @@ function showTable(accounts) {
             ));
         // fill in other
         let fields = backend.fields;
-        for (var x in fields) {
+        let fields_key = backend.fields_key;
+        for (var x of fields_key) {
             var value="";
             if (x in accounts[index]["other"])
                 value = accounts[index]["other"][x];
@@ -667,8 +663,8 @@ function showdetail(index){
      .append($('<br/>')).append($('<br/>'));
     var table = $('<table>').css('width',"100%").css('color',"#ff0000")
             .append($('<colgroup><col width="90"><col width="auto"></colgroup>'));
-    for (let x of account.availableOthers) {
-        if(x in backend.fields){
+    for (let x in backend.fields_key){
+        if(x in account.other && String(account.getOther(x)).length > 0){
             table.append($('<tr>')
                 .attr("id","detailsTableOther" + x)
                 .append($('<td>').css("color","#afafaf").css("font-weight","normal").text(backend.fields[x]['colname']))

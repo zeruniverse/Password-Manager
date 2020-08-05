@@ -137,13 +137,6 @@ class Account {
             }
         }
     }
-    get availableOthers() {
-        let availableOthers = [];
-        for (let otherName in this.other) {
-            availableOthers.push(otherName);
-        }
-        return availableOthers;
-    }
     setOther(name, value) {
         this.other[name] = value;
     }

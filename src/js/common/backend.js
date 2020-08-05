@@ -337,6 +337,7 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
     cleanUp(){
         this.accounts = [];
         this.fields = [];
+        this.fields_key = [];
     }
     loadAccounts() {
         var self = this;
@@ -412,7 +413,18 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
             });
     }
     prepareFields(fields) {
-        this.fields = JSON.parse(fields);
+        fields = JSON.parse(fields);
+
+        // fields_key sorted by position.
+        this.fields_key = Object.keys(fields).sort(function(a,b){
+            if(('position' in fields[a]) && ('position' in fields[b]))
+                return fields[a]['position']-fields[b]['position'];
+            if('position' in fields[a]) return -1;
+            if('position' in fields[b]) return 1;
+            return 0;
+        });
+
+        this.fields = fields;
     }
     prepareFiles(files) {
         var self = this;
