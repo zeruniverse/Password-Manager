@@ -22,7 +22,7 @@ echoheader();
        the login page), go to step 6.<br />
     4. Go <a href="https://github.com/zeruniverse/Password-Manager/releases">here</a> and find the password manager
        release with the same version number as your backup file.<br />
-    5. Download the password manager with the right version, use its src/recovery.php instead of this one.<br />
+    5. Download the password manager with the right version, use its source code instead of this one (You don't need to configure config.php if you only want to do recovery).<br />
     6. Scroll down and do the recovery.<br />
     <div class="page-header">
         <h1>Recovery</h1>
