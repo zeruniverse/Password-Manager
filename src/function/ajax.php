@@ -23,7 +23,7 @@ const ERROR_MESSAGE = [
     'fileFailed'     => 'No File Can Be Downloaded',
     'userWrong'      => 'Wrong User',
     'method'         => 'Method not allowed',
-    'EmailVerify'    => 'We sent an email to you with verification code. Click login to re-send email.',
+    'EmailVerify'    => 'We sent an email to you with a new verification code. Click login to re-send email.',
 ];
 function ajaxError($err)
 {

@@ -86,6 +86,9 @@ if (strcmp((string) $password, (string) $hash_pbkdf2) != 0) {
     ajaxError('loginFailed');
 }
 if ($EMAIL_VERIFICATION_ENABLED) {
+    // Use urlencode as backend has no restriction for username.
+    $encoded_usr = urlencode($usr);
+
     // Let's be honest, this does not need to be a strong key as the source key is:
     //      if from password, already hashed a lot of times
     //      if from $hash_pbkdf2, it is 512 bits long
@@ -93,14 +96,11 @@ if ($EMAIL_VERIFICATION_ENABLED) {
     $pwdrecord_check = hash_pbkdf2(
         'sha3-512',
         (string) $hash_pbkdf2,
-        $GLOBAL_SALT_3,
+        $GLOBAL_SALT_3.$encoded_usr,
         max(intdiv($PBKDF2_ITERATIONS, 100), 10)
     );
 
     // To avoid spam, only do email verification if password is correct
-
-    // Use urlencode as backend has no restriction for username.
-    $encoded_usr = urlencode($usr);
     if ((!isset($_COOKIE['pwdrecord_'.$encoded_usr]) ||
          $_COOKIE['pwdrecord_'.$encoded_usr] != $pwdrecord_check) &&
         (!isset($_SESSION['emailcode']) || $_SESSION['emailcode'] != $emailcode)) {
@@ -111,6 +111,10 @@ if ($EMAIL_VERIFICATION_ENABLED) {
         $k = sprintf('%08d', random_int(0, 99999999));
         $_SESSION['emailcode'] = $k;
         if (send_email($record['email'], $k)) {
+            // Log a failed attempts. BUT do not trigger blockIP as user might have
+            // a lot of devices to set up. This also avoids spam by not allowing sending out emails
+            // to often.
+            loghistory($link, (int) $record['id'], getUserIP(), $_SERVER['HTTP_USER_AGENT'], 0);
             ajaxError('EmailVerify');
         } else {
             // Fail to send out emails

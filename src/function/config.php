@@ -116,10 +116,11 @@ $BLOCK_IP_TIME = 3600;
 //Block account error try
 $BLOCK_ACCOUNT_TRY = 5;
 //block account if we see 5 error try in ACCOUNT_BAN_TIME.
+// NOTE: if you turn on email verification, set this value to >= 2 for things to work.
 
 //BLOCK account time
 $ACCOUNT_BAN_TIME = 180;
-//block account for 3 minutes
+//block account if we see BLOCK_ACCOUNT_TRY in 3 minutes
 
 //TIMEOUT -> LOGOUT
 $BROWSER_TIMEOUT = 360; //seconds
@@ -140,6 +141,9 @@ $BACKUP_KEY_ITERATIONS = 10;
 
 //Minimal length of user passwords
 $MINIMAL_PASSWORD_LENGTH = 7;
+//For default BLOCK_ACCOUNT_TRY and ACCOUNT_BAN_TIME, it will take more than 6 years
+// on average to brute-force enumerate 7-digits-number-only password
+
 //Minimal length of user name
 $MINIMAL_NAME_LENGTH = 5;
 
