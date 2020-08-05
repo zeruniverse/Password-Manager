@@ -113,7 +113,7 @@ if ($EMAIL_VERIFICATION_ENABLED) {
         if (send_email($record['email'], $k)) {
             // Log a failed attempts. BUT do not trigger blockIP as user might have
             // a lot of devices to set up. This also avoids spam by not allowing sending out emails
-            // to often.
+            // too often.
             loghistory($link, (int) $record['id'], getUserIP(), $_SERVER['HTTP_USER_AGENT'], 0);
             ajaxError('EmailVerify');
         } else {

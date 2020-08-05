@@ -142,7 +142,7 @@ $BACKUP_KEY_ITERATIONS = 10;
 //Minimal length of user passwords
 $MINIMAL_PASSWORD_LENGTH = 7;
 //For default BLOCK_ACCOUNT_TRY and ACCOUNT_BAN_TIME, it will take more than 6 years
-// on average to brute-force enumerate 7-digits-number-only password
+// on average to brute-force enumerate 7-digits number-only password
 
 //Minimal length of user name
 $MINIMAL_NAME_LENGTH = 5;
