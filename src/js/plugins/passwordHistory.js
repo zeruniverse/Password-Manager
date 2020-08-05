@@ -6,7 +6,7 @@ function passwordHistoryDetailsClicked(event) {
     for (let item of event.data.history) {
         let text = "";
         if ("setTime" in item) {
-            text += "Since " + timeConverter(item["setTime"]) + ": ";
+            text += "Until " + timeConverter(item["setTime"]) + ": ";
         }
         text += item["password"];
         list.append($('<li></li>').text(text));
@@ -32,5 +32,9 @@ registerPlugin("updateAccountPreSend", function(data){
             newHistoryEntry["setTime"] = data["oldData"]["other"]["_system_passwordLastChangeTime"];
         }
         account.other["_passwordHistory"].push(newHistoryEntry);
+
+        // Only keep last 10 history
+        if(account.other["_passwordHistory"].length > 10)
+            account.setOther("_passwordHistory", account.other["_passwordHistory"].slice(-10));
     }
 });
