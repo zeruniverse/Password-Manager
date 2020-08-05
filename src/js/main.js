@@ -206,11 +206,7 @@ function showTable(accounts) {
                 value = accounts[index]["other"][x];
             var cell = $('<td>').attr('class',  x+'cell '+fields[x]["cls"])
                 .append($('<span>').attr('class', 'account'+x).text(value));
-            if (("position" in fields[x]) && (fields[x]["position"] != 0)) {
-                cols.splice(fields[x]["position"], 0, cell);
-            }
-            else
-                cols.push(cell);
+            cols.push(cell);
         }
         // create row for datatable
         var row = $("<tr>").attr('class', 'datarow').data('id', accounts[index].index).append(cols);
