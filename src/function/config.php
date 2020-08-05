@@ -60,7 +60,7 @@ $SENDGRID_FROM_ADDRESS = 'example.com<noreply@example.com>';
 //ADVANCED SETTINGS, STOP EDITING IF YOU DON'T KNOW WHAT YOU ARE DOING
 //********************************************************************
 //DEFAULT fields
-//Don't include [passwordlastchangtime_01_system] field.
+//Don't start key with `_` (e.g. don't include `_password`) as those are system fields.
 $DEFAULT_FIELDS = json_encode([
     'url' => [
         'colname' => 'URL',
