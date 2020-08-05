@@ -63,11 +63,14 @@ class RecoveryBackend {
             var thisFilePromise = self.encryptionWrapper.decryptChar(filedata["data"][id][0])
                 .then(function(fname) {
                     file["name"] = fname;
-                    return self.encryptionWrapper.decryptPassword(fname, filedata["data"][id][1]);
+                    return EncryptionWrapper.WgenerateKeyWithSalt(self.encryptionWrapper.secretkey, fname);
+                })
+                .then(function(genkey){
+                    return EncryptionWrapper.decryptCharUsingKey(filedata["data"][id][1], genkey);
                 })
                 .then(function(fkey) {
                     file["key"] = fkey;
-                    return EncryptionWrapper.decryptCharUsingKey(filedata["data"][id][2], fkey)
+                    return EncryptionWrapper.decryptCharUsingKey(filedata["data"][id][2], fkey);
                 })
                 .then(function(fdata) {
                     file["data"] = fdata;

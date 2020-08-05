@@ -437,9 +437,12 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
 
     uploadFile(id, name, payload) {
         var self = this;
-        var fkey = self.encryptionWrapper.generatePassphrase(Math.floor(Math.random() * 18) + 19);
+        var fkey = self.encryptionWrapper.generatePassphrase(Math.floor(Math.random() * 6) + 32);
         let data = {"id": id};
-        return self.encryptionWrapper.encryptPassword(name, fkey)
+        return EncryptionWrapper.WgenerateKeyWithSalt(self.encryptionWrapper.secretkey, name)
+            .then(function(genkey){
+                return EncryptionWrapper.encryptCharUsingKey(fkey, genkey)
+            })
             .then(function(encryptedKey) {
                 data["fkey"] = encryptedKey;
                 return EncryptionWrapper.encryptCharUsingKey(payload, fkey);
@@ -461,7 +464,10 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
             .then(function(encfiledata) {
                 filedata = encfiledata;
                 file["name"] = self.accounts[id].file["name"];
-                return self.encryptionWrapper.decryptPassword(file["name"], filedata["key"])
+                return EncryptionWrapper.WgenerateKeyWithSalt(self.encryptionWrapper.secretkey, file["name"]);
+            })
+            .then(function(genkey){
+                return EncryptionWrapper.decryptCharUsingKey(filedata["key"], genkey);
             })
             .then(function(fkey) {
                 return EncryptionWrapper.decryptCharUsingKey(filedata["data"], fkey);
