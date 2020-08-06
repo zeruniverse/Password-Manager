@@ -8,5 +8,6 @@ before_script:
   - mv src/function src/a
 script: 
   - sh travis-ci.sh src
+  - py.test -q generate_file_lists.py
 after_script:
   - cat myerrorfile
