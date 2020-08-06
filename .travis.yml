@@ -5,6 +5,7 @@ php:
   - 7.2
   - 7.4
 before_script:
+  - sudo apt-get -y install python-pytest
   - mv src/function src/a
 script: 
   - sh travis-ci.sh src
