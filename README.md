@@ -35,9 +35,9 @@ You can access the database for this demo [here](https://mysql-p.sourceforge.net
 
 5. Tags support and searching support. This makes it easier to manage lots of accounts.
 
-6. Import/Export as CSV file.
+6. Import/Export as CSV file. (Export CSV has been moved to recovery - you need to: generate backup -> recovery -> export to CSV. It is to discourage user from exporting CSV as the raw format is very unsafe)
 
-7. Easy to backup and recovery.
+7. Easy to backup and recover. For recovery, you **only** need backup file and login password when generating this backup file. All other information needed for decryption is stored in the backup file. Even if you mistakenly doomed your server, you can download source from github and do recovery (no configuration is needed). After recovery successfully decrypt all data, you can export CSV (no file or password history information). You can also export RAW format that has all data (a full clone) and can be imported into another Password-Manager instance.
 
 8. Authentication control. Account/IP will be blocked for too many failed attempts. After a short time of no action, you'll sign out automatically.
 
@@ -52,7 +52,7 @@ You can access the database for this demo [here](https://mysql-p.sourceforge.net
 ## Installation
 See [wiki](https://github.com/zeruniverse/Password-Manager/wiki/Installation)
 
-If you deploy password manager on server that you are not 100% sure about its safety (e.g. VPS), [enable client-side source file check](https://github.com/zeruniverse/Password-Manager/wiki/Installation#enable-client-side-source-file-check)
+If you deploy password manager on server that you are not 100% sure about its safety (e.g. VPS), [enable client-side source file check](https://github.com/zeruniverse/Password-Manager/wiki/Installation#enable-client-side-source-file-check). Suppose you install your password manager at `pw.A.com` and you put client-side check code at GitHub pages with CNAME `entry.A.com`. You should always visit `entry.A.com` and let it redirect you to `pw.A.com`.
 
 ## How to use
 See [wiki](https://github.com/zeruniverse/Password-Manager/wiki)
