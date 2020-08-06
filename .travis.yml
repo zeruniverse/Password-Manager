@@ -4,10 +4,12 @@ php:
   - 7.2
   - 7.4
 before_script:
-  - sudo apt-get -y install python-pytest
+  - sudo apt-get -y install python
   - mv src/function src/a
-script: 
+  - mv file_lists.txt ori.txt
+script:
   - sh travis-ci.sh src
-  - py.test -q generate_file_lists.py
+  - python generate_file_lists.py
+  - diff ori.txt file_lists.txt
 after_script:
   - cat myerrorfile
