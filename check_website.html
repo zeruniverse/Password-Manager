@@ -116,6 +116,9 @@ get_content('file_lists.txt')
             document.getElementById("info").innerHTML = text;
         }
     })
+    .catch(function(){
+        document.getElementById("info").innerHTML = "Check failed. Are all files in file_lists.txt accessible from server? Check console for details";
+    });
 
 </script>
 </html>
