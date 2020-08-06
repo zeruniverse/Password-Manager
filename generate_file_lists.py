@@ -1,7 +1,7 @@
 import os
 
 def write_path(folder, prefix, fd):
-    for i in os.listdir(folder):
+    for i in sorted(os.listdir(folder)):
         prefix_path = os.path.join(prefix, i)
         base_path = os.path.join(folder, i)
         if os.path.isdir(base_path):
