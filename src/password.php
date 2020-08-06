@@ -19,7 +19,6 @@ echoheader();
 <script src="js/plugins/tags.js"></script>
 <script src="js/plugins/passwordAge.js"></script>
 <script src="js/plugins/keyboardShortcuts.js"></script>
-<script src="js/plugins/clipboard.js"></script>
 <script src="js/plugins/passwordHistory.js"></script>
    <nav class="navbar navbar-default navbar-fixed-top">
       <div class="container">

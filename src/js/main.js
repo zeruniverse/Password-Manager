@@ -626,7 +626,20 @@ function clicktoshow(id){
                 .append($('<span class="pwdshowbox passwordText"></span>'))
                 .after($('<a title="Hide" class="cellOptionButton hidePassword"></a>')
                     .on('click',{"index":id},function(event){clicktohide(event.data.index);})
-                    .append($('<span class="glyphicon glyphicon-eye-close"></span>')));
+                    .append($('<span class="glyphicon glyphicon-eye-close"></span>')))
+                .after($('<a>')
+                        .attr('title',"Copy password to clipboard")
+                        .attr('class','cellOptionButton copytoClipboard')
+                        .append($('<span></span>')
+                            .attr('class','glyphicon glyphicon-copy'))
+                        .click(function() {return navigator.clipboard.writeText(pwd)
+                                .then(function() {
+                                    showMessage('success', 'Your password is now available in the clipboard.');
+                                })
+                                .catch(function() {
+                                    showMessage('warning', 'Could not write to clipboard');
+                                });
+                        }));
             $("#"+id+" > .pwdshowbox").text(pwd);
         })
         .catch(function(){
@@ -639,6 +652,7 @@ function clicktohide(id){
                         .on('click', {"index":id}, function(event){ clicktoshow(event.data.index); })
                         .append('<span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span>') );
     $("#" + id).parent().find(".hidePassword")[0].remove();
+    $("#" + id).parent().find(".copytoClipboard")[0].remove();
 }
 function showuploadfiledlg(id){
     $("#uploadfiledlg").modal("hide");

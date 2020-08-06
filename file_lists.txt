@@ -36,7 +36,6 @@ js/lib/jquery.min.map
 js/lib/ua-parser.min.js
 js/main.js
 js/plugin.js
-js/plugins/clipboard.js
 js/plugins/keyboardShortcuts.js
 js/plugins/linkButton.js
 js/plugins/passwordAge.js
