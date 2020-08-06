@@ -154,4 +154,4 @@ $DEFAULT_LETTER_USED = '*+-0123456789=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnop
 
 //YOU ARE DONE.
 //DON'T FORGET TO UPLOAD THE INITIAL TABLES!
-//If you want to use email verification or CAPTCHA, please modify rest/check.php
+//If you want to implement CAPTCHA, please modify rest/check.php
