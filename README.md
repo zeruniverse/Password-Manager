@@ -50,6 +50,8 @@ You can access the database for this demo [here](https://mysql-p.sourceforge.net
 ## Installation
 See [wiki](https://github.com/zeruniverse/Password-Manager/wiki/Installation)
 
+If you deploy password manager on server that you are not 100% sure about its safety (e.g. VPS), [enable client-side source file check](https://github.com/zeruniverse/Password-Manager/wiki/Installation#enable-client-side-source-file-check)
+
 ## How to use
 See [wiki](https://github.com/zeruniverse/Password-Manager/wiki)
 
