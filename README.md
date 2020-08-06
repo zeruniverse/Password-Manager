@@ -54,6 +54,8 @@ See [wiki](https://github.com/zeruniverse/Password-Manager/wiki/Installation)
 
 If you deploy password manager on server that you are not 100% sure about its safety (e.g. VPS), [enable client-side source file check](https://github.com/zeruniverse/Password-Manager/wiki/Installation#enable-client-side-source-file-check). Suppose you install your password manager at `pw.A.com` and you put client-side check code at GitHub pages with CNAME `entry.A.com`. You should always visit `entry.A.com` and let it redirect you to `pw.A.com`.
 
+Client-side source file check uses Fetch API. [It's not supported in all browsers](https://developer.mozilla.org/en-US/docs/Web/API/Body/text) but most likely your browser will support it. If your browser does not support Fetch API, you can re-implement the logic using AJAX GET.
+
 ## How to use
 See [wiki](https://github.com/zeruniverse/Password-Manager/wiki)
 
