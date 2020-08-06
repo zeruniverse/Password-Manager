@@ -45,7 +45,9 @@ You can access the database for this demo [here](https://mysql-p.sourceforge.net
 
 10. Up to 15 password histories per account.
 
-11. Friendly UI.
+11. [Client-side source file integrity check](https://github.com/zeruniverse/Password-Manager/wiki/Installation#enable-client-side-source-file-check) so you will notice if your server gets hacked and someone changed the front-end source code.
+
+12. Friendly UI.
 
 ## Installation
 See [wiki](https://github.com/zeruniverse/Password-Manager/wiki/Installation)
