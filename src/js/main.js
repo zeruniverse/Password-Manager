@@ -548,6 +548,7 @@ $(document).ready(function(){
 
     $('#edit').on('shown.bs.modal', function () {
         $(this).find('form')[0].reset();
+        backend.resetTimeout();
         var id = parseInt($(this).data('id'));
         $(this).toggleClass('editOnly', id > -1);
         $(this).toggleClass('addOnly', id == -1);
@@ -673,6 +674,7 @@ function showdetail(index){
     var i = parseInt(index);
     var account = backend.accounts[i];
     var s = $('#details');
+    backend.resetTimeout();
     s.html('');
     s.append($('<b>').text(account.accountName))
      .append($('<br/>')).append($('<br/>'));

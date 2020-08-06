@@ -3,7 +3,8 @@
 require_once dirname(__FILE__).'/../function/common.php';
 require_once dirname(__FILE__).'/../function/ajax.php';
 $link = sqllink();
-if (!checksession($link, false)) {
+// Poll. Set refresh to true.
+if (!checksession($link, true)) {
     error('sessionUnauthenticated');
 }
 ajaxSuccess();

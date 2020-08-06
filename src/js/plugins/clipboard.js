@@ -6,6 +6,8 @@ registerPlugin("drawAccount", async function(data){
     }
     var account = data["account"];
     var row = data["row"];
+    // Put password generation here as clipboard API can only be called at user interaction time
+    // getPassword().then(navigator.clipboard.writeText()) will fail on Safari.
     var password = await account.getPassword();
     row.find(".passcell>span").after($('<a>')
         .attr('title',"Copy password to clipboard")
