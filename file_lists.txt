@@ -4,6 +4,7 @@ recovery.php
 pw.ttf
 password.php
 logout.php
+js/main.js
 js/signup.js
 js/recovery.js
 js/plugins/tags.js
@@ -13,7 +14,6 @@ js/plugins/linkButton.js
 js/plugins/keyboardShortcuts.js
 js/plugins/clipboard.js
 js/plugin.js
-js/main.js
 js/lib/ua-parser.min.js
 js/lib/jquery.min.map
 js/lib/jquery.min.js
