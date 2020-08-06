@@ -8,10 +8,12 @@
 <div id="info" style="color:red"></div>
 </body>
 <script type="text/javascript">
-WEBSITE = "https://phppasswordmanager.sourceforge.io/";
-CORRECT_MD5 = "asd";
+WEBSITE = "https://YOUR WEBSITE/";
+CORRECT_MD5 = "RUN THIS HTML ONCE AND GET CORRECT MD5. PUT IT HERE";
 </script>
 <script type="text/javascript">
+// code from https://stackoverflow.com/questions/1655769/fastest-md5-implementation-in-javascript
+
 MD5 = function(e) {
     function h(a, b) {
         var c, d, e, f, g;
@@ -82,9 +84,11 @@ function get_content(address){
     var opts = {
         method: 'GET'
     };
-    return fetch(address, opts);
+    return fetch(address, opts)
+        .then(function (response){
+            return response.text();
+        })
 }
-
 
 get_content('file_lists.txt')
     .then(function(list){
@@ -96,7 +100,11 @@ get_content('file_lists.txt')
         return Promise.all(promises)
     })
     .then(function(items){
-        return Promise.resolve(MD5(items.toString()))
+        results = "";
+        for(let i of items) results = results + MD5(i) + '<br />';
+
+        // you can manually debug by changing MD5(results) to results. So you know which file is wrong.
+        return Promise.resolve(MD5(results));
     })
     .then(function(md5val){
         if(md5val == CORRECT_MD5) {

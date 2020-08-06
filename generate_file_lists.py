@@ -12,4 +12,3 @@ def write_path(folder, prefix, fd):
 
 fd = open("file_lists.txt", "w")
 write_path("src", "", fd)
-        
