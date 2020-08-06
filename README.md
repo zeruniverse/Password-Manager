@@ -31,7 +31,7 @@ You can access the database for this demo [here](https://mysql-p.sourceforge.net
 
 3. PIN login. You don't need to input your long login password everytime. Instead, you can use a short PIN, in your trusted devices.
 
-4. Files support. You can attach files to accounts. Of course, files are encrypted in your browser before they are uploaded.
+4. Files support. You can attach files to accounts (such as key or license file). Of course, files are encrypted in your browser before they are uploaded. Maximum file name length supported is 38 Bytes (if your file name is too long, rename it). Maximum file size support (tested) is 2MB.
 
 5. Tags support and searching support. This makes it easier to manage lots of accounts.
 
