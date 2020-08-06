@@ -159,18 +159,20 @@ class Account {
         return 'file' in this;
     }
     getFileKey(){
-        return EncryptionWrapper.WgenerateKeyWithSalt(this.encryptionWrapper.secretkey, this.file.name)
+        var self = this;
+        return EncryptionWrapper.WgenerateKeyWithSalt(self.encryptionWrapper.secretkey, self.file.name)
             .then(function(genkey){
-                return EncryptionWrapper.decryptCharUsingKey(this.file.key, genkey);
+                return EncryptionWrapper.decryptCharUsingKey(self.file.key, genkey);
             });
     }
     setFileKey(key){
-        return EncryptionWrapper.WgenerateKeyWithSalt(this.encryptionWrapper.secretkey, this.file.name)
+        var self = this;
+        return EncryptionWrapper.WgenerateKeyWithSalt(self.encryptionWrapper.secretkey, self.file.name)
             .then(function(genkey){
                 return EncryptionWrapper.encryptCharUsingKey(key, genkey);
             })
             .then(function(enKey){
-                this.file.key = enKey;
+                self.file.key = enKey;
                 return enKey;
             });
     }
