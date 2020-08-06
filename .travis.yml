@@ -5,11 +5,11 @@ php:
   - 7.4
 before_script:
   - sudo apt-get -y install python
-  - mv src/function src/a
-  - mv file_lists.txt ori.txt
 script:
-  - sh travis-ci.sh src
+  - mv file_lists.txt ori.txt
   - python generate_file_lists.py
   - diff ori.txt file_lists.txt
+  - mv src/function src/a
+  - sh travis-ci.sh src
 after_script:
   - cat myerrorfile
