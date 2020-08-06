@@ -105,22 +105,12 @@ let AuthenticatedSession = (superclass) => class extends superclass {
 
 //mixin for timeout function
 let Timeout = (superclass) => class extends superclass {
-    doPost(endpoint, data) {
-        this.resetTimeout();
-        return super.doPost(endpoint, data);
-    }
     //Timout
     resetTimeout() {
         if (!this.default_timeout) {
             return;
         }
-        let newTimeout = this.default_timeout + Math.floor(Date.now() / 1000);
-        if (typeof this.timeout === 'undefined') {
-            this.timeout = newTimeout;
-        }
-        else if (this.timeout < newTimeout) {
-            this.timeout = newTimeout;
-        }
+        this.timeout = this.default_timeout + Math.floor(Date.now() / 1000);
     }
     clientCountdown() {
         if (this.isTimeout) {
@@ -356,6 +346,7 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
                 self.receivedData = data;
                 self.prepareData(data);
                 self.resetTimeout();
+                self.clearTimeout();
                 self.initTimeout();
                 return self.prepareCrypto(data["global_salt_1"], data["global_salt_2"], data["default_letter_used"]);
             })
@@ -577,6 +568,7 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
             .then(function(encfdata) {
                 backup.fdata = encfdata;
                 progress_callback(99);
+                self.resetTimeout();
                 return new Blob([JSON.stringify(backup)], {type: "text/plain;charset=utf-8"});
             });
     }
@@ -615,6 +607,8 @@ class HistoryBackend extends mix(commonBackend).with(EventHandler, Authenticated
                 self.user = msg["usr"];
                 self.default_timeout = msg["default_timeout"];
                 self.default_server_timeout = msg["server_timeout"];
+                self.resetTimeout();
+                self.clearTimeout();
                 self.initTimeout();
                 return msg;
             });

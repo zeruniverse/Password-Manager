@@ -129,9 +129,6 @@ $BROWSER_TIMEOUT = 360; //seconds
 $SERVER_TIMEOUT = 1200; //seconds
 //Automatically logout (at server side) after 1200s since login
 
-$SERVER_SOFT_TIMEOUT = 360; //seconds
-//Logout after x seconds of no interaction with server
-
 //Number of iterations for the password hashing
 $PBKDF2_ITERATIONS = 64000;
 

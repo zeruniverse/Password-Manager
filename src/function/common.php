@@ -52,9 +52,9 @@ function start_session()
     session_set_cookie_params(0, '/; samesite=strict', null, true, true);
     session_start();
 }
-function checksession($link, $refreshTimeout = true)
+function checksession($link)
 {
-    global $SERVER_TIMEOUT, $SERVER_SOFT_TIMEOUT, $HOSTDOMAIN;
+    global $SERVER_TIMEOUT, $HOSTDOMAIN;
     start_session();
     if (!isset($_SESSION['loginok']) || $_SESSION['loginok'] != 1) {
         invalidateSession();
@@ -79,7 +79,8 @@ function checksession($link, $refreshTimeout = true)
 
         return false;
     }
-    if ($_SESSION['refresh_time'] + $SERVER_SOFT_TIMEOUT < time()) {
+    if ($_SESSION['refresh_time'] + 16 < time()) {
+        // allow for 16 seconds. Client polls every 5 seconds so we allow 2 consecutive misses.
         invalidateSession();
 
         return false;
@@ -100,9 +101,8 @@ function checksession($link, $refreshTimeout = true)
 
         return false;
     }
-    if ($refreshTimeout) {
-        $_SESSION['refresh_time'] = time();
-    }
+
+    $_SESSION['refresh_time'] = time();
 
     return true;
 }
