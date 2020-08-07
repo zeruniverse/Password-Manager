@@ -59,8 +59,8 @@ class RecoveryBackend {
             throw('invalid status for encrypted files');
         let filePromises = [];
         for (let id in filedata["data"]) {
-            var file = {"id": id};
-            var thisFilePromise = self.encryptionWrapper.decryptChar(filedata["data"][id][0])
+            let file = {"id": id};
+            let thisFilePromise = self.encryptionWrapper.decryptChar(filedata["data"][id][0])
                 .then(function(fname) {
                     file["name"] = fname;
                     return EncryptionWrapper.WgenerateKeyWithSalt(self.encryptionWrapper.secretkey, fname);
