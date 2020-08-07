@@ -8,14 +8,16 @@ class EncryptionWrapper {
 
     static WgenerateKeyWithSalt(input, salt) {
         // a weak key.
-        return PBKDF2_SHA512(input, salt, 10000);
+        // Didn't use 10k as that number is too common
+        return PBKDF2_SHA512(input, salt, 10013);
     }
 
     static SgenerateKeyWithSalt(input, salt) {
         // Didn't use SHA3 here because it's slow.
         return SHA512(salt)
             .then(function(new_salt){
-                return PBKDF2_SHA512(input, new_salt, 1000000);
+                // Didn't use 1e6 as that number is too common
+                return PBKDF2_SHA512(input, new_salt, 1037311);
             });
     }
 
@@ -262,13 +264,13 @@ class EncryptionWrapper {
         if(encryptch == "" || key == ""){
             return Promise.reject("ERROR: empty key detected!");
         }
-        return AESGCM256Encrypt(encryptch, key);
+        return AESCBC256Encrypt(encryptch, key);
     }
     static decryptCharUsingKey(echar, key){
         if(echar == "" || key == ""){
             return Promise.reject("ERROR: empty key detected!");
         }
-        return AESGCM256Decrypt(echar, key);
+        return AESCBC256Decrypt(echar, key);
     }
 
     generatePassphrase(plength) {

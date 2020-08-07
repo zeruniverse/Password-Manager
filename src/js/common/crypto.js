@@ -47,14 +47,16 @@ function SHA512(text){
 
 // Below two functions adapted from: https://gist.github.com/chrisveness/43bcda93af9f646d083fad678071b90a
 // MIT license
+// We use CBC mode here as GCM: (1) needs unique IV, we don't have good ways to guarantee it.
+// (2) Authentication provided by GCM is not useful in our case.
 
-async function AESGCM256Encrypt(plaintext, password) {
+async function AESCBC256Encrypt(plaintext, password) {
     const pwUtf8 = new TextEncoder().encode(password);                                 // encode password as UTF-8
     const pwHash = await crypto.subtle.digest('SHA-256', pwUtf8);                      // hash the password
 
-    const iv = crypto.getRandomValues(new Uint8Array(12));                             // get 96-bit random iv
+    const iv = crypto.getRandomValues(new Uint8Array(16));                             // get 16 bytes random iv
 
-    const alg = { name: 'AES-GCM', iv: iv };                                           // specify algorithm to use
+    const alg = { name: 'AES-CBC', iv: iv };                                           // specify algorithm to use
 
     const key = await crypto.subtle.importKey('raw', pwHash, alg, false, ['encrypt']); // generate key from pw
 
@@ -70,17 +72,17 @@ async function AESGCM256Encrypt(plaintext, password) {
     return ivHex+ctBase64;                                                             // return iv+ciphertext
 }
 
-async function AESGCM256Decrypt(ciphertext, password) {
+async function AESCBC256Decrypt(ciphertext, password) {
     const pwUtf8 = new TextEncoder().encode(password);                                  // encode password as UTF-8
     const pwHash = await crypto.subtle.digest('SHA-256', pwUtf8);                       // hash the password
 
-    const iv = ciphertext.slice(0,24).match(/.{2}/g).map(byte => parseInt(byte, 16));   // get iv from ciphertext
+    const iv = ciphertext.slice(0,32).match(/.{2}/g).map(byte => parseInt(byte, 16));   // get iv from ciphertext
 
-    const alg = { name: 'AES-GCM', iv: new Uint8Array(iv) };                            // specify algorithm to use
+    const alg = { name: 'AES-CBC', iv: new Uint8Array(iv) };                            // specify algorithm to use
 
     const key = await crypto.subtle.importKey('raw', pwHash, alg, false, ['decrypt']);  // use pw to generate key
 
-    const ctStr = atob(ciphertext.slice(24));                                           // decode base64 ciphertext
+    const ctStr = atob(ciphertext.slice(32));                                           // decode base64 ciphertext
     const ctUint8 = new Uint8Array(ctStr.match(/[\s\S]/g).map(ch => ch.charCodeAt(0))); // ciphertext as Uint8Array
     // note: why doesn't ctUint8 = new TextEncoder().encode(ctStr) work?
 

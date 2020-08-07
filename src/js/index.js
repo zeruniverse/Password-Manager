@@ -22,8 +22,8 @@ async function isCrypto(){
         if((await PBKDF2_SHA512('123', '456', 3)).substring(0, 5)!="e2d69") {
             return false;
         }
-        var enc = await AESGCM256Encrypt('123', '456');
-        if((await AESGCM256Decrypt(enc, '456')) != '123') return false;
+        var enc = await AESCBC256Encrypt('123', '456');
+        if((await AESCBC256Decrypt(enc, '456')) != '123') return false;
     } catch(e) {
         return false;
     }
