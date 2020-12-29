@@ -8,6 +8,8 @@
 
 **'master' branch is a dev-branch, please download stable version from [Release](https://github.com/zeruniverse/Password-Manager/releases) if you just want to use it.**
 
+A complete re-implementation is done by Benjamin (co-author of this project). See: https://github.com/BenjaminHae/modern-password-manager
+
 ## Version
 
 v11.00
