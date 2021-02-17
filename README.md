@@ -43,7 +43,7 @@ You can access the database for this demo [here](https://mysql-p.sourceforge.net
 
 8. Authentication control. Account/IP will be blocked for too many failed attempts. After a short time of no action, you'll sign out automatically.
 
-9. Email based two-step verification support on new device login (You need a free account from [SendGrid](https://sendgrid.com/) or implement your own send_email logic in src/function/send_email.php)
+9. Email based two-step verification support on new device login (You need a free GMAIL account with 2-step verification enabled. Use your email address as `$GMAIL_ADDRESS`, and app-specific password as `$GMAIL_PASSWORD`. Note you can only set app-specific password after setting 2-step verification) or implement your own send_email logic in src/function/send_email.php)
 
 10. Up to 15 password histories per account.
 
