@@ -2,7 +2,6 @@
 
 require_once dirname(__FILE__).'/config.php';
 use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
 
 require dirname(__FILE__).'/PHPMailer/Exception.php';
 require dirname(__FILE__).'/PHPMailer/PHPMailer.php';
@@ -41,7 +40,6 @@ function send_email($address, $verification_code)
     // add email origin message
     $body = $body.'<span style="color:Red">Please only trust email from '.$GMAIL_ADDRESS.'</span>';
 
-
     $mail = new PHPMailer();
     // configure an SMTP
     $mail->isSMTP();
@@ -56,13 +54,14 @@ function send_email($address, $verification_code)
     $mail->addAddress($address, $address);
     $mail->Subject = strval($verification_code).' is your Password-Manager verification code';
     // Set HTML
-    $mail->isHTML(TRUE);
+    $mail->isHTML(true);
     $mail->Body = $body;
     $mail->AltBody = 'Please use code '.strval($verification_code).' to login your Password-Manager.';
 
     // send the message
-    if(!$mail->send()){
-        error_log('Mailer Error: ' . $mail->ErrorInfo);
+    if (!$mail->send()) {
+        error_log('Mailer Error: '.$mail->ErrorInfo);
+
         return false;
     } else {
         return true;
