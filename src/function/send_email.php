@@ -1,6 +1,13 @@
 <?php
 
 require_once dirname(__FILE__).'/config.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require dirname(__FILE__).'/PHPMailer/Exception.php';
+require dirname(__FILE__).'/PHPMailer/PHPMailer.php';
+require dirname(__FILE__).'/PHPMailer/SMTP.php';
+
 /*  You can implement your own send_email API here with the method you want to send out verification email.
     You can also edit the code here to include your customized email body.
 
@@ -15,7 +22,7 @@ require_once dirname(__FILE__).'/config.php';
 
 function send_email($address, $verification_code)
 {
-    global $EMAIL_VERIFICATION_ENABLED, $SENDGRID_USER_NAME, $SENDGRID_PASSWORD, $SENDGRID_FROM_ADDRESS;
+    global $EMAIL_VERIFICATION_ENABLED, $GMAIL_ADDRESS, $GMAIL_PASSWORD;
     // Verification disabled. This function should not be called.
 
     if (!$EMAIL_VERIFICATION_ENABLED) {
@@ -32,43 +39,32 @@ function send_email($address, $verification_code)
     // add do not reply message
     $body = $body.'<br /><hr /><strong>DO NOT REPLY</strong><br />';
     // add email origin message
-    $body = $body.'<span style="color:Red">Please only trust email from '.$SENDGRID_FROM_ADDRESS.'</span>';
+    $body = $body.'<span style="color:Red">Please only trust email from '.$GMAIL_ADDRESS.'</span>';
 
-    $url = 'https://api.sendgrid.com/';
-    $user = $SENDGRID_USER_NAME;
-    $pass = $SENDGRID_PASSWORD;
 
-    $params = [
-        'api_user'  => $user,
-        'api_key'   => $pass,
-        'to'        => $address,
-        'subject'   => strval($verification_code).' is your Password-Manager verification code',
-        'html'      => $body,
-        'from'      => $SENDGRID_FROM_ADDRESS,
-    ];
+    $mail = new PHPMailer();
+    // configure an SMTP
+    $mail->isSMTP();
+    $mail->Host = 'smtp.gmail.com';
+    $mail->SMTPAuth = true;
+    $mail->Username = $GMAIL_ADDRESS;
+    $mail->Password = $GMAIL_PASSWORD;
+    $mail->SMTPSecure = 'tls';
+    $mail->Port = 587;
 
-    $request = $url.'api/mail.send.json';
+    $mail->setFrom($GMAIL_ADDRESS, 'Password-Manager Verification');
+    $mail->addAddress($address, $address);
+    $mail->Subject = strval($verification_code).' is your Password-Manager verification code';
+    // Set HTML
+    $mail->isHTML(TRUE);
+    $mail->Body = $body;
+    $mail->AltBody = 'Please use code '.strval($verification_code).' to login your Password-Manager.';
 
-    // Generate curl request
-    $session = curl_init($request);
-    // Tell curl to use HTTP POST
-    curl_setopt($session, CURLOPT_POST, true);
-    // Tell curl that this is the body of the POST
-    curl_setopt($session, CURLOPT_POSTFIELDS, $params);
-    // Tell curl not to return headers, but do return the response
-    curl_setopt($session, CURLOPT_HEADER, false);
-    // Tell PHP not to use SSLv3 (instead opting for TLS)
-    curl_setopt($session, CURLOPT_SSLVERSION, 'CURL_SSLVERSION_TLSv1_2');
-    curl_setopt($session, CURLOPT_RETURNTRANSFER, true);
-
-    // obtain response
-    $response = curl_exec($session);
-    curl_close($session);
-    if ((json_decode($response)->{'message'}) == 'success') {
-        return true;
-    } else {
-        error_log('Failed to send email! '.$response, 0);
-
+    // send the message
+    if(!$mail->send()){
+        error_log('Mailer Error: ' . $mail->ErrorInfo);
         return false;
+    } else {
+        return true;
     }
 }

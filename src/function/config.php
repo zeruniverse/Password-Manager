@@ -44,17 +44,11 @@ $GLOBAL_SALT_3 = '*&Kjnskjnaucibiqb9298hv9sHIUWNiukJNIusfbic897*(^)';
 $EMAIL_VERIFICATION_ENABLED = false;
 
 // If $EMAIL_VERIFICATION_ENABLED is true, configuration below is REQUIRED!
-// Go to https://sendgrid.com/ to register. Free account has 100 emails / day
+// Please use a valid Gmail account for sending emails!
 // If you want to use other service provider / use your own SMTP. Please change code in send_email.php
 
-$SENDGRID_USER_NAME = '';
-$SENDGRID_PASSWORD = '';
-
-// Use your own domain and configure according to
-//    https://sendgrid.com/docs/ui/account-and-settings/how-to-set-up-domain-authentication/
-// Do not use random domain as your email will be thrown into spam folder.
-
-$SENDGRID_FROM_ADDRESS = 'example.com<noreply@example.com>';
+$GMAIL_ADDRESS = '';
+$GMAIL_PASSWORD = '';
 
 //********************************************************************
 //ADVANCED SETTINGS, STOP EDITING IF YOU DON'T KNOW WHAT YOU ARE DOING
