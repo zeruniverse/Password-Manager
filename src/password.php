@@ -2,24 +2,24 @@
 require_once 'function/basic.php';
 echoheader();
 ?>
-<link rel="stylesheet" type="text/css" href="css/dataTables.bootstrap.min.css">
-<link rel="stylesheet" type="text/css" href="css/responsive.dataTables.min.css">
-<script src="js/lib/jquery.dataTables.min.js"></script>
-<script src="js/lib/dataTables.bootstrap.min.js"></script>
-<script src="js/lib/dataTables.responsive.min.js"></script>
-<script src="js/lib/FileSaver.min.js"></script>
+<link rel="stylesheet" type="text/css" href="css/datatables.bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="css/responsive.datatables.min.css">
+<script src="js/lib/jquery.datatables.min.js"></script>
+<script src="js/lib/datatables.bootstrap.min.js"></script>
+<script src="js/lib/datatables.responsive.min.js"></script>
+<script src="js/lib/filesaver.min.js"></script>
 <script src="js/lib/jquery.csv.js"></script>
 <script src="js/common/crypto.js"></script>
 <script src="js/common/account.js"></script>
 <script src="js/common/backend.js"></script>
-<script src="js/common/cryptoWrapper.js"></script>
+<script src="js/common/cryptowrapper.js"></script>
 <script src="js/plugin.js"></script>
 <script src="js/main.js"></script>
-<script src="js/plugins/linkButton.js"></script>
+<script src="js/plugins/linkbutton.js"></script>
 <script src="js/plugins/tags.js"></script>
-<script src="js/plugins/passwordAge.js"></script>
-<script src="js/plugins/keyboardShortcuts.js"></script>
-<script src="js/plugins/passwordHistory.js"></script>
+<script src="js/plugins/passwordage.js"></script>
+<script src="js/plugins/keyboardshortcuts.js"></script>
+<script src="js/plugins/passwordhistory.js"></script>
    <nav class="navbar navbar-default navbar-fixed-top">
       <div class="container">
         <div class="navbar-header pull-left">

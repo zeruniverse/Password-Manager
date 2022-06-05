@@ -2,8 +2,8 @@
 require_once 'function/basic.php';
 echoheader();
 ?>
-<link rel="stylesheet" type="text/css" href="css/dataTables.bootstrap.min.css">
-<link rel="stylesheet" type="text/css" href="css/responsive.dataTables.min.css">
+<link rel="stylesheet" type="text/css" href="css/datatables.bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="css/responsive.datatables.min.css">
 <script src="js/common/backend.js"></script>
    <nav class="navbar navbar-default navbar-fixed-top">
       <div class="container">
@@ -36,8 +36,8 @@ echoheader();
     </div>
 </div>
 <script src="js/lib/ua-parser.min.js"></script>
-<script src="js/lib/jquery.dataTables.min.js"></script>
-<script src="js/lib/dataTables.bootstrap.min.js"></script>
-<script src="js/lib/dataTables.responsive.min.js"></script>
+<script src="js/lib/jquery.datatables.min.js"></script>
+<script src="js/lib/datatables.bootstrap.min.js"></script>
+<script src="js/lib/datatables.responsive.min.js"></script>
 <script src="js/history.js"></script>
 <?php echofooter(); ?>

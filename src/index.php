@@ -4,7 +4,7 @@ echoheader();
 ?>
 <script src="js/common/crypto.js"></script>
 <script src="js/common/backend.js"></script>
-<script src="js/common/cryptoWrapper.js"></script>
+<script src="js/common/cryptowrapper.js"></script>
 <script src="js/index.js"></script>
     <div class="container theme-showcase">
         <div class="page-header">
