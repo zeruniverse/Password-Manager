@@ -3,7 +3,7 @@ require_once 'function/basic.php';
 echoheader();
 ?>
 <script src="js/common/crypto.js"></script>
-<script src="js/common/cryptoWrapper.js"></script>
+<script src="js/common/cryptowrapper.js"></script>
 <script src="js/common/backend.js"></script>
 <script src="js/signup.js"></script>
 <div class="container theme-showcase">

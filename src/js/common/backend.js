@@ -120,7 +120,7 @@ let Timeout = (superclass) => class extends superclass {
     }
     checkSession() {
         var self = this;
-        this.doPost('sessionAlive')
+        this.doPost('sessionalive')
             .catch(function() {
                 self.logout("Session timed out");
                 self.clearTimeout();
