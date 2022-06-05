@@ -38,14 +38,14 @@ CREATE TABLE IF NOT EXISTS `pwdusrrecord` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `blockip` (
-  `ip` varchar(18) NOT NULL,
+  `ip` varchar(39) NOT NULL,
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `history` (
   `id` int(11) NOT NULL,
   `userid` int(11) NOT NULL,
-  `ip` varchar(16) NOT NULL,
+  `ip` varchar(39) NOT NULL,
   `ua` varchar(500),
   `outcome` int(11) NOT NULL DEFAULT '0',
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
