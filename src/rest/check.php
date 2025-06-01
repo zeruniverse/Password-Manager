@@ -10,7 +10,10 @@ $sidvalue = session_id();
 function getUserIP()
 {
     if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && $_SERVER['HTTP_X_FORWARDED_FOR']) {
-        return $_SERVER['HTTP_X_FORWARDED_FOR'];
+        // HTTP_X_FORWARDED_FOR 可能包含多个IP，用逗号分隔
+        // 取第一个IP（通常是客户端的真实IP）
+        $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+        return trim($ips[0]);
     }
 
     return $_SERVER['REMOTE_ADDR'];
