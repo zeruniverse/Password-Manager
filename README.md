@@ -1,9 +1,6 @@
 # Password Manager
-[![Build Status](https://travis-ci.org/zeruniverse/Password-Manager.svg)](https://travis-ci.org/zeruniverse/Password-Manager)
-[![Codacy Badge](https://api.codacy.com/project/badge/grade/b5d954be72144355aa258748cfd05bca)](https://www.codacy.com/app/zzy8200/Password-Manager)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/zeruniverse/Password-Manager/blob/master/LICENSE)
 ![Environment](https://img.shields.io/badge/PHP-7.1+-blue.svg)
-![Environment](https://img.shields.io/badge/MySQL-required-ff69b4.svg)
 ![Environment](https://img.shields.io/badge/HTTPS-required-66ccff.svg)
 
 **'master' branch is a dev-branch, please download stable version from [Release](https://github.com/zeruniverse/Password-Manager/releases) if you just want to use it.**
@@ -12,7 +9,7 @@ A complete re-implementation is done by Benjamin (co-author of this project). Se
 
 ## Version
 
-v11.01
+v11.05
 
 Since v11.00, this password manager is mature and stable. That said, there will be no more major changes (e.g. database structure change) in the future. But just bug fixes and crypto algorithm updates. I know in the past, upgrading is painful due to the client-side encryption nature. But going forward, it will not be an issue anymore. All users should upgrade to at least v11.00!
 
