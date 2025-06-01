@@ -188,15 +188,75 @@ function showTable(accounts) {
                 .on('click', {"index":accounts[index]["index"]}, function(event){showdetail(event.data.index);})
                 .append($('<span class="glyphicon glyphicon-eye-open"></span>')))
         );
-        cols.push($('<td>')
-            .attr('class', 'passcell')
-            .append($('<span>')
-                .attr('passid', accounts[index].index)
-                .attr('id', accounts[index].index)
-                .append(pwdLink.clone()
-                            .on('click', {"index":accounts[index]["index"]}, function(event){clicktoshow(event.data.index);})
-                        )
-            ));
+        // 密码列：显示/隐藏切换 + 常驻复制按钮
+        var id = accounts[index].index;
+        var passCell = $('<td>').attr('class', 'passcell');
+        // 显示/隐藏区域
+        var pwdElem = $('<span>').attr('passid', id).attr('id', id)
+            .append(pwdLink.clone()
+                .on('click', {"index": id}, function(event){ clicktoshow(event.data.index); })
+            );
+        passCell.append(pwdElem);
+        // 常驻复制按钮
+        var copyBtn = $('<a>')
+            .attr('title', 'Copy password to clipboard')
+            .attr('class', 'cellOptionButton copytoClipboard')
+            .append($('<span>').attr('class','glyphicon glyphicon-copy'))
+            .on('click', {"index": id}, function(event){
+                try {
+                    // 刷新会话超时
+                    backend.resetTimeout();
+                    var idx = event.data.index;
+                    var $span = $('#' + idx);
+                    // 如果已解密，则直接复制文本
+                    if ($span.find('.pwdshowbox').length > 0) {
+                        var pwd = $span.find('.pwdshowbox').text();
+                        navigator.clipboard.writeText(pwd)
+                            .then(function(){ showMessage('success','Your password is now available in the clipboard.'); })
+                            .catch(function(){ showMessage('warning','Could not write to clipboard'); });
+                    }
+                    // 隐藏状态下使用 ClipboardItem 同步写入以兼容 Safari
+                    else if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+                        try {
+                            var blobPromise = backend.accounts[idx].getPassword()
+                                .then(function(p){ 
+                                    return new Blob([p], { type: 'text/plain' }); 
+                                })
+                                .catch(function(err){ 
+                                    console.error('getPassword failed:', err);
+                                    showMessage('warning','Failed to decrypt password');
+                                    // 返回空blob防止ClipboardItem出错
+                                    return new Blob([''], { type: 'text/plain' });
+                                });
+                            var item = new ClipboardItem({ 'text/plain': blobPromise });
+                            navigator.clipboard.write([item])
+                                .then(function(){ showMessage('success','Your password is now available in the clipboard.'); })
+                                .catch(function(err){ 
+                                    console.error('Clipboard write failed:', err);
+                                    showMessage('warning','Could not write to clipboard'); 
+                                });
+                        } catch (err) {
+                            console.error('ClipboardItem creation failed:', err);
+                            showMessage('warning','Clipboard operation failed');
+                        }
+                    }
+                    // 其他平台回退到异步写入
+                    else {
+                        backend.accounts[idx].getPassword()
+                            .then(function(pwd){
+                                navigator.clipboard.writeText(pwd)
+                                    .then(function(){ showMessage('success','Your password is now available in the clipboard.'); })
+                                    .catch(function(){ showMessage('warning','Could not write to clipboard'); });
+                            })
+                            .catch(function(){ showMessage('warning','Oops, some error occurs!'); });
+                    }
+                } catch (globalErr) {
+                    console.error('Copy button handler failed:', globalErr);
+                    showMessage('warning','Copy operation failed');
+                }
+            });
+        passCell.append(copyBtn);
+        cols.push(passCell);
         // fill in other
         let fields = backend.fields;
         let fields_key = backend.fields_key;
@@ -622,24 +682,14 @@ function clicktoshow(id){
     id = parseInt(id);
     backend.accounts[id].getPassword()
         .then(function(pwd){
+            // 清空并插入明文显示区域
             $("#"+id).empty()
                 .append($('<span class="pwdshowbox passwordText"></span>'))
+                // 隐藏按钮
                 .after($('<a title="Hide" class="cellOptionButton hidePassword"></a>')
-                    .on('click',{"index":id},function(event){clicktohide(event.data.index);})
-                    .append($('<span class="glyphicon glyphicon-eye-close"></span>')))
-                .after($('<a>')
-                        .attr('title',"Copy password to clipboard")
-                        .attr('class','cellOptionButton copytoClipboard')
-                        .append($('<span></span>')
-                            .attr('class','glyphicon glyphicon-copy'))
-                        .click(function() {return navigator.clipboard.writeText(pwd)
-                                .then(function() {
-                                    showMessage('success', 'Your password is now available in the clipboard.');
-                                })
-                                .catch(function() {
-                                    showMessage('warning', 'Could not write to clipboard');
-                                });
-                        }));
+                    .on('click',{"index":id},function(event){ clicktohide(event.data.index); })
+                    .append($('<span class="glyphicon glyphicon-eye-close"></span>')));
+            // 填充解密后的密码
             $("#"+id+" > .pwdshowbox").text(pwd);
         })
         .catch(function(){
@@ -651,8 +701,8 @@ function clicktohide(id){
     $("#" + id).empty().append($('<a title="Click to see"></a>')
                         .on('click', {"index":id}, function(event){ clicktoshow(event.data.index); })
                         .append('<span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span><span class="glyphicon glyphicon-asterisk"></span>') );
-    $("#" + id).parent().find(".hidePassword")[0].remove();
-    $("#" + id).parent().find(".copytoClipboard")[0].remove();
+    // 移除隐藏按钮
+    $("#" + id).parent().find(".hidePassword").remove();
 }
 function showuploadfiledlg(id){
     $("#uploadfiledlg").modal("hide");
