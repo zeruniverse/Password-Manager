@@ -1,6 +1,6 @@
 <?php
 
-$VERSION = '11.01';
+$VERSION = '11.05';
 require_once dirname(__FILE__).'/config.php';
 function sqllink()
 {
