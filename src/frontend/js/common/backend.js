@@ -730,12 +730,12 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
 
                 localStorage.session_token = data["session_token"];
 
-                if (!self.checkHostdomain() {
-  if (typeof pmCheckFrontendLocation === 'function') {
-    return pmCheckFrontendLocation();
-  }
-  return true;
-  }
+                if (!self.checkHostdomain()) {
+                    if (typeof pmCheckFrontendLocation === 'function') {
+                        return pmCheckFrontendLocation();
+                    }
+                    return true;
+                }
 
                 if (!self.pinActive) {
                     self.delLocalPinStore();
