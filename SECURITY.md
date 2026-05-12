@@ -11,6 +11,6 @@ Following versions of this project are currently being supported with security u
 
 ## Reporting a Vulnerability
 
-If you find a security vulnerability, report to *i [at] jeffery.cc*
+If you find a security vulnerability, report to *i [at] zeyu.me*
 
 I will fix security bugs ASAP once verified.
