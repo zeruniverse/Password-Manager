@@ -35,7 +35,7 @@ Supports are available [here](https://github.com/zeruniverse/Password-Manager/is
 
 10. Up to 15 password histories per account.
 
-11. [Client-side source file integrity check](https://github.com/zeruniverse/Password-Manager/wiki/Installation#enable-client-side-source-file-check) so you will notice if your server gets hacked and someone changed the front-end source code.
+11. Frontend and backend are separated. So you can install frontend in somewhere abosolutely safe.
 
 12. Support management of TOTP MFA.
 
@@ -44,9 +44,7 @@ Supports are available [here](https://github.com/zeruniverse/Password-Manager/is
 ## Installation
 See [wiki](https://github.com/zeruniverse/Password-Manager/wiki/Installation)
 
-If you deploy password manager on server that you are not 100% sure about its safety (e.g. VPS), [enable client-side source file check](https://github.com/zeruniverse/Password-Manager/wiki/Installation#enable-client-side-source-file-check). Suppose you install your password manager at `pw.A.com` and you put client-side check code at GitHub pages with CNAME `entry.A.com`. You should always visit `entry.A.com` and let it redirect you to `pw.A.com`.
-
-Client-side source file check uses Fetch API. [It's not supported in all browsers](https://developer.mozilla.org/en-US/docs/Web/API/Body/text) but most likely your browser will support it. If your browser does not support Fetch API, you can re-implement the logic (get_content JS function in check_website.html) using AJAX GET. Password-Manager itself is [supported on more browsers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API).
+You can choose to install both frontend and backend in one server. But the recommended way is to install frontend in somewhere abosolutely safe (e.g. GitHub Pages on a separate and very safe GitHub account -- and enable MFA on your GitHub account).
 
 ## How to use
 See [wiki](https://github.com/zeruniverse/Password-Manager/wiki)
