@@ -7,13 +7,7 @@
      * Must end with / or the frontend helper will add it automatically.
      */
     apiBaseUrl: "https://api.example.com/passwordmanager/backend/",
-
-    /*
-     * Trusted static frontend URL.
-     * It may contain a path. For GitHub Pages project site:
-     *   https://abc.github.io/passwordmanager/
-     */
-    frontendBaseUrl: "https://abc.github.io/passwordmanager/",
+   
 
     /*
      * Client-side crypto salts.
