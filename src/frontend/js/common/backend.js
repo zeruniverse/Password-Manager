@@ -217,7 +217,7 @@ let Timeout = (superclass) => class extends superclass {
             .catch(function (err) {
                 var text = String(err || "");
                 if (
-                    text.indexOf("session") !== -1 ||
+                    text.indexOf("session unavailable") !== -1 ||
                     text.indexOf("AUTHENTICATION") !== -1 ||
                     text.indexOf("Invalid session token") !== -1
                 ) {
@@ -684,7 +684,7 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
         var keyIter = Math.max(0, Number(cfg.backupKeyIterations) || 0);
 
         var data;
-        var backup;
+        var backup = {};
         var key;
 
         return self.doPost("backup", {
@@ -692,13 +692,12 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
         })
             .then(function (msg) {
                 data = msg;
-                backup = data;
+                backup.VERSION = PASSWORD_MANAGER_VERSION;
                 backup.JSsalt = cfg.globalSalt1;
                 backup.PWsalt = cfg.globalSalt2;
                 backup.KEYiter = keyIter;
                 backup.ALPHABET = cfg.defaultLetters;
                 backup.KEYsalt = self.encryptionWrapper.generatePassphrase(100);
-                backup.VERSION = PASSWORD_MANAGER_VERSION;
 
                 return EncryptionWrapper.SgenerateKeyWithSalt(
                     self.encryptionWrapper.secretkey,
@@ -730,6 +729,7 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
                 progress_callback(99);
 
                 self.resetTimeout();
+                backup.status = "success";
 
                 return new Blob([JSON.stringify(backup)], {
                     type: "text/plain"

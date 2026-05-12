@@ -123,7 +123,7 @@ function checksession($link)
         return false;
     }
 
-    if (!isset($_SESSION['refresh_time']) || $_SESSION['refresh_time'] + 16 < time()) {
+    if (!isset($_SESSION['refresh_time']) || $_SESSION['refresh_time'] + 31 < time()) {
         invalidateSession();
         return false;
     }
