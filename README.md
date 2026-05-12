@@ -5,8 +5,6 @@
 
 **'master' branch is a dev-branch, please download stable version from [Release](https://github.com/zeruniverse/Password-Manager/releases) if you just want to use it.**
 
-A complete re-implementation is done by Benjamin (co-author of this project). See: https://github.com/BenjaminHae/modern-password-manager
-
 ## Version
 
 v11.07
@@ -14,13 +12,6 @@ v11.07
 Since v11.00, this password manager is mature and stable. That said, there will be no more major changes (e.g. database structure change) in the future. But just bug fixes and crypto algorithm updates. I know in the past, upgrading is painful due to the client-side encryption nature. But going forward, it will not be an issue anymore. All users should upgrade to at least v11.00!
 
 Supports are available [here](https://github.com/zeruniverse/Password-Manager/issues) for versions v11.00 or later
-
-## DEMO
-[phppasswordmanager.sourceforge.io](https://phppasswordmanager.sourceforge.io)
-
-This demo is for test **ONLY**! Do **NOT** put your real password there.
-
-You can access the database for this demo [here](https://mysql-p.sourceforge.net), with login username **p2663268ro** and password **12345678**
 
 ## Features
 
@@ -46,7 +37,9 @@ You can access the database for this demo [here](https://mysql-p.sourceforge.net
 
 11. [Client-side source file integrity check](https://github.com/zeruniverse/Password-Manager/wiki/Installation#enable-client-side-source-file-check) so you will notice if your server gets hacked and someone changed the front-end source code.
 
-12. Friendly UI.
+12. Support management of TOTP MFA.
+
+13. Friendly UI.
 
 ## Installation
 See [wiki](https://github.com/zeruniverse/Password-Manager/wiki/Installation)
@@ -57,14 +50,6 @@ Client-side source file check uses Fetch API. [It's not supported in all browser
 
 ## How to use
 See [wiki](https://github.com/zeruniverse/Password-Manager/wiki)
-
-## Web Browser Plugin (Does NOT work with v11.00 yet)
-
-Chrome: [Chrome Web Store](https://chrome.google.com/webstore/detail/password-manager/mbfjokpccbakbnnpklkcginkalkijkan)
-
-Firefox: [Add-on](https://addons.mozilla.org/en-US/firefox/addon/self-hosted-password-addon/)
-
-GitHub Project: [PwChromeExtension](https://github.com/BenjaminHae/PwChromeExtension) by Benjamin.
 
 ## Mechanism
 
