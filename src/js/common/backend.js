@@ -170,7 +170,9 @@ let Accounts = (superclass) => class extends superclass {
             })
             .then(function(){
                 for (let key in other) {
-                    account.setOther(key, other[key]);
+                    if (other[key] !== null && typeof other[key] !== "undefined") {
+                        account.setOther(key, other[key]);
+                    }
                 }
                 callPlugins("addAccountPreSend", {"account":account, "name":name, "password":pwd, "other":other});
                 return account.getEncrypted()
@@ -204,7 +206,11 @@ let Accounts = (superclass) => class extends superclass {
             .then(function() {
                 account.clearVisibleOther();
                 for (let x in other) {
-                    account.setOther(x, other[x]);
+                    if (other[x] === null || typeof other[x] === "undefined") {
+                        account.deleteOther(x);
+                    } else {
+                        account.setOther(x, other[x]);
+                    }
                 }
                 var promises = [];
                 if (newpwd != "") {

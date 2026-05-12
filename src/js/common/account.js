@@ -1,4 +1,8 @@
 class Account {
+    static get MFA_KEY() {
+        return "_mfaKeys";
+    }
+
     constructor(index, name, enpassword) {
         this.index = index;
         this.name = name;
@@ -140,11 +144,56 @@ class Account {
     setOther(name, value) {
         this.other[name] = value;
     }
+
+    deleteOther(name) {
+        delete this.other[name];
+    }
+
     getOther(name) {
         return this.other[name];
     }
+
     getOtherJSON() {
         return JSON.stringify(this.other);
+    }
+
+    setMFA(config) {
+        if (!config) {
+            this.deleteMFA();
+            return;
+        }
+
+        this.setOther(Account.MFA_KEY, config);
+    }
+
+    getMFA() {
+        var config = this.getOther(Account.MFA_KEY);
+
+        if (!config) {
+            return null;
+        }
+
+        if (typeof config === "string") {
+            try {
+                config = JSON.parse(config);
+            } catch (error) {
+                return null;
+            }
+        }
+
+        if (typeof config !== "object" || !config.secret) {
+            return null;
+        }
+
+        return config;
+    }
+
+    hasMFA() {
+        return this.getMFA() !== null;
+    }
+
+    deleteMFA() {
+        this.deleteOther(Account.MFA_KEY);
     }
     addEncryptedFile(name, fkey) {
         var self = this;

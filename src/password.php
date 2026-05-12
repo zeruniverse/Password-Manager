@@ -9,10 +9,12 @@ echoheader();
 <script src="js/lib/datatables.responsive.min.js"></script>
 <script src="js/lib/filesaver.min.js"></script>
 <script src="js/lib/jquery.csv.js"></script>
+<script src="js/lib/jsQR.js"></script>
 <script src="js/common/crypto.js"></script>
 <script src="js/common/account.js"></script>
 <script src="js/common/backend.js"></script>
 <script src="js/common/cryptowrapper.js"></script>
+<script src="js/common/totp.js"></script>
 <script src="js/plugin.js"></script>
 <script src="js/main.js"></script>
 <script src="js/plugins/linkbutton.js"></script>
@@ -220,6 +222,28 @@ echoheader();
                             <button id="editAccountShowPassword" class="btn btn-default" type="button"
                                 title="Show current password"><i class="glyphicon glyphicon-eye-open"></i></button>
                         </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="edititeminputmfa" class="control-label">MFA / TOTP</label>
+
+                    <input class="form-control" id="edititeminputmfa" type="text" autocomplete="off"
+                    placeholder="Paste otpauth:// URI or Base32 setup key" />
+
+                    <label class="small blocklabel">
+                    Paste an otpauth:// URI or Base32 setup key, or upload a QR code image from Google Authenticator,
+                    Duo Mobile or another compatible virtual MFA app.
+                    </label>
+
+                    <input type="file" id="edititeminputmfaqr" accept="image/*" />
+
+                    <label class="small blocklabel" id="editExistingMFAHint"></label>
+
+                    <div class="checkbox editOnly" id="editRemoveMFARow">
+                    <label>
+                        <input type="checkbox" id="editRemoveMFA" />
+                        Remove existing MFA from this account
+                    </label>
                     </div>
                 </div>
             </form>

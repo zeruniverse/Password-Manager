@@ -13,6 +13,7 @@ function eventLogout(data) {
 }
 var datatablestatus=null;
 var fileid=-1;
+var mfaDetailTimer = null;
 var preDrawCallback = function( api, settings ) {};
 var preShowPreparation = function (accounts){ return accounts; };// if you change the array make a copy before sorting! So indexes stay the same in the original array
 function import_add_acc(acc, pass, other, file) {
@@ -328,6 +329,171 @@ function reloadAccounts() {
     backend.loadAccounts()
         .then(dataReady);
 }
+
+function clearMfaDetailTimer() {
+    if (mfaDetailTimer !== null) {
+        clearInterval(mfaDetailTimer);
+        mfaDetailTimer = null;
+    }
+}
+
+function setEditFormLocked(locked) {
+    $("#editbtn").attr("disabled", locked);
+    $("#edititeminput").attr("readonly", locked);
+    $("#edititeminputpw").attr("readonly", locked);
+    $("#edititeminputmfa").attr("readonly", locked);
+    $("#edititeminputmfaqr").attr("disabled", locked);
+    $("#editRemoveMFA").attr("disabled", locked);
+
+    for (let x in backend.fields) {
+        $("#edititeminput" + x).attr("readonly", locked);
+    }
+}
+
+function prepareMFAEditDialog(id) {
+    $("#edititeminputmfa").val("");
+    $("#edititeminputmfaqr").val("");
+    $("#editRemoveMFA").prop("checked", false);
+
+    var hasMFA = id > -1 && backend.accounts[id] && backend.accounts[id].hasMFA();
+
+    $("#editRemoveMFARow").toggle(hasMFA);
+
+    if (hasMFA) {
+        $("#editExistingMFAHint").text(
+            "MFA is configured for this account. Leave blank to keep it, paste/upload a new setup code to replace it, or check the remove box."
+        );
+    } else {
+        $("#editExistingMFAHint").text(
+            "Optional. MFA setup is encrypted in the browser together with this account's other fields."
+        );
+    }
+}
+
+function readMFAFromEditForm(id, name) {
+    var mfaText = $("#edititeminputmfa").val().trim();
+    var qrInput = $("#edititeminputmfaqr")[0];
+    var qrFile = qrInput && qrInput.files && qrInput.files.length > 0 ? qrInput.files[0] : null;
+    var removeMFA = $("#editRemoveMFA").is(":checked");
+
+    if (mfaText !== "" && qrFile) {
+        return Promise.reject("Please either paste an MFA setup code or upload a QR image, not both.");
+    }
+
+    if (mfaText === "" && !qrFile) {
+        if (removeMFA) {
+            return Promise.resolve({
+                "action": "delete"
+            });
+        }
+
+        return Promise.resolve(null);
+    }
+
+    var setupCodePromise;
+
+    if (mfaText !== "") {
+        setupCodePromise = Promise.resolve(mfaText);
+    } else {
+        setupCodePromise = PasswordManagerMFA.decodeQRCodeFile(qrFile);
+    }
+
+    return setupCodePromise.then(function(setupCode) {
+        var config = PasswordManagerMFA.parseConfig(setupCode, {
+            "account": name
+        });
+
+        // Validate the secret immediately, so broken MFA data is not saved.
+        return PasswordManagerMFA.generateCode(config)
+        .then(function() {
+            return {
+                "action": "set",
+                "value": config
+            };
+        });
+    });
+}
+
+function appendMfaRowToDetails(table, account) {
+    if (!account.hasMFA()) {
+        return;
+    }
+
+    clearMfaDetailTimer();
+
+    var codeSpan = $("<span>")
+        .attr("class", "passwordText")
+        .css("letter-spacing", "2px")
+        .text("------");
+
+    var timerSpan = $("<span>")
+        .css("margin-left", "8px")
+        .css("color", "#6d6d6d")
+        .text("");
+
+    var copyButton = $("<a>")
+        .attr("title", "Copy MFA code to clipboard")
+        .attr("class", "cellOptionButton")
+        .append($("<span>").attr("class", "glyphicon glyphicon-copy"))
+        .on("click", function() {
+            var code = codeSpan.text();
+
+            if (!/^\d+$/.test(code)) {
+                showMessage("warning", "No MFA code available yet.", true);
+                return;
+            }
+
+            navigator.clipboard.writeText(code)
+            .then(function() {
+                showMessage("success", "Your MFA code is now available in the clipboard.");
+            })
+            .catch(function() {
+                showMessage("warning", "Could not write MFA code to clipboard.", true);
+            });
+        });
+
+    var refreshButton = $("<a>")
+        .attr("title", "Refresh MFA code")
+        .attr("class", "cellOptionButton")
+        .append($("<span>").attr("class", "glyphicon glyphicon-refresh"));
+
+    var valueCell = $("<td>")
+        .css("color", "#0000ff")
+        .css("font-weight", "bold")
+        .append(codeSpan)
+        .append(timerSpan)
+        .append("&nbsp;&nbsp;&nbsp;")
+        .append(copyButton)
+        .append("&nbsp;")
+        .append(refreshButton);
+
+    table.append($("<tr>")
+        .attr("id", "detailsTableMFA")
+        .append($("<td>")
+            .css("color", "#afafaf")
+            .css("font-weight", "normal")
+            .text("MFA"))
+        .append(valueCell));
+
+    function refreshMFA() {
+        PasswordManagerMFA.generateCode(account.getMFA())
+        .then(function(result) {
+            codeSpan.text(result.code);
+            timerSpan.text(result.remaining + "s");
+        })
+        .catch(function(error) {
+            codeSpan.text("Error");
+            timerSpan.text("");
+            codeSpan.attr("title", error);
+        });
+    }
+
+    refreshButton.on("click", refreshMFA);
+
+    refreshMFA();
+    mfaDetailTimer = setInterval(refreshMFA, 1000);
+}
+
 $(document).ready(function(){
     backend = new AccountBackend();
     backend.registerEvent("logout", eventLogout);
@@ -373,6 +539,7 @@ $(document).ready(function(){
             });
     });
     $("#editbtn").click(function(){
+
         // validate input
         if($("#edititeminput").val() == "") {
             showMessage('warning',"Account entry can't be empty!", true);
@@ -380,45 +547,52 @@ $(document).ready(function(){
         }
 
         // lock form
-        $("#editbtn").attr("disabled",true);
-        $("#edititeminput").attr("readonly",true);
-        $("#edititeminputpw").attr("readonly",true);
-        for (let x in backend.fields)
-            $("#edititeminput"+x).attr("readonly",true);
+        setEditFormLocked(true);
 
         // gather data
         var id = parseInt($("#edit").data('id'));
         var name = $("#edititeminput").val();
         var newpwd = $("#edititeminputpw").val();
         var other = {};
-        for (let x in backend.fields)
-            other[x] = $("#edititeminput"+x).val().trim();
 
-        // send to backend
-        var result;
-        if (id == -1) {
-            result = backend.addAccount(name, newpwd, other);
+        for (let x in backend.fields) {
+            other[x] = $("#edititeminput" + x).val().trim();
         }
-        else {
-            result = backend.updateAccount(id, name, newpwd, other);
-        }
-        result.then(function(){
-                showMessage('success',"Account " + name + " saved!");
-                $('#edit').data('id','-1');
-                $('#edit').modal('hide');
-                $('#edit').find('form')[0].reset();
-                reloadAccounts();
-            })
-            .catch(function(){
+
+        readMFAFromEditForm(id, name)
+        .then(function(mfaChange) {
+            if (mfaChange) {
+                if (mfaChange.action === "set") {
+                    other[Account.MFA_KEY] = mfaChange.value;
+                } else if (mfaChange.action === "delete") {
+                    other[Account.MFA_KEY] = null;
+                }
+            }
+
+            // send to backend
+            if (id == -1) {
+                return backend.addAccount(name, newpwd, other);
+            }
+
+            return backend.updateAccount(id, name, newpwd, other);
+        })
+        .then(function(){
+            showMessage('success',"Account " + name + " saved!");
+            $('#edit').data('id','-1');
+            $('#edit').modal('hide');
+            $('#edit').find('form')[0].reset();
+            reloadAccounts();
+        })
+        .catch(function(error){
+            if (typeof error === "string" && error !== "") {
+                showMessage('warning', error, true);
+            } else {
                 showMessage('warning',"Fail to store data for " + name + ", please try again.", true);
-            })
-            .then(function(){
-                $("#edititeminput").attr("readonly",false);
-                $("#editbtn").attr("disabled",false);
-                $("#edititeminputpw").attr("readonly",false);
-                for (let x in backend.fields)
-                    $("#edititeminput" + x).attr("readonly",false);
-            });
+            }
+        })
+        .then(function(){
+            setEditFormLocked(false);
+        });
     });
     $("#backuppwdbtn").click(function(){
         $("#backuppwdbtn").attr('disabled',true);
@@ -622,6 +796,7 @@ $(document).ready(function(){
         $("#edititeminputpw").attr('type', "password");
         $("#editAccountShowPassword > i").removeClass("glyphicon-eye-close");
         $("#editAccountShowPassword > i").addClass("glyphicon-eye-open");
+        prepareMFAEditDialog(id);
         // handle existing accounts
         if (id > -1) {
             $("#edititeminput").val(backend.accounts[id].accountName);
@@ -630,6 +805,9 @@ $(document).ready(function(){
             }
             callPlugins("editAccountDialog",{"account": backend.accounts[id]});
         }
+    });
+    $('#showdetails').on('hidden.bs.modal', function() {
+        clearMfaDetailTimer();
     });
     $('#edit').on('hide.bs.modal', function() {
         $(".popover").popover('hide');
@@ -746,12 +924,14 @@ function showdetail(index){
             .append($('<colgroup><col width="90"><col width="auto"></colgroup>'));
     for (let x of backend.fields_key){
         if(x in account.other && String(account.getOther(x)).length > 0){
+
             table.append($('<tr>')
-                .attr("id","detailsTableOther" + x)
-                .append($('<td>').css("color","#afafaf").css("font-weight","normal").text(backend.fields[x]['colname']))
-                .append($('<td>').css("color","#6d6d6d").css("font-weight","bold").css("white-space", "pre").text(account.getOther(x))));
+            .attr("id","detailsTableOther" + x)
+            .append($('<td>').css("color","#afafaf").css("font-weight","normal").text(backend.fields[x]['colname']))
+            .append($('<td>').css("color","#6d6d6d").css("font-weight","bold").css("white-space", "pre").text(account.getOther(x))));
         }
     }
+    appendMfaRowToDetails(table, account);
     if(backend.fileEnabled){
         if(account.file != null)
             table.append($('<tr>')

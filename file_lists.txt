@@ -20,6 +20,7 @@ js/common/backend.js
 js/common/commonfunctions.js
 js/common/crypto.js
 js/common/cryptowrapper.js
+js/common/totp.js
 js/common/recoverybackend.js
 js/history.js
 js/index.js
@@ -30,6 +31,7 @@ js/lib/datatables.responsive.min.js
 js/lib/filesaver.min.js
 js/lib/html5shiv.js
 js/lib/jquery.csv.js
+js/lib/jsQR.js
 js/lib/jquery.datatables.min.js
 js/lib/jquery.min.js
 js/lib/jquery.min.map
