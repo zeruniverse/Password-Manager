@@ -3,7 +3,7 @@
 function echofooter()
 {
     echo '<footer class="footer">
-<p>&copy;2015 Jeffery<br /><br />ALL RIGHTS RESERVED</p>
+<p>&copy;2026 Jeffery<br /><br />ALL RIGHTS RESERVED</p>
 </footer>
 </body>
 </html>';
@@ -11,7 +11,7 @@ function echofooter()
 function echoheader()
 {
     header('X-Frame-Options: DENY');
-    header("Content-Security-Policy: default-src 'self';");
+    header("Content-Security-Policy: default-src 'self'; img-src 'self' blob:;");
     header('Pragma: public');
     $expires = 86400;
     header('Cache-Control: max-age='.$expires.', must-revalidate');

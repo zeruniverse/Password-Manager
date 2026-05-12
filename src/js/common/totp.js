@@ -242,57 +242,51 @@ var PasswordManagerMFA = (function() {
         }
 
         return new Promise(function(resolve, reject) {
-            var reader = new FileReader();
+            var image = new Image();
+            var objectUrl = URL.createObjectURL(file);
 
-            reader.onload = function(event) {
-                var image = new Image();
+            image.onload = function() {
+                try {
+                    var canvas = document.createElement("canvas");
+                    var width = image.naturalWidth || image.width;
+                    var height = image.naturalHeight || image.height;
 
-                image.onload = function() {
-                    try {
-                        var canvas = document.createElement("canvas");
-                        var width = image.naturalWidth || image.width;
-                        var height = image.naturalHeight || image.height;
+                    canvas.width = width;
+                    canvas.height = height;
 
-                        canvas.width = width;
-                        canvas.height = height;
+                    var context = canvas.getContext("2d", {
+                        "willReadFrequently": true
+                    });
 
-                        var context = canvas.getContext("2d", {
-                            "willReadFrequently": true
-                        });
-
-                        if (!context) {
-                            reject("Canvas 2D context is unavailable.");
-                            return;
-                        }
-
-                        context.drawImage(image, 0, 0, width, height);
-
-                        var imageData = context.getImageData(0, 0, width, height);
-                        var result = jsQR(imageData.data, width, height);
-
-                        if (!result || !result.data) {
-                            reject("No QR code found in this image.");
-                            return;
-                        }
-
-                        resolve(result.data);
-                    } catch (error) {
-                        reject(error && error.message ? error.message : "Failed to decode MFA QR code.");
+                    if (!context) {
+                        reject("Canvas 2D context is unavailable.");
+                        return;
                     }
-                };
 
-                image.onerror = function() {
-                    reject("Failed to load MFA QR code image.");
-                };
+                    context.drawImage(image, 0, 0, width, height);
 
-                image.src = event.target.result;
+                    var imageData = context.getImageData(0, 0, width, height);
+                    var result = jsQR(imageData.data, width, height);
+
+                    if (!result || !result.data) {
+                        reject("No QR code found in this image.");
+                        return;
+                    }
+
+                    resolve(result.data);
+                } catch (error) {
+                    reject(error && error.message ? error.message : "Failed to decode MFA QR code.");
+                } finally {
+                    URL.revokeObjectURL(objectUrl);
+                }
             };
 
-            reader.onerror = function() {
-                reject("Failed to read MFA QR code image.");
+            image.onerror = function() {
+                URL.revokeObjectURL(objectUrl);
+                reject("Failed to load MFA QR code image.");
             };
 
-            reader.readAsDataURL(file);
+            image.src = objectUrl;
         });
     }
 
