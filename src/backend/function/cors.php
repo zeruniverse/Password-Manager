@@ -1,95 +1,99 @@
 <?php
-// CORS and frontend-origin checks for frontend/backend separated deployments.
-// This file is loaded by function/ajax.php and function/common.php.
 
 require_once dirname(__FILE__) . '/config.php';
 
 function pm_normalize_origin($url)
 {
     $url = trim((string) $url);
+
     if ($url === '') {
         return '';
     }
-    $p = parse_url($url);
-    if (!$p || empty($p['scheme']) || empty($p['host'])) {
+
+    $parts = parse_url($url);
+
+    if (!$parts || empty($parts['scheme']) || empty($parts['host'])) {
         return '';
     }
-    $scheme = strtolower($p['scheme']);
-    $host = strtolower($p['host']);
-    $port = isset($p['port']) ? (int) $p['port'] : null;
+
+    $scheme = strtolower($parts['scheme']);
+    $host = strtolower($parts['host']);
+
+    if ($scheme !== 'https' && $scheme !== 'http') {
+        return '';
+    }
 
     $origin = $scheme . '://' . $host;
-    if ($port !== null && !(($scheme === 'https' && $port === 443) || ($scheme === 'http' && $port === 80))) {
-        $origin .= ':' . $port;
+
+    if (isset($parts['port'])) {
+        $port = (int) $parts['port'];
+        $isDefaultHttp = ($scheme === 'http' && $port === 80);
+        $isDefaultHttps = ($scheme === 'https' && $port === 443);
+
+        if (!$isDefaultHttp && !$isDefaultHttps) {
+            $origin .= ':' . $port;
+        }
     }
+
     return $origin;
 }
 
-function pm_allowed_frontend_origins()
+function pm_frontend_origin()
 {
-    global $FRONTEND_ORIGINS, $FRONTEND_URL;
+    global $FRONTEND_URL;
 
-    $origins = [];
-    if (isset($FRONTEND_ORIGINS) && is_array($FRONTEND_ORIGINS)) {
-        foreach ($FRONTEND_ORIGINS as $origin) {
-            $normalized = pm_normalize_origin($origin);
-            if ($normalized !== '') {
-                $origins[$normalized] = true;
-            }
-        }
-    }
-
-    if (isset($FRONTEND_URL)) {
-        $normalized = pm_normalize_origin($FRONTEND_URL);
-        if ($normalized !== '') {
-            $origins[$normalized] = true;
-        }
-    }
-
-    return array_keys($origins);
+    return pm_normalize_origin(isset($FRONTEND_URL) ? $FRONTEND_URL : '');
 }
 
 function pm_request_origin()
 {
-    return isset($_SERVER['HTTP_ORIGIN']) ? pm_normalize_origin($_SERVER['HTTP_ORIGIN']) : '';
-}
-
-function pm_is_allowed_origin($origin)
-{
-    if ($origin === '') {
-        return false;
-    }
-    return in_array($origin, pm_allowed_frontend_origins(), true);
+    return isset($_SERVER['HTTP_ORIGIN'])
+        ? pm_normalize_origin($_SERVER['HTTP_ORIGIN'])
+        : '';
 }
 
 function pm_is_allowed_request_origin()
 {
     global $ALLOW_NO_ORIGIN_REQUESTS;
 
-    $origin = pm_request_origin();
-    if ($origin === '') {
+    $rawOrigin = isset($_SERVER['HTTP_ORIGIN'])
+        ? trim((string) $_SERVER['HTTP_ORIGIN'])
+        : '';
+
+    if ($rawOrigin === '') {
         return !empty($ALLOW_NO_ORIGIN_REQUESTS);
     }
-    return pm_is_allowed_origin($origin);
+
+    $requestOrigin = pm_normalize_origin($rawOrigin);
+    $frontendOrigin = pm_frontend_origin();
+
+    return $requestOrigin !== '' &&
+        $frontendOrigin !== '' &&
+        hash_equals($frontendOrigin, $requestOrigin);
 }
 
 function pm_send_cors_headers()
 {
-    $origin = pm_request_origin();
-    if ($origin !== '' && pm_is_allowed_origin($origin)) {
-        header('Access-Control-Allow-Origin: ' . $origin);
-        header('Vary: Origin', false);
+    $rawOrigin = isset($_SERVER['HTTP_ORIGIN'])
+        ? trim((string) $_SERVER['HTTP_ORIGIN'])
+        : '';
+
+    if ($rawOrigin === '') {
+        return;
+    }
+
+    $requestOrigin = pm_normalize_origin($rawOrigin);
+    $frontendOrigin = pm_frontend_origin();
+
+    if (
+        $requestOrigin !== '' &&
+        $frontendOrigin !== '' &&
+        hash_equals($frontendOrigin, $requestOrigin)
+    ) {
+        header('Access-Control-Allow-Origin: ' . $requestOrigin);
+        header('Vary: Origin');
         header('Access-Control-Allow-Methods: POST, OPTIONS');
         header('Access-Control-Allow-Headers: Content-Type, X-Requested-With');
         header('Access-Control-Max-Age: 600');
-    }
-
-    if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-        if (!pm_is_allowed_request_origin()) {
-            http_response_code(403);
-        } else {
-            http_response_code(204);
-        }
-        exit;
     }
 }

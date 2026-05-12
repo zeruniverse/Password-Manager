@@ -1,141 +1,111 @@
 <?php
 
 //****************************************
-//PLEASE SPECIFY THE VARIABLES BELOW
+// PLEASE SPECIFY THE VARIABLES BELOW
 //****************************************
 
+// Database host.
 $DB_HOST = '';
-//Make sure MySQL is running at default port 3306. Or you have to edit common.php
-//If you use localhost, make sure you have localhost defined in /etc/hosts
 
-//The database name for password_manager
+// Database name for Password Manager.
 $DB_NAME = '';
 
-//Database Username
+// Database username.
 $DB_USER = '';
 
-//Database Password
+// Database password.
 $DB_PASSWORD = '';
 
-// Frontend/backend split settings.
-// FRONTEND_URL may contain a path; CORS uses only the origin part.
-// For GitHub Pages project pages, https://abc.github.io/passwordmanager/ has origin https://abc.github.io.
+/*
+ * Trusted static frontend URL.
+ *
+ * This may contain a path. CORS origin will be derived from this URL.
+ *
+ * Example:
+ *   https://abc.github.io/passwordmanager/
+ *
+ * Derived origin:
+ *   https://abc.github.io
+ */
 $FRONTEND_URL = 'https://abc.github.io/passwordmanager/';
-$FRONTEND_ORIGINS = ['https://abc.github.io'];
 
-// Keep false in production. Set true only for local command-line/API testing without an Origin header.
+/*
+ * Keep false in production.
+ *
+ * Set true only for temporary CLI testing without an Origin header.
+ */
 $ALLOW_NO_ORIGIN_REQUESTS = false;
 
-
-//Default timezone
+// Default timezone.
 date_default_timezone_set('America/Los_Angeles');
 
-//SALT For Encryption
-//Don't change this section after you start using password-manager. Or you can't decrypt your password!
-//DON'T USE '\', IT CAN CAUSE PROBLEMS FOR BACKUP
-//DO NOT MAKE THEM SAME
-//salt 1 used to create sha512 of password (password signiture)
-$GLOBAL_SALT_1 = 'iunin19dnu9ismcj9IUNuia,cne9e389]{}{}[]*@key';
-//Only use salt 2 in client side
-$GLOBAL_SALT_2 = 'ncew8d7*(e8fyh2inc osd2)wefcsBIUsdfq2as;dqw[;[]]';
-//Only use salt 3 in server side
+/*
+ * Server-side salt only.
+ *
+ * Do not change after you start using Password Manager.
+ */
 $GLOBAL_SALT_3 = '*&Kjnskjnaucibiqb9298hv9sHIUWNiukJNIusfbic897*(^)';
 
 //********************************************************************
-//ADVANCED SETTINGS, STOP EDITING IF YOU DON'T KNOW WHAT YOU ARE DOING
+// ADVANCED SETTINGS
 //********************************************************************
-//DEFAULT fields
-//Don't start key with `_` (e.g. don't include `_password`) as those are system fields.
+
+// Default fields.
+// Do not start key with `_` because those are system fields.
 $DEFAULT_FIELDS = json_encode([
     'url' => [
         'colname' => 'URL',
-        'hint'    => '',
-        'cls'     => 'hidden',
+        'hint' => '',
+        'cls' => 'hidden',
     ],
     'user' => [
-        'colname'  => 'Username',
-        'hint'     => '',
-        'cls'      => 'hidden-xs',
+        'colname' => 'Username',
+        'hint' => '',
+        'cls' => 'hidden-xs',
         'position' => 1,
     ],
     'comment' => [
         'colname' => 'Comment',
-        'hint'    => '',
-        'cls'     => 'hidden',
-        'type'    => 'textarea',
+        'hint' => '',
+        'cls' => 'hidden',
+        'type' => 'textarea',
     ],
     'tags' => [
         'colname' => 'Tags',
-        'hint'    => 'Comma separated values',
-        'cls'     => 'hidden-xs',
+        'hint' => 'Comma separated values',
+        'cls' => 'hidden-xs',
     ],
 ]);
 
-//File upload feature
+// File upload feature.
 $FILE_ENABLED = true;
-//Allow Password-Manager to store files? True -- YES; False -- NO
-//Disabling File feature will hide API on user screen, but the backend won't change.
 
-//Allow new user signup
+// Allow new user signup.
 $ALLOW_SIGN_UP = true;
 
-//Allow users to be able to use the 'Customize fields' option
+// Allow users to customize fields.
 $CUSTOMIZE_FIELDS = true;
 
-//PIN expire
+// PIN expire time.
 $PIN_EXPIRE_TIME = 7776000;
-//PIN expire in 7776000 seconds.
 
-//LOG expire
+// Login history expire time.
 $LOG_EXPIRE_TIME = 7776000;
-//LOG (history) expire in 7776000 seconds (90 days).
 
-//Block IP error try
+// Block IP after this many failed tries in BLOCK_IP_TIME.
 $BLOCK_IP_TRY = 10;
-//block ip if we see 10 error try in BLOCK_IP_TIME.
 
-//BLOCK IP time
+// Block IP time.
 $BLOCK_IP_TIME = 3600;
-//block ip for 1 hour
 
-//Block account error try
+// Block account after this many failed tries in ACCOUNT_BAN_TIME.
 $BLOCK_ACCOUNT_TRY = 5;
-//block account if we see 5 error try in ACCOUNT_BAN_TIME.
-// NOTE: if you turn on email verification, set this value to >= 2 for things to work.
 
-//BLOCK account time
+// Account ban time.
 $ACCOUNT_BAN_TIME = 180;
-//block account if we see BLOCK_ACCOUNT_TRY in 3 minutes
 
-//TIMEOUT -> LOGOUT
-$BROWSER_TIMEOUT = 360; //seconds
-//Automatically logout after no operation for 6 minutes
+// Server-side session timeout.
+$SERVER_TIMEOUT = 1200;
 
-$SERVER_TIMEOUT = 1200; //seconds
-//Automatically logout (at server side) after 1200s since login
-
-//Number of iterations for the password hashing
+// Number of iterations for server-side password hashing.
 $PBKDF2_ITERATIONS = 64000;
-
-//JS number of iterations for backup key hash. Each iteration is
-//a call to login PBKDF2 module.
-$BACKUP_KEY_ITERATIONS = 10;
-
-//Minimal length of user passwords
-$MINIMAL_PASSWORD_LENGTH = 7;
-//For default BLOCK_ACCOUNT_TRY and ACCOUNT_BAN_TIME, it will take more than 6 years
-// on average to brute-force enumerate 7-digits number-only password
-
-//Minimal length of user name
-$MINIMAL_NAME_LENGTH = 5;
-
-//Generating Password (those variables will be written into JavaScript)
-//the default password length to be generated
-$DEFAULT_LENGTH = 13;
-//Use those letters to generate random password
-//DO NOT USE LETTERS LIKE &,>,< HERE (letters have special meaning in HTML)
-//MAKE SURE EACH LETTER ONLY APPEAR ONCE!!!
-$DEFAULT_LETTER_USED = '*+-0123456789=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~';
-
-//YOU ARE DONE.
-//DON'T FORGET TO UPLOAD THE INITIAL TABLES!

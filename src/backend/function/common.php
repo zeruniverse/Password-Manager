@@ -1,5 +1,4 @@
 <?php
-$VERSION = '11.07';
 
 require_once dirname(__FILE__) . '/config.php';
 require_once dirname(__FILE__) . '/cors.php';
@@ -12,16 +11,21 @@ function sqllink()
         return null;
     }
 
-    $opt = [PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'];
+    $opt = [
+        PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
+    ];
+
     if (defined('PDO::MYSQL_ATTR_MAX_BUFFER_SIZE')) {
         $opt[PDO::MYSQL_ATTR_MAX_BUFFER_SIZE] = 1024 * 1024 * 19;
     }
 
     $dsn = 'mysql:host=' . $DB_HOST . ';dbname=' . $DB_NAME . ';charset=utf8';
+
     try {
         $dbhdl = new PDO($dsn, $DB_USER, $DB_PASSWORD, $opt);
         $dbhdl->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
         $dbhdl->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
         return $dbhdl;
     } catch (PDOException $e) {
         return null;
@@ -33,7 +37,9 @@ function sqlexec($sql, $array, $link)
     if (!$link) {
         return null;
     }
+
     $stmt = $link->prepare($sql);
+
     return $stmt->execute($array) ? $stmt : null;
 }
 
@@ -42,6 +48,7 @@ function sqlquery($sql, $link)
     if (!$link) {
         return null;
     }
+
     return $link->query($sql);
 }
 
@@ -52,28 +59,34 @@ function pm_valid_session_id($sid)
 
 function start_session()
 {
-    if (session_id() !== '') {
+    if (session_status() === PHP_SESSION_ACTIVE) {
         return;
     }
 
     session_name('password_manager_session_uid');
 
-    // Frontend/backend split does not rely on browser cookies, but setting SameSite=None
-    // keeps same-site/custom-domain deployments compatible if useCredentials is enabled.
+    /*
+     * Split frontend/backend mode does not rely on backend-domain cookies.
+     * The frontend sends api_session_id in POST body, stored in sessionStorage.
+     */
+    if (isset($_POST['api_session_id']) && pm_valid_session_id($_POST['api_session_id'])) {
+        session_id($_POST['api_session_id']);
+    }
+
+    /*
+     * Cookies are not the primary transport here. These params are kept safe
+     * for optional same-site/custom-domain deployments.
+     */
     if (PHP_VERSION_ID >= 70300) {
         session_set_cookie_params([
             'lifetime' => 0,
             'path' => '/',
             'secure' => true,
             'httponly' => true,
-            'samesite' => 'None'
+            'samesite' => 'None',
         ]);
     } else {
         session_set_cookie_params(0, '/; samesite=None', null, true, true);
-    }
-
-    if (isset($_POST['api_session_id']) && pm_valid_session_id($_POST['api_session_id'])) {
-        session_id($_POST['api_session_id']);
     }
 
     session_start();
@@ -96,7 +109,10 @@ function checksession($link)
     }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        if (!isset($_POST['session_token']) || !isset($_SESSION['session_token']) || !hash_equals((string) $_SESSION['session_token'], (string) $_POST['session_token'])) {
+        $postedToken = isset($_POST['session_token']) ? (string) $_POST['session_token'] : '';
+        $sessionToken = isset($_SESSION['session_token']) ? (string) $_SESSION['session_token'] : '';
+
+        if ($postedToken === '' || $sessionToken === '' || !hash_equals($sessionToken, $postedToken)) {
             invalidateSession();
             return false;
         }
@@ -131,21 +147,24 @@ function checksession($link)
     }
 
     $_SESSION['refresh_time'] = time();
+
     return true;
 }
 
 function invalidateSession()
 {
-    if (session_id() === '') {
+    if (session_status() !== PHP_SESSION_ACTIVE) {
         start_session();
     }
 
-    foreach ($_SESSION as $key => $value) {
-        unset($_SESSION[$key]);
-    }
+    $_SESSION = [];
 
     if (session_status() === PHP_SESSION_ACTIVE) {
         session_regenerate_id(true);
         session_destroy();
+    }
+
+    if (function_exists('session_id')) {
+        session_id('');
     }
 }

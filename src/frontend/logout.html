@@ -1,62 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8">
   <title>Password Manager</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Password Manager">
-  <meta name="author" content="Jeffery">
-  <link href="css/bootstrap.min.css" rel="stylesheet">
-  <link href="css/style.css" rel="stylesheet">
-  <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-  <!--[if lt IE 9]>
-  <script src="js/lib/html5shiv.js"></script>
-  <script src="js/respond.min.js"></script>
-  <![endif]-->
-  <link rel="shortcut icon" href="favicon.ico">
-  <script src="config.js"></script>
-  <script src="js/frontend_routes.js"></script>
-  <script src="js/lib/jquery.min.js"></script>
-  <script src="js/lib/bootstrap.min.js"></script>
-  <script src="js/common/commonfunctions.js"></script>
 </head>
-
 <body>
-  <div class="container">
-    <h3>Logging out...</h3>
-  </div>
-  <script>
-    (function () {
-      function finish() {
-        localStorage.removeItem("pm_api_session_id");
-        localStorage.removeItem("session_token");
-        var params = new URLSearchParams(window.location.search);
-        var reason = params.get("reason");
-        var url = pmPageUrl("index.html", reason ? { reason: reason } : null);
-        window.location.replace(url);
-      }
+<script>
+(function () {
+  "use strict";
 
-      var cfg = pmConfig();
-      var body = new FormData();
-      if (localStorage.pm_api_session_id) {
-        body.append("api_session_id", localStorage.pm_api_session_id);
-      }
-      if (localStorage.session_token) {
-        body.append("session_token", localStorage.session_token);
-      }
+  sessionStorage.removeItem("session_token");
+  sessionStorage.removeItem("pm_api_session_id");
+  sessionStorage.removeItem("pwdsk");
+  sessionStorage.removeItem("confusion_key");
 
-      fetch(cfg.apiBaseUrl + "rest/logout.html", {
-        method: "POST",
-        cache: "no-cache",
-        credentials: "omit",
-        body: body
-      }).then(finish).catch(finish);
-    })();
-  </script>
-  <footer class="footer">
-    <p>&copy;2026 Jeffery<br /><br />ALL RIGHTS RESERVED</p>
-  </footer>
+  var target = "index.html";
+
+  if (window.location.search) {
+    target += window.location.search;
+  }
+
+  window.location.replace(target);
+})();
+</script>
 </body>
-
 </html>

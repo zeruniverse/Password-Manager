@@ -1,4 +1,5 @@
 <?php
+
 require_once dirname(__FILE__) . '/cors.php';
 
 pm_send_cors_headers();
@@ -34,25 +35,30 @@ const ERROR_MESSAGE = [
     'TotpVerify' => 'Please enter the 6-digit code from your authenticator app (or secret).',
     'TotpWrong' => 'Wrong 2FA code',
     'input' => 'Invalid input.',
-    'internal' => 'Internal error.'
+    'internal' => 'Internal error.',
 ];
 
 function ajaxError($message, $payload = [])
 {
     $text = isset(ERROR_MESSAGE[$message]) ? ERROR_MESSAGE[$message] : $message;
+
     echo json_encode(array_merge([
         'status' => 'error',
         'message' => $text,
-        'error' => $message
-    ], $payload));
-    exit;
-}
+        'error' => $message,
+    ], $payload), JSON_UNESCAPED_SLASHES);
 
+    exit();
+}
 
 function error($msg)
 {
-    echo json_encode(['status' => 'error', 'message' => $msg]);
-    exit;
+    echo json_encode([
+        'status' => 'error',
+        'message' => $msg,
+    ], JSON_UNESCAPED_SLASHES);
+
+    exit();
 }
 
 function ajaxSuccess($payload = [])
@@ -60,11 +66,26 @@ function ajaxSuccess($payload = [])
     if (!is_array($payload)) {
         $payload = ['data' => $payload];
     }
+
     if (function_exists('session_id') && session_id() !== '') {
         $payload['api_session_id'] = session_id();
     }
-    echo json_encode(array_merge(['status' => 'success'], $payload));
-    exit;
+
+    echo json_encode(array_merge([
+        'status' => 'success',
+    ], $payload), JSON_UNESCAPED_SLASHES);
+
+    exit();
+}
+
+if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    if (!pm_is_allowed_request_origin()) {
+        http_response_code(403);
+        ajaxError('origin');
+    }
+
+    http_response_code(204);
+    exit();
 }
 
 if (!pm_is_allowed_request_origin()) {

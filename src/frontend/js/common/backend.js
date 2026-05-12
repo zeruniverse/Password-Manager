@@ -13,92 +13,119 @@ class MixinBuilder {
 
 
 function pmBackendConfig() {
-    var cfg = window.PASSWORD_MANAGER_CONFIG || {};
-    function dir(value) {
-        value = String(value || "");
-        if (value !== "" && value.slice(-1) !== "/") value += "/";
-        return value;
+    if (typeof window.pmConfig === "function") {
+        return window.pmConfig();
     }
-    return {
-        apiBaseUrl: dir(cfg.apiBaseUrl || cfg.API_BASE_URL || ""),
-        frontendBaseUrl: dir(cfg.frontendBaseUrl || cfg.FRONTEND_BASE_URL || ""),
-        globalSalt1: cfg.globalSalt1 || cfg.GLOBAL_SALT_1 || "",
-        globalSalt2: cfg.globalSalt2 || cfg.GLOBAL_SALT_2 || "",
-        browserTimeout: Number(cfg.browserTimeout || cfg.BROWSER_TIMEOUT || 360),
-        defaultPasswordLength: Number(cfg.defaultPasswordLength || cfg.DEFAULT_PASSWORD_LENGTH || 13),
-        defaultLetters: cfg.defaultLetters || cfg.DEFAULT_LETTERS || "*+-0123456789=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~"
-    };
+
+    throw "frontend_routes.js is not loaded";
 }
 
 //Base Class for Backends
 class commonBackend {
     doPost(endpoint, data) {
         data = data || {};
+
         var cfg = pmBackendConfig();
         var endpointDomain = this.domain || cfg.apiBaseUrl || "";
-        if (endpointDomain !== "" && endpointDomain.slice(-1) !== "/") {
+
+        if (endpointDomain === "") {
+            throw "PASSWORD_MANAGER_CONFIG.apiBaseUrl is not configured";
+        }
+
+        if (endpointDomain.slice(-1) !== "/") {
             endpointDomain += "/";
         }
+
         var body = new FormData();
 
         for (let key in data) {
+            if (!Object.prototype.hasOwnProperty.call(data, key)) {
+                continue;
+            }
+
+            if (typeof data[key] === "undefined" || data[key] === null) {
+                continue;
+            }
+
             body.append(key, data[key]);
         }
 
-        if (localStorage.pm_api_session_id) {
-            body.append("api_session_id", localStorage.pm_api_session_id);
+        /*
+         * Split frontend/backend session transport.
+         *
+         * api_session_id is a current-tab login session value. It belongs in
+         * sessionStorage, not localStorage.
+         */
+        if (!Object.prototype.hasOwnProperty.call(data, "api_session_id") && sessionStorage.pm_api_session_id) {
+            body.append("api_session_id", sessionStorage.pm_api_session_id);
         }
 
-        if (endpoint === "info") {
-            if (typeof getCookie === "function") {
-                body.append("frontend_username", getCookie("username") || "");
-                body.append("frontend_device", getCookie("device") || "");
-            }
+        /*
+         * PIN cookies live on the trusted frontend domain, so info.php needs the
+         * frontend to forward these values explicitly.
+         */
+        if (endpoint === "info" && typeof getCookie === "function") {
+            body.append("frontend_username", getCookie("username") || "");
+            body.append("frontend_device", getCookie("device") || "");
         }
 
+        /*
+         * TOTP trusted-device state is intentionally persistent. It is not a login
+         * session token, so it remains in localStorage.
+         */
         if (endpoint === "check" && localStorage.pm_totp_trust) {
             body.append("frontend_totp_trust", localStorage.pm_totp_trust);
         }
 
         var request = new Request(endpointDomain + "rest/" + endpoint + ".php", {
-            method: 'post',
-            cache: 'no-cache',
-            credentials: 'omit',
+            method: "post",
+            cache: "no-cache",
+            credentials: "omit",
             body: body
         });
 
         return fetch(request)
             .then(function (response) {
                 var ct = response.headers.get("Content-Type") || "";
+
                 if (!response.ok || ct.indexOf("application/json") !== 0) {
                     return Promise.reject(response);
                 }
+
                 return response.json()
                     .then(commonBackend.checkApplicationResult);
             });
     }
+
     get sessionToken() {
         if (this._sessionToken) {
             return this._sessionToken;
         }
-        return localStorage.session_token;
+
+        return sessionStorage.session_token;
     }
+
     static checkApplicationResult(msg) {
-        if (msg && msg["api_session_id"]) {
-            localStorage.pm_api_session_id = msg["api_session_id"];
+        if (!msg || msg["status"] !== "success") {
+            throw (msg && msg["message"] ? msg["message"] : "Request failed");
         }
-        if (msg && msg["session_token"]) {
-            localStorage.session_token = msg["session_token"];
+
+        if (msg["api_session_id"]) {
+            sessionStorage.pm_api_session_id = msg["api_session_id"];
         }
-        if (msg && msg["totp_trust"]) {
+
+        if (msg["session_token"]) {
+            sessionStorage.session_token = msg["session_token"];
+        }
+
+        if (msg["totp_trust"]) {
             localStorage.pm_totp_trust = msg["totp_trust"];
         }
-        if (msg && msg["totp_clear"]) {
+
+        if (msg["totp_clear"]) {
             localStorage.removeItem("pm_totp_trust");
         }
-        if (msg["status"] != "success") {
-            throw (msg["message"]);
-        }
+
         return msg;
     }
 };
@@ -131,10 +158,20 @@ let AuthenticatedSession = (superclass) => class extends superclass {
     logout(reason) {
         reason = reason || "";
         var self = this;
-        sessionStorage.clear();
         callPlugins("preLogout", {});
         return self.doPost("logout", {})
+            .catch(function () {
+                /*
+                 * Local logout must still happen if the backend session is already gone
+                 * or the network is unavailable.
+                 */
+                return {};
+            })
             .then(function () {
+                sessionStorage.removeItem("session_token");
+                sessionStorage.removeItem("pm_api_session_id");
+                sessionStorage.removeItem("pwdsk");
+                sessionStorage.removeItem("confusion_key");
                 self.callEvent("logout", { reason: reason });
                 return reason;
             });
@@ -143,20 +180,20 @@ let AuthenticatedSession = (superclass) => class extends superclass {
         var self = this;
         localStorage.clear();
         var promises = [];
-        var username = getCookie('username');
-        var device = getCookie('device');
-        if ((device != null) && (device != "")) {
-            promises.push(self.doPost("deletepin", { 'user': username, 'device': device }));
+        var username = getCookie("username");
+        var device = getCookie("device");
+        if ((device != null) && (device !== "")) {
+            promises.push(self.doPost("deletepin", { user: username, device: device }));
         }
         return Promise.all(promises)
             .then(function () {
-                deleteCookie('device');
-                deleteCookie('username');
-                deleteCookie('pwdrecord_' + encodeURIComponent(username));
+                deleteCookie("device");
+                deleteCookie("username");
+                deleteCookie("pwdrecord_" + encodeURIComponent(username));
                 return self.logout();
             });
     }
-}
+};
 
 //mixin for timeout function
 let Timeout = (superclass) => class extends superclass {
@@ -175,14 +212,18 @@ let Timeout = (superclass) => class extends superclass {
     }
     checkSession() {
         var self = this;
-        this.doPost('sessionalive')
-            .then(function (msg) {
-                if (msg["status"] == "error") {
+        this.doPost("sessionalive")
+            .catch(function (err) {
+                var text = String(err || "");
+                if (
+                    text.indexOf("session") !== -1 ||
+                    text.indexOf("AUTHENTICATION") !== -1 ||
+                    text.indexOf("Invalid session token") !== -1
+                ) {
                     self.logout("Session timed out");
                     self.clearTimeout();
+                    return;
                 }
-            })
-            .catch(function (err) {
                 console.log(err);
             });
     }
@@ -627,44 +668,70 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
 
     backup(includeFiles, progress_callback) {
         var self = this;
+        var cfg = pmBackendConfig();
+
+        progress_callback = progress_callback || function () { };
+
         self.extendedTimeout();
-        if (includeFiles)
+
+        if (includeFiles) {
             includeFiles = "farray";
-        else
+        } else {
             includeFiles = "a";
+        }
+
+        var keyIter = Math.max(0, Number(cfg.backupKeyIterations) || 0);
+
         var data;
         var backup;
         var key;
-        return self.doPost("backup", { a: includeFiles })
+
+        return self.doPost("backup", {
+            a: includeFiles
+        })
             .then(function (msg) {
                 data = msg;
                 backup = data;
-                // Do it at least once even if BACKUP_KEY_ITERATIONS is 0
-                return EncryptionWrapper.SgenerateKeyWithSalt(self.encryptionWrapper.secretkey,
-                    data.KEYsalt);
+                backup.JSsalt = cfg.globalSalt1;
+                backup.PWsalt = cfg.globalSalt2;
+                backup.KEYiter = keyIter;
+                backup.ALPHABET = cfg.defaultLetters;
+                backup.KEYsalt = self.encryptionWrapper.generatePassphrase(100);
+
+                return EncryptionWrapper.SgenerateKeyWithSalt(
+                    self.encryptionWrapper.secretkey,
+                    backup.KEYsalt
+                );
             })
             .then(async function (key) {
-                for (var i = 0; i < data.KEYiter; i++) {
-                    progress_callback(Math.round(i * 90.0 / data.KEYiter));
-                    key = await EncryptionWrapper.SgenerateKeyWithSalt(key, data.KEYsalt);
+                for (var i = 0; i < backup.KEYiter; i++) {
+                    progress_callback(Math.round(i * 90.0 / backup.KEYiter));
+                    key = await EncryptionWrapper.SgenerateKeyWithSalt(key, backup.KEYsalt);
                 }
+
                 return key;
             })
             .then(function (_key) {
                 key = _key;
                 progress_callback(90);
+
                 return EncryptionWrapper.encryptCharUsingKey(JSON.stringify(data.data), key);
             })
             .then(function (encData) {
                 backup.data = encData;
                 progress_callback(95);
+
                 return EncryptionWrapper.encryptCharUsingKey(JSON.stringify(data.fdata), key);
             })
             .then(function (encfdata) {
                 backup.fdata = encfdata;
                 progress_callback(99);
+
                 self.resetTimeout();
-                return new Blob([JSON.stringify(backup)], { type: "text/plain;charset=utf-8" });
+
+                return new Blob([JSON.stringify(backup)], {
+                    type: "text/plain;charset=utf-8"
+                });
             });
     }
 
@@ -712,117 +779,171 @@ class HistoryBackend extends mix(commonBackend).with(EventHandler, Authenticated
 class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
     doPost(endpoint, data) {
         data = data || {};
-        data["session_token"] = localStorage.session_token;
+        data["session_token"] = sessionStorage.session_token;
+
         return super.doPost(endpoint, data);
     }
+
     loadInfo() {
         var self = this;
+        var cfg = pmBackendConfig();
+
         return this.doPost("info", {})
             .then(function (data) {
-                self.encryptionWrapper = new EncryptionWrapper(null, pmBackendConfig().globalSalt1, pmBackendConfig().globalSalt2, pmBackendConfig().defaultLetters);
+                self.encryptionWrapper = new EncryptionWrapper(
+                    null,
+                    cfg.globalSalt1,
+                    cfg.globalSalt2,
+                    cfg.defaultLetters
+                );
+
                 self.allowSignup = data["allowSignup"];
-                self.hostdomain = pmBackendConfig().frontendBaseUrl;
-                self.version = data["version"];
+                self.hostdomain = cfg.frontendBaseUrl;
+                self.version = '11.08';
                 self.banTime = data["banTime"];
                 self.usePin = data["use_pin"];
                 self.loggedIn = data["loggedIn"];
-                self.minPasswordLength = data["minPasswordLength"];
-                self.minNameLength = data["minNameLength"];
 
-                localStorage.session_token = data["session_token"];
+                /*
+                 * These are frontend form validation settings.
+                 * Do not fetch them from the backend.
+                 */
+                self.minPasswordLength = cfg.minPasswordLength;
+                self.minNameLength = cfg.minNameLength;
+
+                if (data["session_token"]) {
+                    sessionStorage.session_token = data["session_token"];
+                }
 
                 if (!self.checkHostdomain()) {
-                    if (typeof pmCheckFrontendLocation === 'function') {
-                        return pmCheckFrontendLocation();
-                    }
-                    return true;
+                    throw "Invalid frontendBaseUrl. Check PASSWORD_MANAGER_CONFIG.frontendBaseUrl.";
                 }
 
                 if (!self.pinActive) {
                     self.delLocalPinStore();
                 }
+
                 return data;
             });
     }
+
     doPinLogin(pin) {
         var self = this;
-        var user = getCookie('username');
-        // SHA2-512 is faster
+        var user = getCookie("username");
+
+        /*
+         * SHA2-512 is faster.
+         */
         return EncryptionWrapper.SgenerateKeyWithSalt(pin, localStorage.pinsalt)
             .then(function (post_signature) {
-                return self.doPost('getpinpk', { user: user, device: getCookie('device'), sig: post_signature });
+                return self.doPost("getpinpk", {
+                    user: user,
+                    device: getCookie("device"),
+                    sig: post_signature
+                });
             })
             .then(function (msg) {
-                // weak hash here is OK since the correctness of this one cannot be verified.
+                /*
+                 * Weak hash here is OK since the correctness of this one cannot be verified.
+                 */
                 return EncryptionWrapper.WgenerateKeyWithSalt(pin + msg["pinpk"], localStorage.pinsalt);
             })
             .then(function (new_pin) {
                 return self.encryptionWrapper.restoreFromPIN(user, new_pin);
             })
             .then(function (loginpwd) {
-                return self.doPost('check', { pwd: loginpwd, user: user });
+                return self.doPost("check", {
+                    pwd: loginpwd,
+                    user: user
+                });
             })
             .catch(function (msg) {
                 var text = String(msg);
-                if (msg == "No PIN available" || text.indexOf("2FA") != -1 || text.indexOf("authenticator") != -1) {
+
+                if (
+                    msg === "No PIN available" ||
+                    text.indexOf("2FA") !== -1 ||
+                    text.indexOf("authenticator") !== -1
+                ) {
                     self.delPin();
                 }
+
                 throw (msg);
             });
     }
+
     doLogin(user, password, totpcode) {
         var self = this;
+
         return self.encryptionWrapper.generateSecretKey(password, user)
             .then(function (_secretkey) {
                 return EncryptionWrapper.WgenerateKeyWithSalt(_secretkey, user);
             })
             .then(function (login_sig) {
-                return self.doPost('check', { pwd: login_sig, user: user, totpcode: totpcode });
+                return self.doPost("check", {
+                    pwd: login_sig,
+                    user: user,
+                    totpcode: totpcode
+                });
             })
-            .then(function (confkey) {
+            .then(function () {
                 return self.encryptionWrapper.persistCredentialsFromPassword(user, password);
             });
     }
+
     doRegister(user, email, password1, password2) {
         var self = this;
-        if (password1 != password2) {
+
+        if (password1 !== password2) {
             return Promise.reject("PasswordMismatch");
         }
+
         if (password1.length < self.minPasswordLength) {
             return Promise.reject("PasswordLength");
         }
+
         if (!self.validEmail(email)) {
             return Promise.reject("EmailInvalid");
         }
+
         if (user.length < self.minNameLength || !self.validUserName(user)) {
             return Promise.reject("UserNameError");
         }
+
         return self.encryptionWrapper.generateSecretKey(password1, user)
             .then(function (secretkey) {
                 return EncryptionWrapper.WgenerateKeyWithSalt(secretkey, user);
             })
             .then(function (login_sig) {
-                return self.doPost('reg', { email: email, pwd: login_sig, user: user });
+                return self.doPost("reg", {
+                    email: email,
+                    pwd: login_sig,
+                    user: user
+                });
             });
     }
+
     validEmail(aEmail) {
-        var bValidate = RegExp(/^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/).test(aEmail);
-        if (bValidate) {
-            return true;
-        }
-        else
-            return false;
+        return RegExp(/^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/).test(aEmail);
     }
+
     validUserName(username) {
-        var bValidate = RegExp(/^[A-Za-z0-9\-_\.]+$/).test(username);
-        if (bValidate) {
+        return RegExp(/^[A-Za-z0-9\-_\.]+$/).test(username);
+    }
+
+    checkHostdomain() {
+        if (typeof pmCheckFrontendLocation === "function") {
+            return pmCheckFrontendLocation();
+        }
+
+        var hostdomain = String(this.hostdomain || "").replace(/\/+$/, "").toLowerCase();
+
+        if (!hostdomain) {
             return true;
         }
-        else
-            return false;
-    }
-    checkHostdomain() {
-        var full = location.protocol + '//' + location.hostname;
-        return this.hostdomain.toLowerCase().startsWith(full.toLowerCase());
+
+        var current = String(window.location.href).split(/[?#]/)[0].replace(/\/+$/, "").toLowerCase();
+
+        return current.indexOf(hostdomain) === 0;
     }
 }
