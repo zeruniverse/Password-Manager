@@ -1,5 +1,6 @@
 <?php
-function totp_normalize_secret($secret) {
+function totp_normalize_secret($secret)
+{
     $secret = strtoupper(preg_replace('/[\s\-=]/', '', (string) $secret));
     if ($secret === '' || !preg_match('/^[A-Z2-7]+$/', $secret)) {
         return false;
@@ -7,7 +8,8 @@ function totp_normalize_secret($secret) {
     return $secret;
 }
 
-function totp_base32_decode($secret) {
+function totp_base32_decode($secret)
+{
     $secret = totp_normalize_secret($secret);
     if ($secret === false) {
         return false;
@@ -34,7 +36,8 @@ function totp_base32_decode($secret) {
     return $result;
 }
 
-function totp_code_at($secret, $timestamp = null, $period = 30, $digits = 6) {
+function totp_code_at($secret, $timestamp = null, $period = 30, $digits = 6)
+{
     if ($timestamp === null) {
         $timestamp = time();
     }
@@ -56,9 +59,10 @@ function totp_code_at($secret, $timestamp = null, $period = 30, $digits = 6) {
     return str_pad((string) ($binary % $mod), (int) $digits, '0', STR_PAD_LEFT);
 }
 
-function totp_verify_code($secret, $code, $window = 1, $period = 30, $digits = 6) {
+function totp_verify_code($secret, $code, $window = 1, $period = 30, $digits = 6)
+{
     $code = trim((string) $code);
-    if (!preg_match('/^\d{'.((int) $digits).'}$/', $code)) {
+    if (!preg_match('/^\d{' . ((int) $digits) . '}$/', $code)) {
         return false;
     }
     $now = time();
@@ -71,7 +75,8 @@ function totp_verify_code($secret, $code, $window = 1, $period = 30, $digits = 6
     return false;
 }
 
-function totp_secret_equals($storedSecret, $inputSecret) {
+function totp_secret_equals($storedSecret, $inputSecret)
+{
     $storedSecret = totp_normalize_secret($storedSecret);
     $inputSecret = totp_normalize_secret($inputSecret);
     if ($storedSecret === false || $inputSecret === false) {
@@ -80,11 +85,13 @@ function totp_secret_equals($storedSecret, $inputSecret) {
     return hash_equals($storedSecret, $inputSecret);
 }
 
-function totp_cookie_name($username) {
-    return 'pwdrecord_'.urlencode((string) $username);
+function totp_cookie_name($username)
+{
+    return 'pwdrecord_' . urlencode((string) $username);
 }
 
-function totp_trust_cookie_value($passwordHash, $username, $secret) {
+function totp_trust_cookie_value($passwordHash, $username, $secret)
+{
     global $GLOBAL_SALT_3, $PBKDF2_ITERATIONS;
 
     $secret = totp_normalize_secret($secret);
@@ -95,12 +102,13 @@ function totp_trust_cookie_value($passwordHash, $username, $secret) {
     return hash_pbkdf2(
         'sha3-512',
         (string) $passwordHash,
-        $GLOBAL_SALT_3.'.totp.'.urlencode((string) $username).'.'.$secret,
+        $GLOBAL_SALT_3 . '.totp.' . urlencode((string) $username) . '.' . $secret,
         max(intdiv($PBKDF2_ITERATIONS, 100), 10)
     );
 }
 
-function totp_is_trusted_device($username, $passwordHash, $secret) {
+function totp_is_trusted_device($username, $passwordHash, $secret)
+{
     $cookieName = totp_cookie_name($username);
     $provided = '';
 
@@ -119,7 +127,8 @@ function totp_is_trusted_device($username, $passwordHash, $secret) {
     return hash_equals($expected, $provided);
 }
 
-function totp_set_cookie_compat($name, $value, $expires) {
+function totp_set_cookie_compat($name, $value, $expires)
+{
     if (PHP_VERSION_ID >= 70300) {
         setcookie($name, $value, [
             'expires' => $expires,
@@ -133,7 +142,8 @@ function totp_set_cookie_compat($name, $value, $expires) {
     }
 }
 
-function totp_set_trust_cookie($username, $passwordHash, $secret) {
+function totp_set_trust_cookie($username, $passwordHash, $secret)
+{
     global $PIN_EXPIRE_TIME;
 
     $value = totp_trust_cookie_value($passwordHash, $username, $secret);
@@ -144,7 +154,8 @@ function totp_set_trust_cookie($username, $passwordHash, $secret) {
     return $value;
 }
 
-function totp_clear_trust_cookie($username) {
+function totp_clear_trust_cookie($username)
+{
     $GLOBALS['PM_TOTP_CLEAR_TRUST'] = true;
     totp_set_cookie_compat(totp_cookie_name($username), '', time() - 3600);
 }

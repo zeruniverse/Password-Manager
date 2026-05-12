@@ -4,8 +4,8 @@
 //"PIN error" - FORCE TO USE USERNAME/PASSWORD, DELETE PIN
 //"Wrong PIN" - PIN just retry
 //otherwise - pk
-require_once dirname(__FILE__).'/../function/common.php';
-require_once dirname(__FILE__).'/../function/ajax.php';
+require_once dirname(__FILE__) . '/../function/common.php';
+require_once dirname(__FILE__) . '/../function/ajax.php';
 start_session();
 $link = sqllink();
 if (!$link) {

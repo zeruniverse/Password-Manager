@@ -1,22 +1,22 @@
 //Plugin for a link button
 
-function addHttps(url){
+function addHttps(url) {
     if (!/^(f|ht)tps?:\/\//i.test(url)) {
         url = "https://" + url;
     }
     return url;
 }
-registerPlugin("drawAccount",function(data){
+registerPlugin("drawAccount", function (data) {
     var account = data["account"];
     if (("url" in account["other"]) && (account["other"]["url"] != "")) {
         var row = data["row"];
         row.find(".namecell .cellOptionButton:last").before($('<a>')
-            .attr('title',"Open")
-            .attr('class','cellOptionButton')
-            .attr('rel','noopener noreferrer')
-            .attr('href',addHttps(account["other"]["url"]))
-            .attr('target', "_blank")                                                
+            .attr('title', "Open")
+            .attr('class', 'cellOptionButton')
+            .attr('rel', 'noopener noreferrer')
+            .attr('href', addHttps(account["other"]["url"]))
+            .attr('target', "_blank")
             .append($('<span></span>')
-                .attr('class','glyphicon glyphicon-globe')));
+                .attr('class', 'glyphicon glyphicon-globe')));
     }
 });

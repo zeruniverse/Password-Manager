@@ -1,22 +1,58 @@
-html { position: relative; min-height: 100%; }
-body {padding-top: 50px; width:100%; color:#666666; margin-bottom: 120px;}
-a { cursor:pointer; }
-/*.theme-showcase{max-width:100%;}*/
-.cellOptionButton {float:right; margin-right:10px;}
-.cellOptionButton:first-of-type {float:right; margin-right:0px !important;}
-/* Tags */
-#rightHandBox {margin-top:10px; padding:5px; }
-.group { background-color:#f8f8f8; }
-.activeTag { text-decoration:underline; }
+html {
+    position: relative;
+    min-height: 100%;
+}
 
-.namecell, .usercell {
+body {
+    padding-top: 50px;
+    width: 100%;
+    color: #666666;
+    margin-bottom: 120px;
+}
+
+a {
+    cursor: pointer;
+}
+
+/*.theme-showcase{max-width:100%;}*/
+.cellOptionButton {
+    float: right;
+    margin-right: 10px;
+}
+
+.cellOptionButton:first-of-type {
+    float: right;
+    margin-right: 0px !important;
+}
+
+/* Tags */
+#rightHandBox {
+    margin-top: 10px;
+    padding: 5px;
+}
+
+.group {
+    background-color: #f8f8f8;
+}
+
+.activeTag {
+    text-decoration: underline;
+}
+
+.namecell,
+.usercell {
     word-wrap: break-word;
 }
 
 /* Fixing uncollapsed navbar inline*/
 @media (max-width: 767px) {
-    .navbar-collapse.collapse.in{ clear:left; }
-    .navbar-collapse.collapsing{ clear:left; }
+    .navbar-collapse.collapse.in {
+        clear: left;
+    }
+
+    .navbar-collapse.collapsing {
+        clear: left;
+    }
 }
 
 /* pull-right on all except xs devices */
@@ -26,26 +62,46 @@ a { cursor:pointer; }
     }
 
 }
+
 @media (max-width: 992px) {
-    .namecell, .usercell { max-width:360px; }
+
+    .namecell,
+    .usercell {
+        max-width: 360px;
+    }
 }
+
 @media (max-width: 700px) {
-    .namecell, .usercell { max-width:250px;}
+
+    .namecell,
+    .usercell {
+        max-width: 250px;
+    }
 }
+
 @media (max-width: 500px) {
-    .namecell, .usercell { max-width:170px;}
+
+    .namecell,
+    .usercell {
+        max-width: 170px;
+    }
 }
+
 @font-face {
     font-family: 'passwordshow';
-    src:url('../pw.ttf');
+    src: url('../pw.ttf');
 }
+
 .theme-showcase {
-    margin-top:10px !important;
+    margin-top: 10px !important;
 }
+
 /*Login form */
-#loginform, #signupform{
-    max-width:300px;
+#loginform,
+#signupform {
+    max-width: 300px;
 }
+
 #loginform #user {
     margin-bottom: -1px;
     border-bottom-right-radius: 0;
@@ -53,6 +109,7 @@ a { cursor:pointer; }
     font-size: 16px;
     height: auto;
 }
+
 #loginform .login-password {
     margin-bottom: 10px;
     border-top-left-radius: 0;
@@ -60,21 +117,23 @@ a { cursor:pointer; }
     font-size: 16px;
     height: auto;
 }
+
 #totp-div {
-  display: none;
+    display: none;
 }
 
 #totpSetupQr svg {
-  max-width: 240px;
-  width: 100%;
-  height: auto;
+    max-width: 240px;
+    width: 100%;
+    height: auto;
 }
 
 #totpSetupSecret {
-  white-space: normal;
-  word-break: break-all;
-  font-size: 16px;
+    white-space: normal;
+    word-break: break-all;
+    font-size: 16px;
 }
+
 .footer {
     color: #777;
     text-align: center;
@@ -86,45 +145,63 @@ a { cursor:pointer; }
     width: 100%;
     height: 120px;
 }
+
 .textbold {
-    font-weight:bold;
+    font-weight: bold;
 }
+
 .textred {
-    color:red;
+    color: red;
 }
+
 /* Detail View */
 #details {
-    height:230px;
-    background:#efefef;
-    overflow:auto;
+    height: 230px;
+    background: #efefef;
+    overflow: auto;
 }
-.blocklabel{
-    display:block;
-    clear:both;
+
+.blocklabel {
+    display: block;
+    clear: both;
 }
+
 /* Nav */
-.navbar-toggle{
-    margin-left:10px;
+.navbar-toggle {
+    margin-left: 10px;
 }
-#navbar{
-    min-width:100px;
+
+#navbar {
+    min-width: 100px;
 }
+
 /* dialogs */
-#backuppwdpb{
-    width:0%;
+#backuppwdpb {
+    width: 0%;
 }
-#fieldsz{
-    height:100px;
+
+#fieldsz {
+    height: 100px;
 }
+
 /* tags */
 #tagCloud p {
-    margin-bottom:0;
+    margin-bottom: 0;
 }
-#orderTags, #orderTagsDisable{
-    padding-left:10px;
+
+#orderTags,
+#orderTagsDisable {
+    padding-left: 10px;
 }
+
 .passwordText {
     font-family: "passwordshow"
 }
-#edit.addOnly .editOnly { display:None; }
-#edit.editOnly .addOnly { display:None; }
+
+#edit.addOnly .editOnly {
+    display: None;
+}
+
+#edit.editOnly .addOnly {
+    display: None;
+}

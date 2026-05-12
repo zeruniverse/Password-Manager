@@ -1,4 +1,4 @@
-var PasswordManagerLoginTOTP = (function() {
+var PasswordManagerLoginTOTP = (function () {
     var setupSecret = "";
 
     var BASE32_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
@@ -58,7 +58,7 @@ var PasswordManagerLoginTOTP = (function() {
             ["algorithm", "SHA1"],
             ["digits", "6"],
             ["period", "30"]
-        ].map(function(pair) {
+        ].map(function (pair) {
             return encodeURIComponent(pair[0]) + "=" + encodeURIComponent(pair[1]);
         }).join("&");
 
@@ -75,7 +75,7 @@ var PasswordManagerLoginTOTP = (function() {
         }
 
         return backend.getTotpStatus()
-            .then(function(enabled) {
+            .then(function (enabled) {
                 updateMenu(enabled);
                 return enabled;
             });
@@ -127,15 +127,15 @@ var PasswordManagerLoginTOTP = (function() {
         setBusy(true);
 
         backend.enableTotp(setupSecret, code)
-            .then(function() {
+            .then(function () {
                 updateMenu(true);
                 $("#totpSetup").modal("hide");
                 showMessage("success", "successfully turned on 2FA");
             })
-            .catch(function(msg) {
+            .catch(function (msg) {
                 showMessage("warning", msg, true);
             })
-            .then(function() {
+            .then(function () {
                 setBusy(false);
             });
     }
@@ -148,14 +148,14 @@ var PasswordManagerLoginTOTP = (function() {
         setBusy(true);
 
         backend.disableTotp()
-            .then(function() {
+            .then(function () {
                 updateMenu(false);
                 showMessage("success", "successfully turned off 2FA");
             })
-            .catch(function(msg) {
+            .catch(function (msg) {
                 showMessage("warning", msg, true);
             })
-            .then(function() {
+            .then(function () {
                 setBusy(false);
             });
     }
@@ -164,14 +164,14 @@ var PasswordManagerLoginTOTP = (function() {
         event.preventDefault();
 
         refreshStatus()
-            .then(function(enabled) {
+            .then(function (enabled) {
                 if (enabled) {
                     turnOff();
                 } else {
                     startEnable();
                 }
             })
-            .catch(function(msg) {
+            .catch(function (msg) {
                 showMessage("warning", msg, true);
             });
     }
@@ -181,11 +181,11 @@ var PasswordManagerLoginTOTP = (function() {
 
         $("#totpSetupSubmit").on("click", submitEnable);
 
-        $("#totpSetup").on("shown.bs.modal", function() {
+        $("#totpSetup").on("shown.bs.modal", function () {
             $("#totpSetupCode").focus();
         });
 
-        $("#totpSetup").on("hidden.bs.modal", function() {
+        $("#totpSetup").on("hidden.bs.modal", function () {
             setupSecret = "";
             $("#totpSetupQr").empty();
             $("#totpSetupSecret").text("");

@@ -4,43 +4,43 @@
 
 // https://stackoverflow.com/questions/34309988/byte-array-to-hex-string-conversion-in-javascript
 function _toHexString(byteArray) {
-  return Array.from(byteArray, function(byte) {
-    return ('0' + (byte & 0xFF).toString(16)).slice(-2);
-  }).join('')
+    return Array.from(byteArray, function (byte) {
+        return ('0' + (byte & 0xFF).toString(16)).slice(-2);
+    }).join('')
 }
 
 function PBKDF2_SHA512(password, salt, iterations) {
     const encoder = new TextEncoder();
     const pass_byte = encoder.encode(password);
     const salt_byte = encoder.encode(salt);
-        return crypto.subtle.importKey(
-                'raw',
-                pass_byte,
-                'PBKDF2',
-                false,
-                ['deriveBits']
-            )
-            .then(function(key_obj){
-                return crypto.subtle.deriveBits(
-                    {
-                        name: "PBKDF2",
-                        hash: "SHA-512",
-                        salt: salt_byte,
-                        iterations: iterations
-                    },
-                    key_obj,
-                    512
-                );
-            })
-            .then(function(bytes){
-                return _toHexString(new Uint8Array(bytes));
-            });
+    return crypto.subtle.importKey(
+        'raw',
+        pass_byte,
+        'PBKDF2',
+        false,
+        ['deriveBits']
+    )
+        .then(function (key_obj) {
+            return crypto.subtle.deriveBits(
+                {
+                    name: "PBKDF2",
+                    hash: "SHA-512",
+                    salt: salt_byte,
+                    iterations: iterations
+                },
+                key_obj,
+                512
+            );
+        })
+        .then(function (bytes) {
+            return _toHexString(new Uint8Array(bytes));
+        });
 }
 
-function SHA512(text){
+function SHA512(text) {
     const text_byte = new TextEncoder().encode(text);
     return crypto.subtle.digest('SHA-512', text_byte)
-        .then(function(bytes){
+        .then(function (bytes) {
             return _toHexString(new Uint8Array(bytes));
         });
 }
@@ -69,14 +69,14 @@ async function AESCBC256Encrypt(plaintext, password) {
 
     const ivHex = Array.from(iv).map(b => ('00' + b.toString(16)).slice(-2)).join(''); // iv as hex string
 
-    return ivHex+ctBase64;                                                             // return iv+ciphertext
+    return ivHex + ctBase64;                                                             // return iv+ciphertext
 }
 
 async function AESCBC256Decrypt(ciphertext, password) {
     const pwUtf8 = new TextEncoder().encode(password);                                  // encode password as UTF-8
     const pwHash = await crypto.subtle.digest('SHA-256', pwUtf8);                       // hash the password
 
-    const iv = ciphertext.slice(0,32).match(/.{2}/g).map(byte => parseInt(byte, 16));   // get iv from ciphertext
+    const iv = ciphertext.slice(0, 32).match(/.{2}/g).map(byte => parseInt(byte, 16));   // get iv from ciphertext
 
     const alg = { name: 'AES-CBC', iv: new Uint8Array(iv) };                            // specify algorithm to use
 

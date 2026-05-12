@@ -2,26 +2,26 @@
 
 // define Shortcuts (keycode: {action: action to do (modal, click, focus), element: element to focus, description: help text})
 var keyboardShortcuts = {
-    '97': {"action":"modal", "element":"#add", "description": "Show add entry dialog"},
-    '47': {"action":"focus", "element":"#pwdlist_filter > label > input", "description": "Focus search input"},
-    '63': {"action":"modal", "element":"#shortcuts", "description": "Show keyboard shortcut help"},
-    '108': {"action":"click", "element":"#pwdlist_next > a", "description": "Got to next page"},
-    '104': {"action":"click", "element":"#pwdlist_previous > a", "description": "Got to previous page"},
+    '97': { "action": "modal", "element": "#add", "description": "Show add entry dialog" },
+    '47': { "action": "focus", "element": "#pwdlist_filter > label > input", "description": "Focus search input" },
+    '63': { "action": "modal", "element": "#shortcuts", "description": "Show keyboard shortcut help" },
+    '108': { "action": "click", "element": "#pwdlist_next > a", "description": "Got to next page" },
+    '104': { "action": "click", "element": "#pwdlist_previous > a", "description": "Got to previous page" },
 }
 
 var actions = {
-    "focus":function(element){$(element).focus();},
-    "click":function(element){$(element).click();},
-    "modal":function(element){$(element).modal();},
+    "focus": function (element) { $(element).focus(); },
+    "click": function (element) { $(element).click(); },
+    "modal": function (element) { $(element).modal(); },
 }
 
-registerPlugin("layoutReady", function(data){
-    $(document).delegate(':not(input)', 'keypress', function(e) {
+registerPlugin("layoutReady", function (data) {
+    $(document).delegate(':not(input)', 'keypress', function (e) {
         if (e.target.nodeName.toLowerCase() == 'input' || e.target.nodeName.toLowerCase() == 'textarea') {
             return;
         }
         var key = e.which;
-        if (! (key in keyboardShortcuts)) {
+        if (!(key in keyboardShortcuts)) {
             return;
         }
         var shortcut = keyboardShortcuts[key];
@@ -37,14 +37,14 @@ registerPlugin("layoutReady", function(data){
                 .text(String.fromCharCode(key))));
     }
     var modal = $('<div class="modal" tabindex="-1" role="dialog" id="shortcuts"></div>')
-                    .append($('<div class="modal-dialog"></div>')
-                        .append($('<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'))
-                        .append($('<div class="modal-content"></div')
-                            .append($('<div class="modal-header"><h4>Keyboard Shortcuts</h4></div>'))
-                            .append($('<div class="modal-body"></div>')
-                                .append(list))
-                            .append($('<div class="modal-footer"> <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> </div>'))
-                        )
-                    );
-    $( "body" ).append(modal);
+        .append($('<div class="modal-dialog"></div>')
+            .append($('<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>'))
+            .append($('<div class="modal-content"></div')
+                .append($('<div class="modal-header"><h4>Keyboard Shortcuts</h4></div>'))
+                .append($('<div class="modal-body"></div>')
+                    .append(list))
+                .append($('<div class="modal-footer"> <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> </div>'))
+            )
+        );
+    $("body").append(modal);
 });

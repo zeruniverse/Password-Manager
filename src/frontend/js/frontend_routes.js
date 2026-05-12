@@ -23,7 +23,6 @@
       browserTimeout: Number(cfg.browserTimeout || cfg.BROWSER_TIMEOUT || 360),
       defaultPasswordLength: Number(cfg.defaultPasswordLength || cfg.DEFAULT_PASSWORD_LENGTH || 13),
       defaultLetters: cfg.defaultLetters || cfg.DEFAULT_LETTERS || "*+-0123456789=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~",
-      useCredentials: cfg.useCredentials === true || cfg.USE_CREDENTIALS === true
     };
   };
 

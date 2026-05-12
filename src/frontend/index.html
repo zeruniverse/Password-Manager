@@ -1,30 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8">
-  <title>Password Manager</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Password Manager">
-  <meta name="author" content="Jeffery">
-  <link href="css/bootstrap.min.css" rel="stylesheet">
-  <link href="css/style.css" rel="stylesheet">
-  <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-  <!--[if lt IE 9]>
+    <meta charset="utf-8">
+    <title>Password Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Password Manager">
+    <meta name="author" content="Jeffery">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
   <script src="js/lib/html5shiv.js"></script>
   <script src="js/respond.min.js"></script>
   <![endif]-->
-  <link rel="shortcut icon" href="favicon.ico">
-  <script src="config.js"></script>
-  <script src="js/frontend_routes.js"></script>
-  <script src="js/lib/jquery.min.js"></script>
-  <script src="js/lib/bootstrap.min.js"></script>
-  <script src="js/common/commonfunctions.js"></script>
+    <link rel="shortcut icon" href="favicon.ico">
+    <script src="config.js"></script>
+    <script src="js/frontend_routes.js"></script>
+    <script src="js/lib/jquery.min.js"></script>
+    <script src="js/lib/bootstrap.min.js"></script>
+    <script src="js/common/commonfunctions.js"></script>
 </head>
+
 <body>
-<script src="js/common/crypto.js"></script>
-<script src="js/common/backend.js"></script>
-<script src="js/common/cryptowrapper.js"></script>
-<script src="js/index.js"></script>
+    <script src="js/common/crypto.js"></script>
+    <script src="js/common/backend.js"></script>
+    <script src="js/common/cryptowrapper.js"></script>
+    <script src="js/index.js"></script>
     <div class="container theme-showcase">
         <div class="page-header">
             <h1>Password Manager</h1>
@@ -48,7 +50,8 @@
                 </div>
                 <div id="totp-div">
                     <label class="control-label" for="totpcode">2FA Code:</label>
-                    <input type="text" class="form-control" placeholder="2FA Code or Recovery Secret" name="totpcode" id="totpcode" autocomplete="one-time-code" />
+                    <input type="text" class="form-control" placeholder="2FA Code or Recovery Secret" name="totpcode"
+                        id="totpcode" autocomplete="one-time-code" />
                     <p class="help-block">
                         Enter the 6-digit code from your authenticator app. If your 2FA device is unavailable,
                         enter your saved 2FA secret here to turn off 2FA while logging in.
@@ -56,56 +59,60 @@
                 </div>
             </div>
             <div class="form-group">
-                <input type="submit" class="btn btn-lg btn-success btn-block" id="chk"  value="Login" />
+                <input type="submit" class="btn btn-lg btn-success btn-block" id="chk" value="Login" />
             </div>
         </form>
         <hr />
         <button id="signup" class="btn btn-sm btn-default collapse" type="button">Sign Up</button>&nbsp;
         <button id="recover" class="btn btn-sm btn-warning" type="button">Password Recovery</button>
-    <hr />
-    <div>
-        Version <span id="version"></span>
-        (<a href="https://github.com/zeruniverse/Password-Manager/releases">DOWNLOAD</a>)
-    </div>
-    <div class="modal" tabindex="-1" role="dialog" id="usepin">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    <h4>Use PIN to login</h4>
-                </div>
-                <form id="pinloginform" method="post">
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label for="pin" class="control-label">PIN:</label>
-                            <input id="pin" autocomplete="off" class="form-control" type="password" />
-                            <label class="small blocklabel">
-                                You see this window because you or someone set an PIN in this device and choose it as
-                                default login method. To switch account or disable PIN, please press the red button
-                                below. To use username/password to login only this time, close this window by pressing
-                                the 'X' at top-right corner.
-                            </label>
-                            <label class="small textred blocklabel">
-                                Closing this window only let you use username/password to login this time. PIN will
-                                still be chosen as default method in future. Press red button below if you want to
-                                disable current PIN.
-                            </label>
+        <hr />
+        <div>
+            Version <span id="version"></span>
+            (<a href="https://github.com/zeruniverse/Password-Manager/releases">DOWNLOAD</a>)
+        </div>
+        <div class="modal" tabindex="-1" role="dialog" id="usepin">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4>Use PIN to login</h4>
+                    </div>
+                    <form id="pinloginform" method="post">
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="pin" class="control-label">PIN:</label>
+                                <input id="pin" autocomplete="off" class="form-control" type="password" />
+                                <label class="small blocklabel">
+                                    You see this window because you or someone set an PIN in this device and choose it
+                                    as
+                                    default login method. To switch account or disable PIN, please press the red button
+                                    below. To use username/password to login only this time, close this window by
+                                    pressing
+                                    the 'X' at top-right corner.
+                                </label>
+                                <label class="small textred blocklabel">
+                                    Closing this window only let you use username/password to login this time. PIN will
+                                    still be chosen as default method in future. Press red button below if you want to
+                                    disable current PIN.
+                                </label>
+                            </div>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <p class="collapse" id="pinerrorhint">PIN ERROR, try again.</p>
-                        <button type="button" class="btn btn-danger" id="delpin" data-dismiss="modal">Delete PIN</button>
-                        <input type="submit" class="btn btn-primary" id="pinlogin" value="Login" />
-                    </div>
-                </form>
+                        <div class="modal-footer">
+                            <p class="collapse" id="pinerrorhint">PIN ERROR, try again.</p>
+                            <button type="button" class="btn btn-danger" id="delpin" data-dismiss="modal">Delete
+                                PIN</button>
+                            <input type="submit" class="btn btn-primary" id="pinlogin" value="Login" />
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-    </div>
-<footer class="footer">
-<p>&copy;2026 Jeffery<br /><br />ALL RIGHTS RESERVED</p>
-</footer>
+    <footer class="footer">
+        <p>&copy;2026 Jeffery<br /><br />ALL RIGHTS RESERVED</p>
+    </footer>
 </body>
+
 </html>

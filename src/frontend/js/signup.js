@@ -1,14 +1,14 @@
 var backend;
-$(function(){
-    $("#chk").click(function(){
+$(function () {
+    $("#chk").click(function () {
         $("#chk").attr("disabled", true);
         $("#chk").attr("value", "Wait");
         backend.doRegister($("#user").val(), $("#email").val(), $("#pwd").val(), $("#pwd1").val())
-            .then(function(){
+            .then(function () {
                 alert("Successfully signup, now please sign in!");
-                window.location.href="index.html?reason=Successfully+signed+up.";
+                window.location.href = "index.html?reason=Successfully+signed+up.";
             })
-            .catch(function(msg){
+            .catch(function (msg) {
                 if (msg == "PasswordMismatch") {
                     alert("The second password you input doesn't match the first one. ");
                 }
@@ -20,21 +20,21 @@ $(function(){
                 }
                 else if (msg == "UserNameError") {
                     alert("Username should be at least " + backend.minNameLength +
-                          " characters of English letters (a-z, A-Z) or numbers (0-9) or" +
-                          " dot (.), dash(-), underscore (_)!");
+                        " characters of English letters (a-z, A-Z) or numbers (0-9) or" +
+                        " dot (.), dash(-), underscore (_)!");
                 }
                 else {
                     alert(msg);
                 }
             })
-            .then(function(){
+            .then(function () {
                 $("#chk").attr("value", "Submit");
                 $("#chk").attr("disabled", false);
             });
     });
     backend = new LogonBackend();
     backend.loadInfo()
-        .then(function(data){
+        .then(function (data) {
             if (backend.allowSignup) {
                 $("#signupform").show();
                 $("#message").hide();

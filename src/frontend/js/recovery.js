@@ -1,29 +1,29 @@
 var backend;
 var has_file = 0;
 function download(filename, text) {
-    var blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+    var blob = new Blob([text], { type: "text/plain;charset=utf-8" });
     saveAs(blob, filename);
 }
 function export_raw() {
-    if(!confirm("Confirm: This function is used ONLY to TRANSFER your password to another password manager! DON'T BACK UP this version, it's DANGEROUS!")) return;
-    if(!confirm("You agree you will delete the generated content IMMEDIATELY after you finish transferring your passwords")) return;
+    if (!confirm("Confirm: This function is used ONLY to TRANSFER your password to another password manager! DON'T BACK UP this version, it's DANGEROUS!")) return;
+    if (!confirm("You agree you will delete the generated content IMMEDIATELY after you finish transferring your passwords")) return;
 
     return backend.exportRaw()
-        .then(function(data) {
+        .then(function (data) {
             download("raw_pass.raw", data);
         })
-        .catch(function(msg){
+        .catch(function (msg) {
             showMessage("warning", msg);
         });
 }
 function export_csv() {
-    if(!confirm('CSV file contains all your information in plain text format. It\'s dangerous to keep it as a backup. Only use it for transferring your data. Delete it immediately after you\'ve done. Please note the encoding for the csv file is UTF-8. You might need to specify this encoding in order to open this CSV properly in some software that uses ANSI as default encoding such as Microsoft Office.'))
+    if (!confirm('CSV file contains all your information in plain text format. It\'s dangerous to keep it as a backup. Only use it for transferring your data. Delete it immediately after you\'ve done. Please note the encoding for the csv file is UTF-8. You might need to specify this encoding in order to open this CSV properly in some software that uses ANSI as default encoding such as Microsoft Office.'))
         return;
     return backend.exportCSV()
-        .then(function(data) {
+        .then(function (data) {
             saveAs(data, "export.csv");
         })
-        .catch(function(msg){
+        .catch(function (msg) {
             showMessage("warning", msg);
         });
 }
@@ -41,7 +41,7 @@ function readfile() {
                 alert('Error reading file!');
             }
             reader.readAsText(a[0]);
-        } else {alert('NO FILE SELECTED');}
+        } else { alert('NO FILE SELECTED'); }
     } else {
         alert('FileReader are not supported in this browser.');
     }
@@ -53,7 +53,7 @@ function downloada(id) {
     saveAs(base64toBlob(data, typedata), backend.files[id].name);
 }
 function recover(data) {
-    if($("#pwd").val() == '') {
+    if ($("#pwd").val() == '') {
         alert("EMPTY PASSWORD IS NOT ALLOWED");
         return;
     }
@@ -65,27 +65,27 @@ function recover(data) {
     let password = $("#pwd").val();
     backend = new RecoveryBackend();
     backend.parseBackup(data, password)
-        .then(function(accounts){
+        .then(function (accounts) {
             var has_file = 0;
             var rows = [$('<thead><tr><th>Account</th><th>Password</th><th>Other Info</th></tr></thead>')];
-            if(typeof backend.files !== 'undefined') {
+            if (typeof backend.files !== 'undefined') {
                 has_file = 1;
                 rows = [$('<thead><tr><th>Account</th><th>Password</th><th>Other Info</th><th>Files</th></tr></thead>')];
             }
-            for(let account of accounts) {
+            for (let account of accounts) {
                 var row = $('<tr></tr>')
                     .append($('<td></td>').text(account.accountName))
-                    .append($('<td></td>').attr('id', 'account_'+ account.index))
+                    .append($('<td></td>').attr('id', 'account_' + account.index))
                     .append($('<td></td>').text(account.getOtherJSON()));
                 account.getPassword()
-                    .then(function(password) {
+                    .then(function (password) {
                         $("#account_" + account.index).text(password);
                     });
-                if(has_file == 1) {
+                if (has_file == 1) {
                     if (account.index in backend.files) {
                         var file = backend.files[account.index];
                         row.append($('<td></td>')
-                            .append($('<a></a>').on('click', {index:account.index}, function(e) {downloada(e.data.index);}).text(file.name)));
+                            .append($('<a></a>').on('click', { index: account.index }, function (e) { downloada(e.data.index); }).text(file.name)));
                     }
                     else {
                         row.append($('<td></td>'));
@@ -99,16 +99,16 @@ function recover(data) {
             $("#raw_button").show();
             $("#csv_button").show();
         })
-        .catch(function(msg){
+        .catch(function (msg) {
             showMessage("warning", msg);
         })
-        .then(function(){
+        .then(function () {
             $("#chk").removeAttr("disabled");
             $("#chk").attr("value", "RECOVER IT!");
         });
 }
-$(function() {
-    $("#chk").on('click', function(e) {readfile();});
-    $("#raw_button").on('click', function(e) {export_raw();});
-    $("#csv_button").on('click', function(e) {export_csv();});
+$(function () {
+    $("#chk").on('click', function (e) { readfile(); });
+    $("#raw_button").on('click', function (e) { export_raw(); });
+    $("#csv_button").on('click', function (e) { export_csv(); });
 });

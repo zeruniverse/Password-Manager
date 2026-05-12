@@ -3,30 +3,30 @@ class RecoveryBackend {
         var self = this;
         self.accounts = [];
         var json = JSON.parse(sanitize_json(backupData));
-        if(json.status != "OK" && json.status != "success") {
-            throw("INVALID BACKUP FILE");
+        if (json.status != "OK" && json.status != "success") {
+            throw ("INVALID BACKUP FILE");
         }
         var backupKey;
 
         self.encryptionWrapper = new EncryptionWrapper(null, json.JSsalt, json.PWsalt, json.ALPHABET);
         return self.generateBackupKeys(json.user, password, json.KEYsalt, json.KEYiter)
-            .then(function(dkey){
+            .then(function (dkey) {
                 backupKey = dkey;
                 return EncryptionWrapper.decryptCharUsingKey(json.data, dkey);
             })
-            .then(function(data) {
+            .then(function (data) {
                 return self.importAccounts(data);
             })
-            .then(function(accounts){
+            .then(function (accounts) {
                 if (typeof json.fdata !== 'undefined')
                     return EncryptionWrapper.decryptCharUsingKey(json.fdata, backupKey)
-                        .then(function(fdata) {
+                        .then(function (fdata) {
                             return self.importFiles(fdata);
                         });
                 else
                     return;
             })
-            .then(function() {
+            .then(function () {
                 return self.accounts;
             });
     }
@@ -37,13 +37,15 @@ class RecoveryBackend {
         for (let acc in data) {
             data[acc][3] = acc;
             resultPromises.push(Account.fromEncrypted(self.encryptionWrapper,
-                { index: data[acc][3],
+                {
+                    index: data[acc][3],
                     name: data[acc][0],
                     kss: data[acc][1],
-                    additional:data[acc][2]}));
+                    additional: data[acc][2]
+                }));
         }
         return Promise.all(resultPromises)
-            .then(function(accounts) {
+            .then(function (accounts) {
                 for (let account of accounts) {
                     self.accounts.push(account);
                 }
@@ -56,30 +58,30 @@ class RecoveryBackend {
         if (filedata.status === 'NO')
             return;
         if (filedata.status != 'OK')
-            throw('invalid status for encrypted files');
+            throw ('invalid status for encrypted files');
         let filePromises = [];
         for (let id in filedata["data"]) {
-            let file = {"id": id};
+            let file = { "id": id };
             let thisFilePromise = self.encryptionWrapper.decryptChar(filedata["data"][id][0])
-                .then(function(fname) {
+                .then(function (fname) {
                     file["name"] = fname;
                     return EncryptionWrapper.WgenerateKeyWithSalt(self.encryptionWrapper.secretkey, fname);
                 })
-                .then(function(genkey){
+                .then(function (genkey) {
                     return EncryptionWrapper.decryptCharUsingKey(filedata["data"][id][1], genkey);
                 })
-                .then(function(fkey) {
+                .then(function (fkey) {
                     file["key"] = fkey;
                     return EncryptionWrapper.decryptCharUsingKey(filedata["data"][id][2], fkey);
                 })
-                .then(function(fdata) {
+                .then(function (fdata) {
                     file["data"] = fdata;
                     return file;
                 });
             filePromises.push(thisFilePromise);
         }
         return Promise.all(filePromises)
-            .then(function(files) {
+            .then(function (files) {
                 self.files = [];
                 for (let file of files) {
                     self.files[file['id']] = file;
@@ -90,17 +92,17 @@ class RecoveryBackend {
     generateBackupKeys(user, password, salt, iter) {
         var self = this;
         return self.encryptionWrapper.generateSecretKey(password, user)
-            .then(function(_sec_key) {
+            .then(function (_sec_key) {
                 self.encryptionWrapper.secretkey = _sec_key;
                 return EncryptionWrapper.WgenerateKeyWithSalt(password, _sec_key);
             })
-            .then(function(_conf_key) {
-                self.encryptionWrapper._confkey =_conf_key;
+            .then(function (_conf_key) {
+                self.encryptionWrapper._confkey = _conf_key;
                 return EncryptionWrapper.SgenerateKeyWithSalt(self.encryptionWrapper.secretkey,
                     salt);
             })
-            .then(async function(key){
-                for(var i = 0; i < iter; i++){
+            .then(async function (key) {
+                for (var i = 0; i < iter; i++) {
                     key = await EncryptionWrapper.SgenerateKeyWithSalt(key, salt);
                 }
                 return key;
@@ -109,10 +111,10 @@ class RecoveryBackend {
     getAccountsRaw(include_files = false) {
         var self = this;
         var promiseList = [];
-        if(typeof self.files === 'undefined') include_files = false;
+        if (typeof self.files === 'undefined') include_files = false;
         for (let account of self.accounts) {
             var nextAccountPromise = account.getPassword()
-                .then(function(password) {
+                .then(function (password) {
                     var base_info = {
                         'index': account.index,
                         'data': {
@@ -121,7 +123,7 @@ class RecoveryBackend {
                             'other': account.getOtherJSON()
                         }
                     };
-                    if(include_files && account.index in self.files){
+                    if (include_files && account.index in self.files) {
                         base_info['data']['fname'] = self.files[account.index].name;
                         base_info['data']['filedata'] = self.files[account.index].data;
                     }
@@ -134,7 +136,7 @@ class RecoveryBackend {
     exportCSV() {
         var self = this;
         return Promise.all(self.getAccountsRaw(false))
-            .then(function(results) {
+            .then(function (results) {
                 var result = [];
                 for (let account of results) {
                     let tmp = {};
@@ -148,16 +150,16 @@ class RecoveryBackend {
                     result.push(tmp);
                 }
                 var csv = $.csv.fromObjects(result);
-                return new Blob([csv], {type: "text/plain;charset=utf-8"});
+                return new Blob([csv], { type: "text/plain;charset=utf-8" });
             });
     }
     exportRaw() {
         var self = this;
         return Promise.all(self.getAccountsRaw(true))
-            .then(function(results) {
-                var result = { };
+            .then(function (results) {
+                var result = {};
                 result.status = "RAW_OK";
-                result.data = { };
+                result.data = {};
                 for (let account of results) {
                     result.data[account.index] = account['data'];
                 }

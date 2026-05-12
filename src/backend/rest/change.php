@@ -1,7 +1,7 @@
 <?php
 
-require_once dirname(__FILE__).'/../function/common.php';
-require_once dirname(__FILE__).'/../function/ajax.php';
+require_once dirname(__FILE__) . '/../function/common.php';
+require_once dirname(__FILE__) . '/../function/ajax.php';
 $link = sqllink();
 if (!checksession($link)) {
     ajaxError('session');
@@ -30,7 +30,7 @@ if (isset($_POST['other'])) {
     array_push($values, $_POST['other']);
 }
 array_push($values, $id, (int) $index);
-$sql = 'UPDATE `password` SET '.$changedCols.' WHERE `userid` = ? AND `index` = ?';
+$sql = 'UPDATE `password` SET ' . $changedCols . ' WHERE `userid` = ? AND `index` = ?';
 $res = sqlexec($sql, $values, $link);
 if ($res == null) {
     $link->rollBack();

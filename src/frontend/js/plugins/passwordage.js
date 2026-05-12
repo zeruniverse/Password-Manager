@@ -1,6 +1,6 @@
 //Plugin that shows the password age on the edit dialog
 
-registerPlugin("editAccountDialog",function(data){
+registerPlugin("editAccountDialog", function (data) {
     var account = data["account"];
     if ("_system_passwordLastChangeTime" in account["other"]) {
         $("#edititempasswordlastchanged").text(timeConverter(account["other"]["_system_passwordLastChangeTime"]));
@@ -8,25 +8,25 @@ registerPlugin("editAccountDialog",function(data){
     else
         $("#edititempasswordlastchanged").empty();
 });
-registerPlugin("showDetails", function(data){
+registerPlugin("showDetails", function (data) {
     let account = data["account"];
     if ("_system_passwordLastChangeTime" in account.other) {
         data["out"].append('<br />').append($('<p>').addClass('textred').text('Password last changed at ' + timeConverter(account.getOther("_system_passwordLastChangeTime"))));
     }
 });
-registerPlugin("layoutReady",function(data){
+registerPlugin("layoutReady", function (data) {
     $("label[for='edititeminputpw']").after($("<span>")
-            .attr("class","small editOnly")
-            .text(" last changed on ")
-            .append($("<span>")
-                .attr("id","edititempasswordlastchanged")
-                .attr("class","textred")));
+        .attr("class", "small editOnly")
+        .text(" last changed on ")
+        .append($("<span>")
+            .attr("id", "edititempasswordlastchanged")
+            .attr("class", "textred")));
 });
-registerPlugin("updateAccountPreSend", function(data){
+registerPlugin("updateAccountPreSend", function (data) {
     if (data["newPassword"] != "") {
         data["account"].setOther("_system_passwordLastChangeTime", Math.floor(Date.now() / 1000));
     }
 });
-registerPlugin("addAccountPreSend", function(data){
+registerPlugin("addAccountPreSend", function (data) {
     data["account"].setOther("_system_passwordLastChangeTime", Math.floor(Date.now() / 1000));
 });

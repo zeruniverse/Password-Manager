@@ -1,21 +1,21 @@
-function timeConverter(utctime){
-    if(utctime==0)
+function timeConverter(utctime) {
+    if (utctime == 0)
         return 'unknown time';
     var a = new Date(utctime * 1000);
-    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     var year = String(a.getFullYear());
     var month = months[a.getMonth()];
     var date = String(a.getDate());
     var hour = String(a.getHours());
     var min = String(a.getMinutes());
     var sec = String(a.getSeconds());
-    if(hour.length==1)
-        hour = '0'+hour;
-    if(min.length==1)
-        min = '0'+min;
-    if(sec.length==1)
-        sec = '0'+sec;
-    var time = month + ' '+date + ', ' + year + ' ' + hour + ':' + min + ':' + sec ;
+    if (hour.length == 1)
+        hour = '0' + hour;
+    if (min.length == 1)
+        min = '0' + min;
+    if (sec.length == 1)
+        sec = '0' + sec;
+    var time = month + ' ' + date + ', ' + year + ' ' + hour + ':' + min + ':' + sec;
     return time;
 }
 /*
@@ -24,23 +24,23 @@ function timeConverter(utctime){
  * message: text
  * modal: if true shows a modal window
  */
-function showMessage(type, message, modal){
+function showMessage(type, message, modal) {
     modal = (typeof modal !== 'undefined') ? modal : false;
-    if (modal==false) {
+    if (modal == false) {
         var messageDialog = $("<div>")
-                    .addClass("alert")
-                    .addClass("alert-"+type)
-                    .addClass("collapse")
-                    .append($('<a href="#" class="close" aria-label="close">&times;</a>')
-                            .click(function(e){
-                                messageDialog.alert('close');
-                                e.stopImmediatePropagation()
-                            }))
-                    .append($('<span>').text(message));
+            .addClass("alert")
+            .addClass("alert-" + type)
+            .addClass("collapse")
+            .append($('<a href="#" class="close" aria-label="close">&times;</a>')
+                .click(function (e) {
+                    messageDialog.alert('close');
+                    e.stopImmediatePropagation()
+                }))
+            .append($('<span>').text(message));
         $("#messageContainer").append(messageDialog);
         messageDialog.fadeIn();
-        if(type == "success" || type == "info"){
-            messageDialog.fadeTo(6000, 500).slideUp(500, function(){ // 6000 ms
+        if (type == "success" || type == "info") {
+            messageDialog.fadeTo(6000, 500).slideUp(500, function () { // 6000 ms
                 messageDialog.alert('close');
             });
         }
@@ -49,7 +49,7 @@ function showMessage(type, message, modal){
     else {
         $("#messageDialogText").text(message);
         $("#messageDialogText").removeClass("alert-success alert-info alert-warning alert-danger");
-        $("#messageDialogText").addClass("alert-"+type);
+        $("#messageDialogText").addClass("alert-" + type);
         $("#messageDialog").modal('show');
     }
 }
@@ -66,7 +66,7 @@ function base64toBlob(base64Data, contentType) {
         var end = Math.min(begin + sliceSize, bytesLength);
 
         var bytes = new Array(end - begin);
-        for (var offset = begin, i = 0 ; offset < end; ++i, ++offset) {
+        for (var offset = begin, i = 0; offset < end; ++i, ++offset) {
             bytes[i] = byteCharacters[offset].charCodeAt(0);
         }
         byteArrays[sliceIndex] = new Uint8Array(bytes);
@@ -76,9 +76,9 @@ function base64toBlob(base64Data, contentType) {
 function getCookie(cname) {
     var name = cname + "=";
     var ca = document.cookie.split(';');
-    for(var i = 0; i <ca.length; i++) {
+    for (var i = 0; i < ca.length; i++) {
         var c = ca[i];
-        while (c.charAt(0)==' ') {
+        while (c.charAt(0) == ' ') {
             c = c.substring(1);
         }
         if (c.indexOf(name) == 0) {
@@ -92,7 +92,7 @@ function setCookie(cname, cvalue) {
     // make cookie permanent. User will use untrust to delete cookies
     exp.setTime(exp.getTime() + 10 * 365 * 24 * 60 * 60 * 1000);
     // escape characters like `;`, ` ` etc.
-    cookie = cname + "="+ encodeURIComponent(cvalue) + ";expires=" + exp.toGMTString() + ";path=/";
+    cookie = cname + "=" + encodeURIComponent(cvalue) + ";expires=" + exp.toGMTString() + ";path=/";
     // Security mod.
     document.cookie = cookie + ";samesite=strict; secure";
 }
@@ -101,8 +101,8 @@ function deleteCookie(name) {
     document.cookie = name + "=;expires=" + (new Date(0)).toGMTString();
 }
 
-function sanitize_json(s){
-    var t=s;
-    t=t.replace(/\n/g, '')
+function sanitize_json(s) {
+    var t = s;
+    t = t.replace(/\n/g, '')
     return t.replace(/\r/g, '');
 }

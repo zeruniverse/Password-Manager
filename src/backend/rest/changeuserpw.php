@@ -1,7 +1,7 @@
 <?php
 
-require_once dirname(__FILE__).'/../function/common.php';
-require_once dirname(__FILE__).'/../function/ajax.php';
+require_once dirname(__FILE__) . '/../function/common.php';
+require_once dirname(__FILE__) . '/../function/ajax.php';
 $link = sqllink();
 if (!checksession($link)) {
     ajaxError('general');
@@ -56,7 +56,8 @@ while ($i = $res->fetch(PDO::FETCH_ASSOC)) {
         [
             $accarray[(int) $i['index']]->fk,
             $accarray[(int) $i['index']]->fname,
-            $id, (int) $i['index'],
+            $id,
+            (int) $i['index'],
         ],
         $link
     );

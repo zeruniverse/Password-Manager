@@ -16,8 +16,5 @@
     browserTimeout: 360,
     defaultPasswordLength: 13,
     defaultLetters: "*+-0123456789=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~",
-
-    // Recommended: false. The client sends api_session_id in POST bodies.
-    useCredentials: false
   };
 })(window);

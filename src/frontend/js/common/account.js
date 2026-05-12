@@ -14,16 +14,16 @@ class Account {
     // reads the account from a encrypted dict
     static fromEncrypted(encryptionWrapper, encryptedAccount) {
         return encryptionWrapper.decryptChar(encryptedAccount["name"])
-            .then(function(accountName) {
+            .then(function (accountName) {
                 let account = new Account(encryptedAccount["index"], accountName, encryptedAccount["kss"]);
                 return account.setEncryptionWrapper(encryptionWrapper);
             })
-            .then(function(account){
+            .then(function (account) {
                 let resultPromise;
                 if (encryptedAccount["additional"] != "") {
                     //decrypt and extract json
                     resultPromise = encryptionWrapper.decryptChar(encryptedAccount["additional"])
-                        .then(function(additional) {
+                        .then(function (additional) {
                             let data = JSON.parse(additional);
                             for (var x in data)
                                 account.setOther(x, data[x]);
@@ -43,7 +43,7 @@ class Account {
             var decryptedPassword;
             var decryptedFileKey;
             return self.getPassword()
-                .then(function(password) {
+                .then(function (password) {
                     decryptedPassword = password;
                     if (self.hasFile()) {
                         return self.getFileKey();
@@ -52,15 +52,15 @@ class Account {
                         return "";
                     }
                 })
-                .then(function(fileKey) {
+                .then(function (fileKey) {
                     decryptedFileKey = fileKey;
                     return;
                 })
-                .then(function(){
+                .then(function () {
                     self.mEncryptionWrapper = wrapper;
                     return self.setPassword(decryptedPassword);
                 })
-                .then(function() {
+                .then(function () {
                     if (decryptedFileKey != '') {
                         return self.setFileKey(decryptedFileKey);
                     }
@@ -68,7 +68,7 @@ class Account {
                         return;
                     }
                 })
-                .then(function(){
+                .then(function () {
                     return self;
                 });
         }
@@ -81,29 +81,29 @@ class Account {
         return this.mEncryptionWrapper;
     }
 
-    getEncrypted(withFile){
+    getEncrypted(withFile) {
         withFile = withFile || false;
         var self = this;
-        let encryptedResult = { "kss":self.enpassword };
+        let encryptedResult = { "kss": self.enpassword };
         if (self.index != null)
             encryptedResult["index"] = self.index;
         return self.encryptionWrapper.encryptChar(self.name)
-            .then(function(enName) {
+            .then(function (enName) {
                 encryptedResult["name"] = enName;
                 let other = JSON.stringify(self.other);
                 return self.encryptionWrapper.encryptChar(other);
             })
-            .then(function(enOther) {
+            .then(function (enOther) {
                 encryptedResult["other"] = enOther;
                 if (withFile && self.hasFile()) {
                     encryptedResult["fk"] = self.file.key;
                     return self.encryptionWrapper.encryptChar(self.file.name)
-                        .then(function(fname) {
+                        .then(function (fname) {
                             encryptedResult["fname"] = fname;
                         });
                 }
             })
-            .then(function(){
+            .then(function () {
                 return encryptedResult;
             });
     }
@@ -115,18 +115,19 @@ class Account {
         var self = this;
         //reencrypt password
         return self.getPassword()
-            .then(function(password){;
+            .then(function (password) {
+                ;
                 self.name = name;
                 return self.setPassword(password);
             });
     }
-    getPassword(){
+    getPassword() {
         return this.encryptionWrapper.decryptPassword(this.name, this.enpassword);
     }
-    setPassword(password){
+    setPassword(password) {
         var self = this;
         return this.encryptionWrapper.encryptPassword(this.name, password)
-            .then(function(enPass){
+            .then(function (enPass) {
                 self.enpassword = enPass;
                 return enPass;
             });
@@ -136,7 +137,7 @@ class Account {
     }
     clearVisibleOther() {
         for (let item in this.other) {
-            if (item.substring(0,1) != "_") {
+            if (item.substring(0, 1) != "_") {
                 delete this.other[item];
             }
         }
@@ -197,9 +198,9 @@ class Account {
     }
     addEncryptedFile(name, fkey) {
         var self = this;
-        self.file = { "name":"", "key": fkey };
+        self.file = { "name": "", "key": fkey };
         return self.encryptionWrapper.decryptChar(name)
-            .then(function(decryptedName) {
+            .then(function (decryptedName) {
                 self.file.name = decryptedName;
                 return self.file;
             });
@@ -207,20 +208,20 @@ class Account {
     hasFile() {
         return 'file' in this;
     }
-    getFileKey(){
+    getFileKey() {
         var self = this;
         return EncryptionWrapper.WgenerateKeyWithSalt(self.encryptionWrapper.secretkey, self.file.name)
-            .then(function(genkey){
+            .then(function (genkey) {
                 return EncryptionWrapper.decryptCharUsingKey(self.file.key, genkey);
             });
     }
-    setFileKey(key){
+    setFileKey(key) {
         var self = this;
         return EncryptionWrapper.WgenerateKeyWithSalt(self.encryptionWrapper.secretkey, self.file.name)
-            .then(function(genkey){
+            .then(function (genkey) {
                 return EncryptionWrapper.encryptCharUsingKey(key, genkey);
             })
-            .then(function(enKey){
+            .then(function (enKey) {
                 self.file.key = enKey;
                 return enKey;
             });

@@ -1,42 +1,42 @@
 var usr = null;
 var backend;
-$(document).ready(function(){
+$(document).ready(function () {
     backend = new HistoryBackend();
     backend.getHistory()
         .then(dataReady)
-        .catch(function(){
+        .catch(function () {
             window.location = "./";
         });
 });
-function dataReady(data){
-    for (var pin of data["pins"]){
+function dataReady(data) {
+    for (var pin of data["pins"]) {
         $("#pinTable")
             .append($("<tr></tr>")
-                    .append($("<td></td>")
-                        .addClass("uacell")
-                        .text(pin["ua"]))
-                    .append($("<td></td>")
-                        .addClass("timestampcell")
-                        .attr('atttimestamp',pin["ctime"]))
-                    .append($("<td></td>")
-                        .append($("<a></a>")
-                            .text("Untrust this device")
-                            .on('click',{"did":pin["did"]},function(event){
-                                unsetpin(event.data.did);
-                            }))));
+                .append($("<td></td>")
+                    .addClass("uacell")
+                    .text(pin["ua"]))
+                .append($("<td></td>")
+                    .addClass("timestampcell")
+                    .attr('atttimestamp', pin["ctime"]))
+                .append($("<td></td>")
+                    .append($("<a></a>")
+                        .text("Untrust this device")
+                        .on('click', { "did": pin["did"] }, function (event) {
+                            unsetpin(event.data.did);
+                        }))));
     }
-    for (var ip of data["ips"]){
+    for (var ip of data["ips"]) {
         var row = $('<tr></tr>');
         if (ip["outcome"])
             row.addClass("textred");
         row.append($("<td></td>")
-                .addClass("uacell")
-                .text(ip["ua"]))
+            .addClass("uacell")
+            .text(ip["ua"]))
             .append($("<td></td>")
-                    .text(ip["ip"]))
+                .text(ip["ip"]))
             .append($("<td></td>")
-                    .addClass("timestampcell")
-                    .attr("atttimestamp",ip["ctime"]));
+                .addClass("timestampcell")
+                .attr("atttimestamp", ip["ctime"]));
         $("#loginhistorytable > tbody")
             .append(row);
     }
@@ -44,25 +44,25 @@ function dataReady(data){
     var parser = new UAParser();
     var uastring;
     var nowtime;
-    $( ".uacell" ).each(function() {
-       uastring=$(this).html();
-       parser.setUA(uastring);
-       $(this).text(parser.getBrowser().name+' '+parser.getBrowser().version+'; '+parser.getOS().name+' '+parser.getOS().version+'; '+parser.getDevice().model+' '+parser.getCPU().architecture);
+    $(".uacell").each(function () {
+        uastring = $(this).html();
+        parser.setUA(uastring);
+        $(this).text(parser.getBrowser().name + ' ' + parser.getBrowser().version + '; ' + parser.getOS().name + ' ' + parser.getOS().version + '; ' + parser.getDevice().model + ' ' + parser.getCPU().architecture);
     });
-    $( ".timestampcell" ).each(function(){
-       nowtime=timeConverter($(this).attr('atttimestamp'));
-       $(this).text(nowtime);
+    $(".timestampcell").each(function () {
+        nowtime = timeConverter($(this).attr('atttimestamp'));
+        $(this).text(nowtime);
     });
     $("#placeholder").hide();
-    $("#loginhistorytable").DataTable({ordering:false, searching:false});
+    $("#loginhistorytable").DataTable({ ordering: false, searching: false });
     $("#maindiv").show();
 }
-function unsetpin(devicex){
+function unsetpin(devicex) {
     backend.unSetPin(devicex)
-        .then(function(){
+        .then(function () {
             location.reload(true);
         })
-        .catch(function(msg){
+        .catch(function (msg) {
             showMessage('warning', "Failed to remove Pin: " + msg);
         });
 }

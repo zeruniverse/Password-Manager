@@ -14,8 +14,8 @@ function echoheader()
     header("Content-Security-Policy: default-src 'self'; img-src 'self' blob:;");
     header('Pragma: public');
     $expires = 86400;
-    header('Cache-Control: max-age='.$expires.', must-revalidate');
-    header('Expires: '.gmdate('D, d M Y H:i:s', time() + $expires).' GMT');
+    header('Cache-Control: max-age=' . $expires . ', must-revalidate');
+    header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT');
     echo '<!DOCTYPE html>
 <html lang="en">
 <head>

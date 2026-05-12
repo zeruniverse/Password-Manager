@@ -1,10 +1,11 @@
 <?php
 $VERSION = '11.07';
 
-require_once dirname(__FILE__).'/config.php';
-require_once dirname(__FILE__).'/cors.php';
+require_once dirname(__FILE__) . '/config.php';
+require_once dirname(__FILE__) . '/cors.php';
 
-function sqllink() {
+function sqllink()
+{
     global $DB_HOST, $DB_NAME, $DB_USER, $DB_PASSWORD;
 
     if (!isset($DB_NAME) || $DB_NAME === '') {
@@ -16,7 +17,7 @@ function sqllink() {
         $opt[PDO::MYSQL_ATTR_MAX_BUFFER_SIZE] = 1024 * 1024 * 19;
     }
 
-    $dsn = 'mysql:host='.$DB_HOST.';dbname='.$DB_NAME.';charset=utf8';
+    $dsn = 'mysql:host=' . $DB_HOST . ';dbname=' . $DB_NAME . ';charset=utf8';
     try {
         $dbhdl = new PDO($dsn, $DB_USER, $DB_PASSWORD, $opt);
         $dbhdl->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
@@ -27,7 +28,8 @@ function sqllink() {
     }
 }
 
-function sqlexec($sql, $array, $link) {
+function sqlexec($sql, $array, $link)
+{
     if (!$link) {
         return null;
     }
@@ -35,18 +37,21 @@ function sqlexec($sql, $array, $link) {
     return $stmt->execute($array) ? $stmt : null;
 }
 
-function sqlquery($sql, $link) {
+function sqlquery($sql, $link)
+{
     if (!$link) {
         return null;
     }
     return $link->query($sql);
 }
 
-function pm_valid_session_id($sid) {
+function pm_valid_session_id($sid)
+{
     return is_string($sid) && preg_match('/^[A-Za-z0-9,-]{16,128}$/', $sid);
 }
 
-function start_session() {
+function start_session()
+{
     if (session_id() !== '') {
         return;
     }
@@ -74,7 +79,8 @@ function start_session() {
     session_start();
 }
 
-function checksession($link) {
+function checksession($link)
+{
     global $SERVER_TIMEOUT;
 
     start_session();
@@ -128,7 +134,8 @@ function checksession($link) {
     return true;
 }
 
-function invalidateSession() {
+function invalidateSession()
+{
     if (session_id() === '') {
         start_session();
     }

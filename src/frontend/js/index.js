@@ -1,50 +1,50 @@
 var backend;
 function isSupportFileApi() {
-    if(window.File && window.FileList && window.FileReader && window.Blob) {
+    if (window.File && window.FileList && window.FileReader && window.Blob) {
         return true;
     }
     return false;
 }
-function isAllHTML5Supports(){
+function isAllHTML5Supports() {
     var test = 'test';
     try {
         localStorage.setItem(test, test);
         localStorage.removeItem(test);
         sessionStorage.setItem(test, test);
         sessionStorage.removeItem(test);
-    } catch(e) {
+    } catch (e) {
         return false;
     }
     return isSupportFileApi();
 }
-async function isCrypto(){
-    try{
-        if((await PBKDF2_SHA512('123', '456', 3)).substring(0, 5)!="e2d69") {
+async function isCrypto() {
+    try {
+        if ((await PBKDF2_SHA512('123', '456', 3)).substring(0, 5) != "e2d69") {
             return false;
         }
         var enc = await AESCBC256Encrypt('123', '456');
-        if((await AESCBC256Decrypt(enc, '456')) != '123') return false;
-    } catch(e) {
+        if ((await AESCBC256Decrypt(enc, '456')) != '123') return false;
+    } catch (e) {
         return false;
     }
     return true;
 }
 
 isCrypto()
-    .then(function(is_crypto){
-        if(!isAllHTML5Supports() || !is_crypto) {
-            window.location.href="./sorry_for_old_browser_update_hint.html";
+    .then(function (is_crypto) {
+        if (!isAllHTML5Supports() || !is_crypto) {
+            window.location.href = "./sorry_for_old_browser_update_hint.html";
         }
     });
 
-$(function(){
-    $("#signup").on('click',function(e){window.location.href="signup.html";});
-    $("#recover").on('click',function(e){window.location.href="recovery.html";});
-    $("#delpin").on('click',function(e){backend.delPin();});
+$(function () {
+    $("#signup").on('click', function (e) { window.location.href = "signup.html"; });
+    $("#recover").on('click', function (e) { window.location.href = "recovery.html"; });
+    $("#delpin").on('click', function (e) { backend.delPin(); });
     $("#usepin").on("hidden.bs.modal", function () {
         $("#user").focus();
     });
-    $('#loginPasswordToggle').on('click', function(e){
+    $('#loginPasswordToggle').on('click', function (e) {
         if ($('#pwd').attr('type') == 'text') {
             $('#pwd').attr('type', 'password');
         }
@@ -54,16 +54,16 @@ $(function(){
         $('#loginPasswordToggleIcon').toggleClass('glyphicon-eye-open');
         $('#loginPasswordToggleIcon').toggleClass('glyphicon-eye-close');
     });
-    $("#pinloginform").on('submit',function(e){
+    $("#pinloginform").on('submit', function (e) {
         e.preventDefault();
         $("#pinerrorhint").hide();
         $("#pinlogin").attr("disabled", true);
         $("#pinlogin").val("Wait");
         backend.doPinLogin($("#pin").val())
-            .then(function(){
-                    window.location.href="./password.html";
-                })
-            .catch(function(msg){
+            .then(function () {
+                window.location.href = "./password.html";
+            })
+            .catch(function (msg) {
                 if (msg == "No PIN available") {
                     $("#usepin").modal("hide");
                     $("#user").focus();
@@ -76,16 +76,16 @@ $(function(){
                 }
             });
     });
-    $("#loginform").on('submit', function(e) {
+    $("#loginform").on('submit', function (e) {
         e.preventDefault();
         $("#chk").attr("disabled", true);
         $("#chk").attr("value", "Wait");
         $(".errorhint").hide();
         backend.doLogin($("#user").val(), $("#pwd").val(), $("#totpcode").val())
-            .then(function(){
-                window.location.href="./password.html";
+            .then(function () {
+                window.location.href = "./password.html";
             })
-            .catch(function(msg){
+            .catch(function (msg) {
                 if (String(msg).indexOf("2FA") != -1 || String(msg).indexOf("authenticator") != -1) {
                     $("#totp-div").show();
                     $("#totpcode").focus();
@@ -96,20 +96,20 @@ $(function(){
             });
     });
 
-    $.urlParam = function(name){
+    $.urlParam = function (name) {
         var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
         if (results) {
             return decodeURIComponent(results[1].replace(/\+/g, '%20'));
         }
         return null;
     }
-    if($.urlParam("reason")) {
+    if ($.urlParam("reason")) {
         showMessage("warning", $.urlParam("reason"));
     }
     backend = new LogonBackend();
     backend.loadInfo()
-        .then(function(data) {
-            if (backend.loggedIn){
+        .then(function (data) {
+            if (backend.loggedIn) {
                 window.location = "./password.html";
                 return;
             }
@@ -118,15 +118,15 @@ $(function(){
             }
             $("#version").text(backend.version);
             $("#banTime").text(backend.banTime);
-            if(backend.pinActive) {
+            if (backend.pinActive) {
                 $("#usepin").modal("show");
                 $("#pin").focus();
             }
-            else{
+            else {
                 $("#user").focus();
             }
         })
-        .catch(function(msg) {
+        .catch(function (msg) {
             showMessage("warning", msg);
         });
 });

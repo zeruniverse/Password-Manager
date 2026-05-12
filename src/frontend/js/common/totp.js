@@ -1,4 +1,4 @@
-var PasswordManagerMFA = (function() {
+var PasswordManagerMFA = (function () {
     var DEFAULT_ALGORITHM = "SHA1";
     var DEFAULT_DIGITS = 6;
     var DEFAULT_PERIOD = 30;
@@ -210,9 +210,9 @@ var PasswordManagerMFA = (function() {
             },
             false,
             ["sign"]
-        ).then(function(key) {
+        ).then(function (key) {
             return window.crypto.subtle.sign("HMAC", key, counterToBytes(counter));
-        }).then(function(signature) {
+        }).then(function (signature) {
             var hmac = new Uint8Array(signature);
             var offset = hmac[hmac.length - 1] & 0xf;
 
@@ -240,7 +240,7 @@ var PasswordManagerMFA = (function() {
     }
 
     function loadImageFromFile(file) {
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             var urlApi = window.URL || window.webkitURL;
 
             if (!urlApi || typeof urlApi.createObjectURL !== "function") {
@@ -251,7 +251,7 @@ var PasswordManagerMFA = (function() {
             var image = new Image();
             var objectUrl = urlApi.createObjectURL(file);
 
-            image.onload = function() {
+            image.onload = function () {
                 urlApi.revokeObjectURL(objectUrl);
 
                 var size = getImageSize(image);
@@ -263,7 +263,7 @@ var PasswordManagerMFA = (function() {
                 resolve(image);
             };
 
-            image.onerror = function() {
+            image.onerror = function () {
                 urlApi.revokeObjectURL(objectUrl);
                 reject("Failed to load MFA QR code image.");
             };
@@ -574,7 +574,7 @@ var PasswordManagerMFA = (function() {
             return Promise.reject("jsQR is not loaded.");
         }
 
-        return loadImageFromFile(file).then(function(image) {
+        return loadImageFromFile(file).then(function (image) {
             var size = getImageSize(image);
             var plans = buildQRDecodePlans(size.width, size.height);
             var lastError = null;

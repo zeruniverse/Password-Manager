@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <title>Password Manager</title>
@@ -20,40 +21,42 @@
   <script src="js/lib/bootstrap.min.js"></script>
   <script src="js/common/commonfunctions.js"></script>
 </head>
+
 <body>
-<div class="container">
-  <h3>Logging out...</h3>
-</div>
-<script>
-(function () {
-  function finish() {
-    localStorage.removeItem("pm_api_session_id");
-    localStorage.removeItem("session_token");
-    var params = new URLSearchParams(window.location.search);
-    var reason = params.get("reason");
-    var url = pmPageUrl("index.html", reason ? {reason: reason} : null);
-    window.location.replace(url);
-  }
+  <div class="container">
+    <h3>Logging out...</h3>
+  </div>
+  <script>
+    (function () {
+      function finish() {
+        localStorage.removeItem("pm_api_session_id");
+        localStorage.removeItem("session_token");
+        var params = new URLSearchParams(window.location.search);
+        var reason = params.get("reason");
+        var url = pmPageUrl("index.html", reason ? { reason: reason } : null);
+        window.location.replace(url);
+      }
 
-  var cfg = pmConfig();
-  var body = new FormData();
-  if (localStorage.pm_api_session_id) {
-    body.append("api_session_id", localStorage.pm_api_session_id);
-  }
-  if (localStorage.session_token) {
-    body.append("session_token", localStorage.session_token);
-  }
+      var cfg = pmConfig();
+      var body = new FormData();
+      if (localStorage.pm_api_session_id) {
+        body.append("api_session_id", localStorage.pm_api_session_id);
+      }
+      if (localStorage.session_token) {
+        body.append("session_token", localStorage.session_token);
+      }
 
-  fetch(cfg.apiBaseUrl + "rest/logout.html", {
-    method: "POST",
-    cache: "no-cache",
-    credentials: cfg.useCredentials ? "include" : "omit",
-    body: body
-  }).then(finish).catch(finish);
-})();
-</script>
-<footer class="footer">
-<p>&copy;2026 Jeffery<br /><br />ALL RIGHTS RESERVED</p>
-</footer>
+      fetch(cfg.apiBaseUrl + "rest/logout.html", {
+        method: "POST",
+        cache: "no-cache",
+        credentials: "omit",
+        body: body
+      }).then(finish).catch(finish);
+    })();
+  </script>
+  <footer class="footer">
+    <p>&copy;2026 Jeffery<br /><br />ALL RIGHTS RESERVED</p>
+  </footer>
 </body>
+
 </html>

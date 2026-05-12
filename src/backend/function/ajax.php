@@ -1,5 +1,5 @@
 <?php
-require_once dirname(__FILE__).'/cors.php';
+require_once dirname(__FILE__) . '/cors.php';
 
 pm_send_cors_headers();
 
@@ -37,7 +37,8 @@ const ERROR_MESSAGE = [
     'internal' => 'Internal error.'
 ];
 
-function ajaxError($message, $payload = []) {
+function ajaxError($message, $payload = [])
+{
     $text = isset(ERROR_MESSAGE[$message]) ? ERROR_MESSAGE[$message] : $message;
     echo json_encode(array_merge([
         'status' => 'error',
@@ -48,12 +49,14 @@ function ajaxError($message, $payload = []) {
 }
 
 
-function error($msg) {
+function error($msg)
+{
     echo json_encode(['status' => 'error', 'message' => $msg]);
     exit;
 }
 
-function ajaxSuccess($payload = []) {
+function ajaxSuccess($payload = [])
+{
     if (!is_array($payload)) {
         $payload = ['data' => $payload];
     }
