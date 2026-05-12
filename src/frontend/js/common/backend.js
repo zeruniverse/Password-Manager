@@ -10,30 +10,74 @@ class MixinBuilder {
   }
 }
 
+
+
+function pmBackendConfig() {
+  var cfg = window.PASSWORD_MANAGER_CONFIG || {};
+  function dir(value) {
+    value = String(value || "");
+    if (value !== "" && value.slice(-1) !== "/") value += "/";
+    return value;
+  }
+  return {
+    apiBaseUrl: dir(cfg.apiBaseUrl || cfg.API_BASE_URL || ""),
+    frontendBaseUrl: dir(cfg.frontendBaseUrl || cfg.FRONTEND_BASE_URL || ""),
+    globalSalt1: cfg.globalSalt1 || cfg.GLOBAL_SALT_1 || "",
+    globalSalt2: cfg.globalSalt2 || cfg.GLOBAL_SALT_2 || "",
+    browserTimeout: Number(cfg.browserTimeout || cfg.BROWSER_TIMEOUT || 360),
+    defaultPasswordLength: Number(cfg.defaultPasswordLength || cfg.DEFAULT_PASSWORD_LENGTH || 13),
+    defaultLetters: cfg.defaultLetters || cfg.DEFAULT_LETTERS || "*+-0123456789=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~",
+    useCredentials: cfg.useCredentials === true || cfg.USE_CREDENTIALS === true
+  };
+}
+
 //Base Class for Backends
 class commonBackend {
     doPost(endpoint, data) {
-        data = data || {};
-        var endpointDomain = this.domain || "";
-        var body = new FormData();
-        for (let key in data) {
-            body.append(key, data[key]);
-        }
-        var request = new Request(endpointDomain + "rest/" + endpoint + ".php", {
-            method: 'post',
-            cache: 'no-cache',
-            credentials: 'same-origin',
-            body: body
-        });
-        return fetch(request)
-            .then(function(response) {
-                if (!response.ok || response.headers.get("Content-Type") != "application/json") {
-                    return Promise.reject(response);
-                }
-                return response.json()
-                    .then(commonBackend.checkApplicationResult);
-            });
+  data = data || {};
+  var cfg = pmBackendConfig();
+  var endpointDomain = this.domain || cfg.apiBaseUrl || "";
+  if (endpointDomain !== "" && endpointDomain.slice(-1) !== "/") {
+    endpointDomain += "/";
+  }
+  var body = new FormData();
+
+  for (let key in data) {
+    body.append(key, data[key]);
+  }
+
+  if (localStorage.pm_api_session_id) {
+    body.append("api_session_id", localStorage.pm_api_session_id);
+  }
+
+  if (endpoint === "info") {
+    if (typeof getCookie === "function") {
+      body.append("frontend_username", getCookie("username") || "");
+      body.append("frontend_device", getCookie("device") || "");
     }
+  }
+
+  if (endpoint === "check" && localStorage.pm_totp_trust) {
+    body.append("frontend_totp_trust", localStorage.pm_totp_trust);
+  }
+
+  var request = new Request(endpointDomain + "rest/" + endpoint + ".php", {
+    method: 'post',
+    cache: 'no-cache',
+    credentials: cfg.useCredentials ? 'include' : 'omit',
+    body: body
+  });
+
+  return fetch(request)
+    .then(function(response) {
+      var ct = response.headers.get("Content-Type") || "";
+      if (!response.ok || ct.indexOf("application/json") !== 0) {
+        return Promise.reject(response);
+      }
+      return response.json()
+        .then(commonBackend.checkApplicationResult);
+    });
+  }
     get sessionToken() {
         if (this._sessionToken) {
             return this._sessionToken;
@@ -41,11 +85,23 @@ class commonBackend {
         return localStorage.session_token;
     }
     static checkApplicationResult(msg) {
-        if(msg["status"] != "success") {
-            throw(msg["message"]);
-        }
-        return msg;
-    }
+  if (msg && msg["api_session_id"]) {
+    localStorage.pm_api_session_id = msg["api_session_id"];
+  }
+  if (msg && msg["session_token"]) {
+    localStorage.session_token = msg["session_token"];
+  }
+  if (msg && msg["totp_trust"]) {
+    localStorage.pm_totp_trust = msg["totp_trust"];
+  }
+  if (msg && msg["totp_clear"]) {
+    localStorage.removeItem("pm_totp_trust");
+  }
+  if(msg["status"] != "success") {
+    throw(msg["message"]);
+  }
+  return msg;
+  }
 };
 
 //mixin for events
@@ -359,7 +415,7 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
                 self.resetTimeout();
                 self.clearTimeout();
                 self.initTimeout();
-                return self.prepareCrypto(data["global_salt_1"], data["global_salt_2"], data["default_letter_used"]);
+                return self.prepareCrypto(pmBackendConfig().globalSalt1, pmBackendConfig().globalSalt2, pmBackendConfig().defaultLetters);
             })
             .then(function(){
                 return self.decryptAccounts(self.receivedData["accounts"]);
@@ -400,12 +456,12 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
             });
     }
     prepareData(data) {
-        this.default_timeout = data["default_timeout"];
+        this.default_timeout = pmBackendConfig().browserTimeout || data["default_timeout"];
         this.default_server_timeout = data["server_timeout"];
         this.file_enabled = data["file_enabled"];
         this.fields_allow_change = data["fields_allow_change"];
         this.server_timeout = this.default_server_timeout + Math.floor(Date.now() / 1000);
-        this.default_length = data["default_length"];
+        this.default_length = pmBackendConfig().defaultPasswordLength || data["default_length"];
         this.user = data["user"];
         this.totpEnabled = data["totp_enabled"] == 1;
         this.loginInformation =  data["loginInformation"];
@@ -643,7 +699,7 @@ class HistoryBackend extends mix(commonBackend).with(EventHandler, Authenticated
         return this.doPost("history", {})
             .then(function(msg){
                 self.user = msg["usr"];
-                self.default_timeout = msg["default_timeout"];
+                self.default_timeout = pmBackendConfig().browserTimeout || msg["default_timeout"];
                 self.default_server_timeout = msg["server_timeout"];
                 self.resetTimeout();
                 self.clearTimeout();
@@ -662,9 +718,9 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
         var self = this;
         return this.doPost("info", {})
             .then(function(data){
-                self.encryptionWrapper = new EncryptionWrapper(null, data["global_salt_1"], data["global_salt_2"], data["default_letter_used"]);
+                self.encryptionWrapper = new EncryptionWrapper(null, pmBackendConfig().globalSalt1, pmBackendConfig().globalSalt2, pmBackendConfig().defaultLetters);
                 self.allowSignup = data["allowSignup"];
-                self.hostdomain = data["hostdomain"];
+                self.hostdomain = pmBackendConfig().frontendBaseUrl;
                 self.version = data["version"];
                 self.banTime = data["banTime"];
                 self.usePin = data["use_pin"];
@@ -674,9 +730,12 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
 
                 localStorage.session_token = data["session_token"];
 
-                if (!self.checkHostdomain()) {
-                    throw ('Hostdomain mismatch. Please check your config file.');
-                }
+                if (!self.checkHostdomain() {
+  if (typeof pmCheckFrontendLocation === 'function') {
+    return pmCheckFrontendLocation();
+  }
+  return true;
+  }
 
                 if (!self.pinActive) {
                     self.delLocalPinStore();

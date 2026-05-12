@@ -38,8 +38,8 @@ isCrypto()
     });
 
 $(function(){
-    $("#signup").on('click',function(e){window.location.href="signup.php";});
-    $("#recover").on('click',function(e){window.location.href="recovery.php";});
+    $("#signup").on('click',function(e){window.location.href="signup.html";});
+    $("#recover").on('click',function(e){window.location.href="recovery.html";});
     $("#delpin").on('click',function(e){backend.delPin();});
     $("#usepin").on("hidden.bs.modal", function () {
         $("#user").focus();
@@ -61,7 +61,7 @@ $(function(){
         $("#pinlogin").val("Wait");
         backend.doPinLogin($("#pin").val())
             .then(function(){
-                    window.location.href="./password.php";
+                    window.location.href="./password.html";
                 })
             .catch(function(msg){
                 if (msg == "No PIN available") {
@@ -83,7 +83,7 @@ $(function(){
         $(".errorhint").hide();
         backend.doLogin($("#user").val(), $("#pwd").val(), $("#totpcode").val())
             .then(function(){
-                window.location.href="./password.php";
+                window.location.href="./password.html";
             })
             .catch(function(msg){
                 if (String(msg).indexOf("2FA") != -1 || String(msg).indexOf("authenticator") != -1) {
@@ -110,7 +110,7 @@ $(function(){
     backend.loadInfo()
         .then(function(data) {
             if (backend.loggedIn){
-                window.location = "./password.php";
+                window.location = "./password.html";
                 return;
             }
             if (backend.allowSignup) {

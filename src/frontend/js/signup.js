@@ -6,7 +6,7 @@ $(function(){
         backend.doRegister($("#user").val(), $("#email").val(), $("#pwd").val(), $("#pwd1").val())
             .then(function(){
                 alert("Successfully signup, now please sign in!");
-                window.location.href="index.php?reason=Successfully+signed+up.";
+                window.location.href="index.html?reason=Successfully+signed+up.";
             })
             .catch(function(msg){
                 if (msg == "PasswordMismatch") {

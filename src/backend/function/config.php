@@ -23,6 +23,19 @@ $DB_PASSWORD = '';
 //an exception will be raised.
 $HOSTDOMAIN = 'https://password-manager.example.com/';
 
+// Frontend/backend split settings.
+// FRONTEND_URL may contain a path; CORS uses only the origin part.
+// For GitHub Pages project pages, https://abc.github.io/passwordmanager/ has origin https://abc.github.io.
+$FRONTEND_URL = 'https://abc.github.io/passwordmanager/';
+$FRONTEND_ORIGINS = ['https://abc.github.io'];
+
+// Recommended false: the frontend sends api_session_id in POST bodies instead of relying on cross-site cookies.
+$CORS_ALLOW_CREDENTIALS = false;
+
+// Keep false in production. Set true only for local command-line/API testing without an Origin header.
+$ALLOW_NO_ORIGIN_REQUESTS = false;
+
+
 //Default timezone
 date_default_timezone_set('America/Los_Angeles');
 

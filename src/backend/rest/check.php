@@ -145,4 +145,11 @@ $_SESSION['refresh_time'] = time();
 
 loghistory($link, (int) $record['id'], getUserIP(), $userAgent, 1);
 
-ajaxSuccess();
+$payload = ['api_session_id' => session_id(), 'session_token' => $_SESSION['session_token']];
+if (isset($GLOBALS['PM_TOTP_TRUST_VALUE'])) {
+    $payload['totp_trust'] = $GLOBALS['PM_TOTP_TRUST_VALUE'];
+}
+if (!empty($GLOBALS['PM_TOTP_CLEAR_TRUST'])) {
+    $payload['totp_clear'] = 1;
+}
+ajaxSuccess($payload);

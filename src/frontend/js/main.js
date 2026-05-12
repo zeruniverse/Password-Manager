@@ -9,7 +9,7 @@ function eventLogout(data) {
     reason = reason || "";
     if (reason != "")
         reason = "?reason=" + encodeURIComponent(reason);
-    window.location.href = "./logout.php" + reason;
+    window.location.href = "./logout.html" + reason;
 }
 var datatablestatus=null;
 var fileid=-1;
@@ -103,7 +103,7 @@ function showLastLoginInformation(failedCount, lastLogin){
             showMessage(loginMsgType, 'Your last login was on ' + timeConverter(lastLogin) + '. ' + failedMsg + ' Click for more information.')
                 .on('click', function(event){
                     $(this).alert('close');
-                    window.location.href="./history.php";
+                    window.location.href="./history.html";
                 });
         }
         seenLoginInformation = true;
@@ -849,7 +849,7 @@ $(document).ready(function(){
     $('#navBtnUntrust').on('click',function(){ backend.untrustAndLogout(); });
     $('#navBtnExport').on('click',function(){ exportcsv(); });
     $('#navBtnActivity').on('click',function(){
-        window.location.href="./history.php";
+        window.location.href="./history.html";
     });
     callPlugins("layoutReady");
 });
