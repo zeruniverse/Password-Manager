@@ -7,7 +7,7 @@
 
 ## Version
 
-v11.07
+v11.08
 
 Since v11.00, this password manager is mature and stable. That said, there will be no more major changes (e.g. database structure change) in the future. But just bug fixes and crypto algorithm updates. I know in the past, upgrading is painful due to the client-side encryption nature. But going forward, it will not be an issue anymore. All users should upgrade to at least v11.00!
 
