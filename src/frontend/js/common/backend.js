@@ -800,7 +800,6 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
                 );
 
                 self.allowSignup = data["allowSignup"];
-                self.hostdomain = cfg.frontendBaseUrl;
                 self.version = PASSWORD_MANAGER_VERSION;
                 self.banTime = data["banTime"];
                 self.usePin = data["use_pin"];
@@ -815,10 +814,6 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
 
                 if (data["session_token"]) {
                     sessionStorage.session_token = data["session_token"];
-                }
-
-                if (!self.checkHostdomain()) {
-                    throw "Invalid frontendBaseUrl. Check PASSWORD_MANAGER_CONFIG.frontendBaseUrl.";
                 }
 
                 if (!self.pinActive) {
@@ -933,19 +928,4 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
         return RegExp(/^[A-Za-z0-9\-_\.]+$/).test(username);
     }
 
-    checkHostdomain() {
-        if (typeof pmCheckFrontendLocation === "function") {
-            return pmCheckFrontendLocation();
-        }
-
-        var hostdomain = String(this.hostdomain || "").replace(/\/+$/, "").toLowerCase();
-
-        if (!hostdomain) {
-            return true;
-        }
-
-        var current = String(window.location.href).split(/[?#]/)[0].replace(/\/+$/, "").toLowerCase();
-
-        return current.indexOf(hostdomain) === 0;
-    }
 }
