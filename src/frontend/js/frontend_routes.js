@@ -54,10 +54,6 @@
         legacyOrModern(cfg, "apiBaseUrl", "API_BASE_URL", "")
       ),
 
-      frontendBaseUrl: normalizeDirectoryUrl(
-        legacyOrModern(cfg, "frontendBaseUrl", "FRONTEND_BASE_URL", "")
-      ),
-
       globalSalt1: legacyOrModern(cfg, "globalSalt1", "GLOBAL_SALT_1", ""),
       globalSalt2: legacyOrModern(cfg, "globalSalt2", "GLOBAL_SALT_2", ""),
 
@@ -96,12 +92,6 @@
   };
 
   window.pmFrontendRoot = function pmFrontendRoot() {
-    var configured = pmConfig().frontendBaseUrl;
-
-    if (configured) {
-      return configured;
-    }
-
     var path = window.location.pathname.replace(/[^\/]*$/, "");
     return window.location.origin + path;
   };
@@ -123,31 +113,5 @@
 
   window.pmRedirect = function pmRedirect(pageName, params) {
     window.location.href = pmPageUrl(pageName, params);
-  };
-
-  window.pmCheckFrontendLocation = function pmCheckFrontendLocation() {
-    var configured = pmConfig().frontendBaseUrl;
-
-    if (!configured) {
-      return true;
-    }
-
-    try {
-      var expected = new URL(configured, window.location.href);
-      var current = new URL(window.location.href);
-
-      var expectedPath = expected.pathname;
-      if (expectedPath.slice(-1) !== "/") {
-        expectedPath += "/";
-      }
-
-      return current.origin.toLowerCase() === expected.origin.toLowerCase() &&
-        current.pathname.indexOf(expectedPath) === 0;
-    } catch (e) {
-      var expectedText = String(configured).replace(/\/+$/, "").toLowerCase();
-      var currentText = String(window.location.href).split(/[?#]/)[0].replace(/\/+$/, "").toLowerCase();
-
-      return currentText.indexOf(expectedText) === 0;
-    }
   };
 })(window);
