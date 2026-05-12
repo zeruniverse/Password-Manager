@@ -232,6 +232,339 @@ var PasswordManagerMFA = (function() {
         });
     }
 
+    function getImageSize(image) {
+        return {
+            "width": image.naturalWidth || image.width,
+            "height": image.naturalHeight || image.height
+        };
+    }
+
+    function loadImageFromFile(file) {
+        return new Promise(function(resolve, reject) {
+            var urlApi = window.URL || window.webkitURL;
+
+            if (!urlApi || typeof urlApi.createObjectURL !== "function") {
+                reject("Blob URL is unavailable in this browser.");
+                return;
+            }
+
+            var image = new Image();
+            var objectUrl = urlApi.createObjectURL(file);
+
+            image.onload = function() {
+                urlApi.revokeObjectURL(objectUrl);
+
+                var size = getImageSize(image);
+                if (!size.width || !size.height) {
+                    reject("Failed to read MFA QR code image size.");
+                    return;
+                }
+
+                resolve(image);
+            };
+
+            image.onerror = function() {
+                urlApi.revokeObjectURL(objectUrl);
+                reject("Failed to load MFA QR code image.");
+            };
+
+            image.src = objectUrl;
+        });
+    }
+
+    function addQRDecodePlan(plans, seen, sx, sy, sw, sh, maxSide) {
+        sx = Math.max(0, Math.floor(sx));
+        sy = Math.max(0, Math.floor(sy));
+        sw = Math.max(1, Math.floor(sw));
+        sh = Math.max(1, Math.floor(sh));
+        maxSide = Math.max(256, Math.floor(maxSide));
+
+        var key = sx + ":" + sy + ":" + sw + ":" + sh + ":" + maxSide;
+
+        if (seen[key]) {
+            return;
+        }
+
+        seen[key] = true;
+
+        plans.push({
+            "sx": sx,
+            "sy": sy,
+            "sw": sw,
+            "sh": sh,
+            "maxSide": maxSide
+        });
+    }
+
+    function buildQRDecodePlans(width, height) {
+        var plans = [];
+        var seen = {};
+        var fullMaxSides = [3072, 2048, 1536, 1024];
+
+        for (var i = 0; i < fullMaxSides.length; i++) {
+            addQRDecodePlan(plans, seen, 0, 0, width, height, fullMaxSides[i]);
+        }
+
+        var centerRatios = [0.85, 0.70, 0.55, 0.40, 0.28];
+
+        for (var j = 0; j < centerRatios.length; j++) {
+            var ratio = centerRatios[j];
+            var cropW = width * ratio;
+            var cropH = height * ratio;
+
+            addQRDecodePlan(
+                plans,
+                seen,
+                (width - cropW) / 2,
+                (height - cropH) / 2,
+                cropW,
+                cropH,
+                2048
+            );
+        }
+
+        /*
+        * Phone photos often contain the QR code away from the exact center.
+        * Try a light 3x3 crop grid. Each crop is scaled up, which helps when
+        * the QR code occupies only a small part of the photo.
+        */
+        var gridRatio = 0.50;
+        var gridCenters = [0.25, 0.50, 0.75];
+
+        for (var gx = 0; gx < gridCenters.length; gx++) {
+            for (var gy = 0; gy < gridCenters.length; gy++) {
+                var gridW = width * gridRatio;
+                var gridH = height * gridRatio;
+                var cx = width * gridCenters[gx];
+                var cy = height * gridCenters[gy];
+
+                addQRDecodePlan(
+                    plans,
+                    seen,
+                    cx - gridW / 2,
+                    cy - gridH / 2,
+                    gridW,
+                    gridH,
+                    1800
+                );
+            }
+        }
+
+        return plans;
+    }
+
+    function drawQRDecodeCandidate(image, plan) {
+        var canvas = document.createElement("canvas");
+        var scale = plan.maxSide / Math.max(plan.sw, plan.sh);
+        var targetWidth = Math.max(1, Math.round(plan.sw * scale));
+        var targetHeight = Math.max(1, Math.round(plan.sh * scale));
+
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
+
+        var context = canvas.getContext("2d", {
+            "willReadFrequently": true
+        });
+
+        if (!context) {
+            throw "Canvas 2D context is unavailable.";
+        }
+
+        context.imageSmoothingEnabled = true;
+
+        if ("imageSmoothingQuality" in context) {
+            context.imageSmoothingQuality = "high";
+        }
+
+        context.drawImage(
+            image,
+            plan.sx,
+            plan.sy,
+            plan.sw,
+            plan.sh,
+            0,
+            0,
+            targetWidth,
+            targetHeight
+        );
+
+        return canvas;
+    }
+
+    function decodeQRCodeCanvas(canvas) {
+        var context = canvas.getContext("2d", {
+            "willReadFrequently": true
+        });
+
+        if (!context) {
+            throw "Canvas 2D context is unavailable.";
+        }
+
+        var imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+        var result = jsQR(
+            imageData.data,
+            canvas.width,
+            canvas.height,
+            {
+                "inversionAttempts": "attemptBoth"
+            }
+        );
+
+        if (result && result.data) {
+            return result.data;
+        }
+
+        return null;
+    }
+
+    function createContrastEnhancedCanvas(sourceCanvas) {
+        var canvas = document.createElement("canvas");
+        canvas.width = sourceCanvas.width;
+        canvas.height = sourceCanvas.height;
+
+        var sourceContext = sourceCanvas.getContext("2d", {
+            "willReadFrequently": true
+        });
+
+        var targetContext = canvas.getContext("2d", {
+            "willReadFrequently": true
+        });
+
+        if (!sourceContext || !targetContext) {
+            throw "Canvas 2D context is unavailable.";
+        }
+
+        var imageData = sourceContext.getImageData(0, 0, sourceCanvas.width, sourceCanvas.height);
+        var data = imageData.data;
+        var min = 255;
+        var max = 0;
+        var gray;
+        var i;
+
+        for (i = 0; i < data.length; i += 4) {
+            gray = Math.round(data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114);
+            if (gray < min) {
+                min = gray;
+            }
+            if (gray > max) {
+                max = gray;
+            }
+        }
+
+        var range = max - min;
+
+        if (range < 16) {
+            targetContext.putImageData(imageData, 0, 0);
+            return canvas;
+        }
+
+        for (i = 0; i < data.length; i += 4) {
+            gray = Math.round(data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114);
+            gray = Math.max(0, Math.min(255, Math.round((gray - min) * 255 / range)));
+
+            data[i] = gray;
+            data[i + 1] = gray;
+            data[i + 2] = gray;
+        }
+
+        targetContext.putImageData(imageData, 0, 0);
+
+        return canvas;
+    }
+
+    function otsuThresholdFromHistogram(histogram, total) {
+        var sum = 0;
+        var sumBackground = 0;
+        var weightBackground = 0;
+        var weightForeground;
+        var maxVariance = 0;
+        var threshold = 127;
+
+        for (var i = 0; i < 256; i++) {
+            sum += i * histogram[i];
+        }
+
+        for (var t = 0; t < 256; t++) {
+            weightBackground += histogram[t];
+
+            if (weightBackground === 0) {
+                continue;
+            }
+
+            weightForeground = total - weightBackground;
+
+            if (weightForeground === 0) {
+                break;
+            }
+
+            sumBackground += t * histogram[t];
+
+            var meanBackground = sumBackground / weightBackground;
+            var meanForeground = (sum - sumBackground) / weightForeground;
+            var variance = weightBackground * weightForeground *
+                Math.pow(meanBackground - meanForeground, 2);
+
+            if (variance > maxVariance) {
+                maxVariance = variance;
+                threshold = t;
+            }
+        }
+
+        return threshold;
+    }
+
+    function createThresholdCanvas(sourceCanvas) {
+        var canvas = document.createElement("canvas");
+        canvas.width = sourceCanvas.width;
+        canvas.height = sourceCanvas.height;
+
+        var sourceContext = sourceCanvas.getContext("2d", {
+            "willReadFrequently": true
+        });
+
+        var targetContext = canvas.getContext("2d", {
+            "willReadFrequently": true
+        });
+
+        if (!sourceContext || !targetContext) {
+            throw "Canvas 2D context is unavailable.";
+        }
+
+        var imageData = sourceContext.getImageData(0, 0, sourceCanvas.width, sourceCanvas.height);
+        var data = imageData.data;
+        var histogram = new Array(256);
+        var grayValues = new Uint8Array(data.length / 4);
+        var i;
+        var pixelIndex = 0;
+
+        for (i = 0; i < 256; i++) {
+            histogram[i] = 0;
+        }
+
+        for (i = 0; i < data.length; i += 4) {
+            var gray = Math.round(data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114);
+            grayValues[pixelIndex++] = gray;
+            histogram[gray]++;
+        }
+
+        var threshold = otsuThresholdFromHistogram(histogram, grayValues.length);
+
+        pixelIndex = 0;
+
+        for (i = 0; i < data.length; i += 4) {
+            var value = grayValues[pixelIndex++] >= threshold ? 255 : 0;
+
+            data[i] = value;
+            data[i + 1] = value;
+            data[i + 2] = value;
+        }
+
+        targetContext.putImageData(imageData, 0, 0);
+
+        return canvas;
+    }
+
     function decodeQRCodeFile(file) {
         if (!file) {
             return Promise.reject("No MFA QR code image selected.");
@@ -241,52 +574,41 @@ var PasswordManagerMFA = (function() {
             return Promise.reject("jsQR is not loaded.");
         }
 
-        return new Promise(function(resolve, reject) {
-            var image = new Image();
-            var objectUrl = URL.createObjectURL(file);
+        return loadImageFromFile(file).then(function(image) {
+            var size = getImageSize(image);
+            var plans = buildQRDecodePlans(size.width, size.height);
+            var lastError = null;
 
-            image.onload = function() {
+            for (var i = 0; i < plans.length; i++) {
                 try {
-                    var canvas = document.createElement("canvas");
-                    var width = image.naturalWidth || image.width;
-                    var height = image.naturalHeight || image.height;
+                    var canvas = drawQRDecodeCandidate(image, plans[i]);
 
-                    canvas.width = width;
-                    canvas.height = height;
-
-                    var context = canvas.getContext("2d", {
-                        "willReadFrequently": true
-                    });
-
-                    if (!context) {
-                        reject("Canvas 2D context is unavailable.");
-                        return;
+                    var decoded = decodeQRCodeCanvas(canvas);
+                    if (decoded) {
+                        return decoded;
                     }
 
-                    context.drawImage(image, 0, 0, width, height);
-
-                    var imageData = context.getImageData(0, 0, width, height);
-                    var result = jsQR(imageData.data, width, height);
-
-                    if (!result || !result.data) {
-                        reject("No QR code found in this image.");
-                        return;
+                    var contrastCanvas = createContrastEnhancedCanvas(canvas);
+                    decoded = decodeQRCodeCanvas(contrastCanvas);
+                    if (decoded) {
+                        return decoded;
                     }
 
-                    resolve(result.data);
+                    var thresholdCanvas = createThresholdCanvas(canvas);
+                    decoded = decodeQRCodeCanvas(thresholdCanvas);
+                    if (decoded) {
+                        return decoded;
+                    }
                 } catch (error) {
-                    reject(error && error.message ? error.message : "Failed to decode MFA QR code.");
-                } finally {
-                    URL.revokeObjectURL(objectUrl);
+                    lastError = error;
                 }
-            };
+            }
 
-            image.onerror = function() {
-                URL.revokeObjectURL(objectUrl);
-                reject("Failed to load MFA QR code image.");
-            };
+            if (lastError) {
+                throw "No QR code found in this image. Last decode error: " + lastError;
+            }
 
-            image.src = objectUrl;
+            throw "No QR code found in this image. Try cropping the photo so the QR code fills most of the image, avoid glare, and keep the camera parallel to the QR code.";
         });
     }
 
