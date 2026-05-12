@@ -272,15 +272,63 @@ class EncryptionWrapper {
         }
         return AESCBC256Decrypt(echar, key);
     }
+    static getCryptoRandomSource() {
+        var cryptoObject = null;
+
+        if (typeof window !== "undefined") {
+            cryptoObject = window.crypto || window.msCrypto;
+        }
+
+        if (!cryptoObject && typeof self !== "undefined") {
+            cryptoObject = self.crypto;
+        }
+
+        if (!cryptoObject || typeof cryptoObject.getRandomValues !== "function") {
+            throw "Cryptographically secure random number generator is unavailable.";
+        }
+
+        return cryptoObject;
+    }
+
+    static secureRandomInt(maxExclusive) {
+        maxExclusive = parseInt(maxExclusive);
+
+        if (isNaN(maxExclusive) || maxExclusive < 1 || maxExclusive > 0x100000000) {
+        throw "Invalid secure random upper bound.";
+        }
+
+        var cryptoObject = EncryptionWrapper.getCryptoRandomSource();
+        var randomValues = new Uint32Array(1);
+        var maxUint32PlusOne = 0x100000000;
+        var limit = maxUint32PlusOne - (maxUint32PlusOne % maxExclusive);
+
+        do {
+            cryptoObject.getRandomValues(randomValues);
+        } while (randomValues[0] >= limit);
+
+        return randomValues[0] % maxExclusive;
+    }
 
     generatePassphrase(plength) {
         var charlist = this.alphabet;
         var maxPos = charlist.length;
         var pwd = '';
         var i;
-        for (i = 0; i < parseInt(plength); i++) {
-            pwd += charlist.charAt(Math.floor(Math.random() * maxPos));
+
+        plength = parseInt(plength);
+
+        if (isNaN(plength) || plength < 1) {
+            return pwd;
         }
+
+        if (maxPos < 1) {
+            throw "Password alphabet can't be empty.";
+        }
+
+        for (i = 0; i < plength; i++) {
+            pwd += charlist.charAt(EncryptionWrapper.secureRandomInt(maxPos));
+        }
+
         return pwd;
     }
     static reduceInfo(key, charlist) {
