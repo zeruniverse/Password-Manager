@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS `pwdusrrecord` (
   `salt` binary(64) NOT NULL,
   `fields` text NOT NULL,
   `email` varchar(50) NOT NULL,
+  `totp_sec` varchar(64) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

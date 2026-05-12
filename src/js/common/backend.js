@@ -373,6 +373,32 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
                 throw(msg);
             });
     }
+    getTotpStatus() {
+        var self = this;
+        return self.doPost("totp", {action: "status"})
+            .then(function(msg) {
+                self.totpEnabled = msg["enabled"] == 1;
+                return self.totpEnabled;
+            });
+    }
+
+    enableTotp(secret, code) {
+        var self = this;
+        return self.doPost("totp", {action: "on", secret: secret, code: code})
+            .then(function(msg) {
+                self.totpEnabled = msg["enabled"] == 1;
+                return self.totpEnabled;
+            });
+    }
+
+    disableTotp() {
+        var self = this;
+        return self.doPost("totp", {action: "off"})
+            .then(function(msg) {
+                self.totpEnabled = false;
+                return self.totpEnabled;
+            });
+    }
     prepareData(data) {
         this.default_timeout = data["default_timeout"];
         this.default_server_timeout = data["server_timeout"];
@@ -381,6 +407,7 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
         this.server_timeout = this.default_server_timeout + Math.floor(Date.now() / 1000);
         this.default_length = data["default_length"];
         this.user = data["user"];
+        this.totpEnabled = data["totp_enabled"] == 1;
         this.loginInformation =  data["loginInformation"];
     }
     prepareCrypto(jsSalt, pwSalt, default_letter) {
@@ -676,21 +703,21 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
                 return self.doPost('check', {pwd: loginpwd, user:user});
             })
             .catch(function(msg) {
-                if (msg == "No PIN available" || msg.indexOf('sent an email to you') != -1) {
+                var text = String(msg);
+                if (msg == "No PIN available" || text.indexOf("2FA") != -1 || text.indexOf("authenticator") != -1) {
                     self.delPin();
                 }
                 throw(msg);
             });
     }
-    doLogin(user, password, emailcode) {
+    doLogin(user, password, totpcode) {
         var self = this;
         return self.encryptionWrapper.generateSecretKey(password, user)
             .then(function(_secretkey){
                 return EncryptionWrapper.WgenerateKeyWithSalt(_secretkey, user);
             })
             .then(function(login_sig) {
-                return self.doPost('check', {pwd:login_sig,
-                                             user: user, emailcode:emailcode});
+                return self.doPost('check', {pwd: login_sig, user: user, totpcode: totpcode});
             })
             .then(function(confkey) {
                 return self.encryptionWrapper.persistCredentialsFromPassword(user, password);

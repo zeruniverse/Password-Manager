@@ -10,11 +10,13 @@ echoheader();
 <script src="js/lib/filesaver.min.js"></script>
 <script src="js/lib/jquery.csv.js"></script>
 <script src="js/lib/jsQR.js"></script>
+<script src="js/lib/qrcode.js"></script>
 <script src="js/common/crypto.js"></script>
 <script src="js/common/account.js"></script>
 <script src="js/common/backend.js"></script>
 <script src="js/common/cryptowrapper.js"></script>
 <script src="js/common/totp.js"></script>
+<script src="js/common/totp_setup.js"></script>
 <script src="js/plugin.js"></script>
 <script src="js/main.js"></script>
 <script src="js/plugins/linkbutton.js"></script>
@@ -54,6 +56,7 @@ echoheader();
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                 aria-expanded="false">Settings<span class="caret"></span></a>
             <ul class="dropdown-menu">
+              <li><a id="navBtnTOTP">Turn on 2FA</a></li>
               <li><a href="" data-toggle="modal" data-target="#backuppw">Back Up</a></li>
               <li><a href="" data-toggle="modal" data-target="#import">Import</a></li>
               <li><a id="navBtnExport">Export CSV</a></li>
@@ -92,6 +95,49 @@ echoheader();
     </table>
     <hr />
     </div>
+</div>
+<div class="modal" tabindex="-1" role="dialog" id="totpSetup">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4>Turn on 2FA</h4>
+      </div>
+
+      <div class="modal-body">
+        <p>
+          Scan this QR code with your authenticator app, then enter the current 6-digit code below.
+        </p>
+
+        <div id="totpSetupQr" class="text-center"></div>
+
+        <p>
+          <strong>Secret:</strong>
+        </p>
+
+        <pre id="totpSetupSecret"></pre>
+
+        <p class="help-block">
+          Please write this secret down and store it in a safe place. If your phone is unavailable,
+          you can enter this secret in the login 2FA field to turn off 2FA.
+        </p>
+
+        <div class="form-group">
+          <label for="totpSetupCode">6-digit code</label>
+          <input type="text" class="form-control" id="totpSetupCode" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="123456" />
+        </div>
+
+        <input type="hidden" id="totpSetupUri" />
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" id="totpSetupCancel" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="totpSetupSubmit">Submit</button>
+      </div>
+    </div>
+  </div>
 </div>
 <div class="modal" tabindex="-1" role="dialog" id="backuppw">
     <div class="modal-dialog">

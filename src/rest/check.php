@@ -1,142 +1,138 @@
 <?php
-
 require_once dirname(__FILE__).'/../function/common.php';
 require_once dirname(__FILE__).'/../function/ajax.php';
+require_once dirname(__FILE__).'/../function/totp.php';
+
 start_session();
+
 $token = (isset($_SESSION['session_token']) ? $_SESSION['session_token'] : null);
 session_regenerate_id(true);
 $_SESSION['session_token'] = $token;
 $sidvalue = session_id();
+
 function getUserIP()
 {
     if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && $_SERVER['HTTP_X_FORWARDED_FOR']) {
-        // HTTP_X_FORWARDED_FOR 可能包含多个IP，用逗号分隔
-        // 取第一个IP（通常是客户端的真实IP）
         $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
         return trim($ips[0]);
     }
 
     return $_SERVER['REMOTE_ADDR'];
 }
+
 function loghistory($link, $userid, $ip, $ua, $outcome)
 {
     $sql = 'SELECT max(`id`) AS `m` FROM `history`';
     $res = sqlquery($sql, $link);
     $r = $res->fetch(PDO::FETCH_ASSOC);
     $i = (!$r) ? 0 : ((int) $r['m']) + 1;
+
     $sql = 'INSERT INTO `history` VALUES (?,?,?,?,?,CURRENT_TIMESTAMP)';
-    $res = sqlexec($sql, [$i, $userid, $ip, $ua, $outcome], $link);
+    sqlexec($sql, [$i, $userid, $ip, $ua, $outcome], $link);
 }
-$usr = $_POST['user'];
-$pw = $_POST['pwd'];
-$emailcode = $_POST['emailcode'];
-// check length of password hash for pbkdf2
+
+$usr = isset($_POST['user']) ? $_POST['user'] : '';
+$pw = isset($_POST['pwd']) ? $_POST['pwd'] : '';
+$totpcode = isset($_POST['totpcode']) ? trim((string) $_POST['totpcode']) : '';
+$userAgent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+
 if (strlen($pw) > 130) {
     ajaxError('general');
 }
-if ($pw == '' || $usr == '' || $_POST['session_token'] == '') {
+
+if ($pw == '' || $usr == '' || !isset($_POST['session_token']) || $_POST['session_token'] == '') {
     ajaxError('general');
 }
+
 $link = sqllink();
+
 if (!$link) {
     ajaxError('general');
 }
 
-//Clear Up.
+// Clear up expired records.
 $sql = 'DELETE FROM `blockip` WHERE UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`time`) > ?';
-$res = sqlexec($sql, [$BLOCK_IP_TIME], $link);
-$sql = 'DELETE FROM `history` WHERE UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`time`) > ?';
-$res = sqlexec($sql, [$LOG_EXPIRE_TIME], $link);
+sqlexec($sql, [$BLOCK_IP_TIME], $link);
 
-//check if IP is blocked
+$sql = 'DELETE FROM `history` WHERE UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`time`) > ?';
+sqlexec($sql, [$LOG_EXPIRE_TIME], $link);
+
+// Check if IP is blocked.
 $sql = 'SELECT * FROM `blockip` WHERE `ip` = ?';
 $res = sqlexec($sql, [getUserIP()], $link);
 $record = $res->fetch(PDO::FETCH_ASSOC);
+
 if ($record) {
     ajaxError('blockIP');
 }
 
-//check username
+// Check username.
 $sql = 'SELECT * FROM `pwdusrrecord` WHERE `username` = ?';
 $res = sqlexec($sql, [$usr], $link);
 $record = $res->fetch(PDO::FETCH_ASSOC);
+
 if (!$record) {
     ajaxError('loginFailed');
 }
 
-// check if account is blocked
+// Check if account is blocked.
 $sql = 'SELECT count(*) as `m` FROM `history`
-    WHERE `userid` = ? AND outcome = 0 AND UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`time`) < ?';
+        WHERE `userid` = ? AND outcome = 0 AND UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`time`) < ?';
 $res = sqlexec($sql, [(int) $record['id'], $ACCOUNT_BAN_TIME], $link);
 $count = $res->fetch(PDO::FETCH_ASSOC);
+
 if ((int) $count['m'] >= $BLOCK_ACCOUNT_TRY) {
     ajaxError('blockAccount');
 }
 
-// check if password is correct
+// Check if password is correct.
 $password = $record['password'];
 $hash_pbkdf2 = hash_pbkdf2('sha3-512', $pw, (string) $record['salt'], $PBKDF2_ITERATIONS);
+
 if (strcmp((string) $password, (string) $hash_pbkdf2) != 0) {
-    loghistory($link, (int) $record['id'], getUserIP(), $_SERVER['HTTP_USER_AGENT'], 0);
+    loghistory($link, (int) $record['id'], getUserIP(), $userAgent, 0);
+
     $sql = 'SELECT count(*) as `m` FROM `history`
-        WHERE `ip` = ? AND outcome = 0 AND UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`time`) < ?';
+            WHERE `ip` = ? AND outcome = 0 AND UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`time`) < ?';
     $res = sqlexec($sql, [getUserIP(), $BLOCK_IP_TIME], $link);
     $count = $res->fetch(PDO::FETCH_ASSOC);
+
     if ((int) $count['m'] >= $BLOCK_IP_TRY) {
         $sql = 'INSERT INTO `blockip` VALUES (?,CURRENT_TIMESTAMP)';
-        $res = sqlexec($sql, [getUserIP()], $link);
+        sqlexec($sql, [getUserIP()], $link);
     }
+
     ajaxError('loginFailed');
 }
-if ($EMAIL_VERIFICATION_ENABLED) {
-    // Use urlencode as backend has no restriction for username.
-    $encoded_usr = urlencode($usr);
 
-    // Let's be honest, this does not need to be a strong key as the source key is:
-    //      if from password, already hashed a lot of times
-    //      if from $hash_pbkdf2, it is 512 bits long
+// TOTP 2FA.
+// Same timing as old email verification: ask only when this browser/device is not trusted
+// or the trusted-device cookie has expired.
+$totpSecret = isset($record['totp_sec']) ? trim((string) $record['totp_sec']) : '';
 
-    $pwdrecord_check = hash_pbkdf2(
-        'sha3-512',
-        (string) $hash_pbkdf2,
-        $GLOBAL_SALT_3.$encoded_usr,
-        max(intdiv($PBKDF2_ITERATIONS, 100), 10)
-    );
+if ($totpSecret !== '') {
+    if (!totp_is_trusted_device($usr, $hash_pbkdf2, $totpSecret)) {
+        if ($totpcode === '') {
+            ajaxError('TotpVerify');
+        }
 
-    // To avoid spam, only do email verification if password is correct
-    if ((!isset($_COOKIE['pwdrecord_'.$encoded_usr]) ||
-         $_COOKIE['pwdrecord_'.$encoded_usr] != $pwdrecord_check) &&
-        (!isset($_SESSION['emailcode']) || $_SESSION['emailcode'] != $emailcode)) {
-        // We need to generate a random email verification number
+        // Recovery path: entering the correct TOTP secret disables 2FA and continues login.
+        if (totp_secret_equals($totpSecret, $totpcode)) {
+            $sql = 'UPDATE `pwdusrrecord` SET `totp_sec` = ? WHERE `id` = ?';
+            $update = sqlexec($sql, ['', (int) $record['id']], $link);
+            if (!$update) {
+                ajaxError('general');
+            }
 
-        require_once dirname(__FILE__).'/../function/send_email.php';
-        // 8 digits verification code
-        $k = sprintf('%08d', random_int(0, 99999999));
-        $_SESSION['emailcode'] = $k;
-        if (send_email($record['email'], $k)) {
-            // Log a failed attempts. BUT do not trigger blockIP as user might have
-            // a lot of devices to set up. This also avoids spam by not allowing sending out emails
-            // too often.
-            loghistory($link, (int) $record['id'], getUserIP(), $_SERVER['HTTP_USER_AGENT'], 0);
-            ajaxError('EmailVerify');
+            totp_clear_trust_cookie($usr);
+            $record['totp_sec'] = '';
+        } elseif (totp_verify_code($totpSecret, $totpcode)) {
+            totp_set_trust_cookie($usr, $hash_pbkdf2, $totpSecret);
         } else {
-            // Fail to send out emails
-            ajaxError('general');
+            loghistory($link, (int) $record['id'], getUserIP(), $userAgent, 0);
+            ajaxError('TotpWrong');
         }
     }
-
-    // on successful login, update user pwdrecord cookie. The cookie will expire in $PIN_EXPIRE_TIME seconds.
-    //   i.e. if you haven't logoned for 30 days, you will have to verify emails again!
-    // HTTP_ONLY false so client can remove this.
-    setcookie(
-        'pwdrecord_'.$encoded_usr,
-        $pwdrecord_check,
-        time() + $PIN_EXPIRE_TIME + 3600,
-        '/; samesite=strict',
-        null,
-        true,
-        false
-    );
 }
 
 $_SESSION['loginok'] = 1;
@@ -146,5 +142,7 @@ $_SESSION['pwd'] = $record['password'];
 $_SESSION['fields'] = $record['fields'];
 $_SESSION['create_time'] = time();
 $_SESSION['refresh_time'] = time();
-loghistory($link, (int) $record['id'], getUserIP(), $_SERVER['HTTP_USER_AGENT'], 1);
+
+loghistory($link, (int) $record['id'], getUserIP(), $userAgent, 1);
+
 ajaxSuccess();

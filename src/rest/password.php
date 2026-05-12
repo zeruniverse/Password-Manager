@@ -19,6 +19,11 @@ $result['fields_allow_change'] = $CUSTOMIZE_FIELDS;
 $result['server_timeout'] = $SERVER_TIMEOUT;
 $result['file_enabled'] = $FILE_ENABLED;
 
+$sql = 'SELECT `totp_sec` FROM `pwdusrrecord` WHERE `id` = ?';
+$res = sqlexec($sql, [$id], $link);
+$userRecord = $res->fetch(PDO::FETCH_ASSOC);
+$result['totp_enabled'] = ($userRecord && trim((string) $userRecord['totp_sec']) !== '') ? 1 : 0;
+
 // Select Accounts
 $sql = 'SELECT * FROM `password` WHERE `userid` = ?';
 $res = sqlexec($sql, [$id], $link);

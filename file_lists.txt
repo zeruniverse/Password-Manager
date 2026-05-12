@@ -24,6 +24,8 @@ js/common/totp.js
 js/common/recoverybackend.js
 js/history.js
 js/index.js
+js/lib/qrcode.min.js
+js/common/totp_setup.js
 js/lib/bootstrap.min.js
 js/lib/bootstrap.min.js.map
 js/lib/datatables.bootstrap.min.js

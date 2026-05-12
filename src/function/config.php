@@ -37,22 +37,6 @@ $GLOBAL_SALT_2 = 'ncew8d7*(e8fyh2inc osd2)wefcsBIUsdfq2as;dqw[;[]]';
 //Only use salt 3 in server side
 $GLOBAL_SALT_3 = '*&Kjnskjnaucibiqb9298hv9sHIUWNiukJNIusfbic897*(^)';
 
-//****************************************
-//OPTIONAL EMAIL VERIFICATION
-//****************************************
-
-$EMAIL_VERIFICATION_ENABLED = false;
-
-// If $EMAIL_VERIFICATION_ENABLED is true, configuration below is REQUIRED!
-// Please use a valid Gmail account for sending emails! This Gmail account must have 2-step verification
-//   enabled (so you can set up app-specific password). The $GMAIL_ADDRESS is the email address of your
-//   Gmail to be used as sender. The $GMAIL_PASSWORD is your app-specific password, NOT YOUR PASSWORD!
-//   app-specific password can be set at https://myaccount.google.com/u/0/apppasswords
-// If you want to use other service provider / use your own SMTP. Please change code in send_email.php
-
-$GMAIL_ADDRESS = '';
-$GMAIL_PASSWORD = '';
-
 //********************************************************************
 //ADVANCED SETTINGS, STOP EDITING IF YOU DON'T KNOW WHAT YOU ARE DOING
 //********************************************************************

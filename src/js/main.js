@@ -498,6 +498,9 @@ $(document).ready(function(){
     backend = new AccountBackend();
     backend.registerEvent("logout", eventLogout);
     reloadAccounts();
+    if (window.PasswordManagerLoginTOTP) {
+        PasswordManagerLoginTOTP.bind();
+    }
 
     // Define event handlers
     $("#pinloginform").on('submit',function(e){

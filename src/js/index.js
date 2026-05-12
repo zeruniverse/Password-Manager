@@ -81,13 +81,15 @@ $(function(){
         $("#chk").attr("disabled", true);
         $("#chk").attr("value", "Wait");
         $(".errorhint").hide();
-        backend.doLogin($("#user").val(), $("#pwd").val(), $("#emailcode").val())
+        backend.doLogin($("#user").val(), $("#pwd").val(), $("#totpcode").val())
             .then(function(){
                 window.location.href="./password.php";
             })
             .catch(function(msg){
-                // Show Email verification box if error message is EmailVerify
-                if(msg.indexOf('sent an email to you') != -1) $('#email-div').show();
+                if (String(msg).indexOf("2FA") != -1 || String(msg).indexOf("authenticator") != -1) {
+                    $("#totp-div").show();
+                    $("#totpcode").focus();
+                }
                 showMessage("warning", msg);
                 $("#chk").attr("value", "Login");
                 $("#chk").attr("disabled", false);

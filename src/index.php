@@ -27,9 +27,13 @@ echoheader();
                         </button>
                     </span>
                 </div>
-                <div id="email-div">
-                    <label for="emailcode" class="control-label sr-only">Email Verification Code: </label>
-                    <input type="text" class="form-control" placeholder="Email Verification Code" name="emailcode" id="emailcode" />
+                <div id="totp-div">
+                    <label class="control-label" for="totpcode">2FA Code:</label>
+                    <input type="text" class="form-control" placeholder="2FA Code or Recovery Secret" name="totpcode" id="totpcode" autocomplete="one-time-code" />
+                    <p class="help-block">
+                        Enter the 6-digit code from your authenticator app. If your 2FA device is unavailable,
+                        enter your saved 2FA secret here to turn off 2FA while logging in.
+                    </p>
                 </div>
             </div>
             <div class="form-group">

@@ -23,7 +23,8 @@ const ERROR_MESSAGE = [
     'fileFailed'     => 'No File Can Be Downloaded',
     'userWrong'      => 'Wrong User',
     'method'         => 'Method not allowed',
-    'EmailVerify'    => 'We sent an email to you with a new verification code. Click login to re-send email.',
+    'TotpVerify'     => 'Please enter the 6-digit code from your authenticator app (or secret).',
+    'TotpWrong'      => 'Wrong 2FA code',
 ];
 function ajaxError($err)
 {

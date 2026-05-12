@@ -45,8 +45,8 @@ $pw = hash_pbkdf2('sha3-512', $pw, $salt, $PBKDF2_ITERATIONS);
 $res = sqlquery('SELECT max(`id`) FROM `pwdusrrecord`', $link);
 $result = $res->fetch(PDO::FETCH_NUM);
 $maxnum = !$result ? 0 : (int) ($result[0]);
-$sql = 'INSERT INTO `pwdusrrecord` VALUES (?,?,?,?,?,?)';
-$rett = sqlexec($sql, [$maxnum + 1, $usr, $pw, $salt, $DEFAULT_FIELDS, $email], $link);
+$sql = 'INSERT INTO `pwdusrrecord` (`id`, `username`, `password`, `salt`, `fields`, `email`, `totp_sec`) VALUES (?,?,?,?,?,?,?)';
+$rett = sqlexec($sql, [$maxnum + 1, $usr, $pw, $salt, $DEFAULT_FIELDS, $email, ''], $link);
 if (!$rett) {
     $link->rollBack();
     ajaxError('general');

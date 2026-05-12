@@ -60,8 +60,20 @@ a { cursor:pointer; }
     font-size: 16px;
     height: auto;
 }
-#email-div {
-    display: none;
+#totp-div {
+  display: none;
+}
+
+#totpSetupQr svg {
+  max-width: 240px;
+  width: 100%;
+  height: auto;
+}
+
+#totpSetupSecret {
+  white-space: normal;
+  word-break: break-all;
+  font-size: 16px;
 }
 .footer {
     color: #777;
