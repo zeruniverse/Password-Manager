@@ -1,5 +1,6 @@
 // helpers for javascript mixins-pattern
 let mix = (superclass) => new MixinBuilder(superclass);
+var PASSWORD_MANAGER_VERSION = '11.08';
 class MixinBuilder {
     constructor(superclass) {
         this.superclass = superclass;
@@ -697,6 +698,7 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
                 backup.KEYiter = keyIter;
                 backup.ALPHABET = cfg.defaultLetters;
                 backup.KEYsalt = self.encryptionWrapper.generatePassphrase(100);
+                backup.VERSION = PASSWORD_MANAGER_VERSION;
 
                 return EncryptionWrapper.SgenerateKeyWithSalt(
                     self.encryptionWrapper.secretkey,
@@ -730,7 +732,7 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
                 self.resetTimeout();
 
                 return new Blob([JSON.stringify(backup)], {
-                    type: "text/plain;charset=utf-8"
+                    type: "text/plain"
                 });
             });
     }
@@ -799,7 +801,7 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
 
                 self.allowSignup = data["allowSignup"];
                 self.hostdomain = cfg.frontendBaseUrl;
-                self.version = '11.08';
+                self.version = PASSWORD_MANAGER_VERSION;
                 self.banTime = data["banTime"];
                 self.usePin = data["use_pin"];
                 self.loggedIn = data["loggedIn"];
