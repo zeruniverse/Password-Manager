@@ -21,6 +21,37 @@ function pmBackendConfig() {
     throw "frontend_routes.js is not loaded";
 }
 
+function pmIsValidAuthPassword(value) {
+    return typeof value === "string" && /^[a-f0-9]{128}$/i.test(value);
+}
+
+function pmGetAuthCredentials() {
+    return {
+        user: sessionStorage.pm_auth_user || "",
+        password: sessionStorage.pm_auth_password || ""
+    };
+}
+
+function pmSetAuthCredentials(user, password) {
+    if (typeof user === "string" && user !== "" && pmIsValidAuthPassword(password)) {
+        sessionStorage.pm_auth_user = user;
+        sessionStorage.pm_auth_password = password.toLowerCase();
+    }
+}
+
+function pmClearAuthCredentials() {
+    sessionStorage.removeItem("pm_auth_user");
+    sessionStorage.removeItem("pm_auth_password");
+
+    /*
+     * Compatibility cleanup for older frontend attempts.
+     * The current stateless backend no longer uses these.
+     */
+    sessionStorage.removeItem("session_token");
+    sessionStorage.removeItem("pm_api_session_id");
+}
+
+//Base Class for Backends
 //Base Class for Backends
 class commonBackend {
     doPost(endpoint, data) {
@@ -52,18 +83,32 @@ class commonBackend {
         }
 
         /*
-         * Split frontend/backend session transport.
+         * Stateless backend authentication.
          *
-         * api_session_id is a current-tab login session value. It belongs in
-         * sessionStorage, not localStorage.
+         * The backend no longer authenticates protected REST endpoints through
+         * PHP/browser sessions. Every protected endpoint now expects:
+         *
+         *   auth_user
+         *   auth_password
+         *
+         * auth_password is the password hash returned by check.php after a
+         * successful password/PIN login. It is NOT the raw user password.
          */
-        if (!Object.prototype.hasOwnProperty.call(data, "api_session_id") && sessionStorage.pm_api_session_id) {
-            body.append("api_session_id", sessionStorage.pm_api_session_id);
+        var auth = pmGetAuthCredentials();
+
+        if (
+            auth.user !== "" &&
+            auth.password !== "" &&
+            !Object.prototype.hasOwnProperty.call(data, "auth_user") &&
+            !Object.prototype.hasOwnProperty.call(data, "auth_password")
+        ) {
+            body.append("auth_user", auth.user);
+            body.append("auth_password", auth.password);
         }
 
         /*
-         * PIN cookies live on the trusted frontend domain, so info.php needs the
-         * frontend to forward these values explicitly.
+         * PIN-related values are stored on the frontend domain, so info.php
+         * cannot read them as backend cookies. Forward them explicitly.
          */
         if (endpoint === "info" && typeof getCookie === "function") {
             body.append("frontend_username", getCookie("username") || "");
@@ -71,8 +116,8 @@ class commonBackend {
         }
 
         /*
-         * TOTP trusted-device state is intentionally persistent. It is not a login
-         * session token, so it remains in localStorage.
+         * TOTP trusted-device state is persistent device state, not a login
+         * session. Keep it in localStorage and forward it to check.php.
          */
         if (endpoint === "check" && localStorage.pm_totp_trust) {
             body.append("frontend_totp_trust", localStorage.pm_totp_trust);
@@ -99,11 +144,11 @@ class commonBackend {
     }
 
     get sessionToken() {
-        if (this._sessionToken) {
-            return this._sessionToken;
-        }
-
-        return sessionStorage.session_token;
+        /*
+         * Kept only for old plugin compatibility.
+         * New stateless auth uses pm_auth_user + pm_auth_password.
+         */
+        return "";
     }
 
     static checkApplicationResult(msg) {
@@ -111,12 +156,12 @@ class commonBackend {
             throw (msg && msg["message"] ? msg["message"] : "Request failed");
         }
 
-        if (msg["api_session_id"]) {
-            sessionStorage.pm_api_session_id = msg["api_session_id"];
-        }
-
-        if (msg["session_token"]) {
-            sessionStorage.session_token = msg["session_token"];
+        /*
+         * check.php returns user + password after a successful login.
+         * Store them in sessionStorage only, so closing the tab clears auth.
+         */
+        if (msg["user"] && msg["password"]) {
+            pmSetAuthCredentials(msg["user"], msg["password"]);
         }
 
         if (msg["totp_trust"]) {
@@ -150,47 +195,59 @@ let EventHandler = (superclass) => class extends superclass {
 };
 
 //mixin for events
+//mixin for authenticated stateless requests
 let AuthenticatedSession = (superclass) => class extends superclass {
     doPost(endpoint, data) {
         data = data || {};
-        data["session_token"] = this.sessionToken;
         return super.doPost(endpoint, data);
     }
+
     logout(reason) {
         reason = reason || "";
+
         var self = this;
+
         callPlugins("preLogout", {});
+
         return self.doPost("logout", {})
             .catch(function () {
                 /*
-                 * Local logout must still happen if the backend session is already gone
-                 * or the network is unavailable.
+                 * Local logout must still happen if the backend is unreachable.
+                 * logout.php is stateless and only returns success.
                  */
                 return {};
             })
             .then(function () {
-                sessionStorage.removeItem("session_token");
-                sessionStorage.removeItem("pm_api_session_id");
+                pmClearAuthCredentials();
                 sessionStorage.removeItem("pwdsk");
                 sessionStorage.removeItem("confusion_key");
+
                 self.callEvent("logout", { reason: reason });
+
                 return reason;
             });
     }
+
     untrustAndLogout() {
         var self = this;
-        localStorage.clear();
-        var promises = [];
+
         var username = getCookie("username");
         var device = getCookie("device");
+
+        localStorage.clear();
+
+        var promises = [];
+
         if ((device != null) && (device !== "")) {
             promises.push(self.doPost("deletepin", { user: username, device: device }));
         }
+
         return Promise.all(promises)
             .then(function () {
                 deleteCookie("device");
                 deleteCookie("username");
                 deleteCookie("pwdrecord_" + encodeURIComponent(username));
+
                 return self.logout();
             });
     }
@@ -781,8 +838,6 @@ class HistoryBackend extends mix(commonBackend).with(EventHandler, Authenticated
 class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
     doPost(endpoint, data) {
         data = data || {};
-        data["session_token"] = sessionStorage.session_token;
-
         return super.doPost(endpoint, data);
     }
 
@@ -806,15 +861,11 @@ class LogonBackend extends mix(commonBackend).with(EventHandler, PinHandling) {
                 self.loggedIn = data["loggedIn"];
 
                 /*
-                 * These are frontend form validation settings.
-                 * Do not fetch them from the backend.
-                 */
+                * These are frontend-side validation settings.
+                * Do not fetch them from the backend.
+                */
                 self.minPasswordLength = cfg.minPasswordLength;
                 self.minNameLength = cfg.minNameLength;
-
-                if (data["session_token"]) {
-                    sessionStorage.session_token = data["session_token"];
-                }
 
                 if (!self.pinActive) {
                     self.delLocalPinStore();
