@@ -1,51 +1,48 @@
 <?php
 
-//return:
-//"PIN error" - FORCE TO USE USERNAME/PASSWORD, DELETE PIN
-//"Wrong PIN" - PIN just retry
-//otherwise - pk
 require_once dirname(__FILE__) . '/../function/common.php';
 require_once dirname(__FILE__) . '/../function/ajax.php';
-start_session();
+
+if (!pm_is_allowed_request_origin()) {
+  ajaxError('origin');
+}
+
+$user = isset($_POST['user']) ? (string) $_POST['user'] : '';
+$device = isset($_POST['device']) ? (string) $_POST['device'] : '';
+$rawSig = isset($_POST['sig']) ? (string) $_POST['sig'] : '';
+
+if ($user === '' || $device === '' || $rawSig === '') {
+  ajaxError('PINunavailable');
+}
+
 $link = sqllink();
 if (!$link) {
-    ajaxError('general');
+  ajaxError('general');
 }
-$user = $_POST['user'];
-$device = $_POST['device'];
-if ($user == '' || $device == '') {
-    ajaxError('PINunavailable');
-}
-$sql = 'SELECT `id` FROM `pwdusrrecord` WHERE `username`= ?';
+
+$sql = 'SELECT id FROM `pwdusrrecord` WHERE `username` = ?';
 $res = sqlexec($sql, [$user], $link);
-$record = $res->fetch(PDO::FETCH_ASSOC);
+$record = $res ? $res->fetch(PDO::FETCH_ASSOC) : false;
 if (!$record) {
-    ajaxError('PINunavailable');
+  ajaxError('PINunavailable');
 }
-//Delete PIN in case of too many tries
-$id = $record['id'];
+$id = (int) $record['id'];
+
 $sql = 'DELETE FROM `pin` WHERE `errortimes` >= 3 OR UNIX_TIMESTAMP( NOW( ) ) - UNIX_TIMESTAMP(`createtime`) > ?';
-$res = sqlexec($sql, [$PIN_EXPIRE_TIME], $link);
+sqlexec($sql, [$PIN_EXPIRE_TIME], $link);
 
-//Find matching PIN record
-$sql = 'SELECT `pinsig`, `pinpk` FROM `pin` WHERE `userid`= ? AND `device`=?';
+$sql = 'SELECT `pinsig`, `pinpk` FROM `pin` WHERE `userid` = ? AND `device` = ?';
 $res = sqlexec($sql, [$id, $device], $link);
-$record = $res->fetch(PDO::FETCH_ASSOC);
-if (!$record) {
-    ajaxError('PINunavailable');
+$pin = $res ? $res->fetch(PDO::FETCH_ASSOC) : false;
+if (!$pin) {
+  ajaxError('PINunavailable');
 }
-$sig = $record['pinsig'];
-$pinpk = $record['pinpk'];
 
-$post_sig = hash_pbkdf2('sha3-512', (string) $_POST['sig'], $pinpk, $PBKDF2_ITERATIONS);
-
-if (strcmp($sig, $post_sig) == 0) {
-    $sql = 'UPDATE `pin` SET `errortimes`=0 WHERE `userid`= ? AND `device`=?';
-    $res = sqlexec($sql, [$id, $device], $link);
-
-    ajaxSuccess(['pinpk' => bin2hex($record['pinpk'])]);
+$postedSig = hash_pbkdf2('sha3-512', $rawSig, $pin['pinpk'], $PBKDF2_ITERATIONS);
+if (hash_equals((string) $pin['pinsig'], $postedSig)) {
+  sqlexec('UPDATE `pin` SET `errortimes` = 0 WHERE `userid` = ? AND `device` = ?', [$id, $device], $link);
+  ajaxSuccess(['pinpk' => bin2hex($pin['pinpk'])]);
 }
-//Wrong PIN
-$sql = 'UPDATE `pin` SET `errortimes`=`errortimes`+1 WHERE `userid`= ? AND `device`=?';
-$res = sqlexec($sql, [$id, $device], $link);
+
+sqlexec('UPDATE `pin` SET `errortimes` = `errortimes` + 1 WHERE `userid` = ? AND `device` = ?', [$id, $device], $link);
 ajaxError('PINwrong');

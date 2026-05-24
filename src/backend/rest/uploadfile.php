@@ -2,54 +2,43 @@
 
 require_once dirname(__FILE__) . '/../function/common.php';
 require_once dirname(__FILE__) . '/../function/ajax.php';
+
 $link = sqllink();
 if (!checksession($link)) {
-    ajaxError('general');
+  ajaxError('authentication');
 }
-$id = $_SESSION['userid'];
-
-$index = (int) $_POST['id'];
-$fkey = $_POST['fkey'];
-$fname = $_POST['fname'];
-$data = $_POST['data'];
-
-if ($fname == '' || $fkey == '' || $data == '' || $index < 1) {
-    ajaxError('parameter');
+if (!$FILE_ENABLED) {
+  ajaxError('parameter');
 }
-if (strlen($fkey) > 100 || strlen($fname) > 100 || strlen($data) > 1024 * 1024 * 15) {
-    ajaxError('parameter');
+
+$id = pm_auth_userid();
+$index = isset($_POST['id']) ? (int) $_POST['id'] : (isset($_POST['index']) ? (int) $_POST['index'] : -1);
+$fkey = isset($_POST['fkey']) ? (string) $_POST['fkey'] : '';
+$fname = isset($_POST['fname']) ? (string) $_POST['fname'] : '';
+$data = isset($_POST['data']) ? (string) $_POST['data'] : '';
+
+if ($index < 0 || $fkey === '' || $fname === '' || $data === '') {
+  ajaxError('parameter');
 }
 
 if (!$link->beginTransaction()) {
-    ajaxError('general');
+  ajaxError('general');
 }
 
-$sql = 'DELETE FROM `files` WHERE `userid`= ? and `index`=?';
+$sql = 'SELECT * FROM `password` WHERE `userid` = ? AND `index` = ?';
 $res = sqlexec($sql, [$id, $index], $link);
-if ($res == null) {
-    $link->rollBack();
-    ajaxError('general');
+if (!$res || !$res->fetch(PDO::FETCH_ASSOC)) {
+  $link->rollBack();
+  ajaxError('entryNotFound');
 }
 
-$sql = 'SELECT * FROM `password` WHERE `userid`= ? AND `index`= ?';
-$res = sqlexec($sql, [$id, $index], $link);
-$record = $res->fetch(PDO::FETCH_ASSOC);
-if (!$record) {
-    $link->rollBack();
-    ajaxError('general');
+sqlexec('DELETE FROM `files` WHERE `userid` = ? AND `index` = ?', [$id, $index], $link);
+$sql = 'INSERT INTO `files` VALUES (?, ?, ?, ?, ?)';
+$res = sqlexec($sql, [$id, $index, $fkey, $fname, $data], $link);
+if (!$res) {
+  $link->rollBack();
+  ajaxError('general');
 }
 
-$sql = 'INSERT INTO `files` VALUES (?, ?, ?, ?,?)';
-$stmt = $link->prepare($sql);
-$stmt->bindParam(1, $id);
-$stmt->bindParam(2, $index);
-$stmt->bindParam(3, $fkey);
-$stmt->bindParam(4, $fname);
-$stmt->bindParam(5, $data, PDO::PARAM_LOB);
-$exeres = $stmt->execute();
-if (!$exeres) {
-    $link->rollBack();
-    ajaxError('general');
-}
 $link->commit();
 ajaxSuccess();

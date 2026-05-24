@@ -2,22 +2,27 @@
 
 require_once dirname(__FILE__) . '/../function/common.php';
 require_once dirname(__FILE__) . '/../function/ajax.php';
+
+if (!pm_is_allowed_request_origin()) {
+  ajaxError('origin');
+}
+
+$user = isset($_POST['user']) ? (string) $_POST['user'] : '';
+$device = isset($_POST['device']) ? (string) $_POST['device'] : '';
+if ($user === '' || $device === '') {
+  ajaxError('parameter');
+}
+
 $link = sqllink();
 if (!$link) {
-    ajaxError('general');
+  ajaxError('general');
 }
-$user = $_POST['user'];
-$device = $_POST['device'];
-if ($user == '' || $device == '') {
-    ajaxError('parameter');
-}
-$sql = 'SELECT id FROM `pwdusrrecord` WHERE `username`= ?';
+
+$sql = 'SELECT id FROM `pwdusrrecord` WHERE `username` = ?';
 $res = sqlexec($sql, [$user], $link);
-$record = $res->fetch(PDO::FETCH_ASSOC);
-if (!$record) {
-    ajaxSuccess(); //Respond with success to prevent the enumeration of usernames
+$record = $res ? $res->fetch(PDO::FETCH_ASSOC) : false;
+if ($record) {
+  sqlexec('DELETE FROM `pin` WHERE `userid` = ? AND `device` = ?', [(int) $record['id'], $device], $link);
 }
-$id = $record['id'];
-$sql = 'DELETE FROM `pin` WHERE `userid`= ? AND `device`= ?';
-$res = sqlexec($sql, [$id, $device], $link);
+
 ajaxSuccess();

@@ -2,19 +2,28 @@
 
 require_once dirname(__FILE__) . '/../function/common.php';
 require_once dirname(__FILE__) . '/../function/ajax.php';
-if (!$CUSTOMIZE_FIELDS) {
-    http_response_code(405);
-    ajaxError('method');
-}
+
 $link = sqllink();
-if (!isset($_POST['fields'])) {
-    ajaxError('parameter');
-}
 if (!checksession($link)) {
-    ajaxError('session');
+  ajaxError('authentication');
 }
-$id = $_SESSION['userid'];
-$sql = 'UPDATE `pwdusrrecord` SET `fields` = ? WHERE `id` = ? ';
-$res = sqlexec($sql, [$_POST['fields'], $id], $link);
-$_SESSION['fields'] = $_POST['fields'];
+if (!$CUSTOMIZE_FIELDS) {
+  ajaxError('parameter');
+}
+if (!isset($_POST['fields'])) {
+  ajaxError('parameter');
+}
+
+$fields = (string) $_POST['fields'];
+json_decode($fields);
+if (json_last_error() !== JSON_ERROR_NONE) {
+  ajaxError('parameter');
+}
+
+$sql = 'UPDATE `pwdusrrecord` SET `fields` = ? WHERE `id` = ?';
+$res = sqlexec($sql, [$fields, pm_auth_userid()], $link);
+if (!$res) {
+  ajaxError('general');
+}
+
 ajaxSuccess();

@@ -1,161 +1,141 @@
 <?php
-function totp_normalize_secret($secret)
-{
-    $secret = strtoupper(preg_replace('/[\s\-=]/', '', (string) $secret));
-    if ($secret === '' || !preg_match('/^[A-Z2-7]+$/', $secret)) {
-        return false;
-    }
-    return $secret;
-}
 
 function totp_base32_decode($secret)
 {
-    $secret = totp_normalize_secret($secret);
-    if ($secret === false) {
-        return false;
+  $secret = strtoupper(preg_replace('/\s+/', '', (string) $secret));
+  $alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+  $buffer = 0;
+  $bitsLeft = 0;
+  $result = '';
+
+  for ($i = 0; $i < strlen($secret); $i++) {
+    if ($secret[$i] === '=') {
+      break;
     }
 
-    $alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-    $buffer = 0;
-    $bitsLeft = 0;
-    $result = '';
-
-    for ($i = 0, $len = strlen($secret); $i < $len; $i++) {
-        $value = strpos($alphabet, $secret[$i]);
-        if ($value === false) {
-            return false;
-        }
-        $buffer = ($buffer << 5) | $value;
-        $bitsLeft += 5;
-        if ($bitsLeft >= 8) {
-            $bitsLeft -= 8;
-            $result .= chr(($buffer >> $bitsLeft) & 0xff);
-            $buffer = $bitsLeft > 0 ? ($buffer & ((1 << $bitsLeft) - 1)) : 0;
-        }
+    $val = strpos($alphabet, $secret[$i]);
+    if ($val === false) {
+      return false;
     }
-    return $result;
+
+    $buffer = ($buffer << 5) | $val;
+    $bitsLeft += 5;
+
+    if ($bitsLeft >= 8) {
+      $bitsLeft -= 8;
+      $result .= chr(($buffer >> $bitsLeft) & 0xff);
+    }
+  }
+
+  return $result;
 }
 
-function totp_code_at($secret, $timestamp = null, $period = 30, $digits = 6)
+function totp_normalize_secret($secret)
 {
-    if ($timestamp === null) {
-        $timestamp = time();
-    }
-    $secretBytes = totp_base32_decode($secret);
-    if ($secretBytes === false) {
-        return false;
-    }
-    $counter = intdiv((int) $timestamp, (int) $period);
-    $high = intdiv($counter, 4294967296);
-    $low = $counter % 4294967296;
-    $counterBytes = pack('N2', $high, $low);
-    $hmac = hash_hmac('sha1', $counterBytes, $secretBytes, true);
-    $offset = ord($hmac[strlen($hmac) - 1]) & 0x0f;
-    $binary = ((ord($hmac[$offset]) & 0x7f) << 24)
-        | ((ord($hmac[$offset + 1]) & 0xff) << 16)
-        | ((ord($hmac[$offset + 2]) & 0xff) << 8)
-        | (ord($hmac[$offset + 3]) & 0xff);
-    $mod = 10 ** (int) $digits;
-    return str_pad((string) ($binary % $mod), (int) $digits, '0', STR_PAD_LEFT);
+  return strtoupper(preg_replace('/\s+/', '', (string) $secret));
 }
 
-function totp_verify_code($secret, $code, $window = 1, $period = 30, $digits = 6)
+function totp_secret_equals($knownSecret, $candidateSecret)
 {
-    $code = trim((string) $code);
-    if (!preg_match('/^\d{' . ((int) $digits) . '}$/', $code)) {
-        return false;
-    }
-    $now = time();
-    for ($i = -$window; $i <= $window; $i++) {
-        $expected = totp_code_at($secret, $now + ($i * $period), $period, $digits);
-        if ($expected !== false && hash_equals($expected, $code)) {
-            return true;
-        }
-    }
+  $known = totp_normalize_secret($knownSecret);
+  $candidate = totp_normalize_secret($candidateSecret);
+  return $known !== '' && hash_equals($known, $candidate);
+}
+
+function totp_code_at($secret, $timestamp = null)
+{
+  $key = totp_base32_decode($secret);
+  if ($key === false || $key === '') {
     return false;
+  }
+
+  if ($timestamp === null) {
+    $timestamp = time();
+  }
+
+  $counter = (int) floor($timestamp / 30);
+  $binaryCounter = pack('N*', 0) . pack('N*', $counter);
+  $hash = hash_hmac('sha1', $binaryCounter, $key, true);
+  $offset = ord(substr($hash, -1)) & 0x0f;
+  $value = unpack('N', substr($hash, $offset, 4));
+  $code = ($value[1] & 0x7fffffff) % 1000000;
+  return str_pad((string) $code, 6, '0', STR_PAD_LEFT);
 }
 
-function totp_secret_equals($storedSecret, $inputSecret)
+function totp_verify_code($secret, $code, $window = 1)
 {
-    $storedSecret = totp_normalize_secret($storedSecret);
-    $inputSecret = totp_normalize_secret($inputSecret);
-    if ($storedSecret === false || $inputSecret === false) {
-        return false;
+  $code = preg_replace('/\s+/', '', (string) $code);
+  if (!preg_match('/\A\d{6}\z/', $code)) {
+    return false;
+  }
+
+  $now = time();
+  for ($i = -$window; $i <= $window; $i++) {
+    $candidate = totp_code_at($secret, $now + ($i * 30));
+    if ($candidate !== false && hash_equals($candidate, $code)) {
+      return true;
     }
-    return hash_equals($storedSecret, $inputSecret);
+  }
+
+  return false;
 }
 
-function totp_cookie_name($username)
+function totp_trust_payload($username, $passwordHash, $secret)
 {
-    return 'pwdrecord_' . urlencode((string) $username);
+  $expires = time() + 7776000;
+  $data = $username . '|' . $expires . '|' . hash('sha256', $secret);
+  $mac = hash_hmac('sha256', $data, $passwordHash);
+  return base64_encode($data . '|' . $mac);
 }
 
-function totp_trust_cookie_value($passwordHash, $username, $secret)
+function totp_parse_trust_payload($payload)
 {
-    global $GLOBAL_SALT_3, $PBKDF2_ITERATIONS;
+  $decoded = base64_decode((string) $payload, true);
+  if ($decoded === false) {
+    return null;
+  }
 
-    $secret = totp_normalize_secret($secret);
-    if ($secret === false) {
-        $secret = '';
-    }
+  $parts = explode('|', $decoded);
+  if (count($parts) !== 4) {
+    return null;
+  }
 
-    return hash_pbkdf2(
-        'sha3-512',
-        (string) $passwordHash,
-        $GLOBAL_SALT_3 . '.totp.' . urlencode((string) $username) . '.' . $secret,
-        max(intdiv($PBKDF2_ITERATIONS, 100), 10)
-    );
+  return [
+    'username' => $parts[0],
+    'expires' => (int) $parts[1],
+    'secret_hash' => $parts[2],
+    'mac' => $parts[3]
+  ];
 }
 
 function totp_is_trusted_device($username, $passwordHash, $secret)
 {
-    $cookieName = totp_cookie_name($username);
-    $provided = '';
+  $payload = isset($_POST['frontend_totp_trust']) ? (string) $_POST['frontend_totp_trust'] : '';
+  if ($payload === '') {
+    return false;
+  }
 
-    // Split deployment: trusted frontend stores this token and sends it with check.php.
-    if (isset($_POST['frontend_totp_trust'])) {
-        $provided = (string) $_POST['frontend_totp_trust'];
-    } elseif (isset($_COOKIE[$cookieName])) {
-        $provided = (string) $_COOKIE[$cookieName];
-    }
+  $parsed = totp_parse_trust_payload($payload);
+  if (!$parsed || $parsed['expires'] < time()) {
+    return false;
+  }
 
-    if ($provided === '') {
-        return false;
-    }
+  if (!hash_equals((string) $username, (string) $parsed['username'])) {
+    return false;
+  }
 
-    $expected = totp_trust_cookie_value($passwordHash, $username, $secret);
-    return hash_equals($expected, $provided);
-}
+  $data = $parsed['username'] . '|' . $parsed['expires'] . '|' . $parsed['secret_hash'];
+  $expected = hash_hmac('sha256', $data, $passwordHash);
 
-function totp_set_cookie_compat($name, $value, $expires)
-{
-    if (PHP_VERSION_ID >= 70300) {
-        setcookie($name, $value, [
-            'expires' => $expires,
-            'path' => '/',
-            'secure' => true,
-            'httponly' => false,
-            'samesite' => 'None'
-        ]);
-    } else {
-        setcookie($name, $value, $expires, '/; samesite=None', null, true, false);
-    }
+  return hash_equals($expected, $parsed['mac']) && hash_equals(hash('sha256', $secret), $parsed['secret_hash']);
 }
 
 function totp_set_trust_cookie($username, $passwordHash, $secret)
 {
-    global $PIN_EXPIRE_TIME;
-
-    $value = totp_trust_cookie_value($passwordHash, $username, $secret);
-    $GLOBALS['PM_TOTP_TRUST_VALUE'] = $value;
-
-    // Kept for same-site/custom-domain deployments. Cross-site deployments use the JSON value above.
-    totp_set_cookie_compat(totp_cookie_name($username), $value, time() + $PIN_EXPIRE_TIME + 3600);
-    return $value;
+  $GLOBALS['PM_TOTP_TRUST_VALUE'] = totp_trust_payload($username, $passwordHash, $secret);
 }
 
 function totp_clear_trust_cookie($username)
 {
-    $GLOBALS['PM_TOTP_CLEAR_TRUST'] = true;
-    totp_set_cookie_compat(totp_cookie_name($username), '', time() - 3600);
+  $GLOBALS['PM_TOTP_CLEAR_TRUST'] = 1;
 }

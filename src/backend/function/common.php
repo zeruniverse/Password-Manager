@@ -5,166 +5,147 @@ require_once dirname(__FILE__) . '/cors.php';
 
 function sqllink()
 {
-    global $DB_HOST, $DB_NAME, $DB_USER, $DB_PASSWORD;
+  global $DB_HOST, $DB_NAME, $DB_USER, $DB_PASSWORD;
 
-    if (!isset($DB_NAME) || $DB_NAME === '') {
-        return null;
-    }
+  if ($DB_HOST === '' || $DB_NAME === '' || $DB_USER === '') {
+    return null;
+  }
 
-    $opt = [
-        PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
-    ];
-
-    if (defined('PDO::MYSQL_ATTR_MAX_BUFFER_SIZE')) {
-        $opt[PDO::MYSQL_ATTR_MAX_BUFFER_SIZE] = 1024 * 1024 * 19;
-    }
-
-    $dsn = 'mysql:host=' . $DB_HOST . ';dbname=' . $DB_NAME . ';charset=utf8';
-
-    try {
-        $dbhdl = new PDO($dsn, $DB_USER, $DB_PASSWORD, $opt);
-        $dbhdl->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-        $dbhdl->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-        return $dbhdl;
-    } catch (PDOException $e) {
-        return null;
-    }
+  try {
+    $dsn = 'mysql:host=' . $DB_HOST . ';dbname=' . $DB_NAME . ';charset=utf8mb4';
+    $link = new PDO($dsn, $DB_USER, $DB_PASSWORD, [
+      PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+      PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+      PDO::ATTR_EMULATE_PREPARES => false
+    ]);
+    return $link;
+  } catch (Exception $e) {
+    return null;
+  }
 }
 
-function sqlexec($sql, $array, $link)
+function sqlexec($sql, $params, $link)
 {
-    if (!$link) {
-        return null;
-    }
+  if (!$link) {
+    return null;
+  }
 
+  try {
     $stmt = $link->prepare($sql);
-
-    return $stmt->execute($array) ? $stmt : null;
+    $stmt->execute($params);
+    return $stmt;
+  } catch (Exception $e) {
+    return null;
+  }
 }
 
 function sqlquery($sql, $link)
 {
-    if (!$link) {
-        return null;
-    }
+  if (!$link) {
+    return null;
+  }
 
+  try {
     return $link->query($sql);
+  } catch (Exception $e) {
+    return null;
+  }
 }
 
-function pm_valid_session_id($sid)
+$GLOBALS['PM_AUTH_RECORD'] = null;
+
+function pm_request_auth_user()
 {
-    return is_string($sid) && preg_match('/^[A-Za-z0-9,-]{16,128}$/', $sid);
+  return isset($_POST['auth_user']) ? trim((string) $_POST['auth_user']) : '';
 }
 
-function start_session()
+function pm_request_auth_password()
 {
-    if (session_status() === PHP_SESSION_ACTIVE) {
-        return;
-    }
+  return isset($_POST['auth_password']) ? (string) $_POST['auth_password'] : '';
+}
 
-    session_name('password_manager_session_uid');
+function pm_has_auth_credentials()
+{
+  return pm_request_auth_user() !== '' || pm_request_auth_password() !== '';
+}
 
-    /*
-     * Split frontend/backend mode does not rely on backend-domain cookies.
-     * The frontend sends api_session_id in POST body, stored in sessionStorage.
-     */
-    if (isset($_POST['api_session_id']) && pm_valid_session_id($_POST['api_session_id'])) {
-        session_id($_POST['api_session_id']);
-    }
-
-    /*
-     * Cookies are not the primary transport here. These params are kept safe
-     * for optional same-site/custom-domain deployments.
-     */
-    if (PHP_VERSION_ID >= 70300) {
-        session_set_cookie_params([
-            'lifetime' => 0,
-            'path' => '/',
-            'secure' => true,
-            'httponly' => true,
-            'samesite' => 'None',
-        ]);
-    } else {
-        session_set_cookie_params(0, '/; samesite=None', null, true, true);
-    }
-
-    session_start();
+function pm_is_sha3_512_hash($value)
+{
+  return is_string($value) && preg_match('/\A[a-f0-9]{128}\z/i', $value) === 1;
 }
 
 function checksession($link)
 {
-    global $SERVER_TIMEOUT;
+  $GLOBALS['PM_AUTH_RECORD'] = null;
 
-    start_session();
+  if (!pm_is_allowed_request_origin()) {
+    return false;
+  }
 
-    if (!pm_is_allowed_request_origin()) {
-        invalidateSession();
-        return false;
-    }
+  if (!$link) {
+    return false;
+  }
 
-    if (!isset($_SESSION['loginok']) || $_SESSION['loginok'] != 1) {
-        invalidateSession();
-        return false;
-    }
+  $usr = pm_request_auth_user();
+  $pw = strtolower(pm_request_auth_password());
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $postedToken = isset($_POST['session_token']) ? (string) $_POST['session_token'] : '';
-        $sessionToken = isset($_SESSION['session_token']) ? (string) $_SESSION['session_token'] : '';
+  if ($usr === '' || !pm_is_sha3_512_hash($pw)) {
+    return false;
+  }
 
-        if ($postedToken === '' || $sessionToken === '' || !hash_equals($sessionToken, $postedToken)) {
-            invalidateSession();
-            return false;
-        }
-    }
+  $sql = 'SELECT * FROM `pwdusrrecord` WHERE `username` = ? AND `password` = ?';
+  $res = sqlexec($sql, [$usr, $pw], $link);
+  $record = $res ? $res->fetch(PDO::FETCH_ASSOC) : false;
 
-    if (!$link || !isset($_SESSION['create_time']) || $_SESSION['create_time'] + $SERVER_TIMEOUT < time()) {
-        invalidateSession();
-        return false;
-    }
+  if (!$record) {
+    return false;
+  }
 
-    if (!isset($_SESSION['refresh_time']) || $_SESSION['refresh_time'] + 31 < time()) {
-        invalidateSession();
-        return false;
-    }
-
-    $usr = isset($_SESSION['user']) ? $_SESSION['user'] : '';
-    $pw = isset($_SESSION['pwd']) ? $_SESSION['pwd'] : '';
-    $id = isset($_SESSION['userid']) ? $_SESSION['userid'] : '';
-
-    if ($usr === '' || $pw === '' || $id === '') {
-        invalidateSession();
-        return false;
-    }
-
-    $sql = 'SELECT * FROM `pwdusrrecord` WHERE `username`= ? AND `password`= ? AND `id`= ?';
-    $res = sqlexec($sql, [$usr, $pw, $id], $link);
-    $record = $res ? $res->fetch(PDO::FETCH_ASSOC) : false;
-
-    if (!$record) {
-        invalidateSession();
-        return false;
-    }
-
-    $_SESSION['refresh_time'] = time();
-
-    return true;
+  $GLOBALS['PM_AUTH_RECORD'] = $record;
+  return true;
 }
 
-function invalidateSession()
+function pm_auth_record()
 {
-    if (session_status() !== PHP_SESSION_ACTIVE) {
-        start_session();
-    }
+  $record = isset($GLOBALS['PM_AUTH_RECORD']) ? $GLOBALS['PM_AUTH_RECORD'] : null;
+  return is_array($record) ? $record : null;
+}
 
-    $_SESSION = [];
+function pm_auth_userid()
+{
+  $record = pm_auth_record();
+  return $record ? (int) $record['id'] : 0;
+}
 
-    if (session_status() === PHP_SESSION_ACTIVE) {
-        session_regenerate_id(true);
-        session_destroy();
-    }
+function pm_auth_user()
+{
+  $record = pm_auth_record();
+  return $record ? (string) $record['username'] : '';
+}
 
-    if (function_exists('session_id')) {
-        session_id('');
-    }
+function pm_auth_fields()
+{
+  $record = pm_auth_record();
+  return $record ? (string) $record['fields'] : '';
+}
+
+function pm_auth_password_hash()
+{
+  $record = pm_auth_record();
+  return $record ? (string) $record['password'] : '';
+}
+
+function pm_client_ip()
+{
+  if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && $_SERVER['HTTP_X_FORWARDED_FOR']) {
+    $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+    return trim($ips[0]);
+  }
+
+  return isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
+}
+
+function pm_user_agent()
+{
+  return isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
 }

@@ -2,62 +2,57 @@
 
 require_once dirname(__FILE__) . '/../function/common.php';
 require_once dirname(__FILE__) . '/../function/ajax.php';
+
 $link = sqllink();
 if (!checksession($link)) {
-    ajaxError('general');
+  ajaxError('authentication');
 }
-$id = $_SESSION['userid'];
 
-$index = (int) $_POST['index'];
+$id = pm_auth_userid();
+$index = isset($_POST['index']) ? (int) $_POST['index'] : -1;
+if ($index < 0) {
+  ajaxError('parameter');
+}
+
 if (!$link->beginTransaction()) {
-    ajaxError('general');
+  ajaxError('general');
 }
 
 $sql = 'SELECT * FROM `password` WHERE `userid` = ? AND `index` = ?';
 $res = sqlexec($sql, [$id, $index], $link);
-$record = $res->fetch(PDO::FETCH_ASSOC);
-if (!$record) {
-    $link->commit();
-    ajaxError('general');
+if (!$res || !$res->fetch(PDO::FETCH_ASSOC)) {
+  $link->rollBack();
+  ajaxError('entryNotFound');
 }
 
-$sql = 'SELECT max(`index`) FROM `password` WHERE `userid` = ?';
+$sql = 'SELECT max(`index`) AS `m` FROM `password` WHERE `userid` = ?';
 $res = sqlexec($sql, [$id], $link);
-$record = $res->fetch(PDO::FETCH_NUM);
-if (!$record) {
-    $link->commit();
-    ajaxError('general');
-}
-$nid = (int) $record[0];
+$row = $res ? $res->fetch(PDO::FETCH_ASSOC) : false;
+$max = (!$row || $row['m'] === null) ? $index : (int) $row['m'];
 
-$sql = 'DELETE FROM `password` WHERE `userid` = ? AND `index` = ?';
-$res = sqlexec($sql, [$id, $index], $link);
-if ($res == null) {
-    $link->rollBack();
-    ajaxError('general');
+$res = sqlexec('DELETE FROM `password` WHERE `userid` = ? AND `index` = ?', [$id, $index], $link);
+if (!$res) {
+  $link->rollBack();
+  ajaxError('general');
 }
-
-$sql = 'DELETE FROM `files` WHERE `userid` = ? AND `index` = ?';
-$res = sqlexec($sql, [$id, $index], $link);
-if ($res == null) {
-    $link->rollBack();
-    ajaxError('general');
+$res = sqlexec('DELETE FROM `files` WHERE `userid` = ? AND `index` = ?', [$id, $index], $link);
+if (!$res) {
+  $link->rollBack();
+  ajaxError('general');
 }
 
-$sql = 'UPDATE `password` SET `index` = ?  WHERE `userid` = ? AND `index` = ?';
-$res = sqlexec($sql, [$index, $id, $nid], $link);
-if ($res == null) {
+if ($max !== $index) {
+  $res = sqlexec('UPDATE `password` SET `index` = ? WHERE `userid` = ? AND `index` = ?', [$index, $id, $max], $link);
+  if (!$res) {
     $link->rollBack();
     ajaxError('general');
-}
-
-$sql = 'UPDATE `files` SET `index` = ?  WHERE `userid` = ? AND `index` = ?';
-$res = sqlexec($sql, [$index, $id, $nid], $link);
-if ($res == null) {
+  }
+  $res = sqlexec('UPDATE `files` SET `index` = ? WHERE `userid` = ? AND `index` = ?', [$index, $id, $max], $link);
+  if (!$res) {
     $link->rollBack();
     ajaxError('general');
+  }
 }
 
 $link->commit();
-
 ajaxSuccess();

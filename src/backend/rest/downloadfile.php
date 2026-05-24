@@ -2,24 +2,30 @@
 
 require_once dirname(__FILE__) . '/../function/common.php';
 require_once dirname(__FILE__) . '/../function/ajax.php';
+
 $link = sqllink();
 if (!checksession($link)) {
-    ajaxError('authentication');
+  ajaxError('authentication');
 }
-$id = $_SESSION['userid'];
-if (!isset($_POST['id']) || (int) $_POST['id'] < 1) {
-    ajaxError('parameter');
+if (!$FILE_ENABLED) {
+  ajaxError('parameter');
 }
-$index = (int) $_POST['id'];
 
-$sql = 'SELECT `key`,`files` FROM `files` WHERE `userid`= ? and `index`=?';
+$id = pm_auth_userid();
+$index = isset($_POST['id']) ? (int) $_POST['id'] : (isset($_POST['index']) ? (int) $_POST['index'] : -1);
+if ($index < 0) {
+  ajaxError('parameter');
+}
+
+$sql = 'SELECT `key`, `fname`, `files` FROM `files` WHERE `userid` = ? AND `index` = ?';
 $res = sqlexec($sql, [$id, $index], $link);
-$record = $res->fetch(PDO::FETCH_ASSOC);
-if (!$record) {
-    ajaxError('fileFailed');
+$row = $res ? $res->fetch(PDO::FETCH_ASSOC) : false;
+if (!$row) {
+  ajaxError('fileFailed');
 }
-$result = [];
-$result['key'] = $record['key'];
-$result['data'] = $record['files'];
 
-ajaxSuccess($result);
+ajaxSuccess([
+  'key' => $row['key'],
+  'fname' => $row['fname'],
+  'data' => $row['files']
+]);
