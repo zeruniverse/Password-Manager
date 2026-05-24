@@ -34,7 +34,7 @@ $FRONTEND_URL = getenv('FRONTEND_URL')?:'https://abc.github.io/passwordmanager/'
  *
  * Set true only for temporary CLI testing without an Origin header.
  */
-$ALLOW_NO_ORIGIN_REQUESTS = filter_var(getenv('ALLOW_NO_ORIGIN_REQUESTS'), FILTER_VALIDATE_BOOL);
+$ALLOW_NO_ORIGIN_REQUESTS = filter_var(getenv('ALLOW_NO_ORIGIN_REQUESTS'), FILTER_VALIDATE_BOOLEAN);
 
 // Default timezone.
 date_default_timezone_set(getenv('TZ')?:'America/Los_Angeles');
@@ -78,13 +78,13 @@ $DEFAULT_FIELDS = getenv('DEFAULT_FIELDS')?:json_encode([
 ]);
 
 // File upload feature.
-$FILE_ENABLED = filter_var(getenv('FILE_ENABLED'), FILTER_VALIDATE_BOOL);
+$FILE_ENABLED = filter_var(getenv('FILE_ENABLED'), FILTER_VALIDATE_BOOLEAN);
 
 // Allow new user signup.
-$ALLOW_SIGN_UP = filter_var(getenv('ALLOW_SIGN_UP'), FILTER_VALIDATE_BOOL);
+$ALLOW_SIGN_UP = filter_var(getenv('ALLOW_SIGN_UP'), FILTER_VALIDATE_BOOLEAN);
 
 // Allow users to customize fields.
-$CUSTOMIZE_FIELDS = filter_var(getenv('CUSTOMIZE_FIELDS'), FILTER_VALIDATE_BOOL);
+$CUSTOMIZE_FIELDS = filter_var(getenv('CUSTOMIZE_FIELDS'), FILTER_VALIDATE_BOOLEAN);
 
 // PIN expire time.
 $PIN_EXPIRE_TIME = getenv('PIN_EXPIRE_TIME')?(int)getenv('PIN_EXPIRE_TIME'):7776000;

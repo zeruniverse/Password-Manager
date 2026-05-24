@@ -1,32 +1,43 @@
 #!/usr/bin/env bash
-set +e
+set -e
+
+NGINX_CONF_TEMPLATE="/code/nginx.conf"
+NGINX_CONF_RUNTIME="/tmp/nginx.conf"
 
 mkdir -p /tmp/log/nginx/
 mkdir -p /tmp/var/nginx/
 
+cp "$NGINX_CONF_TEMPLATE" "$NGINX_CONF_RUNTIME"
+
 escape_nginx_value() {
-  printf '%s' "$1" \
-    | sed \
-      -e 's/\\/\\\\/g' \
-      -e 's/"/\\"/g' \
-      -e 's/\$/\\$/g' \
-      -e 's/&/\\\&/g' \
-      -e 's/|/\\|/g'
+  printf '%s' "$1" | perl -pe '
+    s/\\/\\\\/g;
+    s/"/\\"/g;
+    s/\$/\\\$/g;
+    s/\r/\\r/g;
+    s/\n/\\n/g;
+  '
 }
 
 replace_placeholder() {
   local placeholder="$1"
-  local value="$2"
+  local value="${2:-}"
   local escaped_value
 
   escaped_value="$(escape_nginx_value "$value")"
-  sed -i "s|${placeholder}|${escaped_value}|g" /code/nginx.conf
+
+  PLACEHOLDER="$placeholder" REPLACEMENT="$escaped_value" \
+    perl -0pi -e '
+      my $placeholder = $ENV{"PLACEHOLDER"};
+      my $replacement = $ENV{"REPLACEMENT"};
+      s/\Q$placeholder\E/$replacement/g;
+    ' "$NGINX_CONF_RUNTIME"
 }
 
 echo "start php-fpm"
 php-fpm7.4 -c /code/php.ini -y /code/php-fpm.conf
 
-echo "start nginx"
+echo "prepare nginx config"
 
 replace_placeholder "PHDB_HOST" "${DB_HOST:-}"
 replace_placeholder "PHDB_NAME" "${DB_NAME:-}"
@@ -57,4 +68,4 @@ replace_placeholder "PHACCOUNT_BAN_TIME" "${ACCOUNT_BAN_TIME:-}"
 replace_placeholder "PHSERVER_TIMEOUT" "${SERVER_TIMEOUT:-}"
 replace_placeholder "PHPBKDF2_ITERATIONS" "${PBKDF2_ITERATIONS:-}"
 
-nginx -c /code/nginx.conf -g "daemon off;"
+exec nginx -c "$NGINX_CONF_RUNTIME" -g "daemon off;"
