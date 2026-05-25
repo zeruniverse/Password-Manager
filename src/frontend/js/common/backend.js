@@ -1,6 +1,6 @@
 // helpers for javascript mixins-pattern
 let mix = (superclass) => new MixinBuilder(superclass);
-var PASSWORD_MANAGER_VERSION = '13.00';
+var PASSWORD_MANAGER_VERSION = '13.01';
 class MixinBuilder {
     constructor(superclass) {
         this.superclass = superclass;
