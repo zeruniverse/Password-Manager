@@ -32,21 +32,21 @@ class EncryptionWrapper {
     }
 
     generateSecretKey(password, salt, store) {
-      var self = this;
-      store = (typeof store !== 'undefined') ? store : true;
-      return EncryptionWrapper.WgenerateKeyWithSalt(salt, self.jsSalt)
-        .then(function (derivedSalt) {
-          return EncryptionWrapper.SgenerateKeyWithSalt(
-            EncryptionWrapper.reduceInfo(password, self.alphabet),
-            derivedSalt
-          );
-        })
-        .then(function (sk) {
-          if (store) {
-            self.secretkey = sk;
-          }
-          return sk;
-        });
+        var self = this;
+        store = (typeof store !== 'undefined') ? store : true;
+        return EncryptionWrapper.WgenerateKeyWithSalt(salt, self.jsSalt)
+            .then(function (derivedSalt) {
+                return EncryptionWrapper.SgenerateKeyWithSalt(
+                    EncryptionWrapper.reduceInfo(password, self.alphabet),
+                    derivedSalt
+                );
+            })
+            .then(function (sk) {
+                if (store) {
+                    self.secretkey = sk;
+                }
+                return sk;
+            });
     }
 
     decryptChar(crypt) {

@@ -45,49 +45,84 @@ function SHA512(text) {
         });
 }
 
-// Below two functions adapted from: https://gist.github.com/chrisveness/43bcda93af9f646d083fad678071b90a
-// MIT license
-// We use CBC mode here as GCM: (1) needs unique IV, we don't have good ways to guarantee it.
-// (2) Authentication provided by GCM is not useful in our case.
+function _bytesToBase64Url(bytes) {
+    var binary = '';
+    var chunkSize = 0x8000;
+    var i;
 
-async function AESCBC256Encrypt(plaintext, password) {
-    const pwUtf8 = new TextEncoder().encode(password);                                 // encode password as UTF-8
-    const pwHash = await crypto.subtle.digest('SHA-256', pwUtf8);                      // hash the password
+    for (i = 0; i < bytes.length; i += chunkSize) {
+        binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+    }
 
-    const iv = crypto.getRandomValues(new Uint8Array(16));                             // get 16 bytes random iv
-
-    const alg = { name: 'AES-CBC', iv: iv };                                           // specify algorithm to use
-
-    const key = await crypto.subtle.importKey('raw', pwHash, alg, false, ['encrypt']); // generate key from pw
-
-    const ptUint8 = new TextEncoder().encode(plaintext);                               // encode plaintext as UTF-8
-    const ctBuffer = await crypto.subtle.encrypt(alg, key, ptUint8);                   // encrypt plaintext using key
-
-    const ctArray = Array.from(new Uint8Array(ctBuffer));                              // ciphertext as byte array
-    const ctStr = ctArray.map(byte => String.fromCharCode(byte)).join('');             // ciphertext as string
-    const ctBase64 = btoa(ctStr);                                                      // encode ciphertext as base64
-
-    const ivHex = Array.from(iv).map(b => ('00' + b.toString(16)).slice(-2)).join(''); // iv as hex string
-
-    return ivHex + ctBase64;                                                             // return iv+ciphertext
+    return btoa(binary)
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/g, '');
 }
 
-async function AESCBC256Decrypt(ciphertext, password) {
-    const pwUtf8 = new TextEncoder().encode(password);                                  // encode password as UTF-8
-    const pwHash = await crypto.subtle.digest('SHA-256', pwUtf8);                       // hash the password
+function _base64UrlToBytes(str) {
+    if (typeof str !== 'string' || !/^[A-Za-z0-9_-]+$/.test(str)) {
+        throw 'Invalid ciphertext.';
+    }
 
-    const iv = ciphertext.slice(0, 32).match(/.{2}/g).map(byte => parseInt(byte, 16));   // get iv from ciphertext
+    var base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+    var remainder = base64.length % 4;
+    var binary;
+    var bytes;
+    var i;
 
-    const alg = { name: 'AES-CBC', iv: new Uint8Array(iv) };                            // specify algorithm to use
+    if (remainder === 1) {
+        throw 'Invalid ciphertext.';
+    }
+    if (remainder > 0) {
+        base64 += '='.repeat(4 - remainder);
+    }
 
-    const key = await crypto.subtle.importKey('raw', pwHash, alg, false, ['decrypt']);  // use pw to generate key
+    binary = atob(base64);
+    bytes = new Uint8Array(binary.length);
 
-    const ctStr = atob(ciphertext.slice(32));                                           // decode base64 ciphertext
-    const ctUint8 = new Uint8Array(ctStr.match(/[\s\S]/g).map(ch => ch.charCodeAt(0))); // ciphertext as Uint8Array
-    // note: why doesn't ctUint8 = new TextEncoder().encode(ctStr) work?
+    for (i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+    }
 
-    const plainBuffer = await crypto.subtle.decrypt(alg, key, ctUint8);                 // decrypt ciphertext using key
-    const plaintext = new TextDecoder().decode(plainBuffer);                            // decode password from UTF-8
+    return bytes;
+}
 
-    return plaintext;                                                                   // return the plaintext
+async function _deriveAESGCMKey(password, usages) {
+    const pwUtf8 = new TextEncoder().encode(password);
+    const pwHash = await crypto.subtle.digest('SHA-256', pwUtf8);
+
+    return crypto.subtle.importKey('raw', pwHash, 'AES-GCM', false, usages);
+}
+
+
+async function AESGCM256Encrypt(plaintext, password, username) {
+    const key = await _deriveAESGCMKey(password, ['encrypt']);
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const alg = { name: 'AES-GCM', iv: iv, additionalData: new TextEncoder().encode(username), tagLength: 128 };
+    const ptUint8 = new TextEncoder().encode(plaintext);
+    const ctBuffer = await crypto.subtle.encrypt(alg, key, ptUint8);
+    const ctUint8 = new Uint8Array(ctBuffer);
+    const out = new Uint8Array(iv.length + ctUint8.length);
+
+    out.set(iv, 0);
+    out.set(ctUint8, iv.length);
+
+    return _bytesToBase64Url(out);
+}
+
+async function AESGCM256Decrypt(ciphertext, password, username) {
+    const raw = _base64UrlToBytes(ciphertext);
+
+    if (raw.length < 28) { // 12-byte nonce + 16-byte tag, even for empty plaintext
+        throw 'Invalid ciphertext.';
+    }
+
+    const key = await _deriveAESGCMKey(password, ['decrypt']);
+    const iv = raw.slice(0, 12);
+    const ctUint8 = raw.slice(12);
+    const alg = { name: 'AES-GCM', iv: iv, additionalData: new TextEncoder().encode(username), tagLength: 128 };
+    const plainBuffer = await crypto.subtle.decrypt(alg, key, ctUint8);
+
+    return new TextDecoder().decode(plainBuffer);
 }
