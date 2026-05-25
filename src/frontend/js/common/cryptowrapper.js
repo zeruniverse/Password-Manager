@@ -194,7 +194,7 @@ class EncryptionWrapper {
     }
     static getPwdStoreUsingSalt(salt) {
         if (!sessionStorage.pwdsk) {
-            return "";
+            return Promise.resolve("");
         }
         return EncryptionWrapper.decryptCharUsingKey(sessionStorage.pwdsk, salt);
     }
