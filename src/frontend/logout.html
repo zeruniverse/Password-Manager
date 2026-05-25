@@ -6,23 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-<script>
-(function () {
-  "use strict";
-
-  sessionStorage.removeItem("session_token");
-  sessionStorage.removeItem("pm_api_session_id");
-  sessionStorage.removeItem("pwdsk");
-  sessionStorage.removeItem("confusion_key");
-
-  var target = "index.html";
-
-  if (window.location.search) {
-    target += window.location.search;
-  }
-
-  window.location.replace(target);
-})();
-</script>
+<noscript>
+    <p>
+      JavaScript is disabled. Please clear this tab's session data manually, then
+      <a href="index.html">return to login</a>.
+    </p>
+</noscript>
+<script src="js/logout.js" defer></script>
 </body>
 </html>

@@ -7,7 +7,7 @@
 
 ## Version
 
-v11.08
+v11.09
 
 Since v11.00, this password manager is mature and stable. That said, there will be no more major changes (e.g. database structure change) in the future. But just bug fixes and crypto algorithm updates. I know in the past, upgrading is painful due to the client-side encryption nature. But going forward, it will not be an issue anymore. All users should upgrade to at least v11.00!
 
@@ -45,6 +45,8 @@ Supports are available [here](https://github.com/zeruniverse/Password-Manager/is
 See [wiki](https://github.com/zeruniverse/Password-Manager/wiki/Installation)
 
 You can choose to install both frontend and backend in one server. But the recommended way is to install frontend in somewhere abosolutely safe (e.g. GitHub Pages on a separate and very safe GitHub account -- and enable MFA on your GitHub account).
+
+Frontend folder has files named "config.js" and "_headers". You should edit them accordingly before deploying. For backend, you can either edit "config.php" or inject configs into environment variables.
 
 ## How to use
 See [wiki](https://github.com/zeruniverse/Password-Manager/wiki)
