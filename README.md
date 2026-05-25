@@ -7,7 +7,7 @@
 
 ## Version
 
-v13.00
+v13.01
 
 Supports are available [here](https://github.com/zeruniverse/Password-Manager/issues) for versions v11.00 or later
 
