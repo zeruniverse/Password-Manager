@@ -1,9 +1,10 @@
 class EncryptionWrapper {
-    constructor(secretkey, jsSalt, pwSalt, alphabet) {
+    constructor(secretkey, jsSalt, pwSalt, alphabet, username) {
         this.secretkey = secretkey;
         this.pwSalt = pwSalt;
         this.jsSalt = jsSalt;
         this.alphabet = alphabet;
+        this.username = username;
     }
 
     static WgenerateKeyWithSalt(input, salt) {
@@ -50,10 +51,10 @@ class EncryptionWrapper {
     }
 
     decryptChar(crypt) {
-        return EncryptionWrapper.decryptCharUsingKey(crypt, this.secretkey);
+        return EncryptionWrapper.decryptCharUsingKey(crypt, this.secretkey, this.username);
     }
     encryptChar(char) {
-        return EncryptionWrapper.encryptCharUsingKey(char, this.secretkey);
+        return EncryptionWrapper.encryptCharUsingKey(char, this.secretkey, this.username);
     }
 
     decryptPassword(name, kss) {
@@ -201,6 +202,7 @@ class EncryptionWrapper {
     // not happy with the name, actually stores everything that will be read by getPwdStore, should rename getPwdStore
     persistCredentialsFromPassword(user, password) {
         var self = this;
+        self.username = user;
         // No need to use strong Hash because this is going to session storage.
         return EncryptionWrapper.WgenerateKeyWithSalt(password, self.secretkey)
             .then(function (confkey) {
@@ -209,10 +211,10 @@ class EncryptionWrapper {
     }
     static persistCredentials(user, secretkey, confkey, salt) {
         setCookie("username", user);
-        return EncryptionWrapper.encryptCharUsingKey(secretkey, salt)
+        return EncryptionWrapper.encryptCharUsingKey(secretkey, salt, user)
             .then(function (pwdsk) {
                 sessionStorage.pwdsk = pwdsk;
-                return EncryptionWrapper.encryptCharUsingKey(confkey, salt);
+                return EncryptionWrapper.encryptCharUsingKey(confkey, salt, user);
             })
             .then(function (_confkey) {
                 sessionStorage.confusion_key = _confkey;
@@ -245,8 +247,8 @@ class EncryptionWrapper {
     restoreFromPIN(user, pin) {
         var self = this;
         var promises = [];
-        promises.push(EncryptionWrapper.decryptCharUsingKey(localStorage.en_login_sec, pin));
-        promises.push(EncryptionWrapper.decryptCharUsingKey(localStorage.en_login_conf, pin));
+        promises.push(EncryptionWrapper.decryptCharUsingKey(localStorage.en_login_sec, pin, user));
+        promises.push(EncryptionWrapper.decryptCharUsingKey(localStorage.en_login_conf, pin, user));
         return Promise.all(promises)
             .then(function (results) {
                 var secretkey = results[0];
@@ -264,17 +266,19 @@ class EncryptionWrapper {
         deleteCookie('device');
         deleteCookie('username');
     }
-    static encryptCharUsingKey(encryptch, key) {
+    static encryptCharUsingKey(encryptch, key, username) {
         if (encryptch == "" || key == "") {
             return Promise.reject("ERROR: empty key detected!");
         }
-        return AESCBC256Encrypt(encryptch, key);
+        username = (typeof username !== "undefined") ? username : (sessionStorage.pm_auth_user || "");
+        return AESGCM256Encrypt(encryptch, key, username);
     }
-    static decryptCharUsingKey(echar, key) {
+    static decryptCharUsingKey(echar, key, username) {
         if (echar == "" || key == "") {
             return Promise.reject("ERROR: empty key detected!");
         }
-        return AESCBC256Decrypt(echar, key);
+        username = (typeof username !== "undefined") ? username : (sessionStorage.pm_auth_user || "");
+        return AESGCM256Decrypt(echar, key, username);
     }
     static getCryptoRandomSource() {
         var cryptoObject = null;

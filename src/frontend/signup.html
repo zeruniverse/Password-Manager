@@ -32,7 +32,8 @@
             <h1>Password Manager</h1>
         </div>
         <h3>New User</h3>
-        <p>Only numbers and letters are allowed for username</p>
+        <!-- Username is used as AES-GCM AAD. Once registered, it cannot be changed. -->
+        <p>Only English letters, numbers, dot (.), dash (-), and underscore (_) are allowed for username. Once registered, username cannot be changed.</p>
         <div id="message" class="alert alert-info">
             <a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
             <span id="messageText">Signup is not allowed.</span>

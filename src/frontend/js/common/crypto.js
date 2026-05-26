@@ -99,7 +99,7 @@ async function _deriveAESGCMKey(password, usages) {
 async function AESGCM256Encrypt(plaintext, password, username) {
     const key = await _deriveAESGCMKey(password, ['encrypt']);
     const iv = crypto.getRandomValues(new Uint8Array(12));
-    const alg = { name: 'AES-GCM', iv: iv, additionalData: new TextEncoder().encode(username), tagLength: 128 };
+    const alg = { name: 'AES-GCM', iv: iv, additionalData: new TextEncoder().encode(username || ''), tagLength: 128 };
     const ptUint8 = new TextEncoder().encode(plaintext);
     const ctBuffer = await crypto.subtle.encrypt(alg, key, ptUint8);
     const ctUint8 = new Uint8Array(ctBuffer);
@@ -121,7 +121,7 @@ async function AESGCM256Decrypt(ciphertext, password, username) {
     const key = await _deriveAESGCMKey(password, ['decrypt']);
     const iv = raw.slice(0, 12);
     const ctUint8 = raw.slice(12);
-    const alg = { name: 'AES-GCM', iv: iv, additionalData: new TextEncoder().encode(username), tagLength: 128 };
+    const alg = { name: 'AES-GCM', iv: iv, additionalData: new TextEncoder().encode(username || ''), tagLength: 128 };
     const plainBuffer = await crypto.subtle.decrypt(alg, key, ctUint8);
 
     return new TextDecoder().decode(plainBuffer);

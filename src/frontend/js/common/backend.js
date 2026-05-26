@@ -696,7 +696,8 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
                 return Promise.resolve(new EncryptionWrapper(newseckey,
                     self.encryptionWrapper.jsSalt,
                     self.encryptionWrapper.pwSalt,
-                    self.encryptionWrapper.alphabet));
+                    self.encryptionWrapper.alphabet,
+                    self.user));
             })
             .then(function (newEncryptionWrapper) {
                 newEncryptionWrapper._confkey = newconfkey;
@@ -752,6 +753,7 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
                 backup.VERSION = PASSWORD_MANAGER_VERSION;
                 backup.JSsalt = cfg.globalSalt1;
                 backup.PWsalt = cfg.globalSalt2;
+                backup.user = self.user || pmGetAuthCredentials().user || sessionStorage.pm_auth_user || "";
                 backup.KEYiter = keyIter;
                 backup.ALPHABET = cfg.defaultLetters;
                 backup.KEYsalt = self.encryptionWrapper.generatePassphrase(100);
@@ -773,13 +775,13 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
                 key = _key;
                 progress_callback(90);
 
-                return EncryptionWrapper.encryptCharUsingKey(JSON.stringify(data.data), key);
+                return EncryptionWrapper.encryptCharUsingKey(JSON.stringify(data.data), key, backup.user);
             })
             .then(function (encData) {
                 backup.data = encData;
                 progress_callback(95);
 
-                return EncryptionWrapper.encryptCharUsingKey(JSON.stringify(data.fdata), key);
+                return EncryptionWrapper.encryptCharUsingKey(JSON.stringify(data.fdata), key, backup.user);
             })
             .then(function (encfdata) {
                 backup.fdata = encfdata;

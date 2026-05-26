@@ -8,18 +8,18 @@ class RecoveryBackend {
         }
         var backupKey;
 
-        self.encryptionWrapper = new EncryptionWrapper(null, json.JSsalt, json.PWsalt, json.ALPHABET);
+        self.encryptionWrapper = new EncryptionWrapper(null, json.JSsalt, json.PWsalt, json.ALPHABET, json.user);
         return self.generateBackupKeys(json.user, password, json.KEYsalt, json.KEYiter)
             .then(function (dkey) {
                 backupKey = dkey;
-                return EncryptionWrapper.decryptCharUsingKey(json.data, dkey);
+                return EncryptionWrapper.decryptCharUsingKey(json.data, dkey, json.user);
             })
             .then(function (data) {
                 return self.importAccounts(data);
             })
             .then(function (accounts) {
                 if (typeof json.fdata !== 'undefined')
-                    return EncryptionWrapper.decryptCharUsingKey(json.fdata, backupKey)
+                    return EncryptionWrapper.decryptCharUsingKey(json.fdata, backupKey, json.user)
                         .then(function (fdata) {
                             return self.importFiles(fdata);
                         });
@@ -68,11 +68,11 @@ class RecoveryBackend {
                     return EncryptionWrapper.WgenerateKeyWithSalt(self.encryptionWrapper.secretkey, fname);
                 })
                 .then(function (genkey) {
-                    return EncryptionWrapper.decryptCharUsingKey(filedata["data"][id][1], genkey);
+                    return EncryptionWrapper.decryptCharUsingKey(filedata["data"][id][1], genkey, self.encryptionWrapper.username);
                 })
                 .then(function (fkey) {
                     file["key"] = fkey;
-                    return EncryptionWrapper.decryptCharUsingKey(filedata["data"][id][2], fkey);
+                    return EncryptionWrapper.decryptCharUsingKey(filedata["data"][id][2], fkey, self.encryptionWrapper.username);
                 })
                 .then(function (fdata) {
                     file["data"] = fdata;
