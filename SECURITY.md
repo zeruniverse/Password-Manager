@@ -6,7 +6,7 @@ Following versions of this project are currently being supported with security u
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 11.00   | :white_check_mark: |
+| >= 11.00   | :white_check_mark: |
 | < 11.00 | :x:                |
 
 ## Reporting a Vulnerability
