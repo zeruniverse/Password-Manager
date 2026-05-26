@@ -212,14 +212,14 @@ class Account {
         var self = this;
         return EncryptionWrapper.WgenerateKeyWithSalt(self.encryptionWrapper.secretkey, self.file.name)
             .then(function (genkey) {
-                return EncryptionWrapper.decryptCharUsingKey(self.file.key, genkey);
+                return EncryptionWrapper.decryptCharUsingKey(self.file.key, genkey, self.encryptionWrapper.username);
             });
     }
     setFileKey(key) {
         var self = this;
         return EncryptionWrapper.WgenerateKeyWithSalt(self.encryptionWrapper.secretkey, self.file.name)
             .then(function (genkey) {
-                return EncryptionWrapper.encryptCharUsingKey(key, genkey);
+                return EncryptionWrapper.encryptCharUsingKey(key, genkey, self.encryptionWrapper.username);
             })
             .then(function (enKey) {
                 self.file.key = enKey;

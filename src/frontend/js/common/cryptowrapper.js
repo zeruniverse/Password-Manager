@@ -22,13 +22,13 @@ class EncryptionWrapper {
             });
     }
 
-    static fromLocalStorage(jsSalt, pwSalt, alphabet) {
-        return EncryptionWrapper.getPwdStoreUsingSalt(pwSalt)
+    static fromLocalStorage(jsSalt, pwSalt, alphabet, username) {
+        return EncryptionWrapper.getPwdStoreUsingSalt(pwSalt, username)
             .then(function (secretkey0) {
                 if (secretkey0 == "") {
                     throw "secretkey emtpy";
                 }
-                return new EncryptionWrapper(secretkey0, jsSalt, pwSalt, alphabet);
+                return new EncryptionWrapper(secretkey0, jsSalt, pwSalt, alphabet, username);
             });
     }
 
@@ -178,26 +178,26 @@ class EncryptionWrapper {
         var self = this;
         if (self._confkey)
             return Promise.resolve(self._confkey);
-        return EncryptionWrapper.getConfKeyUsingSalt(self.pwSalt)
+        return EncryptionWrapper.getConfKeyUsingSalt(self.pwSalt, self.username)
             .then(function (confkey) {
                 self._confkey = confkey;
                 return confkey;
             });
     }
-    static getConfKeyUsingSalt(salt) {
+    static getConfKeyUsingSalt(salt, username) {
         if (!sessionStorage.confusion_key) {
             return Promise.resolve("");
         }
-        return EncryptionWrapper.decryptCharUsingKey(sessionStorage.confusion_key, salt);
+        return EncryptionWrapper.decryptCharUsingKey(sessionStorage.confusion_key, salt, username);
     }
     getPwdStore() {
-        return EncryptionWrapper.getPwdStoreUsingSalt(this.pwSalt);
+        return EncryptionWrapper.getPwdStoreUsingSalt(this.pwSalt, this.username);
     }
-    static getPwdStoreUsingSalt(salt) {
+    static getPwdStoreUsingSalt(salt, username) {
         if (!sessionStorage.pwdsk) {
             return Promise.resolve("");
         }
-        return EncryptionWrapper.decryptCharUsingKey(sessionStorage.pwdsk, salt);
+        return EncryptionWrapper.decryptCharUsingKey(sessionStorage.pwdsk, salt, username);
     }
     // not happy with the name, actually stores everything that will be read by getPwdStore, should rename getPwdStore
     persistCredentialsFromPassword(user, password) {
@@ -227,14 +227,14 @@ class EncryptionWrapper {
         var encryptedConfkey;
         return self.getPwdStore()
             .then(function (_pwdstore) {
-                return EncryptionWrapper.encryptCharUsingKey(_pwdstore, pin);
+                return EncryptionWrapper.encryptCharUsingKey(_pwdstore, pin, self.username);
             })
             .then(function (_pwdstore) {
                 encryptedPwdstore = _pwdstore;
                 return self.getConfkey();
             })
             .then(function (_confkey) {
-                return EncryptionWrapper.encryptCharUsingKey(_confkey, pin);
+                return EncryptionWrapper.encryptCharUsingKey(_confkey, pin, self.username);
             })
             .then(function (_confkey) {
                 encryptedConfkey = _confkey;
@@ -266,18 +266,28 @@ class EncryptionWrapper {
         deleteCookie('device');
         deleteCookie('username');
     }
+
+    static currentUsername() {
+        if (typeof sessionStorage !== "undefined" && sessionStorage.pm_auth_user) {
+            return sessionStorage.pm_auth_user;
+        }
+        if (typeof getCookie === "function") {
+            return getCookie("username") || "";
+        }
+        return "";
+    }
     static encryptCharUsingKey(encryptch, key, username) {
         if (encryptch == "" || key == "") {
             return Promise.reject("ERROR: empty key detected!");
         }
-        username = (typeof username !== "undefined") ? username : (sessionStorage.pm_auth_user || "");
+        username = (typeof username !== "undefined") ? username : EncryptionWrapper.currentUsername();
         return AESGCM256Encrypt(encryptch, key, username);
     }
     static decryptCharUsingKey(echar, key, username) {
         if (echar == "" || key == "") {
             return Promise.reject("ERROR: empty key detected!");
         }
-        username = (typeof username !== "undefined") ? username : (sessionStorage.pm_auth_user || "");
+        username = (typeof username !== "undefined") ? username : EncryptionWrapper.currentUsername();
         return AESGCM256Decrypt(echar, key, username);
     }
     static getCryptoRandomSource() {

@@ -473,13 +473,20 @@ let LocalStorage = (superclass) => class extends superclass {
         if (!sessionStorage.pwdsk) {
             return "";
         }
-        var salt = self.encryptionWrapper.pwSalt;
-        EncryptionWrapper.decryptCharUsingKey(sessionStorage.pwdsk, salt);
+        var salt = this.encryptionWrapper.pwSalt;
+        return EncryptionWrapper.decryptCharUsingKey(sessionStorage.pwdsk, salt, this.user);
     }
     setLocalStorage(sk, confusion_key) {
-        var salt = self.encryptionWrapper.pwSalt;
-        sessionStorage.pwdsk = EncryptionWrapper.encryptCharUsingKey(sk, salt);
-        sessionStorage.confusion_key = EncryptionWrapper.encryptCharUsingKey(confusion_key, salt);
+        var salt = this.encryptionWrapper.pwSalt;
+        var user = this.user;
+        return EncryptionWrapper.encryptCharUsingKey(sk, salt, user)
+            .then(function (pwdsk) {
+                sessionStorage.pwdsk = pwdsk;
+                return EncryptionWrapper.encryptCharUsingKey(confusion_key, salt, user);
+            })
+            .then(function (encryptedConfusionKey) {
+                sessionStorage.confusion_key = encryptedConfusionKey;
+            });
     }
 }
 
@@ -572,7 +579,7 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
             return Promise.resolve(self.encryptionWrapper);
         }
         try {
-            return EncryptionWrapper.fromLocalStorage(jsSalt, pwSalt, default_letter)
+            return EncryptionWrapper.fromLocalStorage(jsSalt, pwSalt, default_letter, self.user)
                 .then(function (encryptionWrapper) {
                     self.encryptionWrapper = encryptionWrapper;
                     return encryptionWrapper;
@@ -629,11 +636,11 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
         let data = { "id": id };
         return EncryptionWrapper.WgenerateKeyWithSalt(self.encryptionWrapper.secretkey, name)
             .then(function (genkey) {
-                return EncryptionWrapper.encryptCharUsingKey(fkey, genkey)
+                return EncryptionWrapper.encryptCharUsingKey(fkey, genkey, self.user)
             })
             .then(function (encryptedKey) {
                 data["fkey"] = encryptedKey;
-                return EncryptionWrapper.encryptCharUsingKey(payload, fkey);
+                return EncryptionWrapper.encryptCharUsingKey(payload, fkey, self.user);
             })
             .then(function (filedata) {
                 data["data"] = filedata;
@@ -655,10 +662,10 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
                 return EncryptionWrapper.WgenerateKeyWithSalt(self.encryptionWrapper.secretkey, file["name"]);
             })
             .then(function (genkey) {
-                return EncryptionWrapper.decryptCharUsingKey(filedata["key"], genkey);
+                return EncryptionWrapper.decryptCharUsingKey(filedata["key"], genkey, self.user);
             })
             .then(function (fkey) {
-                return EncryptionWrapper.decryptCharUsingKey(filedata["data"], fkey);
+                return EncryptionWrapper.decryptCharUsingKey(filedata["data"], fkey, self.user);
             })
             .then(function (data) {
                 var typedata = data.substring(5, data.search(";"));
