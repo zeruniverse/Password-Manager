@@ -52,36 +52,39 @@ function import_raw(json) {
         return;
     }
     backend.extendedTimeout();
-    var promises = [];
+    var promise = Promise.resolve();
     for (let x in json.data) {
-        var other = JSON.parse(sanitize_json(json.data[x].other));
+        let account = json.data[x].account;
+        let password = json.data[x].password;
+        let other = JSON.parse(sanitize_json(json.data[x].other));
+        let file = null;
         if (typeof json.data[x].fname != 'undefined') {
-            promises.push(import_add_acc(json.data[x].account, json.data[x].password, other, { name: json.data[x].fname, data: json.data[x].filedata }));
+            file = { name: json.data[x].fname, data: json.data[x].filedata };
         }
-        else {
-            promises.push(import_add_acc(json.data[x].account, json.data[x].password, other));
-        }
+        promise = promise.then(function () {
+            return import_add_acc(account, password, other, file);
+        });
     }
-    Promise.all(promises)
-        .then(importOnSuccess);
+    promise.then(importOnSuccess);
 }
 function import_csv(csv) {
     var accarray = $.csv.toObjects(csv);
     backend.extendedTimeout();
-    var promises = [];
+    var promise = Promise.resolve();
     for (var x in accarray) {
-        var acc = accarray[x]["name"];
-        var pass = accarray[x]["password"];
-        var other = {};
+        let acc = accarray[x]["name"];
+        let pass = accarray[x]["password"];
+        let other = {};
         for (var key in accarray[x]) {
             if (key in backend.fields) {
                 other[key] = accarray[x][key];
             }
         }
-        promises.push(import_add_acc(acc, pass, other));
+        promise = promise.then(function () {
+            return import_add_acc(acc, pass, other);
+        });
     }
-    Promise.all(promises)
-        .then(importOnSuccess);
+    promise.then(importOnSuccess);
 }
 // show last succesfull Login
 // changes the seenLoginInformation global variable
