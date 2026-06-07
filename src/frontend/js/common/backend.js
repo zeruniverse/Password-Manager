@@ -658,6 +658,10 @@ class AccountBackend extends mix(commonBackend).with(EventHandler, Authenticated
         return self.doPost('downloadfile', { id: id })
             .then(function (encfiledata) {
                 filedata = encfiledata;
+                if (typeof AESGCM256RememberCiphertextIV === "function") {
+                    AESGCM256RememberCiphertextIV(filedata["key"]);
+                    AESGCM256RememberCiphertextIV(filedata["data"]);
+                }
                 file["name"] = self.accounts[id].file["name"];
                 return EncryptionWrapper.WgenerateKeyWithSalt(self.encryptionWrapper.secretkey, file["name"]);
             })

@@ -103,24 +103,14 @@ function _aesGcm256IVKey(iv) {
     return _bytesToBase64Url(iv);
 }
 
-function _aesGcm256RememberRawIV(raw) {
-    _aesGcm256UsedIVs.add(_aesGcm256IVKey(raw.slice(0, 12)));
-}
-
 function AESGCM256RememberCiphertextIV(ciphertext) {
-    var raw;
-
-    try {
-        raw = _base64UrlToBytes(ciphertext);
-    } catch (err) {
+    if (typeof ciphertext !== 'string' || ciphertext.length < 38 || !/^[A-Za-z0-9_-]+$/.test(ciphertext)) {
         return false;
     }
 
-    if (raw.length < 28) { // 12-byte nonce + 16-byte tag, even for empty plaintext
-        return false;
-    }
-
-    _aesGcm256RememberRawIV(raw);
+    // AES-GCM ciphertexts in this project are base64url(12-byte IV || ciphertext || 16-byte tag).
+    // A 12-byte IV is exactly the first 16 base64url characters, so avoid decoding the full ciphertext.
+    _aesGcm256UsedIVs.add(ciphertext.substring(0, 16));
     return true;
 }
 
@@ -174,8 +164,6 @@ async function AESGCM256Decrypt(ciphertext, password, username) {
     if (raw.length < 28) { // 12-byte nonce + 16-byte tag, even for empty plaintext
         throw 'Invalid ciphertext.';
     }
-
-    _aesGcm256RememberRawIV(raw);
 
     const key = await _deriveAESGCMKey(password, ['decrypt']);
     const iv = raw.slice(0, 12);

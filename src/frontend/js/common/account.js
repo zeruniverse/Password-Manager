@@ -14,7 +14,11 @@ class Account {
     // reads the account from a encrypted dict
     static fromEncrypted(encryptionWrapper, encryptedAccount) {
         if (typeof AESGCM256RememberCiphertextIV === "function") {
+            AESGCM256RememberCiphertextIV(encryptedAccount["name"]);
             AESGCM256RememberCiphertextIV(encryptedAccount["kss"]);
+            if (encryptedAccount["additional"] != "") {
+                AESGCM256RememberCiphertextIV(encryptedAccount["additional"]);
+            }
         }
 
         return encryptionWrapper.decryptChar(encryptedAccount["name"])
@@ -203,6 +207,7 @@ class Account {
     addEncryptedFile(name, fkey) {
         var self = this;
         if (typeof AESGCM256RememberCiphertextIV === "function") {
+            AESGCM256RememberCiphertextIV(name);
             AESGCM256RememberCiphertextIV(fkey);
         }
 
