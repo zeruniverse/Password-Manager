@@ -96,9 +96,66 @@ async function _deriveAESGCMKey(password, usages) {
 }
 
 
+var _aesGcm256UsedIVs = new Set();
+var _aesGcm256IVReservation = Promise.resolve();
+
+function _aesGcm256IVKey(iv) {
+    return _bytesToBase64Url(iv);
+}
+
+function _aesGcm256RememberRawIV(raw) {
+    _aesGcm256UsedIVs.add(_aesGcm256IVKey(raw.slice(0, 12)));
+}
+
+function AESGCM256RememberCiphertextIV(ciphertext) {
+    var raw;
+
+    try {
+        raw = _base64UrlToBytes(ciphertext);
+    } catch (err) {
+        return false;
+    }
+
+    if (raw.length < 28) { // 12-byte nonce + 16-byte tag, even for empty plaintext
+        return false;
+    }
+
+    _aesGcm256RememberRawIV(raw);
+    return true;
+}
+
+function _generateUniqueAESGCM256IV() {
+    var iv;
+    var ivKey;
+
+    do {
+        iv = crypto.getRandomValues(new Uint8Array(12));
+        ivKey = _aesGcm256IVKey(iv);
+    } while (_aesGcm256UsedIVs.has(ivKey));
+
+    _aesGcm256UsedIVs.add(ivKey);
+    return iv;
+}
+
+function _reserveUniqueAESGCM256IV() {
+    _aesGcm256IVReservation = _aesGcm256IVReservation.then(
+        function () {
+            return _generateUniqueAESGCM256IV();
+        },
+        function () {
+            return _generateUniqueAESGCM256IV();
+        }
+    );
+
+    return _aesGcm256IVReservation.then(function (iv) {
+        return new Uint8Array(iv);
+    });
+}
+
+
 async function AESGCM256Encrypt(plaintext, password, username) {
     const key = await _deriveAESGCMKey(password, ['encrypt']);
-    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const iv = await _reserveUniqueAESGCM256IV();
     const alg = { name: 'AES-GCM', iv: iv, additionalData: new TextEncoder().encode(username || ''), tagLength: 128 };
     const ptUint8 = new TextEncoder().encode(plaintext);
     const ctBuffer = await crypto.subtle.encrypt(alg, key, ptUint8);
@@ -117,6 +174,8 @@ async function AESGCM256Decrypt(ciphertext, password, username) {
     if (raw.length < 28) { // 12-byte nonce + 16-byte tag, even for empty plaintext
         throw 'Invalid ciphertext.';
     }
+
+    _aesGcm256RememberRawIV(raw);
 
     const key = await _deriveAESGCMKey(password, ['decrypt']);
     const iv = raw.slice(0, 12);
